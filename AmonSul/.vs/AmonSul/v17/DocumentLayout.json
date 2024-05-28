@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\Models\\DbamonsulContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AS.Domain\\Models\\DbamonsulContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,6 +31,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DbamonsulContext.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\Models\\DbamonsulContext.cs",
+              "RelativeDocumentMoniker": "AS.Domain\\Models\\DbamonsulContext.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\Models\\DbamonsulContext.cs",
+              "RelativeToolTip": "AS.Domain\\Models\\DbamonsulContext.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAEwCwAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-28T06:15:45.357Z",
+              "EditorCaption": ""
             }
           ]
         }
