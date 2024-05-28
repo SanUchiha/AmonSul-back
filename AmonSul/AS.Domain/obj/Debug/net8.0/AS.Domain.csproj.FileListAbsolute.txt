@@ -1,0 +1,11 @@
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\bin\Debug\net8.0\AS.Domain.deps.json
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\bin\Debug\net8.0\AS.Domain.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\bin\Debug\net8.0\AS.Domain.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.AssemblyInfoInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.AssemblyInfo.cs
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.csproj.CoreCompileInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\refint\AS.Domain.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\AS.Domain.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Domain\obj\Debug\net8.0\ref\AS.Domain.dll

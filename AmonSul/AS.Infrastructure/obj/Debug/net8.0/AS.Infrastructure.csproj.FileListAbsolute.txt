@@ -1,0 +1,11 @@
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\bin\Debug\net8.0\AS.Infrastructure.deps.json
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\bin\Debug\net8.0\AS.Infrastructure.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\bin\Debug\net8.0\AS.Infrastructure.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.AssemblyInfoInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.AssemblyInfo.cs
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\refint\AS.Infrastructure.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\AS.Infrastructure.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Infrastructure\obj\Debug\net8.0\ref\AS.Infrastructure.dll
