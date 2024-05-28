@@ -1,6 +1,6 @@
-create database AMONSUL;
+create database DBAMONSUL;
 
-USE AMONSUL;
+USE DBAMONSUL;
 
 CREATE TABLE Faccion (
     ID_Faccion INT PRIMARY KEY IDENTITY(1,1),
@@ -193,7 +193,7 @@ ALTER TABLE Partida_Torneo ALTER COLUMN Fecha_Partida DATE;
 
 DROP TABLE IF EXISTS Historico_Login;
 
-
+EXEC sp_rename 'Lista.Lista', 'Lista_Data', 'COLUMN';
 
 
 INSERT INTO Faccion (Nombre_Faccion) VALUES
