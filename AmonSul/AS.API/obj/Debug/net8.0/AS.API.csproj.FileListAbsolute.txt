@@ -256,3 +256,7 @@ C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Application.dll
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Domain.dll
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Application.pdb
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Domain.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Infrastructure.dll
+C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Utils.dll
+C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Infrastructure.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Utils.pdb

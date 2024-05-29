@@ -13,3 +13,10 @@ C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Application.runt
 C:\Fork\AmonSul-back\AmonSul\AS.Application\obj\Debug\net8.0\AS.Application.csproj.AssemblyReference.cache
 C:\Fork\AmonSul-back\AmonSul\AS.Application\obj\Debug\net8.0\AS.Application.sourcelink.json
 C:\Fork\AmonSul-back\AmonSul\AS.Application\obj\Debug\net8.0\AS.Application.genruntimeconfig.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Domain.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Infrastructure.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Utils.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Domain.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Infrastructure.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Application\bin\Debug\net8.0\AS.Utils.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Application\obj\Debug\net8.0\AS.Appli.A97EA0D1.Up2Date

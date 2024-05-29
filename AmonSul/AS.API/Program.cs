@@ -1,5 +1,5 @@
-using AS.API.Custom;
-using AS.Domain.Models;
+using AS.Infrastructure;
+using AS.Infrastructure.Dependencies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,10 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<DbamonsulContext>(options =>
-{
-    options.UseSqlServer(connection);
-});
+builder.Services.AddInjectionInfrastructure(configuration); //Add Dependency Injection Infrastructure layer
 
 builder.Services.AddSingleton<Utilidades>();
 
@@ -41,7 +38,7 @@ builder.Services.AddAuthentication(config =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("NewPolicy", app =>
+    options.AddPolicy("CORS", app =>
     {
         app.AllowAnyOrigin().AllowAnyOrigin().AllowAnyMethod();
     });
@@ -58,7 +55,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("NewPolicy");
+app.UseCors("CORS");
 app.UseAuthentication();
 app.UseAuthorization();
 

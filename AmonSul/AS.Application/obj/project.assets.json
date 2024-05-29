@@ -1464,6 +1464,47 @@
             "rid": "win"
           }
         }
+      },
+      "AS.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AS.Utils": "1.0.0",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.5",
+          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.5"
+        },
+        "compile": {
+          "bin/placeholder/AS.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AS.Domain.dll": {}
+        }
+      },
+      "AS.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AS.Domain": "1.0.0",
+          "AS.Utils": "1.0.0",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.5",
+          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.5"
+        },
+        "compile": {
+          "bin/placeholder/AS.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AS.Infrastructure.dll": {}
+        }
+      },
+      "AS.Utils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/AS.Utils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AS.Utils.dll": {}
+        }
       }
     }
   },
@@ -3815,10 +3856,28 @@
         "system.windows.extensions.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "AS.Domain/1.0.0": {
+      "type": "project",
+      "path": "../AS.Domain/AS.Domain.csproj",
+      "msbuildProject": "../AS.Domain/AS.Domain.csproj"
+    },
+    "AS.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../AS.Infrastructure/AS.Infrastructure.csproj",
+      "msbuildProject": "../AS.Infrastructure/AS.Infrastructure.csproj"
+    },
+    "AS.Utils/1.0.0": {
+      "type": "project",
+      "path": "../AS.Utils/AS.Utils.csproj",
+      "msbuildProject": "../AS.Utils/AS.Utils.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "AS.Domain >= 1.0.0",
+      "AS.Infrastructure >= 1.0.0",
+      "AS.Utils >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.5",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.5",
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.5",
@@ -3852,7 +3911,17 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj": {
+              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj"
+            },
+            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj": {
+              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj"
+            },
+            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj": {
+              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

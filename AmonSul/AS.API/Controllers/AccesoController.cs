@@ -1,6 +1,6 @@
-﻿using AS.API.Custom;
-using AS.Application.DTOs;
+﻿using AS.Application.DTOs;
 using AS.Domain.Models;
+using AS.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
