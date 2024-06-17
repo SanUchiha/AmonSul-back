@@ -35,7 +35,6 @@ namespace AS.Infrastructure
 
         public string generarJWT(Usuario usuario) 
         {
-            //Crear la info del user para el token
             var userClaims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),

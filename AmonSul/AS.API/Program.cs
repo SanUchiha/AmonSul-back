@@ -1,3 +1,4 @@
+using AS.Application.Dependencies;
 using AS.Infrastructure;
 using AS.Infrastructure.Dependencies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,8 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddInjectionInfrastructure(configuration); //Add Dependency Injection Infrastructure layer
-
+builder.Services.AddInjectionInfrastructure(configuration);
+builder.Services.AddInjectionApplication(configuration);
 builder.Services.AddSingleton<Utilidades>();
 
 builder.Services.AddAuthentication(config =>

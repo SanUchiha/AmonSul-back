@@ -4,7 +4,7 @@
     {
         // Declaramos todas las interfaces a nivel de repo
         IAccountRepository AccountRepository { get; }
-        IUsuarioRepository UsuariosRepository { get; }
+        IUsuarioRepository UsuarioRepository { get; }
 
         void SaveChanges();
         Task SaveChangesAsync();

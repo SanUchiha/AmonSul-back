@@ -18,7 +18,7 @@ namespace AS.Infrastructure.Repositories
             _context = context;
             _utilidades = utilidades;
             AccountRepository = new AccountRepository(context, utilidades);
-            UsuarioRepository = new UsuarioRepository(context);
+            UsuarioRepository = new UsuarioRepository(context, utilidades);
         }
 
         public void Dispose() => _context.Dispose();

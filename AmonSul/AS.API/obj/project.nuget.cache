@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "S5V0u87Jd60=",
+  "dgSpecHash": "zZ4mfCX+eSI=",
   "success": true,
   "projectFilePath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\AS.API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\josea\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\josea\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\josea\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
     "C:\\Users\\josea\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",

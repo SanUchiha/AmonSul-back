@@ -27,7 +27,7 @@ namespace AS.Infrastructure.Repositories
 
             return new LoginResponse
             {
-                IsAccess = false,
+                IsAccess = true,
                 Token = _utilidades.generarJWT(foundUser)
             };
 

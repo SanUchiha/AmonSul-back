@@ -7,7 +7,7 @@ namespace AS.Infrastructure.Repositories
     {
         private readonly DbamonsulContext _dbamonsulContext;
 
-        public UsuarioRepository(DbamonsulContext dbamonsulContext)
+        public UsuarioRepository(DbamonsulContext dbamonsulContext, Utilidades utilidades)
         {
             _dbamonsulContext = dbamonsulContext;
         }
