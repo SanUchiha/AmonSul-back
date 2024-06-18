@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
+using AS.Infrastructure;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -10,11 +11,13 @@ namespace AS.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly Utilidades _utilidades;
 
-        public UsuarioApplication(IUnitOfWork unitOfWork, IMapper mapper)
+        public UsuarioApplication(IUnitOfWork unitOfWork, IMapper mapper, Utilidades utilidades)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _utilidades = utilidades;
         }
 
         public Task<bool> Delete(EliminarUsuarioDTO usuario)
@@ -34,6 +37,7 @@ namespace AS.Application.Services
 
         public async Task<bool> Register(RegistrarUsuarioDTO registrarUsuarioDTO)
         {
+            registrarUsuarioDTO.Contraseña = _utilidades.encriptarSHA256(registrarUsuarioDTO.Contraseña);
             var usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
             var response = await _unitOfWork.UsuarioRepository.Register(usuario);
 

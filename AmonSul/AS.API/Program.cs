@@ -40,10 +40,11 @@ builder.Services.AddAuthentication(config =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CORS", app =>
-    {
-        app.AllowAnyOrigin().AllowAnyOrigin().AllowAnyMethod();
-    });
+    options.AddPolicy("CORS", 
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
 
 var app = builder.Build();

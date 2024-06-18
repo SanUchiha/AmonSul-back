@@ -260,3 +260,4 @@ C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Utils.dll
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Infrastructure.pdb
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AS.Utils.pdb
 C:\Fork\AmonSul-back\AmonSul\AS.API\bin\Debug\net8.0\AutoMapper.dll
+C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.MvcApplicationPartsAssemblyInfo.cs

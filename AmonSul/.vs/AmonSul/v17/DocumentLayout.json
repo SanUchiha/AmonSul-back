@@ -3,44 +3,16 @@
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dependencies\\mapperextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dependencies\\mapperextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dependencies\\injectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dependencies\\injectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\accesocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\accesocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\loginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\loginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\interfaces\\iloginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\interfaces\\iloginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\utilidades.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\utilidades.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,132 +42,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "UsuarioApplication.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
               "RelativeDocumentMoniker": "AS.Application\\Services\\UsuarioApplication.cs",
               "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
               "RelativeToolTip": "AS.Application\\Services\\UsuarioApplication.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACcAAAAMAAAA",
+              "ViewState": "AQIAABsAAAAAAAAAAAAAACUAAABQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T09:59:40.056Z",
+              "WhenOpened": "2024-06-18T12:25:21.315Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsuarioRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
+              "ViewState": "AQIAAAQAAAAAAAAAAAAMwBQAAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-18T12:14:00.354Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Program.cs",
-              "RelativeDocumentMoniker": "AS.API\\Program.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Program.cs",
-              "RelativeToolTip": "AS.API\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAoAAAA",
+              "Title": "UsuarioController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\UsuarioController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\UsuarioController.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAAAC4AAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:24:05.584Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MapperExtensions.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\MapperExtensions.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Dependencies\\MapperExtensions.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\MapperExtensions.cs",
-              "RelativeToolTip": "AS.Application\\Dependencies\\MapperExtensions.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAA9AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:22:19.36Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "InjectionExtensions.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\InjectionExtensions.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Dependencies\\InjectionExtensions.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\InjectionExtensions.cs",
-              "RelativeToolTip": "AS.Application\\Dependencies\\InjectionExtensions.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:20:54.84Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "LoginApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\LoginApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Services\\LoginApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\LoginApplication.cs",
-              "RelativeToolTip": "AS.Application\\Services\\LoginApplication.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAACQAAAAgAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:14:34.926Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "IAccountRepository.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IAccountRepository.cs",
-              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\IAccountRepository.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IAccountRepository.cs",
-              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\IAccountRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAA1AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:14:06.809Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ILoginApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\ILoginApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Interfaces\\ILoginApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\ILoginApplication.cs",
-              "RelativeToolTip": "AS.Application\\Interfaces\\ILoginApplication.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:13:38.414Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "AccesoController.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\AccesoController.cs",
-              "RelativeDocumentMoniker": "AS.API\\Controllers\\AccesoController.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\AccesoController.cs",
-              "RelativeToolTip": "AS.API\\Controllers\\AccesoController.cs",
-              "ViewState": "AQIAABEAAAAAAAAAAIAwwCoAAAAgAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T10:08:45.556Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Utilidades.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Utilidades.cs",
-              "RelativeDocumentMoniker": "AS.Infrastructure\\Utilidades.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Utilidades.cs",
-              "RelativeToolTip": "AS.Infrastructure\\Utilidades.cs",
-              "ViewState": "AQIAAAwAAAAAAAAAAIAwwCUAAAAMAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T09:59:40.065Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AccountRepository.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\AccountRepository.cs",
-              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\AccountRepository.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\AccountRepository.cs",
-              "RelativeToolTip": "AS.Infrastructure\\Repositories\\AccountRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACEAAAAOAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T09:56:51.059Z",
+              "WhenOpened": "2024-06-18T11:29:52.707Z",
               "EditorCaption": ""
             }
           ]
