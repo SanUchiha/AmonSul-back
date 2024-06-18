@@ -1,16 +1,17 @@
-﻿using AS.Domain.Models;
+﻿using AS.Application.Interfaces;
+using AS.Domain.Models;
+using AS.Infrastructure;
 using AS.Infrastructure.DTOs;
-using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AS.Infrastructure.Repositories
+namespace AS.Application.Services
 {
-    public class AccountRepository : IAccountRepository
+    public class LoginApplication : ILoginApplication
     {
         private readonly DbamonsulContext _dbamonsulContext;
         private readonly Utilidades _utilidades;
 
-        public AccountRepository(DbamonsulContext dbamonsulContext, Utilidades utilidades)
+        public LoginApplication(DbamonsulContext dbamonsulContext, Utilidades utilidades)
         {
             _dbamonsulContext = dbamonsulContext;
             _utilidades = utilidades;
@@ -20,8 +21,8 @@ namespace AS.Infrastructure.Repositories
         {
             var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
                 u.Email == loginDTO.Email &&
-                u.Contraseña == _utilidades.encriptarSHA256(loginDTO.Password!))
-                .FirstOrDefaultAsync();
+                u.Contraseña == _utilidades.encriptarSHA256(loginDTO.Password!)).
+                FirstOrDefaultAsync();
 
             if (foundUser == null) return new LoginResponse { IsAccess = false };
 
@@ -33,8 +34,7 @@ namespace AS.Infrastructure.Repositories
                 Token = token
             };
 
-            return loginResponse; 
-
-        }        
+            return loginResponse;
+        }
     }
 }

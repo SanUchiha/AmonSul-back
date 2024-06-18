@@ -14,7 +14,6 @@ C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.GeneratedMSBuildEdit
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.AssemblyInfoInputs.cache
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.AssemblyInfo.cs
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.csproj.CoreCompileInputs.cache
-C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.MvcApplicationPartsAssemblyInfo.cs
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\AS.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\staticwebassets.build.json
 C:\Fork\AmonSul-back\AmonSul\AS.API\obj\Debug\net8.0\staticwebassets.development.json

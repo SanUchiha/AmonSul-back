@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInjectionInfrastructure(configuration);
 builder.Services.AddInjectionApplication(configuration);
 builder.Services.AddSingleton<Utilidades>();
+builder.Services.AddMapperApplication();
 
 builder.Services.AddAuthentication(config =>
 {

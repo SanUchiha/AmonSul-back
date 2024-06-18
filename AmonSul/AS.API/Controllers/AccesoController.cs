@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Application.Interfaces;
+using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -14,10 +15,16 @@ namespace AS.API.Controllers
     public class AccesoController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly DbamonsulContext _dbamonsulContext;
+        private readonly Utilidades _utilidades;
+        private readonly ILoginApplication _loginApplication;
 
-        public AccesoController(IAccountRepository accountRepository)
+        public AccesoController(IAccountRepository accountRepository, DbamonsulContext dbamonsulContext, Utilidades utilidades, ILoginApplication loginApplication)
         {
             _accountRepository = accountRepository;
+            _dbamonsulContext = dbamonsulContext;
+            _utilidades = utilidades;
+            _loginApplication = loginApplication;
         }
 
         /// <summary>
@@ -29,7 +36,9 @@ namespace AS.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            var response = _accountRepository.Login(loginDTO);
+            if (loginDTO == null) return BadRequest();
+
+            var response = await _loginApplication.Login(loginDTO);
 
             return Ok(response);
         }

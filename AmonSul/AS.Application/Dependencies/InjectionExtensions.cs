@@ -15,6 +15,7 @@ namespace AS.Application.Dependencies
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             services.AddScoped<IUsuarioApplication, UsuarioApplication>();
+            services.AddScoped<ILoginApplication, LoginApplication>();
 
             return services;
         }
