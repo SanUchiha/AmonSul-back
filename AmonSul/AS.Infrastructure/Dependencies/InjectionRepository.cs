@@ -19,7 +19,7 @@ namespace AS.Infrastructure.Dependencies
 
             // Configurar patrones de diseño
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IAccountRepository, AccountRepository>();
+            //services.AddScoped<IAccountRepository, AccountRepository>();
 
             return services;
         }

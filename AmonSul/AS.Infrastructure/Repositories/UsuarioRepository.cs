@@ -44,7 +44,7 @@ namespace AS.Infrastructure.Repositories
                 {
                     throw new UniqueKeyViolationException("El correo electrónico ya está en uso.", "Email");
                 }
-                throw new Exception("Ocurrio un problema en el servidos.");
+                throw new Exception("Ocurrio un problema en el servidor.");
             }
         }
 

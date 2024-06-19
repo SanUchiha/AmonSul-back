@@ -16,6 +16,7 @@ namespace AS.Application.Dependencies
 
             services.AddScoped<IUsuarioApplication, UsuarioApplication>();
             services.AddScoped<ILoginApplication, LoginApplication>();
+            services.AddScoped<IFaccionApplication, FaccionApplication>();
 
             return services;
         }

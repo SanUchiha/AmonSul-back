@@ -1,20 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\usuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -22,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -39,45 +26,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UsuarioApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Services\\UsuarioApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
-              "RelativeToolTip": "AS.Application\\Services\\UsuarioApplication.cs",
-              "ViewState": "AQIAABsAAAAAAAAAAAAAACUAAABQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T12:25:21.315Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UsuarioRepository.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "RelativeToolTip": "AS.Infrastructure\\Repositories\\UsuarioRepository.cs",
-              "ViewState": "AQIAAAQAAAAAAAAAAAAMwBQAAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T12:14:00.354Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UsuarioController.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
-              "RelativeDocumentMoniker": "AS.API\\Controllers\\UsuarioController.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
-              "RelativeToolTip": "AS.API\\Controllers\\UsuarioController.cs",
-              "ViewState": "AQIAABcAAAAAAAAAAAAAAC4AAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-18T11:29:52.707Z",
-              "EditorCaption": ""
             }
           ]
         }

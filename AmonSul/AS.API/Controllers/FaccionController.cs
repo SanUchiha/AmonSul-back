@@ -1,7 +1,6 @@
-﻿using AS.Domain.Models;
+﻿using AS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AS.API.Controllers
 {
@@ -10,11 +9,11 @@ namespace AS.API.Controllers
     [ApiController]
     public class FaccionController : ControllerBase
     {
-        private readonly DbamonsulContext _dbamonsulContext;
+        private readonly IFaccionApplication _faccionApplication;
 
-        public FaccionController(DbamonsulContext dbamonsulContext)
+        public FaccionController(IFaccionApplication faccionApplication)
         {
-            _dbamonsulContext = dbamonsulContext;
+            _faccionApplication = faccionApplication;
         }
 
         /// <summary>
@@ -22,11 +21,11 @@ namespace AS.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("Facciones")]
+        [Route("")]
         public async Task<IActionResult> GetFacciones()
         {
-            var facciones = await _dbamonsulContext.Faccions.ToListAsync();
-            return Ok(facciones);
+            var response = await _faccionApplication.GetFacciones();
+            return Ok(response);
         }
     }
 }

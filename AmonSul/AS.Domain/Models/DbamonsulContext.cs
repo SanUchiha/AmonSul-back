@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace AS.Domain.Models;
 
@@ -23,7 +21,7 @@ public partial class DbamonsulContext : DbContext
 
     public virtual DbSet<Elo> Elos { get; set; }
 
-    public virtual DbSet<Faccion> Faccions { get; set; }
+    public virtual DbSet<Faccion> Facciones { get; set; }
 
     public virtual DbSet<InscripcionTorneo> InscripcionTorneos { get; set; }
 
