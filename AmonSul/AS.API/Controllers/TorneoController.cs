@@ -1,41 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AS.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
+    //[Authorize]
     [ApiController]
     public class TorneoController : ControllerBase
     {
-        // GET: api/<TorneoController>
+        private readonly ITorneoApplication _torneoApplication;
+
+        public TorneoController(ITorneoApplication torneoApplication)
+        {
+            _torneoApplication = torneoApplication;
+        }
+
+        /// <summary>
+        /// Obtener los torneos
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Route("")]
+        public async Task<IActionResult> GetTorneos()
         {
-            return new string[] { "value1", "value2" };
-        }
+            var response = await _torneoApplication.GetTorneos();
+            
+            if(response == null) return NotFound();
 
-        // GET api/<TorneoController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<TorneoController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<TorneoController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<TorneoController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return Ok(response);
         }
     }
 }

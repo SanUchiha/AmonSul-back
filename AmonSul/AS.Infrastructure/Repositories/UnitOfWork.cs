@@ -10,6 +10,7 @@ namespace AS.Infrastructure.Repositories
         public IAccountRepository AccountRepository { get; private set; }
         public IUsuarioRepository UsuarioRepository { get; private set; }
         public IFaccionRepository FaccionRepository { get; private set; }
+        public ITorneoRepository TorneoRepository { get; private set; }
         public Utilidades _utilidades;
 
         //public IUsuarioRepository UsuariosRepository => throw new NotImplementedException();
@@ -21,6 +22,7 @@ namespace AS.Infrastructure.Repositories
             AccountRepository = new AccountRepository(context, utilidades);
             UsuarioRepository = new UsuarioRepository(context, utilidades);
             FaccionRepository = new FaccionRepository(context);
+            TorneoRepository = new TorneoRepository(context);
         }
 
         public void Dispose() => _context.Dispose();

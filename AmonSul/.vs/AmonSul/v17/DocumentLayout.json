@@ -1,7 +1,76 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dependencies\\injectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dependencies\\injectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dependencies\\mapperextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dependencies\\mapperextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\mapper\\torneomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\mapper\\torneomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\torneoapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\torneoapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\faccionapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\faccionapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\torneocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\torneocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\interfaces\\itorneoapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\interfaces\\itorneoapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dtos\\torneo\\torneodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dtos\\torneo\\torneodto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3D256E42-485D-4B58-9017-2D66121E5FF3}|AS.Domain\\AS.Domain.csproj|c:\\fork\\amonsul-back\\amonsul\\as.domain\\models\\torneo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3D256E42-485D-4B58-9017-2D66121E5FF3}|AS.Domain\\AS.Domain.csproj|solutionrelative:as.domain\\models\\torneo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\dependencies\\injectionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\dependencies\\injectionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\torneorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\torneorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\itorneorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\itorneorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\ifaccionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\ifaccionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\faccioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\faccioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +78,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,6 +95,227 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MapperExtensions.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\MapperExtensions.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Dependencies\\MapperExtensions.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\MapperExtensions.cs",
+              "RelativeToolTip": "AS.Application\\Dependencies\\MapperExtensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:56:16.005Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "InjectionExtensions.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\InjectionExtensions.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Dependencies\\InjectionExtensions.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Dependencies\\InjectionExtensions.cs",
+              "RelativeToolTip": "AS.Application\\Dependencies\\InjectionExtensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAABGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:55:44.477Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TorneoMappingProfile.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Mapper\\TorneoMappingProfile.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Mapper\\TorneoMappingProfile.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Mapper\\TorneoMappingProfile.cs",
+              "RelativeToolTip": "AS.Application\\Mapper\\TorneoMappingProfile.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:55:09.813Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FaccionApplication.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\FaccionApplication.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Services\\FaccionApplication.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\FaccionApplication.cs",
+              "RelativeToolTip": "AS.Application\\Services\\FaccionApplication.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:50:04.558Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TorneoApplication.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\TorneoApplication.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Services\\TorneoApplication.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\TorneoApplication.cs",
+              "RelativeToolTip": "AS.Application\\Services\\TorneoApplication.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:50:01.359Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Torneo.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\Models\\Torneo.cs",
+              "RelativeDocumentMoniker": "AS.Domain\\Models\\Torneo.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\Models\\Torneo.cs",
+              "RelativeToolTip": "AS.Domain\\Models\\Torneo.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAAADUAAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:47:56.935Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "TorneoDTO.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\DTOs\\Torneo\\TorneoDTO.cs",
+              "RelativeDocumentMoniker": "AS.Application\\DTOs\\Torneo\\TorneoDTO.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\DTOs\\Torneo\\TorneoDTO.cs",
+              "RelativeToolTip": "AS.Application\\DTOs\\Torneo\\TorneoDTO.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAAwAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:47:35.602Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ITorneoApplication.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\ITorneoApplication.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Interfaces\\ITorneoApplication.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\ITorneoApplication.cs",
+              "RelativeToolTip": "AS.Application\\Interfaces\\ITorneoApplication.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:45:40.095Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "InjectionRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Dependencies\\InjectionRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Dependencies\\InjectionRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Dependencies\\InjectionRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Dependencies\\InjectionRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:45:16.839Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IUnitOfWork.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\IUnitOfWork.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAzAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:44:54.344Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "UnitOfWork.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UnitOfWork.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\UnitOfWork.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\UnitOfWork.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\UnitOfWork.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:44:06.352Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "TorneoRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\TorneoRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\TorneoRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\TorneoRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\TorneoRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:40:45.728Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TorneoController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\TorneoController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\TorneoController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\TorneoController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\TorneoController.cs",
+              "ViewState": "AQIAAAUAAAAAAAAAAIAwwAwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:37:05.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IFaccionRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IFaccionRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\IFaccionRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IFaccionRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\IFaccionRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:38:55.912Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ITorneoRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\ITorneoRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\ITorneoRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\ITorneoRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\ITorneoRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:38:44.635Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "UsuarioController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\UsuarioController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\UsuarioController.cs",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:36:30.889Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "FaccionController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\FaccionController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\FaccionController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\FaccionController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\FaccionController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAEAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T05:35:36.533Z",
+              "EditorCaption": ""
             }
           ]
         }

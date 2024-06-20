@@ -4,20 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories
 {
-    public class FaccionRepository : IFaccionRepository
+    public class TorneoRepository : ITorneoRepository
     {
         private readonly DbamonsulContext _dbamonsulContext;
 
-        public FaccionRepository(DbamonsulContext dbamonsulContext)
+        public TorneoRepository(DbamonsulContext dbamonsulContext)
         {
             _dbamonsulContext = dbamonsulContext;
         }
-        
-        public async Task<List<Faccion>> GetFacciones()
+
+        public async Task<List<Torneo>> GetTorneos()
         {
             try
             {
-                var response = await _dbamonsulContext.Facciones.ToListAsync();
+                var response = await _dbamonsulContext.Torneos.ToListAsync();
                 return response;
             }
             catch (Exception ex)
@@ -25,25 +25,26 @@ namespace AS.Infrastructure.Repositories
                 throw new Exception("Ocurrio un problema en el servidor.", ex);
             }
         }
-       
-        public Task<Faccion> GetById(int Id)
+
+        public Task<Torneo> GetById(int Id)
         {
             throw new NotImplementedException();
         }
-      
-        public Task<bool> Register(Faccion faccion)
+
+        public Task<bool> Register(Torneo torneo)
         {
             throw new NotImplementedException();
         }
-       
-        public Task<bool> Edit(Faccion faccion)
+
+        public Task<bool> Edit(Torneo torneo)
         {
             throw new NotImplementedException();
         }
-     
-        public Task<bool> Delete(Faccion faccion)
+
+        public Task<bool> Delete(int id)
         {
             throw new NotImplementedException();
         }
     }
+        
 }

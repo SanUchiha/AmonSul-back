@@ -12,11 +12,10 @@ namespace AS.Application.Dependencies
         {
             services.AddSingleton(configuration);
 
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
             services.AddScoped<IUsuarioApplication, UsuarioApplication>();
             services.AddScoped<ILoginApplication, LoginApplication>();
             services.AddScoped<IFaccionApplication, FaccionApplication>();
+            services.AddScoped<ITorneoApplication, TorneoApplication>();
 
             return services;
         }
