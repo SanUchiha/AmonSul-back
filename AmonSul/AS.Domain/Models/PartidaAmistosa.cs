@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AS.Domain.Models;
+﻿namespace AS.Domain.Models;
 
 public partial class PartidaAmistosa
 {

@@ -11,9 +11,8 @@ namespace AS.Infrastructure.Repositories
         public IUsuarioRepository UsuarioRepository { get; private set; }
         public IFaccionRepository FaccionRepository { get; private set; }
         public ITorneoRepository TorneoRepository { get; private set; }
+        public IPartidaAmistosaRepository PartidaAmistosaRepository{ get; private set; }
         public Utilidades _utilidades;
-
-        //public IUsuarioRepository UsuariosRepository => throw new NotImplementedException();
 
         public UnitOfWork(DbamonsulContext context, Utilidades utilidades)
         {
@@ -23,6 +22,7 @@ namespace AS.Infrastructure.Repositories
             UsuarioRepository = new UsuarioRepository(context, utilidades);
             FaccionRepository = new FaccionRepository(context);
             TorneoRepository = new TorneoRepository(context);
+            PartidaAmistosaRepository = new PartidaAmistosaRepository(context);
         }
 
         public void Dispose() => _context.Dispose();

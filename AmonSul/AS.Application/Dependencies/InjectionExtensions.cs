@@ -2,7 +2,6 @@
 using AS.Application.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace AS.Application.Dependencies
 {
@@ -16,6 +15,7 @@ namespace AS.Application.Dependencies
             services.AddScoped<ILoginApplication, LoginApplication>();
             services.AddScoped<IFaccionApplication, FaccionApplication>();
             services.AddScoped<ITorneoApplication, TorneoApplication>();
+            services.AddScoped<IPartidaAmistosaApplication, PartidaAmistosaApplication>();
 
             return services;
         }

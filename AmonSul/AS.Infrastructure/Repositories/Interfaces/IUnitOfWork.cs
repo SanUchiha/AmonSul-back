@@ -7,6 +7,7 @@
         IUsuarioRepository UsuarioRepository { get; }
         IFaccionRepository FaccionRepository { get; }
         ITorneoRepository TorneoRepository { get; }
+        IPartidaAmistosaRepository PartidaAmistosaRepository { get; }
 
         void SaveChanges();
         Task SaveChangesAsync();
