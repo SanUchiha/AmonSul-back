@@ -31,6 +31,7 @@ namespace AS.Application.Services
             var loginResponse = new LoginResponse
             {
                 IsAccess = true,
+                User = loginDTO.Email,
                 Token = token
             };
 

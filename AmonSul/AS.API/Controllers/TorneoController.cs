@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AS.API.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize]
     [ApiController]
     public class TorneoController : ControllerBase

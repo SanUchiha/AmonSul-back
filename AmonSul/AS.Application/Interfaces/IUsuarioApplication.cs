@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs;
+using AS.Application.DTOs.Usuario;
 
 namespace AS.Application.Interfaces
 {
@@ -6,7 +7,7 @@ namespace AS.Application.Interfaces
     {
         Task<UsuarioDTO> GetById(int IdUsuario);
         Task<bool> Edit(EditarUsuarioDTO usuario);
-        Task<bool> Register(RegistrarUsuarioDTO usuario);
+        Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
         Task<bool> Delete(EliminarUsuarioDTO usuario);
     }
 }

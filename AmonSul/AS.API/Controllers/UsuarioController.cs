@@ -26,11 +26,11 @@ namespace AS.API.Controllers
         {
             try
             {
-                bool response = await _usuarioApplication.Register(registrarUsuarioDTO);
+                var response = await _usuarioApplication.Register(registrarUsuarioDTO);
                 
-                if (response)
+                if (response.Status)
                 {
-                    return Ok("Usuario registrado con éxito.");
+                    return Ok(response);
                 }
                 else
                 {

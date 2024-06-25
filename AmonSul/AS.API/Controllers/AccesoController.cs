@@ -5,7 +5,6 @@ using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AS.API.Controllers
 {
@@ -36,7 +35,7 @@ namespace AS.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            if (loginDTO == null) return BadRequest();
+            if (loginDTO == null || loginDTO.Email == null || loginDTO.Password == null) return BadRequest();
 
             var response = await _loginApplication.Login(loginDTO);
 
