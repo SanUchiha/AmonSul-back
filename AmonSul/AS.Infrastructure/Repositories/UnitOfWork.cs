@@ -19,7 +19,7 @@ namespace AS.Infrastructure.Repositories
             _context = context;
             _utilidades = utilidades;
             AccountRepository = new AccountRepository(context, utilidades);
-            UsuarioRepository = new UsuarioRepository(context, utilidades);
+            UsuarioRepository = new UsuarioRepository(context);
             FaccionRepository = new FaccionRepository(context);
             TorneoRepository = new TorneoRepository(context);
             PartidaAmistosaRepository = new PartidaAmistosaRepository(context);

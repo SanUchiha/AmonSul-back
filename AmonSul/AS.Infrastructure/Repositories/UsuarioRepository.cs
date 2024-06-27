@@ -2,17 +2,13 @@
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories
 {
-    public class UsuarioRepository : IUsuarioRepository
+    public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepository
     {
-        private readonly DbamonsulContext _dbamonsulContext;
-
-        public UsuarioRepository(DbamonsulContext dbamonsulContext, Utilidades utilidades)
-        {
-            _dbamonsulContext = dbamonsulContext;
-        }
+        private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
         public async Task<bool> Register(Usuario usuario)
         {
@@ -48,19 +44,105 @@ namespace AS.Infrastructure.Repositories
             }
         }
 
-        public Task<bool> Delete(Usuario usuario)
+        public async Task<bool> Edit(Usuario usuario)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _dbamonsulContext.Usuarios.Update(usuario);
+                await _dbamonsulContext.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new Exception("El usuario no se pudo actualizar porque fue modificado por otro usuario.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrió un problema al actualizar el usuario.", ex);
+            }
         }
 
-        public Task<bool> Edit(Usuario usuario)
+        public async Task<Usuario> GetById(int IdUsuario)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _dbamonsulContext.Usuarios.FindAsync(IdUsuario);
+                return response ?? throw new Exception("Usuario no encontrado");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+            }
         }
 
-        public Task<Usuario> GetById(int IdUsuario)
+        public async Task<List<Usuario>> GetAll()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _dbamonsulContext.Usuarios.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrió un problema al obtener todos los usuarios.", ex);
+            }
+        }
+
+        public async Task<bool> Delete(string email)
+        {
+            try
+            {
+                var usuarioEncontrado = await this.GetByEmail(email) ?? throw new Exception("Ocurrió un problema al eliminar el usuario.");
+                _dbamonsulContext.Usuarios.Remove(usuarioEncontrado);
+                await _dbamonsulContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrió un problema al eliminar el usuario.", ex);
+            }
+        }
+
+        public async Task<Usuario> GetByEmail(string email)
+        {
+            try
+            {
+                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (response == null) return null!;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex.Message}");
+            }
+        }
+
+        public async Task<Usuario> GetByNick(string nick)
+        {
+            try
+            {
+                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Nick == nick);
+                if (response == null) return null!;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex.Message}");
+            }
+        }
+
+        public async Task<Usuario> GetUsuario(string email)
+        {
+            try
+            {
+                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email== email);
+                if (response == null) return null!;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex.Message}");
+            }
         }
     }
 }

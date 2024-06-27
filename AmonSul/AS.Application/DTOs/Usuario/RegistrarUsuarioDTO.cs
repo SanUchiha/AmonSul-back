@@ -1,4 +1,4 @@
-﻿namespace AS.Application.DTOs
+﻿namespace AS.Application.DTOs.Usuario
 {
     public class RegistrarUsuarioDTO
     {

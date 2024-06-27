@@ -1,5 +1,4 @@
-﻿using AS.Application.DTOs;
-using AS.Application.DTOs.Usuario;
+﻿using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure;
@@ -9,35 +8,71 @@ using AutoMapper;
 
 namespace AS.Application.Services
 {
-    public class UsuarioApplication : IUsuarioApplication
+    public class UsuarioApplication(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        Utilidades utilidades, 
+        IAccountRepository accountRepository) : IUsuarioApplication
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly Utilidades _utilidades;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
+        private readonly Utilidades _utilidades = utilidades;
+        private readonly IAccountRepository _accountRepository = accountRepository;
 
-
-        public UsuarioApplication(IUnitOfWork unitOfWork, IMapper mapper, Utilidades utilidades, IAccountRepository accountRepository)
+        public Task<bool> Delete(string email)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _utilidades = utilidades;
-            _accountRepository = accountRepository;
+            return _unitOfWork.UsuarioRepository.Delete(email);
         }
 
-        public Task<bool> Delete(EliminarUsuarioDTO usuario)
+        public async Task<bool> Edit(EditarUsuarioDTO usuario)
         {
-            throw new NotImplementedException();
+            var usuarioEncontrado = await GetByEmail(usuario.Email);
+            if (usuarioEncontrado == null) return false;
+
+            var rawUsuario = await _unitOfWork.UsuarioRepository.GetUsuario(usuario.Email);
+            if (rawUsuario == null) return false;
+
+            if (usuario.Contraseña != null)
+            {
+                var rawPass = usuario.Contraseña;
+                usuario.Contraseña = _utilidades.encriptarSHA256(usuario.Contraseña);
+            }
+
+            if(usuario.NuevoEmail != null) usuario.Email = usuario.NuevoEmail;
+
+            foreach (var prop in usuario.GetType().GetProperties())
+            {
+                var newValue = prop.GetValue(usuario);
+                if (newValue != null)
+                {
+                    var rawProp = rawUsuario.GetType().GetProperty(prop.Name);
+                    if (rawProp != null)
+                    {
+                        rawProp.SetValue(rawUsuario, newValue);
+                    }
+                }
+            }
+
+            var result = await _unitOfWork.UsuarioRepository.Edit(rawUsuario);
+            return result;
         }
 
-        public Task<bool> Edit(EditarUsuarioDTO usuario)
+        public async Task<List<UsuarioDTO>> GetAll()
         {
-            throw new NotImplementedException();
+            var response = await _unitOfWork.UsuarioRepository.GetAll();
+            return _mapper.Map<List<UsuarioDTO>>(response);
         }
 
-        public Task<UsuarioDTO> GetById(int IdUsuario)
+        public async Task<UsuarioDTO> GetByEmail(string email)
         {
-            throw new NotImplementedException();
+            var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+            return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
+        }
+
+        public async Task<UsuarioDTO> GetByNick(string nick)
+        {
+            var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetByNick(nick);
+            return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
         }
 
         public async Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO registrarUsuarioDTO)
@@ -49,16 +84,20 @@ namespace AS.Application.Services
                 var usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
                 var rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 
-                var loginDTO = new LoginDTO();
-                loginDTO.Email = registrarUsuarioDTO.Email;
-                loginDTO.Password = rawPass;
+                var loginDTO = new LoginDTO
+                {
+                    Email = registrarUsuarioDTO.Email,
+                    Password = rawPass
+                };
 
                 var login = await _accountRepository.Login(loginDTO);
 
-                var response = new RegistrarUsuarioResponseDTO();
-                response.Status = true;
-                response.Message = "Usuario creado con existo";
-                response.Token = login.Token;
+                var response = new RegistrarUsuarioResponseDTO
+                {
+                    Status = true,
+                    Message = "Usuario creado con existo",
+                    Token = login.Token
+                };
 
                 return response;
 
@@ -66,6 +105,7 @@ namespace AS.Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }        }
+            }        
+        }
     }
 }

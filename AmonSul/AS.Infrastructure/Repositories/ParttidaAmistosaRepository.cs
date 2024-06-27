@@ -26,9 +26,17 @@ namespace AS.Infrastructure.Repositories
             }
         }
        
-        public Task<PartidaAmistosa> GetById(int Id)
+        public async Task<PartidaAmistosa> GetById(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _dbamonsulContext.PartidaAmistosas.Where(x => x.IdPartidaAmistosa== id).FirstOrDefaultAsync();
+                return response!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrio un problema en el servidor.", ex);
+            }
         }
       
         public Task<bool> Register(PartidaAmistosa partidaAmistosa)
