@@ -137,5 +137,25 @@ namespace AS.API.Controllers
                 return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
             }
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+
+        [Route("{email}")]
+        public async Task<IActionResult> Get(string email)
+        {
+            try
+            {
+                var response = await _usuarioApplication.GetUsuario(email);
+
+                if (response is null) return NotFound();
+
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+            }
+        }
     }
 }

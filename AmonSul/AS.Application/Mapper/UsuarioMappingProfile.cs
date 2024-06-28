@@ -11,7 +11,7 @@ namespace AS.Application.Mapper
             CreateMap<Usuario, RegistrarUsuarioDTO>().ReverseMap();
             CreateMap<Usuario, UsuarioDTO>().ReverseMap();
             CreateMap<Usuario, EditarUsuarioDTO>().ReverseMap();
-
+            CreateMap<Usuario, UsuarioViewDTO>().ReverseMap();
         }
     }
 }

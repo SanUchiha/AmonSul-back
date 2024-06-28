@@ -75,6 +75,12 @@ namespace AS.Application.Services
             return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
         }
 
+        public async Task<UsuarioViewDTO> GetUsuario(string email)
+        {
+            var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetUsuario(email);
+            return _mapper.Map<UsuarioViewDTO>(usuarioEncontrado);
+        }
+
         public async Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO registrarUsuarioDTO)
         {
             try

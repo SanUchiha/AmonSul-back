@@ -11,5 +11,6 @@ namespace AS.Application.Interfaces
         Task<UsuarioDTO> GetByNick(string nick);
         Task<List<UsuarioDTO>> GetAll();
         Task<bool> Delete(string email);
+        Task<UsuarioViewDTO> GetUsuario(string email);
     }
 }
