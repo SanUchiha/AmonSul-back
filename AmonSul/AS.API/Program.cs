@@ -8,7 +8,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-var connection = configuration.GetConnectionString("SQLServerSW");
+var connection = configuration.GetConnectionString("MyASPString");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

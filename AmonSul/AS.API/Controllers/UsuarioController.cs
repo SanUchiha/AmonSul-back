@@ -39,8 +39,6 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-
         [Route("All")]
         public async Task<IActionResult> GetAll()
         {
@@ -59,8 +57,6 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-
         [Route("Email/{email}")]
         public async Task<IActionResult> GetByEmail(string email)
         {
@@ -79,8 +75,6 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-
         [Route("Nick/{nick}")]
         public async Task<IActionResult> GetByNick(string nick)
         {
@@ -99,8 +93,6 @@ namespace AS.API.Controllers
         }
 
         [HttpDelete]
-        [AllowAnonymous]
-
         [Route("{email}")]
         public async Task<IActionResult> Delete(string email)
         {
@@ -119,8 +111,6 @@ namespace AS.API.Controllers
         }
 
         [HttpPut]
-        [AllowAnonymous]
-
         [Route("editar")]
         public async Task<IActionResult> Delete([FromBody] EditarUsuarioDTO request)
         {
@@ -139,8 +129,6 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-
         [Route("{email}")]
         public async Task<IActionResult> Get(string email)
         {

@@ -15,7 +15,7 @@ namespace AS.Infrastructure.Dependencies
 
             services.AddDbContext<DbamonsulContext>(
                 options => options.UseSqlServer(
-                    configuration.GetConnectionString("SQLServerSW"), b => b.MigrationsAssembly(assembly)), ServiceLifetime.Transient);
+                    configuration.GetConnectionString("MyASPString"), b => b.MigrationsAssembly(assembly)), ServiceLifetime.Transient);
 
             // Configurar patrones de diseño
             services.AddTransient<IUnitOfWork, UnitOfWork>();

@@ -1,0 +1,12 @@
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\bin\Release\net8.0\AS.Utils.deps.json
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\bin\Release\net8.0\AS.Utils.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\bin\Release\net8.0\AS.Utils.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.GeneratedMSBuildEditorConfig.editorconfig
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.AssemblyInfoInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.AssemblyInfo.cs
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.csproj.CoreCompileInputs.cache
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.sourcelink.json
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\refint\AS.Utils.dll
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\AS.Utils.pdb
+C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Release\net8.0\ref\AS.Utils.dll
