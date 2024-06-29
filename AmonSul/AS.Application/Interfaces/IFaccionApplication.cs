@@ -7,7 +7,7 @@ namespace AS.Application.Interfaces
         Task<List<FaccionDTO>> GetFacciones();
         Task<FaccionDTO> GetById(int Id);
         Task<bool> Edit(FaccionDTO faccionDTO);
-        Task<bool> Register(FaccionDTO faccionDTO);
+        Task<bool> Register(RegistrarFaccionDTO registrarFaccionDTO);
         Task<bool> Delete(FaccionDTO faccionDTO);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Faccion;
 using AS.Application.Interfaces;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -27,9 +28,15 @@ namespace AS.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> Register(FaccionDTO faccionDTO)
+        public async Task<bool> Register(RegistrarFaccionDTO registrarFaccionDTO)
         {
-            throw new NotImplementedException();
+            Faccion faccion = new Faccion
+            {
+                NombreFaccion = registrarFaccionDTO.NombreFaccion,
+            };
+
+            var response = await _unitOfWork.FaccionRepository.Register(faccion);
+            return response;    
         }
 
         public Task<bool> Edit(FaccionDTO faccionDTO)

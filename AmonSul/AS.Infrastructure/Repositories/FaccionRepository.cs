@@ -31,9 +31,20 @@ namespace AS.Infrastructure.Repositories
             throw new NotImplementedException();
         }
       
-        public Task<bool> Register(Faccion faccion)
+        public async Task<bool> Register(Faccion faccion)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _dbamonsulContext.Facciones.AddAsync(faccion);
+                await _dbamonsulContext.SaveChangesAsync();
+
+                if (response == null) return false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ocurrio un problema en el servidor.", ex);
+            }
         }
        
         public Task<bool> Edit(Faccion faccion)
