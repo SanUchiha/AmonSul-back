@@ -21,6 +21,7 @@ namespace AS.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         [Route("")]
         public async Task<IActionResult> GetFacciones()
         {
