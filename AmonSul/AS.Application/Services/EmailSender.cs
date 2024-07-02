@@ -3,6 +3,7 @@ using System.Net.Mail;
 using System.Net;
 using AS.Application.DTOs.Email;
 using AS.Application.Exceptions;
+using Microsoft.Extensions.Options;
 
 namespace AS.Application.Services;
 
@@ -10,7 +11,10 @@ public class EmailSender : IEmailSender
 {
     private readonly EmailSettings _emailSettings;
 
-    public EmailSender(EmailSettings emailSettings) => _emailSettings = emailSettings;
+    public EmailSender(IOptions<EmailSettings> emailSettings)
+    {
+        _emailSettings = emailSettings.Value;
+    }
 
     public Task SendEmailRegister(EmailRegisterDTO request)
     {
