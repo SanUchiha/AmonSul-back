@@ -2,13 +2,12 @@
 using AS.Domain.Models;
 using AutoMapper;
 
-namespace AS.Application.Mapper
+namespace AS.Application.Mapper;
+
+public class PartidaAmistosaMappingProfile : Profile
 {
-    public class PartidaAmistosaMappingProfile : Profile
+    public PartidaAmistosaMappingProfile()
     {
-        public PartidaAmistosaMappingProfile()
-        {
-            CreateMap<PartidaAmistosa, PartidaAmistosaDTO>().ReverseMap();
-        }
+        CreateMap<PartidaAmistosa, PartidaAmistosaDTO>().ReverseMap();
     }
 }

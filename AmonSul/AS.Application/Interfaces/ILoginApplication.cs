@@ -1,9 +1,8 @@
 ﻿using AS.Infrastructure.DTOs;
 
-namespace AS.Application.Interfaces
+namespace AS.Application.Interfaces;
+
+public interface ILoginApplication
 {
-    public interface ILoginApplication
-    {
-        Task<LoginResponse> Login(LoginDTO loginDTO);
-    }
+    Task<LoginResponse> Login(LoginDTO loginDTO);
 }

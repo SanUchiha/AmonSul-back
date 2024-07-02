@@ -5,23 +5,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AS.Infrastructure.Dependencies
+namespace AS.Infrastructure.Dependencies;
+
+public static class InjectionRepository
 {
-    public static class InjectionRepository
+    public static IServiceCollection AddInjectionInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddInjectionInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            var assembly = typeof(DbamonsulContext).Assembly.FullName;
+        var assembly = typeof(DbamonsulContext).Assembly.FullName;
 
-            services.AddDbContext<DbamonsulContext>(
-                options => options.UseSqlServer(
-                    configuration.GetConnectionString("MyASPString"), b => b.MigrationsAssembly(assembly)), ServiceLifetime.Transient);
+        services.AddDbContext<DbamonsulContext>(
+            options => options.UseSqlServer(
+                configuration.GetConnectionString("MyASPString"), b => b.MigrationsAssembly(assembly)), ServiceLifetime.Transient);
 
-            // Configurar patrones de diseño
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IAccountRepository, AccountRepository>();
+        // Configurar patrones de diseño
+        services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
 
-            return services;
-        }
+        return services;
     }
 }

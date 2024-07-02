@@ -2,49 +2,48 @@
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AS.Infrastructure.Repositories
+namespace AS.Infrastructure.Repositories;
+
+public class TorneoRepository : ITorneoRepository
 {
-    public class TorneoRepository : ITorneoRepository
+    private readonly DbamonsulContext _dbamonsulContext;
+
+    public TorneoRepository(DbamonsulContext dbamonsulContext)
     {
-        private readonly DbamonsulContext _dbamonsulContext;
+        _dbamonsulContext = dbamonsulContext;
+    }
 
-        public TorneoRepository(DbamonsulContext dbamonsulContext)
+    public async Task<List<Torneo>> GetTorneos()
+    {
+        try
         {
-            _dbamonsulContext = dbamonsulContext;
+            var response = await _dbamonsulContext.Torneos.ToListAsync();
+            return response;
         }
-
-        public async Task<List<Torneo>> GetTorneos()
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await _dbamonsulContext.Torneos.ToListAsync();
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrio un problema en el servidor.", ex);
-            }
-        }
-
-        public Task<Torneo> GetById(int Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Register(Torneo torneo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Edit(Torneo torneo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Delete(int id)
-        {
-            throw new NotImplementedException();
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
         }
     }
-        
+
+    public Task<Torneo> GetById(int Id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> Register(Torneo torneo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> Edit(Torneo torneo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> Delete(int id)
+    {
+        throw new NotImplementedException();
+    }
 }
+    

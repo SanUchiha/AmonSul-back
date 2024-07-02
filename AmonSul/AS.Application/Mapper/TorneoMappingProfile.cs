@@ -2,13 +2,12 @@
 using AS.Domain.Models;
 using AutoMapper;
 
-namespace AS.Application.Mapper
+namespace AS.Application.Mapper;
+
+public class TorneoMappingProfile : Profile
 {
-    public class TorneoMappingProfile : Profile
+    public TorneoMappingProfile()
     {
-        public TorneoMappingProfile()
-        {
-            CreateMap<Torneo, TorneoDTO>().ReverseMap();
-        }
+        CreateMap<Torneo, TorneoDTO>().ReverseMap();
     }
 }

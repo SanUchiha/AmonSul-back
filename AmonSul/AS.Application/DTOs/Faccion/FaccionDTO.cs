@@ -1,8 +1,7 @@
-﻿namespace AS.Application.DTOs.Faccion
+﻿namespace AS.Application.DTOs.Faccion;
+
+public class FaccionDTO
 {
-    public class FaccionDTO
-    {
-        public int IdFaccion { get; set; }
-        public string NombreFaccion { get; set; } = null!;
-    }
+    public int IdFaccion { get; set; }
+    public string NombreFaccion { get; set; } = null!;
 }

@@ -4,38 +4,37 @@ using AS.Infrastructure;
 using AS.Infrastructure.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace AS.Application.Services
+namespace AS.Application.Services;
+
+public class LoginApplication : ILoginApplication
 {
-    public class LoginApplication : ILoginApplication
+    private readonly DbamonsulContext _dbamonsulContext;
+    private readonly Utilidades _utilidades;
+
+    public LoginApplication(DbamonsulContext dbamonsulContext, Utilidades utilidades)
     {
-        private readonly DbamonsulContext _dbamonsulContext;
-        private readonly Utilidades _utilidades;
+        _dbamonsulContext = dbamonsulContext;
+        _utilidades = utilidades;
+    }
 
-        public LoginApplication(DbamonsulContext dbamonsulContext, Utilidades utilidades)
+    public async Task<LoginResponse> Login(LoginDTO loginDTO)
+    {
+        var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
+            u.Email == loginDTO.Email &&
+            u.Contraseña == _utilidades.encriptarSHA256(loginDTO.Password!)).
+            FirstOrDefaultAsync();
+
+        if (foundUser == null) return new LoginResponse { IsAccess = false };
+
+        var token = _utilidades.generarJWT(foundUser);
+
+        var loginResponse = new LoginResponse
         {
-            _dbamonsulContext = dbamonsulContext;
-            _utilidades = utilidades;
-        }
+            IsAccess = true,
+            User = loginDTO.Email,
+            Token = token
+        };
 
-        public async Task<LoginResponse> Login(LoginDTO loginDTO)
-        {
-            var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
-                u.Email == loginDTO.Email &&
-                u.Contraseña == _utilidades.encriptarSHA256(loginDTO.Password!)).
-                FirstOrDefaultAsync();
-
-            if (foundUser == null) return new LoginResponse { IsAccess = false };
-
-            var token = _utilidades.generarJWT(foundUser);
-
-            var loginResponse = new LoginResponse
-            {
-                IsAccess = true,
-                User = loginDTO.Email,
-                Token = token
-            };
-
-            return loginResponse;
-        }
+        return loginResponse;
     }
 }

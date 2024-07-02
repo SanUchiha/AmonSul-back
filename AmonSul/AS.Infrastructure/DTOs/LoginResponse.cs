@@ -1,9 +1,8 @@
-﻿namespace AS.Infrastructure.DTOs
+﻿namespace AS.Infrastructure.DTOs;
+
+public sealed class LoginResponse
 {
-    public sealed class LoginResponse
-    {
-        public bool IsAccess { get; set; }
-        public string? User { get; set; }
-        public string? Token { get; set; }
-    }
+    public bool IsAccess { get; set; }
+    public string? User { get; set; }
+    public string? Token { get; set; }
 }

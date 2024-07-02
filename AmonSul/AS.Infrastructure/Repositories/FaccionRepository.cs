@@ -2,59 +2,58 @@
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AS.Infrastructure.Repositories
+namespace AS.Infrastructure.Repositories;
+
+public class FaccionRepository : IFaccionRepository
 {
-    public class FaccionRepository : IFaccionRepository
+    private readonly DbamonsulContext _dbamonsulContext;
+
+    public FaccionRepository(DbamonsulContext dbamonsulContext)
     {
-        private readonly DbamonsulContext _dbamonsulContext;
+        _dbamonsulContext = dbamonsulContext;
+    }
+    
+    public async Task<List<Faccion>> GetFacciones()
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Facciones.ToListAsync();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
+        }
+    }
+   
+    public Task<Faccion> GetById(int Id)
+    {
+        throw new NotImplementedException();
+    }
+  
+    public async Task<bool> Register(Faccion faccion)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Facciones.AddAsync(faccion);
+            await _dbamonsulContext.SaveChangesAsync();
 
-        public FaccionRepository(DbamonsulContext dbamonsulContext)
-        {
-            _dbamonsulContext = dbamonsulContext;
+            if (response == null) return false;
+            return true;
         }
-        
-        public async Task<List<Faccion>> GetFacciones()
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await _dbamonsulContext.Facciones.ToListAsync();
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrio un problema en el servidor.", ex);
-            }
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
         }
-       
-        public Task<Faccion> GetById(int Id)
-        {
-            throw new NotImplementedException();
-        }
-      
-        public async Task<bool> Register(Faccion faccion)
-        {
-            try
-            {
-                var response = await _dbamonsulContext.Facciones.AddAsync(faccion);
-                await _dbamonsulContext.SaveChangesAsync();
-
-                if (response == null) return false;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrio un problema en el servidor.", ex);
-            }
-        }
-       
-        public Task<bool> Edit(Faccion faccion)
-        {
-            throw new NotImplementedException();
-        }
-     
-        public Task<bool> Delete(Faccion faccion)
-        {
-            throw new NotImplementedException();
-        }
+    }
+   
+    public Task<bool> Edit(Faccion faccion)
+    {
+        throw new NotImplementedException();
+    }
+ 
+    public Task<bool> Delete(Faccion faccion)
+    {
+        throw new NotImplementedException();
     }
 }

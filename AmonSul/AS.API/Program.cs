@@ -18,6 +18,7 @@ builder.Services.AddInjectionInfrastructure(configuration);
 builder.Services.AddInjectionApplication(configuration);
 builder.Services.AddSingleton<Utilidades>();
 builder.Services.AddMapperApplication();
+builder.Services.AddInjectionEmailSender(configuration);
 
 builder.Services.AddAuthentication(config =>
 {

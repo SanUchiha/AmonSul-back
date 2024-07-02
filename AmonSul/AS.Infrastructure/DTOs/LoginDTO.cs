@@ -1,8 +1,7 @@
-﻿namespace AS.Infrastructure.DTOs
+﻿namespace AS.Infrastructure.DTOs;
+
+public class LoginDTO
 {
-    public class LoginDTO
-    {
-        public string? Email { get; set; }
-        public string? Password { get; set; }
-    }
+    public string? Email { get; set; }
+    public string? Password { get; set; }
 }

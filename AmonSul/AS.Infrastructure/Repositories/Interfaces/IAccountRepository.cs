@@ -1,9 +1,8 @@
 ﻿using AS.Infrastructure.DTOs;
 
-namespace AS.Infrastructure.Repositories.Interfaces
+namespace AS.Infrastructure.Repositories.Interfaces;
+
+public interface IAccountRepository
 {
-    public interface IAccountRepository
-    {
-        Task<LoginResponse> Login(LoginDTO loginDTO);
-    }
+    Task<LoginResponse> Login(LoginDTO loginDTO);
 }

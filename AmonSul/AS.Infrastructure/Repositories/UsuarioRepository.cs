@@ -4,145 +4,144 @@ using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace AS.Infrastructure.Repositories
+namespace AS.Infrastructure.Repositories;
+
+public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepository
 {
-    public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepository
+    private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
+
+    public async Task<bool> Register(Usuario usuario)
     {
-        private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
-
-        public async Task<bool> Register(Usuario usuario)
+        try
         {
-            try
-            {
-                await _dbamonsulContext.AddAsync(usuario);
-                await _dbamonsulContext.SaveChangesAsync();
-                return true;
-            }
-            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
-            {
-                if (ex.Message.Contains("UQ__Usuario__7D3471B6867373C0"))
-                {
-                    throw new UniqueKeyViolationException("El nick ya está en uso.", "Nick");
-                }
-                else if (ex.Message.Contains("UQ__Usuario__A9D105344761A97B"))
-                {
-                    throw new UniqueKeyViolationException("El correo electrónico ya está en uso.", "Email");
-                }
-                throw new UniqueKeyViolationException("Infracción de la restricción UNIQUE KEY.", "Unknown");
-            }
-            catch (Exception ex)
-            {
-                if (ex.InnerException!.Message.Contains("UQ__Usuario__7D3471B6867373C0"))
-                {
-                    throw new UniqueKeyViolationException("El nick ya está en uso.", "Nick");
-                }
-                else if (ex.InnerException.Message.Contains("UQ__Usuario__A9D105344761A97B"))
-                {
-                    throw new UniqueKeyViolationException("El correo electrónico ya está en uso.", "Email");
-                }
-                throw new Exception("Ocurrio un problema en el servidor.");
-            }
+            await _dbamonsulContext.AddAsync(usuario);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
         }
-
-        public async Task<bool> Edit(Usuario usuario)
+        catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
         {
-            try
+            if (ex.Message.Contains("UQ__Usuario__7D3471B6867373C0"))
             {
-                _dbamonsulContext.Usuarios.Update(usuario);
-                await _dbamonsulContext.SaveChangesAsync();
-                return true;
+                throw new UniqueKeyViolationException("El nick ya está en uso.", "Nick");
             }
-            catch (DbUpdateConcurrencyException)
+            else if (ex.Message.Contains("UQ__Usuario__A9D105344761A97B"))
             {
-                throw new Exception("El usuario no se pudo actualizar porque fue modificado por otro usuario.");
+                throw new UniqueKeyViolationException("El correo electrónico ya está en uso.", "Email");
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrió un problema al actualizar el usuario.", ex);
-            }
+            throw new UniqueKeyViolationException("Infracción de la restricción UNIQUE KEY.", "Unknown");
         }
-
-        public async Task<Usuario> GetById(int IdUsuario)
+        catch (Exception ex)
         {
-            try
+            if (ex.InnerException!.Message.Contains("UQ__Usuario__7D3471B6867373C0"))
             {
-                var response = await _dbamonsulContext.Usuarios.FindAsync(IdUsuario);
-                return response ?? throw new Exception("Usuario no encontrado");
+                throw new UniqueKeyViolationException("El nick ya está en uso.", "Nick");
             }
-            catch (Exception ex)
+            else if (ex.InnerException.Message.Contains("UQ__Usuario__A9D105344761A97B"))
             {
-                throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+                throw new UniqueKeyViolationException("El correo electrónico ya está en uso.", "Email");
             }
+            throw new Exception("Ocurrio un problema en el servidor.");
         }
+    }
 
-        public async Task<List<Usuario>> GetAll()
+    public async Task<bool> Edit(Usuario usuario)
+    {
+        try
         {
-            try
-            {
-                return await _dbamonsulContext.Usuarios.ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrió un problema al obtener todos los usuarios.", ex);
-            }
+            _dbamonsulContext.Usuarios.Update(usuario);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
         }
-
-        public async Task<bool> Delete(string email)
+        catch (DbUpdateConcurrencyException)
         {
-            try
-            {
-                var usuarioEncontrado = await this.GetByEmail(email) ?? throw new Exception("Ocurrió un problema al eliminar el usuario.");
-                _dbamonsulContext.Usuarios.Remove(usuarioEncontrado);
-                await _dbamonsulContext.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Ocurrió un problema al eliminar el usuario.", ex);
-            }
+            throw new Exception("El usuario no se pudo actualizar porque fue modificado por otro usuario.");
         }
-
-        public async Task<Usuario> GetByEmail(string email)
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
-
-                if (response == null) return null!;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{ex.Message}");
-            }
+            throw new Exception("Ocurrió un problema al actualizar el usuario.", ex);
         }
+    }
 
-        public async Task<Usuario> GetByNick(string nick)
+    public async Task<Usuario> GetById(int IdUsuario)
+    {
+        try
         {
-            try
-            {
-                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Nick == nick);
-                if (response == null) return null!;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{ex.Message}");
-            }
+            var response = await _dbamonsulContext.Usuarios.FindAsync(IdUsuario);
+            return response ?? throw new Exception("Usuario no encontrado");
         }
-
-        public async Task<Usuario> GetUsuario(string email)
+        catch (Exception ex)
         {
-            try
-            {
-                var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email== email);
-                if (response == null) return null!;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{ex.Message}");
-            }
+            throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+        }
+    }
+
+    public async Task<List<Usuario>> GetAll()
+    {
+        try
+        {
+            return await _dbamonsulContext.Usuarios.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener todos los usuarios.", ex);
+        }
+    }
+
+    public async Task<bool> Delete(string email)
+    {
+        try
+        {
+            var usuarioEncontrado = await this.GetByEmail(email) ?? throw new Exception("Ocurrió un problema al eliminar el usuario.");
+            _dbamonsulContext.Usuarios.Remove(usuarioEncontrado);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al eliminar el usuario.", ex);
+        }
+    }
+
+    public async Task<Usuario> GetByEmail(string email)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (response == null) return null!;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"{ex.Message}");
+        }
+    }
+
+    public async Task<Usuario> GetByNick(string nick)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Nick == nick);
+            if (response == null) return null!;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"{ex.Message}");
+        }
+    }
+
+    public async Task<Usuario> GetUsuario(string email)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email== email);
+            if (response == null) return null!;
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"{ex.Message}");
         }
     }
 }

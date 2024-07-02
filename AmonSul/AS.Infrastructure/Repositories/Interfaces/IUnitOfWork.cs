@@ -1,15 +1,14 @@
-﻿namespace AS.Infrastructure.Repositories.Interfaces
-{
-    public interface IUnitOfWork: IDisposable
-    {
-        // Declaramos todas las interfaces a nivel de repo
-        IAccountRepository AccountRepository { get; }
-        IUsuarioRepository UsuarioRepository { get; }
-        IFaccionRepository FaccionRepository { get; }
-        ITorneoRepository TorneoRepository { get; }
-        IPartidaAmistosaRepository PartidaAmistosaRepository { get; }
+﻿namespace AS.Infrastructure.Repositories.Interfaces;
 
-        void SaveChanges();
-        Task SaveChangesAsync();
-    }
+public interface IUnitOfWork: IDisposable
+{
+    // Declaramos todas las interfaces a nivel de repo
+    IAccountRepository AccountRepository { get; }
+    IUsuarioRepository UsuarioRepository { get; }
+    IFaccionRepository FaccionRepository { get; }
+    ITorneoRepository TorneoRepository { get; }
+    IPartidaAmistosaRepository PartidaAmistosaRepository { get; }
+
+    void SaveChanges();
+    Task SaveChangesAsync();
 }
