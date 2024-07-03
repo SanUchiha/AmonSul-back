@@ -215,6 +215,8 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(d => d.IdUsuario2Navigation).WithMany(p => p.PartidaAmistosaIdUsuario2Navigations)
                 .HasForeignKey(d => d.IdUsuario2)
                 .HasConstraintName("FK_Partida_Amistosa_Usuario2");
+            entity.Property(e => e.PartidaValidadaUsuario1).HasColumnName("Partida_Validada_Usuario1");
+            entity.Property(e => e.PartidaValidadaUsuario2).HasColumnName("Partida_Validada_Usuario2");
         });
 
         modelBuilder.Entity<PartidaTorneo>(entity =>

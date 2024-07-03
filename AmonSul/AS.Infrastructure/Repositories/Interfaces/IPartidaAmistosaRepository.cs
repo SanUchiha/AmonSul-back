@@ -6,7 +6,9 @@ public interface IPartidaAmistosaRepository
 {
     Task<List<PartidaAmistosa>> GetPartidasAmistosas();
     Task<PartidaAmistosa> GetById(int Id);
+    Task<List<PartidaAmistosa>> GetPartidaAmistosasByUsuario(string email);
     Task<bool> Edit(PartidaAmistosa partidaAmistosa);
     Task<bool> Register(PartidaAmistosa partidaAmistosa);
     Task<bool> Delete(int id);
+    Task<bool> ValidarPartidaAmistosa(int id);
 }

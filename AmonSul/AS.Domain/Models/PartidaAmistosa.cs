@@ -24,6 +24,10 @@ public partial class PartidaAmistosa
 
     public bool? EsElo { get; set; }
 
+    public bool? PartidaValidadaUsuario1 { get; set; }
+
+    public bool? PartidaValidadaUsuario2 { get; set; }
+
     public virtual Usuario? GanadorPartidaNavigation { get; set; }
 
     public virtual Usuario? IdUsuario1Navigation { get; set; }
