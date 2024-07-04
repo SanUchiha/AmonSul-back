@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\partidaamistosacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\partidaamistosacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -35,14 +39,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "PartidaAmistosaController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\PartidaAmistosaController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\PartidaAmistosaController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\PartidaAmistosaController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\PartidaAmistosaController.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAuwEkAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-04T11:56:10.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "PartidaAmistosaApplication.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
               "RelativeDocumentMoniker": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
               "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
               "RelativeToolTip": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
-              "ViewState": "AQIAACAAAAAAAAAAAAAawDQAAAAIAAAA",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAawDMAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-04T06:46:56.789Z",
+              "WhenOpened": "2024-07-04T11:45:28.697Z",
               "EditorCaption": ""
             }
           ]

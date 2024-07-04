@@ -1,6 +1,5 @@
 ﻿using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -14,12 +13,8 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
 {
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
 
-    /// <summary>
-    /// Obtener las partidas amistosas
-    /// </summary>
-    /// <returns></returns>
     [HttpGet]
-    [Route("")]
+    [Route("Todas")]
     [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPartidasAmistosas()
@@ -27,6 +22,19 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         var response = await _partidaAmistosaApplication.GetPartidasAmistosas();
         
         if(response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("Validadas")]
+    [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPartidasAmistosasValidadas()
+    {
+        var response = await _partidaAmistosaApplication.GetPartidasAmistosasValidadas();
+
+        if (response == null) return NotFound();
 
         return Ok(response);
     }
@@ -42,6 +50,45 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         if (response == false) return BadRequest("No se ha podido crear la partida");
 
         return Created();
+    }
+
+    [HttpPut]
+    [Route("Validar")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ValidadPartidaAmistosa([FromBody, Required] ValidarPartidaDTO request)
+    {
+        var response = await _partidaAmistosaApplication.ValidarPartidaAmistosa(request);
+
+        if (response == false) return BadRequest("No se ha podido validar la partida");
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("{email}")]
+    [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPartidaAmistosasByUsuario(string email)
+    {
+        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuario(email);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("Validadas/{email}")]
+    [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPartidaAmistosasByUsuarioValidadas(string email)
+    {
+        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(email);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
     }
 
 }

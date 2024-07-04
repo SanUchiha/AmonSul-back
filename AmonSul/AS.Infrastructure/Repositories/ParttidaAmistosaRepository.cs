@@ -25,7 +25,7 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
     {
         try
         {
-            var response = await _dbamonsulContext.PartidaAmistosas.Where(x => x.IdPartidaAmistosa== id).FirstOrDefaultAsync();
+            var response = await _dbamonsulContext.PartidaAmistosas.AsNoTracking().Where(x => x.IdPartidaAmistosa== id).FirstOrDefaultAsync();
             return response!;
         }
         catch (Exception ex)
@@ -50,9 +50,20 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
         }
     }
    
-    public Task<bool> Edit(PartidaAmistosa partidaAmistosa)
+    public async Task<bool> Edit(PartidaAmistosa partidaAmistosa)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = _dbamonsulContext.PartidaAmistosas.Update(partidaAmistosa);
+            if (response == null) return false;
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al actualizar la partida.", ex);
+        }
     }
  
     public Task<bool> Delete(int id)
