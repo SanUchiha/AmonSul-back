@@ -42,6 +42,19 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
         return rawPartidas.FindAll(p => p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario);
     }
 
+    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioPendientes(string email)
+    {
+        List<ViewPartidaAmistosaDTO> rawPartidasUsuario = await GetPartidaAmistosasByUsuario(email);
+        if (rawPartidasUsuario == null) return [];
+
+        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+        if (usuario == null) return [];
+
+        return rawPartidasUsuario.FindAll(p =>
+            (p.IdUsuario1 == usuario.IdUsuario && !(p.PartidaValidadaUsuario1 ?? false))
+            || (p.IdUsuario2 == usuario.IdUsuario && !(p.PartidaValidadaUsuario2 ?? false)));
+    }
+
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(string email)
     {
         var rawPartidas = await GetPartidasAmistosas();

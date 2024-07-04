@@ -91,4 +91,17 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("Pendientes/{email}")]
+    [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPartidaAmistosasByUsuarioPendientes(string email)
+    {
+        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(email);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
 }
