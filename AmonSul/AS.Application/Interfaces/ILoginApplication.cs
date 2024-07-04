@@ -1,4 +1,4 @@
-﻿using AS.Infrastructure.DTOs;
+﻿using AS.Infrastructure.DTOs.Login;
 
 namespace AS.Application.Interfaces;
 

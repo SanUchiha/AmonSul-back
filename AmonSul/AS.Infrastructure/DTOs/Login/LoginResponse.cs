@@ -1,4 +1,4 @@
-﻿namespace AS.Infrastructure.DTOs;
+﻿namespace AS.Infrastructure.DTOs.Login;
 
 public sealed class LoginResponse
 {

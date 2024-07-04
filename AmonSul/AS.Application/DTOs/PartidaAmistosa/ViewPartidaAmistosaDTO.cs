@@ -1,6 +1,6 @@
 ﻿namespace AS.Application.DTOs.PartidaAmistosa;
 
-public class PartidaAmistosaDTO
+public class ViewPartidaAmistosaDTO
 {
     public int IdPartidaAmistosa { get; set; }
     public int? IdUsuario1 { get; set; }
@@ -13,4 +13,6 @@ public class PartidaAmistosaDTO
     public int? PuntosPartida { get; set; }
     public int? GanadorPartida { get; set; }
     public bool? EsElo { get; set; }
+    public bool? PartidaValidadaUsuario1 { get; set; }
+    public bool? PartidaValidadaUsuario2 { get; set; }
 }

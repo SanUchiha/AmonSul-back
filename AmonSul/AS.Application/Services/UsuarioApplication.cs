@@ -4,10 +4,11 @@ using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure;
-using AS.Infrastructure.DTOs;
+using AS.Infrastructure.DTOs.Login;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Constantes;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 
@@ -16,12 +17,14 @@ public class UsuarioApplication(
     IMapper mapper,
     Utilidades utilidades,
     IAccountRepository accountRepository,
+    ILogger<UsuarioApplication> logger,
     IEmailSender emailSender) : IUsuarioApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly Utilidades _utilidades = utilidades;
     private readonly IAccountRepository _accountRepository = accountRepository;
+    private readonly ILogger<UsuarioApplication> _logger = logger;
     private readonly IEmailSender _emailSender = emailSender;
 
     public Task<bool> Delete(string email)
@@ -39,7 +42,6 @@ public class UsuarioApplication(
 
         if (usuario.Contraseña != null)
         {
-            var rawPass = usuario.Contraseña;
             usuario.Contraseña = _utilidades.encriptarSHA256(usuario.Contraseña);
         }
 
@@ -51,10 +53,7 @@ public class UsuarioApplication(
             if (newValue != null)
             {
                 var rawProp = rawUsuario.GetType().GetProperty(prop.Name);
-                if (rawProp != null)
-                {
-                    rawProp.SetValue(rawUsuario, newValue);
-                }
+                rawProp?.SetValue(rawUsuario, newValue);
             }
         }
 
@@ -123,10 +122,7 @@ public class UsuarioApplication(
             }
             catch (EmailSendException emailEx)
             {
-                // Loggear el error y continuar (no detener el registro del usuario)
-                Console.WriteLine("Error al enviar el correo de bienvenida.", emailEx);
-                // Si prefieres lanzar la excepción, puedes descomentar la siguiente línea:
-                // throw;
+                _logger.LogError(emailEx, "Error al enviar el correo de bienvenida. ${emailEx.Message}", emailEx.Message);
             }
 
             return response;

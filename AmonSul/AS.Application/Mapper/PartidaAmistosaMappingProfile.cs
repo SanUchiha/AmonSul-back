@@ -8,6 +8,7 @@ public class PartidaAmistosaMappingProfile : Profile
 {
     public PartidaAmistosaMappingProfile()
     {
-        CreateMap<PartidaAmistosa, PartidaAmistosaDTO>().ReverseMap();
+        CreateMap<PartidaAmistosa, ViewPartidaAmistosaDTO>().ReverseMap();
+        CreateMap<PartidaAmistosa, CreatePartidaAmistosaDTO>().ReverseMap();
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure;
-using AS.Infrastructure.DTOs;
+using AS.Infrastructure.DTOs.Login;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Application.Services;

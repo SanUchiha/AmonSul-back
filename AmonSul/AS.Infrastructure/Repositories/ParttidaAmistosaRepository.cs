@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
 
-public class PartidaAmistosaRepository : IPartidaAmistosaRepository
+public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPartidaAmistosaRepository
 {
-    private readonly DbamonsulContext _dbamonsulContext;
-
-    public PartidaAmistosaRepository(DbamonsulContext dbamonsulContext)
-    {
-        _dbamonsulContext = dbamonsulContext;
-    }
+    private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
     public async Task<List<PartidaAmistosa>> GetPartidasAmistosas()
     {
@@ -39,9 +34,20 @@ public class PartidaAmistosaRepository : IPartidaAmistosaRepository
         }
     }
   
-    public Task<bool> Register(PartidaAmistosa partidaAmistosa)
+    public async Task<bool> Register(PartidaAmistosa partidaAmistosa)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _dbamonsulContext.PartidaAmistosas.AddAsync(partidaAmistosa);
+            if (response == null) return false;
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al crea la partida.", ex);
+        }
     }
    
     public Task<bool> Edit(PartidaAmistosa partidaAmistosa)
@@ -52,5 +58,38 @@ public class PartidaAmistosaRepository : IPartidaAmistosaRepository
     public Task<bool> Delete(int id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<List<PartidaAmistosa>> GetPartidaAmistosasByUsuario(string email)
+    {
+        try
+        {
+
+            List<PartidaAmistosa> rawPartidasAmistosas = await GetPartidasAmistosas();
+            var idUsuario = await ConseguirIdUsuario(email);
+
+            List<PartidaAmistosa> partidasAmistosasPorJugador = rawPartidasAmistosas.Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario).ToList();
+
+            if (partidasAmistosasPorJugador == null) return [];
+            return partidasAmistosasPorJugador;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al buscar las partidas por jugador", ex);
+        }
+    }
+
+    private async Task<int> ConseguirIdUsuario(string email)
+    {
+        try
+        {
+            var usuario = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+
+            return usuario == null ? throw new Exception("Usuario no encontrado") : usuario.IdUsuario;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"{ex.Message}");
+        }
     }
 }

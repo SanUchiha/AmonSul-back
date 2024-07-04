@@ -10,5 +10,4 @@ public interface IPartidaAmistosaRepository
     Task<bool> Edit(PartidaAmistosa partidaAmistosa);
     Task<bool> Register(PartidaAmistosa partidaAmistosa);
     Task<bool> Delete(int id);
-    Task<bool> ValidarPartidaAmistosa(int id);
 }
