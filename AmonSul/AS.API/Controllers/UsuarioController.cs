@@ -1,7 +1,6 @@
 ﻿using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Exceptions;
-using AS.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -11,7 +11,7 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
 
-    public Task SendEmailRegister(EmailRegisterDTO request)
+    public async Task<Task> SendEmailRegister(EmailRegisterDTO request)
     {
         try
         {
@@ -36,7 +36,7 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
                 Body = request.Body
             };
 
-            EmailToMe(emailToMeDTO);
+            await EmailToMe(emailToMeDTO);
 
             return send;
         }
@@ -51,7 +51,7 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
 
     }
 
-    private Task EmailToMe(EmailToMeDTO request)
+    private async Task<Task> EmailToMe(EmailToMeDTO request)
     {
         try
         {

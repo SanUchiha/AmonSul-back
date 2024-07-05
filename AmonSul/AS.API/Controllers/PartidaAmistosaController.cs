@@ -1,13 +1,14 @@
 ﻿using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace AS.API.Controllers;
 
-[Route("[controller]")]
-//[Authorize]
+[Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmistosaApplication) : ControllerBase
 {
