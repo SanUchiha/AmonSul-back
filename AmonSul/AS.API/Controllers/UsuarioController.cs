@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Usuario;
+﻿using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -43,7 +44,7 @@ namespace AS.API.Controllers
         {
             try
             {
-                var response = await _usuarioApplication.GetAll();
+                List<ViewUsuarioPartidaDTO> response = await _usuarioApplication.GetAll();
 
                 if (response is null) return NoContent();
 
@@ -111,7 +112,7 @@ namespace AS.API.Controllers
 
         [HttpPut]
         [Route("editar")]
-        public async Task<IActionResult> Delete([FromBody] EditarUsuarioDTO request)
+        public async Task<IActionResult> Edit([FromBody] EditarUsuarioDTO request)
         {
             try
             {
@@ -144,5 +145,25 @@ namespace AS.API.Controllers
                 return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
             }
         }
+
+        [HttpGet]
+        [Route("Id/{idUsuario}")]
+        public async Task<IActionResult> GetNickById(int idUsuario)
+        {
+            try
+            {
+                string response = await _usuarioApplication.GetNickById(idUsuario);
+
+                if (response is null) return NotFound();
+
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+            }
+        }
+
+
     }
 }

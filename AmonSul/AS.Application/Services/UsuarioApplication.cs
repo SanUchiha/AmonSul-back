@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Email;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
@@ -18,7 +19,8 @@ public class UsuarioApplication(
     Utilidades utilidades,
     IAccountRepository accountRepository,
     ILogger<UsuarioApplication> logger,
-    IEmailSender emailSender) : IUsuarioApplication
+    IEmailSender emailSender,
+    IPartidaAmistosaApplication partidaAmistosaApplication) : IUsuarioApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
@@ -26,6 +28,7 @@ public class UsuarioApplication(
     private readonly IAccountRepository _accountRepository = accountRepository;
     private readonly ILogger<UsuarioApplication> _logger = logger;
     private readonly IEmailSender _emailSender = emailSender;
+    private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
 
     public Task<bool> Delete(string email)
     {
@@ -61,22 +64,93 @@ public class UsuarioApplication(
         return result;
     }
 
-    public async Task<List<UsuarioDTO>> GetAll()
+    public async Task<List<ViewUsuarioPartidaDTO>> GetAll()
     {
-        var response = await _unitOfWork.UsuarioRepository.GetAll();
-        return _mapper.Map<List<UsuarioDTO>>(response);
+        List<Usuario> rawUsuario = await _unitOfWork.UsuarioRepository.GetAll();
+
+        List<ViewUsuarioPartidaDTO> listViewUsuarioPartidaDTO = [];
+
+        foreach (var item in rawUsuario)
+        {
+            ViewUsuarioPartidaDTO obj = new();
+            obj.IdUsuario = item.IdUsuario;
+            obj.Email = item.Email;
+            obj.Nick = item.Nick;
+            obj.Ciudad = item.Ciudad;
+            obj.FechaRegistro = item.FechaRegistro;
+            obj.IdFaccion = item.IdFaccion;
+
+            var partidasAmistosas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
+            obj.NumeroPartidasJugadas = partidasAmistosas.Count;
+            int contadorVictorias = 0;
+            int contadorEmpates = 0;
+            int contadorDerrotas = 0;
+            foreach (var partida in partidasAmistosas)
+            {
+                if (partida.GanadorPartida == obj.IdUsuario) contadorVictorias++;
+                else if (partida.GanadorPartida == 0) contadorEmpates++;
+                else contadorDerrotas++;
+            }
+            obj.PartidasGanadas = contadorVictorias;
+            obj.PartidasEmpatadas = contadorEmpates;
+            obj.PartidasPerdidas = contadorDerrotas;
+
+            //TODO
+            //elo
+            //clasi elo
+
+
+            listViewUsuarioPartidaDTO.Add(obj);
+        }
+
+        return _mapper.Map<List<ViewUsuarioPartidaDTO>>(listViewUsuarioPartidaDTO);
     }
 
-    public async Task<UsuarioDTO> GetByEmail(string email)
+    public async Task<ViewUsuarioPartidaDTO> GetByEmail(string email)
     {
-        var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetByEmail(email);
-        return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
+        Usuario rawUsuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+        if (rawUsuario == null) return new();
+
+        ViewUsuarioPartidaDTO obj = new();
+        obj.IdUsuario = rawUsuario.IdUsuario;
+        obj.Email = rawUsuario.Email;
+        obj.Nick = rawUsuario.Nick;
+        obj.Ciudad = rawUsuario.Ciudad;
+        obj.FechaRegistro = rawUsuario.FechaRegistro;
+        obj.IdFaccion = rawUsuario.IdFaccion;
+
+        var partidasAmistosas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
+        obj.NumeroPartidasJugadas = partidasAmistosas.Count;
+        int contadorVictorias = 0;
+        int contadorEmpates = 0;
+        int contadorDerrotas = 0;
+        foreach (var partida in partidasAmistosas)
+        {
+            if (partida.GanadorPartida == obj.IdUsuario) contadorVictorias++;
+            else if (partida.GanadorPartida == 0) contadorEmpates++;
+            else contadorDerrotas++;
+        }
+        obj.PartidasGanadas = contadorVictorias;
+        obj.PartidasEmpatadas = contadorEmpates;
+        obj.PartidasPerdidas = contadorDerrotas;
+
+        //TODO ELO
+
+        return obj;
     }
 
     public async Task<UsuarioDTO> GetByNick(string nick)
     {
         var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetByNick(nick);
         return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
+    }
+
+    public async Task<string> GetNickById(int idUsuario)
+    {
+        var usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
+        if (usuario == null) return "";
+
+        return usuario.Nick;
     }
 
     public async Task<UsuarioViewDTO> GetUsuario(string email)
@@ -128,7 +202,7 @@ public class UsuarioApplication(
             return response;
 
         }
-        catch 
+        catch
         {
             throw;
         }

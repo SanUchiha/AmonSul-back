@@ -3,5 +3,5 @@
 public class ValidarPartidaDTO
 {
     public required int IdPartida { get; set; }
-    public required string EmailJugaoor { get; set; }
+    public required string EmailJugador { get; set; }
 }

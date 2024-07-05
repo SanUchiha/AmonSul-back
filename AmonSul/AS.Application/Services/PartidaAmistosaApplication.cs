@@ -109,7 +109,7 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
         } 
 
         //2. quedarnos con el Id del jugador
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugaoor);
+        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
         if (usuario == null) 
         {
             _logger.LogInformation("Usuario no encontrado");
