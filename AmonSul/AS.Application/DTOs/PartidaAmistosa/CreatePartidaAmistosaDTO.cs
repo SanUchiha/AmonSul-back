@@ -10,4 +10,5 @@ public class CreatePartidaAmistosaDTO
     public required bool EsMatchedPlayPartida { get; set; }
     public required string EscenarioPartida { get; set; }
     public bool EsElo { get; set; } = true;
+    public required int PuntosPartida { get; set; }
 }
