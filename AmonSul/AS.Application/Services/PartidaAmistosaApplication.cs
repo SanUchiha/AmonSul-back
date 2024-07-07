@@ -1,17 +1,22 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.Application.DTOs.Email;
+using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.Usuario;
+using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using AS.Utils.Constantes;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 
-public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PartidaAmistosaApplication> logger) : IPartidaAmistosaApplication
+public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PartidaAmistosaApplication> logger, IEmailSender emailSender) : IPartidaAmistosaApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<PartidaAmistosaApplication> _logger = logger;
+    private readonly IEmailSender _emailSender = emailSender;
 
     public Task<bool> Delete(int id)
     {
@@ -35,7 +40,7 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
     {
         var rawPartidas = await GetPartidasAmistosas();
         if (rawPartidas == null) return [];
-        
+
         var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
         if (usuario == null) return [];
 
@@ -95,22 +100,52 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
             else partidaAmistosa.GanadorPartida = request.IdUsuario2;
         }
 
-        return await _unitOfWork.PartidaAmistosaRepository.Register(partidaAmistosa);
+        var registro = await _unitOfWork.PartidaAmistosaRepository.Register(partidaAmistosa);
+
+        //Conseguir los mails
+        var usuario1 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
+        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
+
+        //Envio de mensajes de partida creada
+        EmailRegisterDTO emailRegister1DTO = new()
+        {
+            EmailTo = usuario1.Email,
+            Subject = ConstEmailMessage.MessageCreacionPartidaAsunto,
+            Body = ConstEmailMessage.MessageCreacionPartidaBody,
+        };
+        EmailRegisterDTO emailRegister2DTO = new()
+        {
+            EmailTo = usuario2.Email,
+            Subject = ConstEmailMessage.MessageCreacionPartidaAsunto,
+            Body = ConstEmailMessage.MessageCreacionPartidaBody,
+        };
+
+        try
+        {
+            await _emailSender.SendEmailRegister(emailRegister1DTO);
+            await _emailSender.SendEmailRegister(emailRegister2DTO);
+        }
+        catch (EmailSendException emailEx)
+        {
+            _logger.LogError(emailEx, "Error al enviar el correo de creación de partdia. ${emailEx.Message}", emailEx.Message);
+        }
+
+        return registro;
     }
 
     public async Task<bool> ValidarPartidaAmistosa(ValidarPartidaDTO validarPartidaDTO)
     {
         //1. Buscar la partida
         var partida = await GetById(validarPartidaDTO.IdPartida);
-        if (partida == null) 
+        if (partida == null)
         {
             _logger.LogInformation("Partida amistosa no encontrada");
             return false;
-        } 
+        }
 
         //2. quedarnos con el Id del jugador
         var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
-        if (usuario == null) 
+        if (usuario == null)
         {
             _logger.LogInformation("Usuario no encontrado");
             return false;
@@ -119,7 +154,7 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
         bool usuario1 = false; bool usuario2 = false;
         //3. Validar si es jugador 1 o jugador 2
         if (usuario.IdUsuario == partida.IdUsuario1) usuario1 = true;
-        else if(usuario.IdUsuario == partida.IdUsuario2) usuario2 = true;
+        else if (usuario.IdUsuario == partida.IdUsuario2) usuario2 = true;
         else return false;
 
         //4. Validar la partida

@@ -50,7 +50,7 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
 
         if (response == false) return BadRequest("No se ha podido crear la partida");
 
-        return Created();
+        return CreatedAtAction(nameof(CrearPartidaAmistosa), new { result = response}, "La partida ha sido creada con exito");
     }
 
     [HttpPut]

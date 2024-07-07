@@ -10,3 +10,15 @@ C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.dll
 C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\refint\AS.Utils.dll
 C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.pdb
 C:\Fork\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\ref\AS.Utils.dll
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\bin\Debug\net8.0\AS.Utils.deps.json
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\bin\Debug\net8.0\AS.Utils.dll
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\bin\Debug\net8.0\AS.Utils.pdb
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.AssemblyInfoInputs.cache
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.AssemblyInfo.cs
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.csproj.CoreCompileInputs.cache
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.sourcelink.json
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.dll
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\refint\AS.Utils.dll
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\AS.Utils.pdb
+D:\Projects\AmonSul-back\AmonSul\AS.Utils\obj\Debug\net8.0\ref\AS.Utils.dll

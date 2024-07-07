@@ -32,7 +32,7 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
             EmailToMeDTO emailToMeDTO = new EmailToMeDTO()
             {
                 EmailTo = _emailSettings.From,
-                Subject = "Copia mensaje de bienvenida de " + request.EmailTo,
+                Subject = "Copia envio de correo para: " + request.EmailTo,
                 Body = request.Body
             };
 
