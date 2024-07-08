@@ -68,10 +68,26 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
         var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
         if (usuario == null) return [];
 
-        return rawPartidas
+        rawPartidas = rawPartidas
             .FindAll(p => (p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario)
                       && (p.PartidaValidadaUsuario1 ?? false)
                       && (p.PartidaValidadaUsuario2 ?? false));
+
+        foreach (var partida in rawPartidas)
+        {
+            var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
+            partida.NickUsuario1 = usuario1.Nick;
+            var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
+            partida.NickUsuario2 = usuario2.Nick;
+            if(partida.GanadorPartida != 0) 
+            {
+                var usuarioGanador = await _unitOfWork.UsuarioRepository.GetById(partida.GanadorPartida);
+                partida.GanadorPartidaNick = usuarioGanador.Nick;
+            }
+            
+        }
+
+        return rawPartidas;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosas()
