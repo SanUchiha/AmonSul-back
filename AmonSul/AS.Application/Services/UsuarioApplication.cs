@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Email;
+﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.Email;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Exceptions;
@@ -13,22 +14,36 @@ using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 
-public class UsuarioApplication(
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    Utilidades utilidades,
-    IAccountRepository accountRepository,
-    ILogger<UsuarioApplication> logger,
-    IEmailSender emailSender,
-    IPartidaAmistosaApplication partidaAmistosaApplication) : IUsuarioApplication
+public class UsuarioApplication : IUsuarioApplication
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IMapper _mapper = mapper;
-    private readonly Utilidades _utilidades = utilidades;
-    private readonly IAccountRepository _accountRepository = accountRepository;
-    private readonly ILogger<UsuarioApplication> _logger = logger;
-    private readonly IEmailSender _emailSender = emailSender;
-    private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly Utilidades _utilidades;
+    private readonly IAccountRepository _accountRepository;
+    private readonly ILogger<UsuarioApplication> _logger;
+    private readonly IEmailSender _emailSender;
+    private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
+    private readonly IEloApplication _eloApplication;
+
+    public UsuarioApplication(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        Utilidades utilidades,
+        IAccountRepository accountRepository,
+        ILogger<UsuarioApplication> logger,
+        IEmailSender emailSender,
+        IPartidaAmistosaApplication partidaAmistosaApplication,
+        IEloApplication eloApplication)
+    {
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _utilidades = utilidades;
+        _accountRepository = accountRepository;
+        _logger = logger;
+        _emailSender = emailSender;
+        _partidaAmistosaApplication = partidaAmistosaApplication;
+        _eloApplication = eloApplication;
+    }
 
     public Task<bool> Delete(string email)
     {
@@ -72,13 +87,15 @@ public class UsuarioApplication(
 
         foreach (var item in rawUsuario)
         {
-            ViewUsuarioPartidaDTO obj = new();
-            obj.IdUsuario = item.IdUsuario;
-            obj.Email = item.Email;
-            obj.Nick = item.Nick;
-            obj.Ciudad = item.Ciudad;
-            obj.FechaRegistro = item.FechaRegistro;
-            obj.IdFaccion = item.IdFaccion;
+            ViewUsuarioPartidaDTO obj = new()
+            {
+                IdUsuario = item.IdUsuario,
+                Email = item.Email,
+                Nick = item.Nick,
+                Ciudad = item.Ciudad,
+                FechaRegistro = item.FechaRegistro,
+                IdFaccion = item.IdFaccion
+            };
 
             var partidasAmistosas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
             obj.NumeroPartidasJugadas = partidasAmistosas.Count;
@@ -111,13 +128,15 @@ public class UsuarioApplication(
         Usuario rawUsuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
         if (rawUsuario == null) return new();
 
-        ViewUsuarioPartidaDTO obj = new();
-        obj.IdUsuario = rawUsuario.IdUsuario;
-        obj.Email = rawUsuario.Email;
-        obj.Nick = rawUsuario.Nick;
-        obj.Ciudad = rawUsuario.Ciudad;
-        obj.FechaRegistro = rawUsuario.FechaRegistro;
-        obj.IdFaccion = rawUsuario.IdFaccion;
+        ViewUsuarioPartidaDTO obj = new()
+        {
+            IdUsuario = rawUsuario.IdUsuario,
+            Email = rawUsuario.Email,
+            Nick = rawUsuario.Nick,
+            Ciudad = rawUsuario.Ciudad,
+            FechaRegistro = rawUsuario.FechaRegistro,
+            IdFaccion = rawUsuario.IdFaccion
+        };
 
         var partidasAmistosas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
         obj.NumeroPartidasJugadas = partidasAmistosas.Count;
@@ -137,6 +156,12 @@ public class UsuarioApplication(
         //TODO ELO
 
         return obj;
+    }
+
+    public async Task<UsuarioDTO> GetById(int IdUsuario)
+    {
+        var usuario = await _unitOfWork.UsuarioRepository.GetById(IdUsuario);
+        return _mapper.Map<UsuarioDTO>(usuario);
     }
 
     public async Task<UsuarioDTO> GetByNick(string nick)
@@ -198,6 +223,17 @@ public class UsuarioApplication(
             {
                 _logger.LogError(emailEx, "Error al enviar el correo de bienvenida. ${emailEx.Message}", emailEx.Message);
             }
+
+
+            var usuarioRegistrado = await GetByEmail(registrarUsuarioDTO.Email);
+
+            CreateEloDTO createElo = new() 
+            { 
+                IdUsuario = usuarioRegistrado.IdUsuario, 
+                PuntuacionElo = 800 
+            };
+
+            await _eloApplication.RegisterElo(createElo);
 
             return response;
 

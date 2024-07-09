@@ -16,6 +16,7 @@ namespace AS.Application.Dependencies
             services.AddScoped<IFaccionApplication, FaccionApplication>();
             services.AddScoped<ITorneoApplication, TorneoApplication>();
             services.AddScoped<IPartidaAmistosaApplication, PartidaAmistosaApplication>();
+            services.AddScoped<IEloApplication, EloApplication>();
 
             return services;
         }

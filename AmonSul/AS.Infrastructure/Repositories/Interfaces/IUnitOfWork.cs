@@ -8,6 +8,7 @@ public interface IUnitOfWork: IDisposable
     IFaccionRepository FaccionRepository { get; }
     ITorneoRepository TorneoRepository { get; }
     IPartidaAmistosaRepository PartidaAmistosaRepository { get; }
+    IEloRepository EloRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();

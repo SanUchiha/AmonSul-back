@@ -1,11 +1,9 @@
 using AS.Application.Dependencies;
-using AS.Application.DTOs.Email;
 using AS.Infrastructure;
 using AS.Infrastructure.Dependencies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

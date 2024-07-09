@@ -5,7 +5,7 @@ namespace AS.Application.Interfaces;
 
 public interface IUsuarioApplication
 {
-    //Task<UsuarioDTO> GetById(int IdUsuario);
+    Task<UsuarioDTO> GetById(int IdUsuario);
     Task<bool> Edit(EditarUsuarioDTO usuario);
     Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
     Task<ViewUsuarioPartidaDTO> GetByEmail(string email);

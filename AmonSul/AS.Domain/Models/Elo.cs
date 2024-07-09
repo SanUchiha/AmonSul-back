@@ -7,8 +7,9 @@ public partial class Elo
     public int? IdUsuario { get; set; }
 
     public int? PuntuacionElo { get; set; }
+    public DateTime FechaElo { get; set; }
 
-    public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = new List<ClasificacionGeneral>();
+    public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = [];
 
     public virtual Usuario? IdUsuarioNavigation { get; set; }
 }

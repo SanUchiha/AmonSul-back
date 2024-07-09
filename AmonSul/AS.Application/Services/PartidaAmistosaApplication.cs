@@ -1,22 +1,33 @@
-﻿using AS.Application.DTOs.Email;
+﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.Email;
 using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.DTOs.Usuario;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Constantes;
+using AS.Utils.Statics;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 
-public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PartidaAmistosaApplication> logger, IEmailSender emailSender) : IPartidaAmistosaApplication
+public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IMapper _mapper = mapper;
-    private readonly ILogger<PartidaAmistosaApplication> _logger = logger;
-    private readonly IEmailSender _emailSender = emailSender;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly ILogger<PartidaAmistosaApplication> _logger;
+    private readonly IEmailSender _emailSender;
+    private readonly IEloApplication _eloApplication;
+
+    public PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PartidaAmistosaApplication> logger, IEmailSender emailSender, IEloApplication eloApplication)
+    {
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+        _logger = logger;
+        _emailSender = emailSender;
+        _eloApplication = eloApplication;
+    }
 
     public Task<bool> Delete(int id)
     {
@@ -79,12 +90,12 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
             partida.NickUsuario1 = usuario1.Nick;
             var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
             partida.NickUsuario2 = usuario2.Nick;
-            if(partida.GanadorPartida != 0) 
+            if (partida.GanadorPartida != 0)
             {
                 var usuarioGanador = await _unitOfWork.UsuarioRepository.GetById(partida.GanadorPartida);
                 partida.GanadorPartidaNick = usuarioGanador.Nick;
             }
-            
+
         }
 
         return rawPartidas;
@@ -151,7 +162,6 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
 
     public async Task<bool> ValidarPartidaAmistosa(ValidarPartidaDTO validarPartidaDTO)
     {
-        //1. Buscar la partida
         var partida = await GetById(validarPartidaDTO.IdPartida);
         if (partida == null)
         {
@@ -159,7 +169,6 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
             return false;
         }
 
-        //2. quedarnos con el Id del jugador
         var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
         if (usuario == null)
         {
@@ -167,21 +176,71 @@ public class PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, 
             return false;
         }
 
-        bool usuario1 = false; bool usuario2 = false;
-        //3. Validar si es jugador 1 o jugador 2
+        bool usuario1 = false;
+        bool usuario2 = false;
         if (usuario.IdUsuario == partida.IdUsuario1) usuario1 = true;
         else if (usuario.IdUsuario == partida.IdUsuario2) usuario2 = true;
         else return false;
 
-        //4. Validar la partida
         if (usuario1) partida.PartidaValidadaUsuario1 = true;
         else partida.PartidaValidadaUsuario2 = true;
 
-        //5. Guardamos los cambios en la partida
-
         UpdatePartidaAmistosaDTO updatePartida = _mapper.Map<UpdatePartidaAmistosaDTO>(partida);
+
         var result = await Edit(updatePartida);
 
-        return true;
+        // Comprobamos si tenemos que actualizar el elo para ambos jugadores
+
+        var partidaValidada = await GetById(validarPartidaDTO.IdPartida);
+
+        if (partidaValidada.PartidaValidadaUsuario1 == true &&
+            partidaValidada.PartidaValidadaUsuario2 == true)
+        {
+            int eloJugador1 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario1);
+            int eloJugador2 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario2);
+
+            double scoreGanador = 1.0;
+            double scorePerdedor = 0.0;
+            double scoreEmpate = 0.5;
+            int nuevoEloJugador1 = 800;
+            int nuevoEloJugador2 = 800;
+
+            //GanaJugador1
+            if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario1)
+            {
+                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreGanador);
+                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scorePerdedor);
+            }
+            //GanaJugador2
+            if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario2)
+            {
+                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scorePerdedor);
+                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
+            }
+            //Empate
+            if (partidaValidada.GanadorPartida == 0)
+            {
+                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
+                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
+            }
+
+            //Elo jugador 1
+            CreateEloDTO createElo1 = new()
+            {
+                IdUsuario = partidaValidada.IdUsuario1,
+                PuntuacionElo = nuevoEloJugador1
+            };
+            await _eloApplication.RegisterElo(createElo1);
+
+            //Elo jugador 2
+            CreateEloDTO createElo2 = new()
+            {
+                IdUsuario = partidaValidada.IdUsuario2,
+                PuntuacionElo = nuevoEloJugador2
+            };
+            await _eloApplication.RegisterElo(createElo2);
+        }
+
+        return result;
     }
 }

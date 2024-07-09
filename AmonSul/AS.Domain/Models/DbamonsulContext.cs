@@ -120,6 +120,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdElo).HasColumnName("ID_Elo");
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
             entity.Property(e => e.PuntuacionElo).HasColumnName("Puntuacion_Elo");
+            entity.Property(e => e.FechaElo).HasColumnName("Fecha_Elo");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Elos)
                 .HasForeignKey(d => d.IdUsuario)

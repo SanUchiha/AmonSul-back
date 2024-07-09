@@ -12,6 +12,7 @@ public class UnitOfWork : IUnitOfWork
     public IFaccionRepository FaccionRepository { get; private set; }
     public ITorneoRepository TorneoRepository { get; private set; }
     public IPartidaAmistosaRepository PartidaAmistosaRepository{ get; private set; }
+    public IEloRepository EloRepository { get; private set; }
     public Utilidades _utilidades;
 
     public UnitOfWork(DbamonsulContext context, Utilidades utilidades)
@@ -23,6 +24,7 @@ public class UnitOfWork : IUnitOfWork
         FaccionRepository = new FaccionRepository(context);
         TorneoRepository = new TorneoRepository(context);
         PartidaAmistosaRepository = new PartidaAmistosaRepository(context);
+        EloRepository = new EloRepository(context);
     }
 
     public void Dispose() => _context.Dispose();
