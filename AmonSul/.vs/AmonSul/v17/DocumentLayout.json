@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B524E7DA-B63A-4C3B-A7A3-3ECA96B929F0}|AS.Utils\\AS.Utils.csproj|c:\\fork\\amonsul-back\\amonsul\\as.utils\\statics\\elorating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B524E7DA-B63A-4C3B-A7A3-3ECA96B929F0}|AS.Utils\\AS.Utils.csproj|solutionrelative:as.utils\\statics\\elorating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\usuarioapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\usuariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\eloapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -47,19 +55,45 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "EloRating.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\Statics\\EloRating.cs",
+              "RelativeDocumentMoniker": "AS.Utils\\Statics\\EloRating.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\Statics\\EloRating.cs",
+              "RelativeToolTip": "AS.Utils\\Statics\\EloRating.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-09T11:11:58.329Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UsuarioController.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeDocumentMoniker": "AS.API\\Controllers\\UsuarioController.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\UsuarioController.cs",
+              "RelativeToolTip": "AS.API\\Controllers\\UsuarioController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEAAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-09T11:02:53.17Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "UsuarioApplication.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
               "RelativeDocumentMoniker": "AS.Application\\Services\\UsuarioApplication.cs",
               "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\UsuarioApplication.cs",
               "RelativeToolTip": "AS.Application\\Services\\UsuarioApplication.cs",
-              "ViewState": "AQIAANsAAAAAAAAAAAAawOsAAAAMAAAA",
+              "ViewState": "AQIAAMgAAAAAAAAAAAAAAHUAAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-09T10:53:25.607Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "EloApplication.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\EloApplication.cs",
               "RelativeDocumentMoniker": "AS.Application\\Services\\EloApplication.cs",
@@ -67,12 +101,11 @@
               "RelativeToolTip": "AS.Application\\Services\\EloApplication.cs",
               "ViewState": "AQIAACcAAAAAAAAAAAAAAC4AAAAqAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-09T10:24:36.601Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-09T10:24:36.601Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Program.cs",
               "RelativeDocumentMoniker": "AS.API\\Program.cs",
@@ -84,7 +117,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "PartidaAmistosaApplication.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
               "RelativeDocumentMoniker": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
@@ -92,8 +125,7 @@
               "RelativeToolTip": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAADsAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-09T10:19:29.129Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-09T10:19:29.129Z"
             }
           ]
         }

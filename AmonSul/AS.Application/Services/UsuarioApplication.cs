@@ -114,7 +114,8 @@ public class UsuarioApplication : IUsuarioApplication
 
             //TODO
             //elo
-            //clasi elo
+            int lastElo = await _eloApplication.GetLastElo(obj.IdUsuario);
+            obj.PuntuacionElo = lastElo;
 
 
             listViewUsuarioPartidaDTO.Add(obj);
@@ -154,6 +155,8 @@ public class UsuarioApplication : IUsuarioApplication
         obj.PartidasPerdidas = contadorDerrotas;
 
         //TODO ELO
+        int lastElo = await _eloApplication.GetLastElo(obj.IdUsuario);
+        obj.PuntuacionElo = lastElo;
 
         return obj;
     }
