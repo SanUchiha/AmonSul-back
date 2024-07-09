@@ -87,7 +87,7 @@ public class EloApplication : IEloApplication
 
         if (userElo.Elos == null || userElo.Elos.Count == 0)
         {
-            throw new Exception("No se encontraron Elos para el usuario");
+            return 800;
         }
         EloDTO lastElo = userElo.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!;
 
