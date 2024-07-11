@@ -1,9 +1,9 @@
 ﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AS.Application.Services;
 
@@ -92,5 +92,36 @@ public class EloApplication : IEloApplication
         EloDTO lastElo = userElo.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!;
 
         return lastElo?.PuntuacionElo ?? throw new Exception("No se pudo encontrar el Elo más reciente");
+    }
+
+    public async Task<List<ClasificacionElo>> GetClasificacion()
+    {
+        // Me quedo con todos los email en una lista
+        var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
+
+        if (usuarios == null) return [];
+
+        List<string> listaEmails = [];
+
+        foreach (var usuario in usuarios)
+        {
+            listaEmails.Add(usuario.Email);
+        }
+
+        List<ClasificacionElo> clasificacion = [];
+
+        foreach (var item in listaEmails)
+        {
+            var view = await GetElo(item);
+            var obj = _mapper.Map<ClasificacionElo>(view);
+            
+            //numero partidas
+            //victorias, empates, derrotas
+            //ultimo elo
+
+            clasificacion.Add(obj);
+        }
+
+        return clasificacion;
     }
 }
