@@ -96,7 +96,6 @@ public class EloApplication : IEloApplication
 
     public async Task<List<ClasificacionElo>> GetClasificacion()
     {
-        // Me quedo con todos los email en una lista
         var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
 
         if (usuarios == null) return [];
