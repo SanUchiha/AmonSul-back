@@ -3,7 +3,6 @@ using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AS.Application.Services;
 
@@ -114,14 +113,36 @@ public class EloApplication : IEloApplication
         {
             var view = await GetElo(item);
             var obj = _mapper.Map<ClasificacionElo>(view);
-            
-            //numero partidas
-            //victorias, empates, derrotas
-            //ultimo elo
+
+            var partidas = await PartidasValidadas(view.Email);
+            obj.Games = partidas.Count;
+            obj.Win = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
+            obj.Draw = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
+            obj.Lost = obj.Games - obj.Win- obj.Draw;
+            var elos = await GetElo(view.Email);
+            obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
+            //obj.MejorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).FirstOrDefault()!.PuntuacionElo;
+            //obj.PeorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).LastOrDefault()!.PuntuacionElo;
 
             clasificacion.Add(obj);
         }
 
         return clasificacion;
+    }
+
+    private async Task <List<PartidaAmistosa>> PartidasValidadas(string email)
+    {
+        var rawPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
+        if (rawPartidas == null) return [];
+
+        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+        if (usuario == null) return [];
+
+        rawPartidas = rawPartidas
+            .FindAll(p => (p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario)
+                      && (p.PartidaValidadaUsuario1 ?? false)
+                      && (p.PartidaValidadaUsuario2 ?? false));
+
+        return rawPartidas;
     }
 }
