@@ -114,14 +114,15 @@ public class EloApplication : IEloApplication
             var view = await GetElo(item);
             var obj = _mapper.Map<ClasificacionElo>(view);
 
-            var partidas = await PartidasValidadas(obj.Email);
-            obj.NumeroPartidas = partidas.Count;
-            obj.Victorias = partidas.Where(x => x.GanadorPartida == obj.IdUsuario).ToList().Count;
-            obj.Empates = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
-            obj.Derrotas = obj.NumeroPartidas - obj.Victorias - obj.Empates;
-            obj.Elo = await GetLastElo(obj.IdUsuario);
-
-            //ultimo elo
+            var partidas = await PartidasValidadas(view.Email);
+            obj.Games = partidas.Count;
+            obj.Win = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
+            obj.Draw = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
+            obj.Lost = obj.Games - obj.Win- obj.Draw;
+            var elos = await GetElo(view.Email);
+            obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
+            //obj.MejorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).FirstOrDefault()!.PuntuacionElo;
+            //obj.PeorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).LastOrDefault()!.PuntuacionElo;
 
             clasificacion.Add(obj);
         }
