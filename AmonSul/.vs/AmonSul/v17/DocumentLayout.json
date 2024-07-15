@@ -7,12 +7,24 @@
       "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\eloapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\mapper\\elomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\mapper\\elomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\ipartidaamistosarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\ipartidaamistosarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|c:\\fork\\amonsul-back\\amonsul\\as.infrastructure\\repositories\\interfaces\\iusuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D23A14A7-2EBC-48DD-AE1F-AB89B7644D9F}|AS.Infrastructure\\AS.Infrastructure.csproj|solutionrelative:as.infrastructure\\repositories\\interfaces\\iusuariorepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\elocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\elocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\mapper\\elomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\mapper\\elomappingprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,7 +54,44 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IPartidaAmistosaRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IPartidaAmistosaRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\IPartidaAmistosaRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IPartidaAmistosaRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\IPartidaAmistosaRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAA8AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-12T12:28:31.506Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IUsuarioRepository.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IUsuarioRepository.cs",
+              "RelativeDocumentMoniker": "AS.Infrastructure\\Repositories\\Interfaces\\IUsuarioRepository.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\Repositories\\Interfaces\\IUsuarioRepository.cs",
+              "RelativeToolTip": "AS.Infrastructure\\Repositories\\Interfaces\\IUsuarioRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-12T12:28:25.915Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "PartidaAmistosaApplication.cs",
+              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
+              "RelativeDocumentMoniker": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
+              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
+              "RelativeToolTip": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
+              "ViewState": "AQIAAEwAAAAAAAAAAAAAAGIAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-12T12:21:08.2Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "EloMappingProfile.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Mapper\\EloMappingProfile.cs",
               "RelativeDocumentMoniker": "AS.Application\\Mapper\\EloMappingProfile.cs",
@@ -50,8 +99,7 @@
               "RelativeToolTip": "AS.Application\\Mapper\\EloMappingProfile.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAuAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-11T13:21:14.062Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-11T13:21:14.062Z"
             },
             {
               "$type": "Document",
@@ -61,14 +109,14 @@
               "RelativeDocumentMoniker": "AS.Application\\Services\\EloApplication.cs",
               "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\EloApplication.cs",
               "RelativeToolTip": "AS.Application\\Services\\EloApplication.cs",
-              "ViewState": "AQIAADUAAAAAAAAAAADwv3cAAAAYAAAA",
+              "ViewState": "AQIAAGgAAAAAAAAAAAAuwHkAAAA2AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-07-11T13:17:53.493Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "EloController.cs",
               "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\EloController.cs",
               "RelativeDocumentMoniker": "AS.API\\Controllers\\EloController.cs",
@@ -76,8 +124,7 @@
               "RelativeToolTip": "AS.API\\Controllers\\EloController.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-11T13:12:31.677Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-11T13:12:31.677Z"
             }
           ]
         }
