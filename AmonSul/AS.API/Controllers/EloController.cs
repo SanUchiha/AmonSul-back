@@ -40,11 +40,11 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 
     [HttpGet]
     [Route("Clasificacion")]
-    [ProducesResponseType(typeof(List<ClasificacionElo>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetClasificacion()
     {
-        List<ClasificacionElo> response = await _eloApplication.GetClasificacion();
+        List<ClasificacionEloDTO> response = await _eloApplication.GetClasificacion();
 
         if (response == null) return NotFound();
 

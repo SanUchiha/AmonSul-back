@@ -24,6 +24,7 @@ public class UsuarioApplication : IUsuarioApplication
     private readonly IEmailSender _emailSender;
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
     private readonly IEloApplication _eloApplication;
+    private readonly ITorneoApplication _torneoApplication;
 
     public UsuarioApplication(
         IUnitOfWork unitOfWork,
@@ -33,7 +34,8 @@ public class UsuarioApplication : IUsuarioApplication
         ILogger<UsuarioApplication> logger,
         IEmailSender emailSender,
         IPartidaAmistosaApplication partidaAmistosaApplication,
-        IEloApplication eloApplication)
+        IEloApplication eloApplication,
+        ITorneoApplication torneoApplication)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
@@ -43,6 +45,7 @@ public class UsuarioApplication : IUsuarioApplication
         _emailSender = emailSender;
         _partidaAmistosaApplication = partidaAmistosaApplication;
         _eloApplication = eloApplication;
+        _torneoApplication = torneoApplication;
     }
 
     public Task<bool> Delete(string email)
@@ -171,6 +174,25 @@ public class UsuarioApplication : IUsuarioApplication
     {
         var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetByNick(nick);
         return _mapper.Map<UsuarioDTO>(usuarioEncontrado);
+    }
+
+    public async Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email)
+    {
+        var userMail = await GetByEmail(email);
+
+        var result = _mapper.Map<ViewDetalleUsuarioDTO>(userMail);
+
+        //elo
+        var elos = await _eloApplication.GetElo(email);
+        result.Elos = elos.Elos;
+        //partidas
+        var partidas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(email);
+        //torneos
+        result.Partidas = partidas;
+
+        var torneos = await _torneoApplication.GetTorneos();
+        
+        return result;
     }
 
     public async Task<string> GetNickById(int idUsuario)

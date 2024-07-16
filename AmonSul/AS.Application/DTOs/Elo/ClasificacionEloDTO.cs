@@ -1,6 +1,6 @@
 ﻿namespace AS.Application.DTOs.Elo
 {
-    public class ClasificacionElo
+    public class ClasificacionEloDTO
     {
         //public int IdUsuario { get; set; }
         public required string Nick { get; set; }
@@ -8,9 +8,9 @@
         public int Elo { get; set; }
         //public int MejorElo { get; set; }
         //public int PeorElo { get; set; }
-        public int Games { get; set; }
-        public int Win { get; set; }
-        public int Draw { get; set; }
-        public int Lost { get; set; }
+        public int Partidas { get; set; }
+        public int Ganadas { get; set; }
+        public int Empatadas { get; set; }
+        public int Perdidas { get; set; }
     }
 }

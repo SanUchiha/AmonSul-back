@@ -15,6 +15,6 @@ public interface IEloApplication
     Task<ViewEloDTO> GetElo(string email);
     Task<List<ViewEloDTO>> GetAllElos();
     Task<int> GetLastElo(int idUsuario);
-    Task<List<ClasificacionElo>> GetClasificacion();
+    Task<List<ClasificacionEloDTO>> GetClasificacion();
 
 }

@@ -14,4 +14,5 @@ public interface IUsuarioApplication
     Task<bool> Delete(string email);
     Task<UsuarioViewDTO> GetUsuario(string email);
     Task<string> GetNickById(int idUsuario);
+    Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email);
 }

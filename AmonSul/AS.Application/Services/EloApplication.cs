@@ -93,7 +93,7 @@ public class EloApplication : IEloApplication
         return lastElo?.PuntuacionElo ?? throw new Exception("No se pudo encontrar el Elo más reciente");
     }
 
-    public async Task<List<ClasificacionElo>> GetClasificacion()
+    public async Task<List<ClasificacionEloDTO>> GetClasificacion()
     {
         // Me quedo con todos los email en una lista
         var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
@@ -107,18 +107,18 @@ public class EloApplication : IEloApplication
             listaEmails.Add(usuario.Email);
         }
 
-        List<ClasificacionElo> clasificacion = [];
+        List<ClasificacionEloDTO> clasificacion = [];
 
         foreach (var item in listaEmails)
         {
             var view = await GetElo(item);
-            var obj = _mapper.Map<ClasificacionElo>(view);
+            var obj = _mapper.Map<ClasificacionEloDTO>(view);
 
             var partidas = await PartidasValidadas(view.Email);
-            obj.Games = partidas.Count;
-            obj.Win = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
-            obj.Draw = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
-            obj.Lost = obj.Games - obj.Win- obj.Draw;
+            obj.Partidas = partidas.Count;
+            obj.Ganadas = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
+            obj.Empatadas = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
+            obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
             var elos = await GetElo(view.Email);
             obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
             //obj.MejorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).FirstOrDefault()!.PuntuacionElo;

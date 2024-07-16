@@ -147,6 +147,24 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
+        [Route("detalle/{email}")]
+        public async Task<IActionResult> GetDetalle(string email)
+        {
+            try
+            {
+                var response = await _usuarioApplication.GetDetalleUsuarioByEmail(email);
+
+                if (response is null) return NotFound();
+
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+            }
+        }
+
+        [HttpGet]
         [Route("Id/{idUsuario}")]
         public async Task<IActionResult> GetNickById(int idUsuario)
         {
