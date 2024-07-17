@@ -2,6 +2,7 @@
 
 public class UsuarioViewDTO
 {
+    public int IdUsuario{ get; set; }
     public string NombreUsuario { get; set; } = null!;
     public string PrimerApellido { get; set; } = null!;
     public string? SegundoApellido { get; set; }

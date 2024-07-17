@@ -44,7 +44,21 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
     {
         var partida = await _unitOfWork.PartidaAmistosaRepository.GetById(Id);
 
-        return _mapper.Map<ViewPartidaAmistosaDTO>(partida);
+        var detallePartida = _mapper.Map<ViewPartidaAmistosaDTO>(partida);
+        var usuario1 = await _unitOfWork.UsuarioRepository.GetById(detallePartida.IdUsuario1);
+        detallePartida.NickUsuario1 = usuario1.Nick;
+        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(detallePartida.IdUsuario2);
+        detallePartida.NickUsuario2 = usuario2.Nick;
+        
+        if (detallePartida.GanadorPartida != 0)
+        {
+            var ganador = await _unitOfWork.UsuarioRepository.GetById(detallePartida.GanadorPartida);
+            detallePartida.NickUsuario2 = usuario2.Nick;
+            if (detallePartida.GanadorPartida == detallePartida.IdUsuario2) detallePartida.GanadorPartidaNick = detallePartida.NickUsuario2;
+            else detallePartida.GanadorPartidaNick = detallePartida.NickUsuario1;
+        }
+
+        return detallePartida;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuario(string email)
@@ -92,8 +106,8 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
             partida.NickUsuario2 = usuario2.Nick;
             if (partida.GanadorPartida != 0)
             {
-                var usuarioGanador = await _unitOfWork.UsuarioRepository.GetById(partida.GanadorPartida);
-                partida.GanadorPartidaNick = usuarioGanador.Nick;
+                if (partida.GanadorPartida == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                else partida.GanadorPartidaNick = partida.NickUsuario1;
             }
 
         }

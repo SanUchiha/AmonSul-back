@@ -33,4 +33,11 @@ public partial class PartidaAmistosa
     public virtual Usuario? IdUsuario1Navigation { get; set; }
 
     public virtual Usuario? IdUsuario2Navigation { get; set; }
+
+    public bool? EsTorneo{ get; set; }
+
+    public string? EjercitoUsuario1 { get; set; }
+
+    public string? EjercitoUsuario2 { get; set; }
+
 }

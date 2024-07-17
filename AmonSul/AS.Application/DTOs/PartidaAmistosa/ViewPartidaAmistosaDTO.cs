@@ -16,6 +16,9 @@ public class ViewPartidaAmistosaDTO
     public int GanadorPartida { get; set; }
     public string? GanadorPartidaNick { get; set; }
     public bool EsElo { get; set; }
+    public bool EsTorneo { get; set; }
+    public string? EjercitoUsuario1 { get; set; }
+    public string? EjercitoUsuario2 { get; set; }
     public bool? PartidaValidadaUsuario1 { get; set; }
     public bool? PartidaValidadaUsuario2 { get; set; }
 }

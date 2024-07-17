@@ -40,6 +40,19 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("partida/{idPartida}")]
+    [ProducesResponseType(typeof(ViewPartidaAmistosaDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetById(int idPartida)
+    {
+        var response = await _partidaAmistosaApplication.GetById(idPartida);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
     [HttpPost]
     [Route("")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]

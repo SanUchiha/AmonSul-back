@@ -218,6 +218,10 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Partida_Amistosa_Usuario2");
             entity.Property(e => e.PartidaValidadaUsuario1).HasColumnName("Partida_Validada_Usuario1");
             entity.Property(e => e.PartidaValidadaUsuario2).HasColumnName("Partida_Validada_Usuario2");
+            entity.Property(e => e.EjercitoUsuario1).HasColumnName("Ejercito_Usuario1");
+            entity.Property(e => e.EjercitoUsuario2).HasColumnName("Ejercito_Usuario2");
+            entity.Property(e => e.EsTorneo).HasColumnName("Es_Torneo");
+
         });
 
         modelBuilder.Entity<PartidaTorneo>(entity =>

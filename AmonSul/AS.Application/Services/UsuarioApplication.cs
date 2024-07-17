@@ -184,11 +184,15 @@ public class UsuarioApplication : IUsuarioApplication
 
         //elo
         var elos = await _eloApplication.GetElo(email);
+        var clasificacionElo = await _eloApplication.GetClasificacion();
+        clasificacionElo = clasificacionElo.OrderByDescending(x => x.Elo).ToList();
+        result.ClasificacionElo = clasificacionElo.FindIndex(x=>x.Nick == result.Nick) +1;
         result.Elos = elos.Elos;
         //partidas
         var partidas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(email);
         //torneos
         result.Partidas = partidas;
+        result.PuntuacionElo = elos.Elos[elos.Elos.Count - 1].PuntuacionElo;
 
         var torneos = await _torneoApplication.GetTorneos();
         

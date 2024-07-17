@@ -11,4 +11,7 @@ public class CreatePartidaAmistosaDTO
     public required string EscenarioPartida { get; set; }
     public bool EsElo { get; set; } = true;
     public required int PuntosPartida { get; set; }
+    public bool EsTorneo{ get; set; }
+    public string? EjercitoUsuario1 { get; set; }
+    public string? EjercitoUsuario2 { get; set; }
 }
