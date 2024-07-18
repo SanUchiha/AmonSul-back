@@ -32,7 +32,8 @@ public class LoginApplication : ILoginApplication
         {
             IsAccess = true,
             User = loginDTO.Email,
-            Token = token
+            Token = token, 
+            IdUsuario = foundUser.IdUsuario
         };
 
         return loginResponse;

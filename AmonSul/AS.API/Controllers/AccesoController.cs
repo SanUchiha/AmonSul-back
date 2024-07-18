@@ -37,7 +37,7 @@ namespace AS.API.Controllers
         {
             if (loginDTO == null || loginDTO.Email == null || loginDTO.Password == null) return BadRequest();
 
-            var response = await _loginApplication.Login(loginDTO);
+            LoginResponse response = await _loginApplication.Login(loginDTO);
 
             return Ok(response);
         }

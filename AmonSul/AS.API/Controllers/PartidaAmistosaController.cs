@@ -70,7 +70,7 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
     [Route("Validar")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ValidadPartidaAmistosa([FromBody, Required] ValidarPartidaDTO request)
+    public async Task<IActionResult> ValidarPartidaAmistosa([FromBody, Required] ValidarPartidaDTO request)
     {
         var response = await _partidaAmistosaApplication.ValidarPartidaAmistosa(request);
 

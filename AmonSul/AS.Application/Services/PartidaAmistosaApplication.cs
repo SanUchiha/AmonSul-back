@@ -80,9 +80,15 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
         if (usuario == null) return [];
 
-        return rawPartidasUsuario.FindAll(p =>
+        /*var pendientes = rawPartidasUsuario.FindAll(p =>
             (p.IdUsuario1 == usuario.IdUsuario && !(p.PartidaValidadaUsuario1 ?? false))
-            || (p.IdUsuario2 == usuario.IdUsuario && !(p.PartidaValidadaUsuario2 ?? false)));
+            || (p.IdUsuario2 == usuario.IdUsuario && !(p.PartidaValidadaUsuario2 ?? false)));*/
+
+        var pendientes2 = rawPartidasUsuario.FindAll(p =>
+            (p.PartidaValidadaUsuario1 == false || p.PartidaValidadaUsuario1 == null) ||
+            (p.PartidaValidadaUsuario2 == false || p.PartidaValidadaUsuario2 == null));
+
+        return pendientes2;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(string email)
@@ -119,7 +125,24 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
     {
         List<PartidaAmistosa> response = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
 
-        return _mapper.Map<List<ViewPartidaAmistosaDTO>>(response);
+        //Rellenar con los datos que faltan
+
+        List<ViewPartidaAmistosaDTO> partidas = _mapper.Map<List<ViewPartidaAmistosaDTO>>(response);
+
+        foreach (var partida in partidas)
+        {
+            var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
+            partida.NickUsuario1 = usuario1.Nick;
+            var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
+            partida.NickUsuario2 = usuario2.Nick;
+            if (partida.GanadorPartida != 0)
+            {
+                if (partida.GanadorPartida == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                else partida.GanadorPartidaNick = partida.NickUsuario1;
+            }
+        }
+
+        return partidas;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosasValidadas()
