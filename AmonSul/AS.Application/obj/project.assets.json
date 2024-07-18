@@ -3917,19 +3917,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\josea\\.nuget\\packages\\": {}
+    "C:\\Users\\Jose\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\AS.Application.csproj",
+      "projectUniqueName": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Application\\AS.Application.csproj",
       "projectName": "AS.Application",
-      "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\AS.Application.csproj",
-      "packagesPath": "C:\\Users\\josea\\.nuget\\packages\\",
-      "outputPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\obj\\",
+      "projectPath": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Application\\AS.Application.csproj",
+      "packagesPath": "C:\\Users\\Jose\\.nuget\\packages\\",
+      "outputPath": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Application\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\josea\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Jose\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3938,20 +3938,20 @@
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\dotnet\\library-packs": {},
-        "https://pkgs.dev.azure.com/AvatelBSSOSS/68fc41b7-7b37-4b06-8667-65396818e60d/_packaging/IRISHydraArtefactory/nuget/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj": {
-              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj"
+            "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj": {
+              "projectPath": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Domain\\AS.Domain.csproj"
             },
-            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj": {
-              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj"
+            "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj": {
+              "projectPath": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Infrastructure\\AS.Infrastructure.csproj"
             },
-            "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj": {
-              "projectPath": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj"
+            "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj": {
+              "projectPath": "D:\\Projects\\AmonSul-back\\AmonSul\\AS.Utils\\AS.Utils.csproj"
             }
           }
         }
@@ -4012,7 +4012,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

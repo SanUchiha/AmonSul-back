@@ -12,10 +12,6 @@ public class FaccionController(IFaccionApplication faccionApplication) : Control
 {
     private readonly IFaccionApplication _faccionApplication = faccionApplication;
 
-    /// <summary>
-    /// Obtener las facciones
-    /// </summary>
-    /// <returns></returns>
     [HttpGet]
     [AllowAnonymous]
     [Route("")]

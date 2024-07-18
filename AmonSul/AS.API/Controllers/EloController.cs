@@ -1,12 +1,13 @@
 ﻿using AS.Application.DTOs.Elo;
 using AS.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class EloController(IEloApplication EloApplication) : ControllerBase
 {

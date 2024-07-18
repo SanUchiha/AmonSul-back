@@ -181,6 +181,5 @@ namespace AS.API.Controllers
                 return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
             }
         }
-
     }
 }

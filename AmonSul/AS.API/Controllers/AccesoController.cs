@@ -26,11 +26,6 @@ namespace AS.API.Controllers
             _loginApplication = loginApplication;
         }
 
-        /// <summary>
-        /// Login
-        /// </summary>
-        /// <param name="loginDTO"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
