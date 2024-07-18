@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmistosaApplication) : ControllerBase
 {

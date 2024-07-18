@@ -1,32 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Fork\\AmonSul-back\\AmonSul\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\partidaamistosacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\partidaamistosacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|c:\\fork\\amonsul-back\\amonsul\\as.api\\controllers\\accesocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{633F0398-DF0D-494C-8E4B-49984E66EEF2}|AS.API\\AS.API.csproj|solutionrelative:as.api\\controllers\\accesocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\loginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\loginapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\services\\partidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\dtos\\partidaamistosa\\viewpartidaamistosadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\dtos\\partidaamistosa\\viewpartidaamistosadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|c:\\fork\\amonsul-back\\amonsul\\as.application\\interfaces\\ipartidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4444CB45-B0B7-4642-8177-D79B893D3980}|AS.Application\\AS.Application.csproj|solutionrelative:as.application\\interfaces\\ipartidaamistosaapplication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -34,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -51,79 +26,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "LoginApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\LoginApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Services\\LoginApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\LoginApplication.cs",
-              "RelativeToolTip": "AS.Application\\Services\\LoginApplication.cs",
-              "ViewState": "AQIAAA4AAAAAAAAAAAAtwCYAAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-18T08:29:01.77Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AccesoController.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\AccesoController.cs",
-              "RelativeDocumentMoniker": "AS.API\\Controllers\\AccesoController.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\AccesoController.cs",
-              "RelativeToolTip": "AS.API\\Controllers\\AccesoController.cs",
-              "ViewState": "AQIAABkAAAAAAAAAAAAtwCkAAAAMAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-18T08:28:18.675Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IPartidaAmistosaApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\IPartidaAmistosaApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Interfaces\\IPartidaAmistosaApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Interfaces\\IPartidaAmistosaApplication.cs",
-              "RelativeToolTip": "AS.Application\\Interfaces\\IPartidaAmistosaApplication.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAoAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T22:29:56.249Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PartidaAmistosaApplication.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
-              "RelativeDocumentMoniker": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\Services\\PartidaAmistosaApplication.cs",
-              "RelativeToolTip": "AS.Application\\Services\\PartidaAmistosaApplication.cs",
-              "ViewState": "AQIAAHcAAAAAAAAAAAAAAJAAAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T21:43:01.919Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PartidaAmistosaController.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\PartidaAmistosaController.cs",
-              "RelativeDocumentMoniker": "AS.API\\Controllers\\PartidaAmistosaController.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.API\\Controllers\\PartidaAmistosaController.cs",
-              "RelativeToolTip": "AS.API\\Controllers\\PartidaAmistosaController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAD0AAAAIAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T21:43:01.921Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ViewPartidaAmistosaDTO.cs",
-              "DocumentMoniker": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\DTOs\\PartidaAmistosa\\ViewPartidaAmistosaDTO.cs",
-              "RelativeDocumentMoniker": "AS.Application\\DTOs\\PartidaAmistosa\\ViewPartidaAmistosaDTO.cs",
-              "ToolTip": "C:\\Fork\\AmonSul-back\\AmonSul\\AS.Application\\DTOs\\PartidaAmistosa\\ViewPartidaAmistosaDTO.cs",
-              "RelativeToolTip": "AS.Application\\DTOs\\PartidaAmistosa\\ViewPartidaAmistosaDTO.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAZAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-17T22:27:21.113Z"
             }
           ]
         }

@@ -161,6 +161,12 @@ public class UsuarioApplication : IUsuarioApplication
         int lastElo = await _eloApplication.GetLastElo(obj.IdUsuario);
         obj.PuntuacionElo = lastElo;
 
+        //obj.ClasificacionElo
+        List<ClasificacionEloDTO> cla = await _eloApplication.GetClasificacion();
+        cla = cla.OrderByDescending(item => item.Elo).ToList();
+
+        obj.ClasificacionElo = cla.FindIndex(item => item.Nick == obj.Nick)+1;
+
         return obj;
     }
 

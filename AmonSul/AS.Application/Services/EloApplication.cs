@@ -121,8 +121,6 @@ public class EloApplication : IEloApplication
             obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
             var elos = await GetElo(view.Email);
             obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
-            //obj.MejorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).FirstOrDefault()!.PuntuacionElo;
-            //obj.PeorElo = elos.Elos.OrderByDescending(e => e.PuntuacionElo).LastOrDefault()!.PuntuacionElo;
 
             clasificacion.Add(obj);
         }
