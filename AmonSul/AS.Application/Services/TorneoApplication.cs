@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -27,9 +28,11 @@ public class TorneoApplication : ITorneoApplication
         throw new NotImplementedException();
     }
 
-    public Task<bool> Register(TorneoDTO TorneoDTO)
+    public async Task<bool> Register(CrearTorneoDTO request)
     {
-        throw new NotImplementedException();
+        var torneo = _mapper.Map<Torneo>(request);
+
+        return await _unitOfWork.TorneoRepository.Register(torneo);
     }
 
     public Task<bool> Edit(TorneoDTO TorneoDTO)

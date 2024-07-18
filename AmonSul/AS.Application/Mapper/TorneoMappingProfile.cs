@@ -9,5 +9,6 @@ public class TorneoMappingProfile : Profile
     public TorneoMappingProfile()
     {
         CreateMap<Torneo, TorneoDTO>().ReverseMap();
+        CreateMap<Torneo, CrearTorneoDTO>().ReverseMap();
     }
 }

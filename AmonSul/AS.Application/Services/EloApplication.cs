@@ -113,15 +113,23 @@ public class EloApplication : IEloApplication
         {
             var view = await GetElo(item);
             var obj = _mapper.Map<ClasificacionEloDTO>(view);
+            
 
             var partidas = await PartidasValidadas(view.Email);
-            obj.Partidas = partidas.Count;
-            obj.Ganadas = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
-            obj.Empatadas = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
-            obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
-            var elos = await GetElo(view.Email);
-            obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
-
+            if (partidas.Count > 0) 
+            {
+                obj.Partidas = partidas.Count;
+                obj.Ganadas = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
+                obj.Empatadas = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
+                obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
+                var elos = await GetElo(view.Email);
+                obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
+            }
+            else
+            {
+                obj.Elo = 800;
+            }
+            
             clasificacion.Add(obj);
         }
 

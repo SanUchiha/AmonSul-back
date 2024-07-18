@@ -31,9 +31,20 @@ public class TorneoRepository : ITorneoRepository
         throw new NotImplementedException();
     }
 
-    public Task<bool> Register(Torneo torneo)
+    public async Task<bool> Register(Torneo torneo)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _dbamonsulContext.Torneos.AddAsync(torneo);
+            if (response == null) return false;
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al crea la partida.", ex);
+        }
     }
 
     public Task<bool> Edit(Torneo torneo)

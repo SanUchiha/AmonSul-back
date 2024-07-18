@@ -7,6 +7,6 @@ public interface ITorneoApplication
     Task<List<TorneoDTO>> GetTorneos();
     Task<TorneoDTO> GetById(int Id);
     Task<bool> Edit(TorneoDTO torneoDTO);
-    Task<bool> Register(TorneoDTO torneoDTO);
+    Task<bool> Register(CrearTorneoDTO torneoDTO);
     Task<bool> Delete(int id);
 }
