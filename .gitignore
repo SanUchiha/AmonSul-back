@@ -1,0 +1,12 @@
+﻿AmonSul/.vs/AmonSul/FileContentIndex
+*.v2
+AmonSul/.vs/AmonSul/v17
+AmonSul/AS.API/obj/Debug/net8.0/ref
+AmonSul/AS.API/obj/Release/net8.0/PubTmp/Out/AS.API.exe
+*.pdb
+*.dll
+*.cache
+*.editorconfig
+AmonSul/AS.Domain/obj/Debug/net8.0/AS.Domain.AssemblyInfo.cs
+AmonSul/AS.Domain/obj/Debug/net8.0/AS.Domain.sourcelink.json
+AmonSul/AS.Domain/obj/Release/net8.0/AS.Domain.AssemblyInfo.cs

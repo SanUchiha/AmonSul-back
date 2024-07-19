@@ -29,9 +29,15 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         _eloApplication = eloApplication;
     }
 
-    public Task<bool> Delete(int id)
+    public async Task<bool> Delete(int id)
     {
-        throw new NotImplementedException();
+        //buscamos la partida
+        var partida = await GetById(id);
+        if (partida == null) return false;
+
+        return await _unitOfWork.PartidaAmistosaRepository.Delete(
+            _mapper.Map<PartidaAmistosa>(partida));
+       //eliminamos la partida
     }
 
     public async Task<bool> Edit(UpdatePartidaAmistosaDTO partidaAmistosa)

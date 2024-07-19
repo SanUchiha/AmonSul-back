@@ -66,9 +66,20 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
         }
     }
  
-    public Task<bool> Delete(int id)
+    public async Task<bool> Delete(PartidaAmistosa partidaAmistosa)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var partidaBorrada = _dbamonsulContext.PartidaAmistosas.Remove(partidaAmistosa);
+            if (partidaBorrada == null) return false;
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al eliminar la partida.", ex);
+        }
     }
 
     public async Task<List<PartidaAmistosa>> GetPartidaAmistosasByUsuario(string email)

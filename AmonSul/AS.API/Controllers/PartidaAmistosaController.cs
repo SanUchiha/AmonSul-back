@@ -79,6 +79,19 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         return Ok(response);
     }
 
+    [HttpDelete]
+    [Route("Cancelar/{idPartida}")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CancelarPartida(int idPartida)
+    {
+        var response = await _partidaAmistosaApplication.Delete(idPartida);
+
+        if (response == false) return BadRequest("No se ha podido cancelar la partida");
+
+        return Ok(response);
+    }
+
     [HttpGet]
     [Route("{email}")]
     [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
