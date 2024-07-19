@@ -44,4 +44,20 @@ public class TorneoApplication : ITorneoApplication
     {
         throw new NotImplementedException();
     }
+
+    public async Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(string nombre)
+    {
+        string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Bases");
+        string filePath = Path.Combine(folderPath, nombre);
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            throw new FileNotFoundException("No se encontró el archivo de bases para este torneo.");
+        }
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+        var fileName = $"Bases_Torneo_{nombre}.pdf";
+
+        return (fileBytes, fileName);
+    }
 }
