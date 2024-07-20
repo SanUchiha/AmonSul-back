@@ -47,10 +47,14 @@ public class TorneoApplication : ITorneoApplication
         throw new NotImplementedException();
     }
 
-    public async Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(string nombre)
+    public async Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(int idTorneo)
     {
-        string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Bases");
-        string filePath = Path.Combine(folderPath, nombre);
+        var nombreTorneo = (await GetById(idTorneo)).NombreTorneo;
+
+        if (nombreTorneo == null) throw new Exception();
+
+        string folderPath = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Bases");
+        string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
 
         if (!System.IO.File.Exists(filePath))
         {
@@ -58,7 +62,7 @@ public class TorneoApplication : ITorneoApplication
         }
 
         var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-        var fileName = $"Bases_Torneo_{nombre}.pdf";
+        var fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
 
         return (fileBytes, fileName);
     }

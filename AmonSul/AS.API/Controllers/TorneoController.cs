@@ -54,12 +54,12 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
-        [Route("bases/{nombre}")]
-        public async Task<IActionResult> GetBasesTorneo(string nombre)
+        [Route("bases/{idTorneo}")]
+        public async Task<IActionResult> GetBasesTorneo(int idTorneo)
         {
             try
             {
-                var (fileBytes, fileName) = await _torneoApplication.GetBasesTorneo(nombre);
+                var (fileBytes, fileName) = await _torneoApplication.GetBasesTorneo(idTorneo);
 
                 return File(fileBytes, "application/pdf", fileName);
             }
