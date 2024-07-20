@@ -32,3 +32,5 @@ AmonSul/AS.Infrastructure/obj/Debug/net8.0
 AmonSul/AS.Infrastructure/obj
 AmonSul/AS.Utils/obj/Debug/net8.0
 AmonSul/AS.Utils/obj
+AmonSul/AS.API/bin/Release/net8.0
+*.user

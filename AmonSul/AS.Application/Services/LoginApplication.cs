@@ -33,7 +33,7 @@ public class LoginApplication : ILoginApplication
             IsAccess = true,
             User = loginDTO.Email,
             Token = token, 
-            IdUsuario = foundUser.IdUsuario
+            IdUsuario = foundUser.IdUsuario.ToString(),
         };
 
         return loginResponse;
