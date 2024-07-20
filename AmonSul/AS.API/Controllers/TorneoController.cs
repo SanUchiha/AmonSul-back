@@ -1,14 +1,8 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.DTOs.Torneo;
+﻿using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
-using AS.Application.Services;
-using AS.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace AS.API.Controllers
 {
@@ -31,6 +25,17 @@ namespace AS.API.Controllers
             var response = await _torneoApplication.GetTorneos();
             
             if(response == null) return NotFound();
+
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("id/{idtorneo}")]
+        public async Task<IActionResult> GetTorneo(int idtorneo)
+        {
+            var response = await _torneoApplication.GetById(idtorneo);
+
+            if (response == null) return NotFound();
 
             return Ok(response);
         }

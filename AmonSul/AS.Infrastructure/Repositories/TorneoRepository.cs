@@ -26,9 +26,17 @@ public class TorneoRepository : ITorneoRepository
         }
     }
 
-    public Task<Torneo> GetById(int Id)
+    public async Task<Torneo> GetById(int Id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _dbamonsulContext.Torneos.FirstOrDefaultAsync(t => t.IdTorneo == Id);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
+        }
     }
 
     public async Task<bool> Register(Torneo torneo)

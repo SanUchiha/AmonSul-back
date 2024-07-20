@@ -23,9 +23,11 @@ public class TorneoApplication : ITorneoApplication
         return _mapper.Map<List<TorneoDTO>>(response);
     }
 
-    public Task<TorneoDTO> GetById(int Id)
+    public async Task<TorneoDTO> GetById(int Id)
     {
-        throw new NotImplementedException();
+        var response = await _unitOfWork.TorneoRepository.GetById(Id);
+
+        return _mapper.Map<TorneoDTO>(response);
     }
 
     public async Task<bool> Register(CrearTorneoDTO request)

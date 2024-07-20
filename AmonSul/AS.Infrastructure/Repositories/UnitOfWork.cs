@@ -12,6 +12,8 @@ public class UnitOfWork : IUnitOfWork
     public IFaccionRepository FaccionRepository { get; private set; }
     public ITorneoRepository TorneoRepository { get; private set; }
     public IPartidaAmistosaRepository PartidaAmistosaRepository{ get; private set; }
+    public IInscripcionRepository InscripcionRepository { get; private set; }
+
     public IEloRepository EloRepository { get; private set; }
     public Utilidades _utilidades;
 
@@ -25,6 +27,8 @@ public class UnitOfWork : IUnitOfWork
         TorneoRepository = new TorneoRepository(context);
         PartidaAmistosaRepository = new PartidaAmistosaRepository(context);
         EloRepository = new EloRepository(context);
+        InscripcionRepository = new InscripcionRepository(context);
+
     }
 
     public void Dispose() => _context.Dispose();
