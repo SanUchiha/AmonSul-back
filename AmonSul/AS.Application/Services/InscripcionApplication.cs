@@ -43,7 +43,16 @@ public class InscripcionApplication: IInscripcionApplication
     {
         List<InscripcionTorneo> insc = await _unitOfWork.InscripcionRepository.GetInscripcionesByUser(idUsuario);
 
-        return _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
+        var result = _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
+        if (result.Count > 0)
+        {
+            foreach (var item in result)
+            {
+                item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
+            }
+        }
+        
+        return result;
     }
 
     public async Task<bool> Register(CrearInscripcionDTO inscripcionTorneo)

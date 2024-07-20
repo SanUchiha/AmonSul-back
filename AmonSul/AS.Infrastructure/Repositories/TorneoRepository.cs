@@ -31,7 +31,7 @@ public class TorneoRepository : ITorneoRepository
         try
         {
             var response = await _dbamonsulContext.Torneos.FirstOrDefaultAsync(t => t.IdTorneo == Id);
-            return response;
+            return response!;
         }
         catch (Exception ex)
         {
