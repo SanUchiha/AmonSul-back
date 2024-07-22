@@ -236,52 +236,55 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
         var partidaValidada = await GetById(validarPartidaDTO.IdPartida);
 
-        if (partidaValidada.PartidaValidadaUsuario1 == true &&
-            partidaValidada.PartidaValidadaUsuario2 == true)
+        if (partidaValidada.EsElo) 
         {
-            int eloJugador1 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario1);
-            int eloJugador2 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario2);
-
-            double scoreGanador = 1.0;
-            double scorePerdedor = 0.0;
-            double scoreEmpate = 0.5;
-            int nuevoEloJugador1 = 800;
-            int nuevoEloJugador2 = 800;
-
-            //GanaJugador1
-            if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario1)
+            if (partidaValidada.PartidaValidadaUsuario1 == true &&
+            partidaValidada.PartidaValidadaUsuario2 == true)
             {
-                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreGanador);
-                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scorePerdedor);
+                int eloJugador1 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario1);
+                int eloJugador2 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario2);
+
+                double scoreGanador = 1.0;
+                double scorePerdedor = 0.0;
+                double scoreEmpate = 0.5;
+                int nuevoEloJugador1 = 800;
+                int nuevoEloJugador2 = 800;
+
+                //GanaJugador1
+                if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario1)
+                {
+                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreGanador);
+                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scorePerdedor);
+                }
+                //GanaJugador2
+                if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario2)
+                {
+                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scorePerdedor);
+                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
+                }
+                //Empate
+                if (partidaValidada.GanadorPartida == 0)
+                {
+                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
+                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
+                }
+
+                //Elo jugador 1
+                CreateEloDTO createElo1 = new()
+                {
+                    IdUsuario = partidaValidada.IdUsuario1,
+                    PuntuacionElo = nuevoEloJugador1
+                };
+                await _eloApplication.RegisterElo(createElo1);
+
+                //Elo jugador 2
+                CreateEloDTO createElo2 = new()
+                {
+                    IdUsuario = partidaValidada.IdUsuario2,
+                    PuntuacionElo = nuevoEloJugador2
+                };
+                await _eloApplication.RegisterElo(createElo2);
             }
-            //GanaJugador2
-            if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario2)
-            {
-                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scorePerdedor);
-                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
-            }
-            //Empate
-            if (partidaValidada.GanadorPartida == 0)
-            {
-                nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
-                nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
-            }
-
-            //Elo jugador 1
-            CreateEloDTO createElo1 = new()
-            {
-                IdUsuario = partidaValidada.IdUsuario1,
-                PuntuacionElo = nuevoEloJugador1
-            };
-            await _eloApplication.RegisterElo(createElo1);
-
-            //Elo jugador 2
-            CreateEloDTO createElo2 = new()
-            {
-                IdUsuario = partidaValidada.IdUsuario2,
-                PuntuacionElo = nuevoEloJugador2
-            };
-            await _eloApplication.RegisterElo(createElo2);
         }
 
         return result;

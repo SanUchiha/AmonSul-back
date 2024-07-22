@@ -9,7 +9,7 @@ public class CreatePartidaAmistosaDTO
     public DateOnly FechaPartida { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public required bool EsMatchedPlayPartida { get; set; }
     public required string EscenarioPartida { get; set; }
-    public bool EsElo { get; set; } = true;
+    public bool EsElo { get; set; } 
     public required int PuntosPartida { get; set; }
     public bool EsTorneo{ get; set; }
     public string? EjercitoUsuario1 { get; set; }
