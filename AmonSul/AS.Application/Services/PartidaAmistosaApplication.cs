@@ -177,23 +177,18 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
 
         //Envio de mensajes de partida creada
-        EmailRegisterDTO emailRegister1DTO = new()
+        var listaDestinatarios = new List<string> { usuario1.Email, usuario2.Email,  };
+
+        EmailRequestDTO requestEmail = new()
         {
-            EmailTo = usuario1.Email,
-            Subject = ConstEmailMessage.MessageCreacionPartidaAsunto,
-            Body = ConstEmailMessage.MessageCreacionPartidaBody,
-        };
-        EmailRegisterDTO emailRegister2DTO = new()
-        {
-            EmailTo = usuario2.Email,
+            EmailTo = listaDestinatarios,
             Subject = ConstEmailMessage.MessageCreacionPartidaAsunto,
             Body = ConstEmailMessage.MessageCreacionPartidaBody,
         };
 
         try
         {
-            await _emailSender.SendEmailRegister(emailRegister1DTO);
-            await _emailSender.SendEmailRegister(emailRegister2DTO);
+            await _emailSender.SendEmailRegister(requestEmail);
         }
         catch (EmailSendException emailEx)
         {

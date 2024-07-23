@@ -1,8 +1,8 @@
 ﻿namespace AS.Application.DTOs.Email;
 
-public class EmailRegisterDTO
+public class EmailRequestDTO
 {
-    public required string EmailTo { get; set; }
+    public required List<string> EmailTo { get; set; } = [];
     public required string Subject { get; set; }
     public required string Body { get; set; }
 }

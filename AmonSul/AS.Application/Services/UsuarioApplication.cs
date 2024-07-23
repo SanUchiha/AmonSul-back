@@ -256,16 +256,19 @@ public class UsuarioApplication : IUsuarioApplication
                 Token = login.Token
             };
 
-            EmailRegisterDTO emailRegisterDTO = new()
+            var listaDestinatarios = new List<string> { registrarUsuarioDTO.Email };
+
+
+            EmailRequestDTO request = new()
             {
-                EmailTo = registrarUsuarioDTO.Email,
+                EmailTo = listaDestinatarios,
                 Subject = ConstEmailMessage.MessageBienvenidaAsunto,
                 Body = ConstEmailMessage.MessageBienvenidaBody
             };
 
             try
             {
-                await _emailSender.SendEmailRegister(emailRegisterDTO);
+                await _emailSender.SendEmailRegister(request);
             }
             catch (EmailSendException emailEx)
             {

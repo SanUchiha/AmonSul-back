@@ -11,7 +11,7 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
 
-    public async Task<Task> SendEmailRegister(EmailRegisterDTO request)
+    public async Task SendEmailRegister(EmailRequestDTO request)
     {
         try
         {
@@ -22,54 +22,21 @@ public class EmailSender(IOptions<EmailSettings> emailSettings) : IEmailSender
                 Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
             };
 
-            var send = client.SendMailAsync(
-                new MailMessage(
-                    from: _emailSettings.From,
-                    to: request.EmailTo,
-                    request.Subject,
-                    request.Body));
-
-            EmailToMeDTO emailToMeDTO = new()
+            using var mailMessage = new MailMessage
             {
-                EmailTo = _emailSettings.From,
-                Subject = "Copia envio de correo para: " + request.EmailTo,
-                Body = request.Body
+                From = new MailAddress(_emailSettings.From),
+                Subject = request.Subject,
+                Body = request.Body,
+                IsBodyHtml = true
             };
 
-            await EmailToMe(emailToMeDTO);
-
-            return send;
-        }
-        catch (SmtpException smtpEx)
-        {
-            throw new EmailSendException("Error occurred while sending email.", smtpEx);
-        }
-        catch (Exception ex)
-        {
-            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
-        }
-
-    }
-
-    private async Task<Task> EmailToMe(EmailToMeDTO request)
-    {
-        try
-        {
-            var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+            foreach (var recipient in request.EmailTo)
             {
-                EnableSsl = _emailSettings.EnableSsl,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
-            };
+                mailMessage.To.Add(recipient);
+            }
+            mailMessage.To.Add(_emailSettings.From);
 
-            var send = client.SendMailAsync(
-                new MailMessage(
-                    from: _emailSettings.From,
-                    to: request.EmailTo,
-                    request.Subject,
-                    request.Body));
-
-            return send;
+            await client.SendMailAsync(mailMessage);
         }
         catch (SmtpException smtpEx)
         {
