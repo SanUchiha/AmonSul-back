@@ -219,6 +219,19 @@ public class UsuarioApplication : IUsuarioApplication
         return _mapper.Map<UsuarioViewDTO>(usuarioEncontrado);
     }
 
+    public async Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO)
+    {
+        var usuario = await _unitOfWork.UsuarioRepository.GetById(editarFaccionUsuarioDTO.IdUsuario);
+        if (usuario == null) return false;
+
+        usuario.IdFaccion = editarFaccionUsuarioDTO.IdFaccion;
+
+        var result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+
+        // 5. Devolver el Resultado
+        return result;
+    }
+
     public async Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO registrarUsuarioDTO)
     {
         try

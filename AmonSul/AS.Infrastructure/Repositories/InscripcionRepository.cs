@@ -35,8 +35,9 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo)
     {
         return await _dbamonsulContext.InscripcionTorneos
-                                      .Where(it => it.IdTorneo == idTorneo)
-                                      .ToListAsync();
+            .Include(it => it.IdUsuarioNavigation)
+            .Where(it => it.IdTorneo == idTorneo)
+            .ToListAsync();
     }
 
     //Obtiene todas las ins de un usuario

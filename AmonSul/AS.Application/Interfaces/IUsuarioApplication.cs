@@ -7,6 +7,7 @@ public interface IUsuarioApplication
 {
     Task<UsuarioDTO> GetById(int IdUsuario);
     Task<bool> Edit(EditarUsuarioDTO usuario);
+    Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO);
     Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
     Task<ViewUsuarioPartidaDTO> GetByEmail(string email);
     Task<UsuarioDTO> GetByNick(string nick);

@@ -6,6 +6,7 @@ public class InscripcionUsuarioDTO
     public int IdTorneo { get; set; }
     public string? NombreTorneo { get; set; }
     public int IdUsuario { get; set; }
+    public string Nick { get; set; }
     public string? EstadoInscripcion { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public string? EstadoLista { get; set; }
