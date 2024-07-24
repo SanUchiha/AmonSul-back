@@ -174,10 +174,13 @@ public partial class DbamonsulContext : DbContext
         {
             entity.HasKey(e => e.IdLista).HasName("PK__Lista__B5A70F121CFB4DDE");
 
+            entity.ToTable("Lista");
+
             entity.Property(e => e.IdLista).HasColumnName("ID_Lista");
             entity.Property(e => e.FechaEntrega).HasColumnName("Fecha_Entrega");
             entity.Property(e => e.IdInscripcion).HasColumnName("ID_Inscripcion");
-            entity.Property(e => e.ListaData).HasColumnType("text");
+            entity.Property(e => e.ListaData).HasColumnName("Lista_Data");
+            //entity.Property(e => e.ListaData).HasColumnType("text");
 
             entity.HasOne(d => d.IdInscripcionNavigation).WithMany(p => p.Lista)
                 .HasForeignKey(d => d.IdInscripcion)

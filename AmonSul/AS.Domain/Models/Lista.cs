@@ -1,5 +1,8 @@
-﻿namespace AS.Domain.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace AS.Domain.Models;
+
+[Table("Lista")]
 public partial class Lista
 {
     public int IdLista { get; set; }

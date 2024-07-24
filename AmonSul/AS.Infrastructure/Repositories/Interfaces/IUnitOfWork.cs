@@ -10,6 +10,7 @@ public interface IUnitOfWork: IDisposable
     IPartidaAmistosaRepository PartidaAmistosaRepository { get; }
     IEloRepository EloRepository { get; }
     IInscripcionRepository InscripcionRepository{ get; }
+    IListaRepository ListaRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();
