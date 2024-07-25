@@ -25,12 +25,20 @@ public class FaccionRepository : IFaccionRepository
             throw new Exception("Ocurrio un problema en el servidor.", ex);
         }
     }
-   
-    public Task<Faccion> GetById(int Id)
+
+    public async Task<Faccion> GetById(int id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _dbamonsulContext.Facciones.FirstOrDefaultAsync(f =>f.IdFaccion == id);
+            return response!;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
+        }
     }
-  
+
     public async Task<bool> Register(Faccion faccion)
     {
         try

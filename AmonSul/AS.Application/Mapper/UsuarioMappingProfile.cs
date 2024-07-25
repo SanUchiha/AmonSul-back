@@ -15,6 +15,7 @@ public class UsuarioMappingProfile : Profile
         CreateMap<Usuario, UsuarioViewDTO>().ReverseMap();
         CreateMap<Usuario, ViewUsuarioPartidaDTO>().ReverseMap();
         CreateMap<ViewUsuarioPartidaDTO, ViewDetalleUsuarioDTO>().ReverseMap();
+        CreateMap<UsuarioDataDTO, Usuario>().ReverseMap();
 
     }
 }

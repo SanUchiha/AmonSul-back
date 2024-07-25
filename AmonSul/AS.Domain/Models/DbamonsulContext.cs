@@ -168,6 +168,11 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.InscripcionTorneos)
                 .HasForeignKey(d => d.IdUsuario)
                 .HasConstraintName("FK_Inscripcion_Torneo_Usuario");
+
+            entity.HasMany(e => e.Lista)
+               .WithOne(e => e.IdInscripcionNavigation)
+               .HasForeignKey(e => e.IdInscripcion)
+               .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Lista>(entity =>
@@ -180,7 +185,6 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.FechaEntrega).HasColumnName("Fecha_Entrega");
             entity.Property(e => e.IdInscripcion).HasColumnName("ID_Inscripcion");
             entity.Property(e => e.ListaData).HasColumnName("Lista_Data");
-            //entity.Property(e => e.ListaData).HasColumnType("text");
 
             entity.HasOne(d => d.IdInscripcionNavigation).WithMany(p => p.Lista)
                 .HasForeignKey(d => d.IdInscripcion)

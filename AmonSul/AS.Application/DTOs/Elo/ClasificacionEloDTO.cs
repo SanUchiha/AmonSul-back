@@ -2,7 +2,7 @@
 {
     public class ClasificacionEloDTO
     {
-        //public int IdUsuario { get; set; }
+        public int IdUsuario { get; set; }
         public required string Nick { get; set; }
         //public required string Email { get; set; }
         public int Elo { get; set; }

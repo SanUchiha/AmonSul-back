@@ -28,10 +28,6 @@ public class FaccionController(IFaccionApplication faccionApplication) : Control
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
     [HttpPost]
     [AllowAnonymous]
     [Route("Registrar")]

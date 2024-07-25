@@ -10,7 +10,9 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 
     public async Task<InscripcionTorneo> Delete(int idInscripcion)
     {
-        var inscripcion = await _dbamonsulContext.InscripcionTorneos.FindAsync(idInscripcion);
+        var inscripcion = await _dbamonsulContext.InscripcionTorneos
+                                                 .Include(i => i.Lista)
+                                                 .FirstOrDefaultAsync(i => i.IdInscripcion == idInscripcion);
         if (inscripcion == null) return null!;
 
         _dbamonsulContext.InscripcionTorneos.Remove(inscripcion);

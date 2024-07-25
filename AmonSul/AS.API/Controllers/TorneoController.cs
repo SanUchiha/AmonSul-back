@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;

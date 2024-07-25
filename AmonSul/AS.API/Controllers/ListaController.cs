@@ -8,7 +8,7 @@ namespace AS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ListaController : ControllerBase
     {
         private readonly IListaApplication _listaApplication;

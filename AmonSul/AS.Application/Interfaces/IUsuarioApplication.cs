@@ -16,4 +16,6 @@ public interface IUsuarioApplication
     Task<UsuarioViewDTO> GetUsuario(string email);
     Task<string> GetNickById(int idUsuario);
     Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email);
+
+    Task<UsuarioDataDTO> GetUsuarioData(int idUsuario);
 }

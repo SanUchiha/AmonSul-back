@@ -62,11 +62,24 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
-    public async Task<Usuario> GetById(int IdUsuario)
+    public async Task<Usuario> GetById(int idUsuario)
     {
         try
         {
-            var response = await _dbamonsulContext.Usuarios.FindAsync(IdUsuario);
+            var response = await _dbamonsulContext.Usuarios
+                .Include(u => u.ClasificacionGenerals)
+                .Include(u => u.ClasificacionTorneos)
+                .Include(u => u.Comentarios)
+                .Include(u => u.Elos)
+                .Include(u => u.IdFaccionNavigation)
+                .Include(u => u.InscripcionTorneos)
+                .Include(u => u.PartidaAmistosaGanadorPartidaNavigations)
+                .Include(u => u.PartidaAmistosaIdUsuario1Navigations)
+                .Include(u => u.PartidaAmistosaIdUsuario2Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario1Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario2Navigations)
+                .Include(u => u.Torneos)
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
             return response ?? throw new Exception("Usuario no encontrado");
         }
         catch (Exception ex)

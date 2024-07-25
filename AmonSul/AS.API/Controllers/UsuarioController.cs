@@ -57,6 +57,24 @@ namespace AS.API.Controllers
         }
 
         [HttpGet]
+        [Route("Data/{idUsuario}")]
+        public async Task<IActionResult> GetUsuarioData(int idUsuario)
+        {
+            try
+            {
+                UsuarioDataDTO response = await _usuarioApplication.GetUsuarioData(idUsuario);
+
+                if (response is null) return NoContent();
+
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+            }
+        }
+
+        [HttpGet]
         [Route("Email/{email}")]
         public async Task<IActionResult> GetByEmail(string email)
         {

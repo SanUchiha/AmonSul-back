@@ -1,5 +1,7 @@
 ﻿using AS.Application.DTOs.Elo;
 using AS.Application.DTOs.Email;
+using AS.Application.DTOs.Faccion;
+using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Exceptions;
@@ -217,6 +219,49 @@ public class UsuarioApplication : IUsuarioApplication
     {
         var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetUsuario(email);
         return _mapper.Map<UsuarioViewDTO>(usuarioEncontrado);
+    }
+
+    public async Task<UsuarioDataDTO> GetUsuarioData(int idUsuario)
+    {
+        var usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
+        if (usuario == null) return null!;
+
+        var response = _mapper.Map<UsuarioDataDTO>(usuario);
+
+        response.Faccion = 
+            _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
+        response.InscripcionesTorneo = 
+            _mapper.Map<List<InscripcionUsuarioDTO>>(usuario.InscripcionTorneos);
+        foreach (var item in response.InscripcionesTorneo)
+        {
+            item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
+        }
+        response.PartidasPendientes = 
+            await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.Email);
+        response.PartidasValidadas =
+            await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(usuario.Email);
+        response.PuntuacionElo = response.Elos[response.Elos.Count - 1].PuntuacionElo;
+
+        var clasificacionElo = await _eloApplication.GetClasificacion();
+        clasificacionElo = clasificacionElo.OrderByDescending(e => e.Elo).ToList();
+        response.ClasificacionElo = clasificacionElo.FindIndex(u => u.Nick == response.Nick)+1;
+
+        response.NumeroPartidasJugadas = response.PartidasValidadas.Count;
+
+        int contadorVictorias = 0;
+        int contadorEmpates = 0;
+        int contadorDerrotas = 0;
+        foreach (var partida in response.PartidasValidadas)
+        {
+            if (partida.GanadorPartida == response.IdUsuario) contadorVictorias++;
+            else if (partida.GanadorPartida == 0) contadorEmpates++;
+            else contadorDerrotas++;
+        }
+        response.PartidasGanadas = contadorVictorias;
+        response.PartidasEmpatadas = contadorEmpates;
+        response.PartidasPerdidas = contadorDerrotas;
+
+        return response;
     }
 
     public async Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO)
