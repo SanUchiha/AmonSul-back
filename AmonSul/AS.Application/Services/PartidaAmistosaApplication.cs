@@ -42,8 +42,9 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
     public async Task<bool> Edit(UpdatePartidaAmistosaDTO partidaAmistosa)
     {
-        return await _unitOfWork.PartidaAmistosaRepository.Edit(
+        var result = await _unitOfWork.PartidaAmistosaRepository.Edit(
             _mapper.Map<PartidaAmistosa>(partidaAmistosa));
+        return result;
     }
 
     public async Task<ViewPartidaAmistosaDTO> GetById(int Id)

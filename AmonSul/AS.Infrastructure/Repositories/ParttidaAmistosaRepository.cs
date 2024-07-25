@@ -52,20 +52,20 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
    
     public async Task<bool> Edit(PartidaAmistosa partidaAmistosa)
     {
-        try
-        {
-            var response = _dbamonsulContext.PartidaAmistosas.Update(partidaAmistosa);
-            if (response == null) return false;
-            await _dbamonsulContext.SaveChangesAsync();
+        var existingEntity = await _dbamonsulContext.PartidaAmistosas
+            .FirstOrDefaultAsync(p => p.IdPartidaAmistosa == partidaAmistosa.IdPartidaAmistosa);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Ocurrio un problema en el servidor al actualizar la partida.", ex);
-        }
+        if (existingEntity == null) return false;
+
+        // Actualiza las propiedades de la entidad existente
+        _dbamonsulContext.Entry(existingEntity).CurrentValues.SetValues(partidaAmistosa);
+
+        await _dbamonsulContext.SaveChangesAsync();
+
+        return true;
+
     }
- 
+
     public async Task<bool> Delete(PartidaAmistosa partidaAmistosa)
     {
         try
