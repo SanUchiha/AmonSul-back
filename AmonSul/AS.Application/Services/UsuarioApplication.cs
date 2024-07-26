@@ -12,7 +12,9 @@ using AS.Infrastructure.DTOs.Login;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Constantes;
 using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace AS.Application.Services;
 
@@ -27,6 +29,7 @@ public class UsuarioApplication : IUsuarioApplication
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
     private readonly IEloApplication _eloApplication;
     private readonly ITorneoApplication _torneoApplication;
+    private readonly IServiceProvider _serviceProvider;
 
     public UsuarioApplication(
         IUnitOfWork unitOfWork,
@@ -37,7 +40,8 @@ public class UsuarioApplication : IUsuarioApplication
         IEmailSender emailSender,
         IPartidaAmistosaApplication partidaAmistosaApplication,
         IEloApplication eloApplication,
-        ITorneoApplication torneoApplication)
+        ITorneoApplication torneoApplication,
+        IServiceProvider serviceProvider)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
@@ -48,6 +52,7 @@ public class UsuarioApplication : IUsuarioApplication
         _partidaAmistosaApplication = partidaAmistosaApplication;
         _eloApplication = eloApplication;
         _torneoApplication = torneoApplication;
+        _serviceProvider = serviceProvider;
     }
 
     public Task<bool> Delete(string email)
@@ -88,21 +93,26 @@ public class UsuarioApplication : IUsuarioApplication
     {
         List<Usuario> rawUsuario = await _unitOfWork.UsuarioRepository.GetAll();
 
-        List<ViewUsuarioPartidaDTO> listViewUsuarioPartidaDTO = [];
+        var listViewUsuarioPartidaDTO = new ConcurrentBag<ViewUsuarioPartidaDTO>();
 
-        foreach (var item in rawUsuario)
+        await Task.WhenAll(rawUsuario.Select(async item =>
         {
+            // Crea un nuevo scope de DbContext para esta tarea
+            using var scope = _serviceProvider.CreateScope();
+            var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
+            var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
+
             ViewUsuarioPartidaDTO obj = new()
             {
                 IdUsuario = item.IdUsuario,
                 Email = item.Email,
                 Nick = item.Nick,
                 Ciudad = item.Ciudad,
-                FechaRegistro = item.FechaRegistro,
                 IdFaccion = item.IdFaccion
             };
 
-            var partidasAmistosas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
+            var partidasAmistosas = await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(obj.Email);
             obj.NumeroPartidasJugadas = partidasAmistosas.Count;
             int contadorVictorias = 0;
             int contadorEmpates = 0;
@@ -117,16 +127,13 @@ public class UsuarioApplication : IUsuarioApplication
             obj.PartidasEmpatadas = contadorEmpates;
             obj.PartidasPerdidas = contadorDerrotas;
 
-            //TODO
-            //elo
-            int lastElo = await _eloApplication.GetLastElo(obj.IdUsuario);
+            int lastElo = await scopedEloApplication.GetLastElo(obj.IdUsuario);
             obj.PuntuacionElo = lastElo;
 
-
             listViewUsuarioPartidaDTO.Add(obj);
-        }
+        }));
 
-        return _mapper.Map<List<ViewUsuarioPartidaDTO>>(listViewUsuarioPartidaDTO);
+        return _mapper.Map<List<ViewUsuarioPartidaDTO>>(listViewUsuarioPartidaDTO.ToList());
     }
 
     public async Task<ViewUsuarioPartidaDTO> GetByEmail(string email)
@@ -140,7 +147,6 @@ public class UsuarioApplication : IUsuarioApplication
             Email = rawUsuario.Email,
             Nick = rawUsuario.Nick,
             Ciudad = rawUsuario.Ciudad,
-            FechaRegistro = rawUsuario.FechaRegistro,
             IdFaccion = rawUsuario.IdFaccion
         };
 

@@ -6,7 +6,6 @@ public class ViewUsuarioPartidaDTO
     public string Email { get; set; } = null!;
     public string Nick { get; set; } = null!;
     public string? Ciudad { get; set; }
-    public DateOnly FechaRegistro { get; set; }
     public int? IdFaccion { get; set; }
     public int NumeroPartidasJugadas { get; set; }
     public int PartidasGanadas { get; set; }

@@ -92,11 +92,25 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            return await _dbamonsulContext.Usuarios.ToListAsync();
+            var response = await _dbamonsulContext.Usuarios
+                /*.Include(u => u.ClasificacionGenerals)
+                .Include(u => u.ClasificacionTorneos)
+                .Include(u => u.Comentarios)
+                .Include(u => u.Elos)
+                .Include(u => u.IdFaccionNavigation)
+                .Include(u => u.InscripcionTorneos)
+                .Include(u => u.PartidaAmistosaGanadorPartidaNavigations)
+                .Include(u => u.PartidaAmistosaIdUsuario1Navigations)
+                .Include(u => u.PartidaAmistosaIdUsuario2Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario1Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario2Navigations)
+                .Include(u => u.Torneos)*/
+                .ToListAsync();
+            return response ?? throw new Exception("Usuario no encontrado");
         }
         catch (Exception ex)
         {
-            throw new Exception("Ocurrió un problema al obtener todos los usuarios.", ex);
+            throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
         }
     }
 

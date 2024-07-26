@@ -3,6 +3,7 @@ using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AS.Application.Services;
 
@@ -10,11 +11,13 @@ public class EloApplication : IEloApplication
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IServiceProvider _serviceProvider;
 
-    public EloApplication(IUnitOfWork unitOfWork, IMapper mapper)
+    public EloApplication(IUnitOfWork unitOfWork, IMapper mapper, IServiceProvider serviceProvider)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<bool> RegisterElo(CreateEloDTO requestElo) => 
@@ -95,45 +98,42 @@ public class EloApplication : IEloApplication
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacion()
     {
-        // Me quedo con todos los email en una lista
+        // Obtener todos los usuarios
         var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
+        if (usuarios == null) return new List<ClasificacionEloDTO>();
 
-        if (usuarios == null) return [];
-
-        List<string> listaEmails = [];
-
-        foreach (var usuario in usuarios)
+        // Crear una lista de tareas para obtener la información de clasificación de cada usuario
+        var tasks = usuarios.Select(usuario => Task.Run(async () =>
         {
-            listaEmails.Add(usuario.Email);
-        }
+            using var scope = _serviceProvider.CreateScope();
+            var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+            var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
+            var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
-        List<ClasificacionEloDTO> clasificacion = [];
+            var view = await scopedEloApplication.GetElo(usuario.Email);
+            var obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 
-        foreach (var item in listaEmails)
-        {
-            var view = await GetElo(item);
-            var obj = _mapper.Map<ClasificacionEloDTO>(view);
-            
-
-            var partidas = await PartidasValidadas(view.Email);
-            if (partidas.Count > 0) 
+            var partidas = await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.Email);
+            if (partidas.Any())
             {
                 obj.Partidas = partidas.Count;
-                obj.Ganadas = partidas.Where(x => x.GanadorPartida == view.IdUsuario).ToList().Count;
-                obj.Empatadas = partidas.Where(x => x.GanadorPartida == 0).ToList().Count;
+                obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
+                obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
                 obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
-                var elos = await GetElo(view.Email);
-                obj.Elo = elos.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!.PuntuacionElo;
+                obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
             }
             else
             {
                 obj.Elo = 800;
             }
-            
-            clasificacion.Add(obj);
-        }
 
-        return clasificacion;
+            return obj;
+        }));
+
+        // Esperar todas las tareas y retornar la clasificación
+        var clasificacion = await Task.WhenAll(tasks);
+        return clasificacion.ToList();
     }
 
     private async Task <List<PartidaAmistosa>> PartidasValidadas(string email)
