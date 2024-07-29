@@ -24,7 +24,6 @@ public class UsuarioApplication : IUsuarioApplication
     private readonly IMapper _mapper;
     private readonly Utilidades _utilidades;
     private readonly IAccountRepository _accountRepository;
-    private readonly ILogger<UsuarioApplication> _logger;
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
     private readonly IEloApplication _eloApplication;
     private readonly ITorneoApplication _torneoApplication;
@@ -32,22 +31,21 @@ public class UsuarioApplication : IUsuarioApplication
     private readonly IEmailApplicacion _emailApplication;
 
     public UsuarioApplication(
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        Utilidades utilidades,
-        IAccountRepository accountRepository,
-        ILogger<UsuarioApplication> logger,
-        IPartidaAmistosaApplication partidaAmistosaApplication,
-        IEloApplication eloApplication,
-        ITorneoApplication torneoApplication,
-        IServiceProvider serviceProvider,
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        Utilidades utilidades, 
+        IAccountRepository accountRepository, 
+        IPartidaAmistosaApplication partidaAmistosaApplication, 
+        IEloApplication eloApplication, 
+        ITorneoApplication torneoApplication, 
+        IServiceProvider serviceProvider, 
         IEmailApplicacion emailApplication)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _utilidades = utilidades;
         _accountRepository = accountRepository;
-        _logger = logger;
+        _partidaAmistosaApplication = partidaAmistosaApplication;
         _eloApplication = eloApplication;
         _torneoApplication = torneoApplication;
         _serviceProvider = serviceProvider;
@@ -232,6 +230,7 @@ public class UsuarioApplication : IUsuarioApplication
         if (usuario == null) return null!;
 
         var response = _mapper.Map<UsuarioDataDTO>(usuario);
+        if(response == null) return null!;
 
         response.Faccion = 
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
@@ -241,6 +240,7 @@ public class UsuarioApplication : IUsuarioApplication
         {
             item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
         }
+
         response.PartidasPendientes = 
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.Email);
         response.PartidasValidadas =
@@ -322,7 +322,7 @@ public class UsuarioApplication : IUsuarioApplication
             }
             catch (EmailSendException emailEx)
             {
-                _logger.LogError(emailEx, "Error al enviar el correo de bienvenida. ${emailEx.Message}", emailEx.Message);
+                throw new Exception(emailEx.Message);
             }
 
 
