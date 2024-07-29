@@ -5,217 +5,216 @@ using AS.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AS.API.Controllers
+namespace AS.API.Controllers;
+
+[Route("api/[controller]")]
+[Authorize]
+[ApiController]
+
+public class UsuarioController(IUsuarioApplication usuarioApplication) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [Authorize]
-    [ApiController]
+    private readonly IUsuarioApplication _usuarioApplication = usuarioApplication;
 
-    public class UsuarioController(IUsuarioApplication usuarioApplication) : ControllerBase
+    [HttpPost]
+    [AllowAnonymous]
+    [Route("Registrar")]
+    public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDTO registrarUsuarioDTO)
     {
-        private readonly IUsuarioApplication _usuarioApplication = usuarioApplication;
-
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("Registrar")]
-        public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDTO registrarUsuarioDTO)
+        try
         {
-            try
-            {
-                var response = await _usuarioApplication.Register(registrarUsuarioDTO);
-                
-                if (response.Status) return Ok(response);
-                return BadRequest("No se pudo registrar el usuario.");
-            }
-            catch (UniqueKeyViolationException ex)
-            {
-                return Conflict(new { message = ex.Message});
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor.", detail = ex.Message });
-            }
-
+            var response = await _usuarioApplication.Register(registrarUsuarioDTO);
+            
+            if (response.Status) return Ok(response);
+            return BadRequest("No se pudo registrar el usuario.");
+        }
+        catch (UniqueKeyViolationException ex)
+        {
+            return Conflict(new { message = ex.Message});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor.", detail = ex.Message });
         }
 
-        [HttpGet]
-        [Route("All")]
-        public async Task<IActionResult> GetAll()
+    }
+
+    [HttpGet]
+    [Route("All")]
+    public async Task<IActionResult> GetAll()
+    {
+        try
         {
-            try
-            {
-                List<ViewUsuarioPartidaDTO> response = await _usuarioApplication.GetAll();
+            List<ViewUsuarioPartidaDTO> response = await _usuarioApplication.GetAll();
 
-                if (response is null) return NoContent();
+            if (response is null) return NoContent();
 
-                return Ok(response);
-            }
-            catch 
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return Ok(response);
         }
-
-        [HttpGet]
-        [Route("Data/{idUsuario}")]
-        public async Task<IActionResult> GetUsuarioData(int idUsuario)
+        catch 
         {
-            try
-            {
-                UsuarioDataDTO response = await _usuarioApplication.GetUsuarioData(idUsuario);
-
-                if (response is null) return NoContent();
-
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
+    }
 
-        [HttpGet]
-        [Route("Email/{email}")]
-        public async Task<IActionResult> GetByEmail(string email)
+    [HttpGet]
+    [Route("Data/{idUsuario}")]
+    public async Task<IActionResult> GetUsuarioData(int idUsuario)
+    {
+        try
         {
-            try
-            {
-                var response = await _usuarioApplication.GetByEmail(email);
+            UsuarioDataDTO response = await _usuarioApplication.GetUsuarioData(idUsuario);
 
-                if (response is null) return NotFound();
+            if (response is null) return NoContent();
 
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return Ok(response);
         }
-
-        [HttpGet]
-        [Route("Nick/{nick}")]
-        public async Task<IActionResult> GetByNick(string nick)
+        catch
         {
-            try
-            {
-                var response = await _usuarioApplication.GetByNick(nick);
-
-                if (response is null) return NotFound();
-
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
+    }
 
-        [HttpDelete]
-        [Route("{email}")]
-        public async Task<IActionResult> Delete(string email)
+    [HttpGet]
+    [Route("Email/{email}")]
+    public async Task<IActionResult> GetByEmail(string email)
+    {
+        try
         {
-            try
-            {
-                var response = await _usuarioApplication.Delete(email);
+            var response = await _usuarioApplication.GetByEmail(email);
 
-                if (!response) return NotFound();
+            if (response is null) return NotFound();
 
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return Ok(response);
         }
-
-        [HttpPut]
-        [Route("editar")]
-        public async Task<IActionResult> Edit([FromBody] EditarUsuarioDTO request)
+        catch
         {
-            try
-            {
-                var response = await _usuarioApplication.Edit(request);
-
-                if (!response) return NotFound();
-
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
+    }
 
-        [HttpPut]
-        [Route("modificar-faccion")]
-        public async Task<IActionResult> ModificarFaccion([FromBody] EditarFaccionUsuarioDTO request)
+    [HttpGet]
+    [Route("Nick/{nick}")]
+    public async Task<IActionResult> GetByNick(string nick)
+    {
+        try
         {
-            try
-            {
-                var response = await _usuarioApplication.ModificarFaccion(request);
+            var response = await _usuarioApplication.GetByNick(nick);
 
-                if (!response) return NotFound();
+            if (response is null) return NotFound();
 
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return Ok(response);
         }
-
-        [HttpGet]
-        [Route("{email}")]
-        public async Task<IActionResult> Get(string email)
+        catch
         {
-            try
-            {
-                var response = await _usuarioApplication.GetUsuario(email);
-
-                if (response is null) return NotFound();
-
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
+    }
 
-        [HttpGet]
-        [Route("detalle/{email}")]
-        public async Task<IActionResult> GetDetalle(string email)
+    [HttpDelete]
+    [Route("{email}")]
+    public async Task<IActionResult> Delete(string email)
+    {
+        try
         {
-            try
-            {
-                var response = await _usuarioApplication.GetDetalleUsuarioByEmail(email);
+            var response = await _usuarioApplication.Delete(email);
 
-                if (response is null) return NotFound();
+            if (!response) return NotFound();
 
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            return Ok(response);
         }
-
-        [HttpGet]
-        [Route("Id/{idUsuario}")]
-        public async Task<IActionResult> GetNickById(int idUsuario)
+        catch
         {
-            try
-            {
-                string response = await _usuarioApplication.GetNickById(idUsuario);
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
 
-                if (response is null) return NotFound();
+    [HttpPut]
+    [Route("editar")]
+    public async Task<IActionResult> Edit([FromBody] EditarUsuarioDTO request)
+    {
+        try
+        {
+            var response = await _usuarioApplication.Edit(request);
 
-                return Ok(response);
-            }
-            catch
-            {
-                return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-            }
+            if (!response) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpPut]
+    [Route("modificar-faccion")]
+    public async Task<IActionResult> ModificarFaccion([FromBody] EditarFaccionUsuarioDTO request)
+    {
+        try
+        {
+            var response = await _usuarioApplication.ModificarFaccion(request);
+
+            if (!response) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
+    [Route("{email}")]
+    public async Task<IActionResult> Get(string email)
+    {
+        try
+        {
+            var response = await _usuarioApplication.GetUsuario(email);
+
+            if (response is null) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
+    [Route("detalle/{email}")]
+    public async Task<IActionResult> GetDetalle(string email)
+    {
+        try
+        {
+            var response = await _usuarioApplication.GetDetalleUsuarioByEmail(email);
+
+            if (response is null) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
+    [Route("Id/{idUsuario}")]
+    public async Task<IActionResult> GetNickById(int idUsuario)
+    {
+        try
+        {
+            string response = await _usuarioApplication.GetNickById(idUsuario);
+
+            if (response is null) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
     }
 }

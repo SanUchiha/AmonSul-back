@@ -25,11 +25,11 @@ public class UsuarioApplication : IUsuarioApplication
     private readonly Utilidades _utilidades;
     private readonly IAccountRepository _accountRepository;
     private readonly ILogger<UsuarioApplication> _logger;
-    private readonly IEmailSender _emailSender;
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
     private readonly IEloApplication _eloApplication;
     private readonly ITorneoApplication _torneoApplication;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IEmailApplicacion _emailApplication;
 
     public UsuarioApplication(
         IUnitOfWork unitOfWork,
@@ -37,22 +37,21 @@ public class UsuarioApplication : IUsuarioApplication
         Utilidades utilidades,
         IAccountRepository accountRepository,
         ILogger<UsuarioApplication> logger,
-        IEmailSender emailSender,
         IPartidaAmistosaApplication partidaAmistosaApplication,
         IEloApplication eloApplication,
         ITorneoApplication torneoApplication,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        IEmailApplicacion emailApplication)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _utilidades = utilidades;
         _accountRepository = accountRepository;
         _logger = logger;
-        _emailSender = emailSender;
-        _partidaAmistosaApplication = partidaAmistosaApplication;
         _eloApplication = eloApplication;
         _torneoApplication = torneoApplication;
         _serviceProvider = serviceProvider;
+        _emailApplication = emailApplication;
     }
 
     public Task<bool> Delete(string email)
@@ -319,7 +318,7 @@ public class UsuarioApplication : IUsuarioApplication
 
             try
             {
-                await _emailSender.SendEmailRegister(request);
+                await _emailApplication.SendEmailRegister(request);
             }
             catch (EmailSendException emailEx)
             {

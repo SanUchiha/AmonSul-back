@@ -17,16 +17,21 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<PartidaAmistosaApplication> _logger;
-    private readonly IEmailSender _emailSender;
+    private readonly IEmailApplicacion _emailApplication;
     private readonly IEloApplication _eloApplication;
 
-    public PartidaAmistosaApplication(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PartidaAmistosaApplication> logger, IEmailSender emailSender, IEloApplication eloApplication)
+    public PartidaAmistosaApplication(
+        IUnitOfWork unitOfWork, 
+        IMapper mapper, 
+        ILogger<PartidaAmistosaApplication> logger, 
+        IEloApplication eloApplication, 
+        IEmailApplicacion emailApplication)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
-        _emailSender = emailSender;
         _eloApplication = eloApplication;
+        _emailApplication = emailApplication;
     }
 
     public async Task<bool> Delete(int id)
@@ -178,7 +183,7 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
 
         //Envio de mensajes de partida creada
-        var listaDestinatarios = new List<string> { usuario1.Email, usuario2.Email,  };
+        var listaDestinatarios = new List<string> { usuario1.Email, usuario2.Email };
 
         EmailRequestDTO requestEmail = new()
         {
@@ -189,7 +194,7 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
         try
         {
-            await _emailSender.SendEmailRegister(requestEmail);
+            await _emailApplication.SendEmailRegister(requestEmail);
         }
         catch (EmailSendException emailEx)
         {

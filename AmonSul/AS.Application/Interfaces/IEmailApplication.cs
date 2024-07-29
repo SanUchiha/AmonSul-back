@@ -2,7 +2,8 @@
 
 namespace AS.Application.Interfaces;
 
-public interface IEmailSender
+public interface IEmailApplicacion
 {
     Task SendEmailRegister(EmailRequestDTO request);
+    Task SendEmailContacto(EmailContactoDTO request);
 }

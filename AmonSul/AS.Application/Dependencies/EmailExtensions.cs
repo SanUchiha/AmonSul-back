@@ -11,7 +11,7 @@ public static class EmailExtensions
     public static IServiceCollection AddInjectionEmailSender(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.AddTransient<IEmailSender, EmailSender>();
+        services.AddTransient<IEmailApplicacion, EmailApplication>();
         
         return services;
     }
