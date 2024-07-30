@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Torneo;
+﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -65,5 +66,14 @@ public class TorneoApplication : ITorneoApplication
         var fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
 
         return (fileBytes, fileName);
+    }
+
+    public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario)
+    {
+        var response = await _unitOfWork.TorneoRepository.GetTorneosCreadosUsuario(IdUsuario);
+
+        var listaTorneos = _mapper.Map<List<TorneoCreadoUsuarioDTO>>(response);
+
+        return listaTorneos;
     }
 }

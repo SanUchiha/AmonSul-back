@@ -31,6 +31,17 @@ public class TorneoController : ControllerBase
     }
 
     [HttpGet]
+    [Route("creados/{idUsuario}")]
+    public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
+    {
+        var response = await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
     [Route("id/{idtorneo}")]
     public async Task<IActionResult> GetTorneo(int idtorneo)
     {

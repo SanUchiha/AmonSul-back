@@ -5,6 +5,7 @@ namespace AS.Application.Interfaces;
 public interface ITorneoApplication
 {
     Task<List<TorneoDTO>> GetTorneos();
+    Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario);
     Task<TorneoDTO> GetById(int Id);
     Task<bool> Edit(TorneoDTO torneoDTO);
     Task<bool> Register(CrearTorneoDTO torneoDTO);

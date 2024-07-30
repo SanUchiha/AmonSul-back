@@ -10,8 +10,7 @@ public class InscripcionMappingProfile : Profile
     {
         CreateMap<CrearInscripcionDTO, InscripcionTorneo>().ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionUsuarioDTO>()
-            .ForMember(dest => dest.Nick, opt => opt.MapFrom(src => src.IdUsuarioNavigation.Nick)) // Configura el mapeo para Nick
+            .ForMember(dest => dest.Nick, opt => opt.MapFrom(src => src.IdUsuarioNavigation!.Nick))
             .ReverseMap();
-
     }
 }

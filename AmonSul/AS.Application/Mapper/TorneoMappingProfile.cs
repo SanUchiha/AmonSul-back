@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Torneo;
+﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.Torneo;
 using AS.Domain.Models;
 using AutoMapper;
 
@@ -10,5 +11,11 @@ public class TorneoMappingProfile : Profile
     {
         CreateMap<Torneo, TorneoDTO>().ReverseMap();
         CreateMap<Torneo, CrearTorneoDTO>().ReverseMap();
+        CreateMap<Torneo, TorneoCreadoUsuarioDTO>()
+            .ForMember(dest => dest.InscripcionTorneos, opt => opt.MapFrom(src => src.InscripcionTorneos))
+            .ReverseMap();
+
+        CreateMap<InscripcionTorneoCreadoDTO, InscripcionTorneo>().ReverseMap();
+
     }
 }

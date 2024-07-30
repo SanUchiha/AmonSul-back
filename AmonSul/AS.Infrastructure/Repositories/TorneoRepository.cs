@@ -64,5 +64,21 @@ public class TorneoRepository : ITorneoRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task<List<Torneo>> GetTorneosCreadosUsuario(int idUsuario)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Torneos
+                .Include(t => t.InscripcionTorneos)
+                .Where(t => t.IdUsuario == idUsuario)
+                .ToListAsync();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor.", ex);
+        }
+    }
 }
 
