@@ -8,8 +8,8 @@ public interface IPartidaAmistosaApplication
     Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosasValidadas();
     Task<ViewPartidaAmistosaDTO> GetById(int Id);
     Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuario(string email);
-    Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(string email);
-    Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioPendientes(string email);
+    Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(int idUsuario);
+    Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioPendientes(int idUsuario);
     Task<bool> Edit(UpdatePartidaAmistosaDTO partidaAmistosa);
     Task<bool> Register(CreatePartidaAmistosaDTO partidaAmistosa);
     Task<bool> Delete(int id);

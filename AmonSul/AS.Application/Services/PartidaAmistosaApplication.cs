@@ -8,6 +8,7 @@ using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Constantes;
 using AS.Utils.Statics;
 using AutoMapper;
+using Azure;
 using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
@@ -36,13 +37,7 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
     public async Task<bool> Delete(int id)
     {
-        //buscamos la partida
-        var partida = await GetById(id);
-        if (partida == null) return false;
-
-        return await _unitOfWork.PartidaAmistosaRepository.Delete(
-            _mapper.Map<PartidaAmistosa>(partida));
-       //eliminamos la partida
+       return await _unitOfWork.PartidaAmistosaRepository.Delete(id);
     }
 
     public async Task<bool> Edit(UpdatePartidaAmistosaDTO partidaAmistosa)
@@ -55,6 +50,8 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
     public async Task<ViewPartidaAmistosaDTO> GetById(int Id)
     {
         var partida = await _unitOfWork.PartidaAmistosaRepository.GetById(Id);
+
+        if (partida == null) return null!;
 
         var detallePartida = _mapper.Map<ViewPartidaAmistosaDTO>(partida);
         var usuario1 = await _unitOfWork.UsuarioRepository.GetById(detallePartida.IdUsuario1);
@@ -84,39 +81,43 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         return rawPartidas.FindAll(p => p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario);
     }
 
-    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioPendientes(string email)
+    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioPendientes(int idUsuario)
     {
-        List<ViewPartidaAmistosaDTO> rawPartidasUsuario = await GetPartidaAmistosasByUsuario(email);
-        if (rawPartidasUsuario == null) return [];
-
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
-        if (usuario == null) return [];
-
-        /*var pendientes = rawPartidasUsuario.FindAll(p =>
-            (p.IdUsuario1 == usuario.IdUsuario && !(p.PartidaValidadaUsuario1 ?? false))
-            || (p.IdUsuario2 == usuario.IdUsuario && !(p.PartidaValidadaUsuario2 ?? false)));*/
-
-        var pendientes2 = rawPartidasUsuario.FindAll(p =>
+        var listaPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidaAmistosasUsuarioById(idUsuario);
+        
+        var pendientes2 = listaPartidas.FindAll(p =>
             (p.PartidaValidadaUsuario1 == false || p.PartidaValidadaUsuario1 == null) ||
             (p.PartidaValidadaUsuario2 == false || p.PartidaValidadaUsuario2 == null));
 
-        return pendientes2;
+        return _mapper.Map<List<ViewPartidaAmistosaDTO>>(pendientes2);
     }
 
-    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(string email)
+    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(int idUsuario)
     {
-        var rawPartidas = await GetPartidasAmistosas();
-        if (rawPartidas == null) return [];
+        var listaPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidaAmistosasUsuarioById(idUsuario);
+        if (listaPartidas.Count == 0) return [];
 
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
-        if (usuario == null) return [];
+        List<ViewPartidaAmistosaDTO> partidas = _mapper.Map<List<ViewPartidaAmistosaDTO>>(listaPartidas);
 
-        rawPartidas = rawPartidas
-            .FindAll(p => (p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario)
+        foreach (var partida in partidas)
+        {
+            var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
+            partida.NickUsuario1 = usuario1.Nick;
+            var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
+            partida.NickUsuario2 = usuario2.Nick;
+            if (partida.GanadorPartida != 0)
+            {
+                if (partida.GanadorPartida == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                else partida.GanadorPartidaNick = partida.NickUsuario1;
+            }
+        }
+
+        partidas = partidas
+            .FindAll(p => (p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
                       && (p.PartidaValidadaUsuario1 ?? false)
                       && (p.PartidaValidadaUsuario2 ?? false));
 
-        foreach (var partida in rawPartidas)
+        /*foreach (var partida in partidas)
         {
             var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
             partida.NickUsuario1 = usuario1.Nick;
@@ -128,16 +129,14 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
                 else partida.GanadorPartidaNick = partida.NickUsuario1;
             }
 
-        }
+        }*/
 
-        return rawPartidas;
+        return partidas;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosas()
     {
         List<PartidaAmistosa> response = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
-
-        //Rellenar con los datos que faltan
 
         List<ViewPartidaAmistosaDTO> partidas = _mapper.Map<List<ViewPartidaAmistosaDTO>>(response);
 
@@ -180,7 +179,7 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
         //Conseguir los mails
         var usuario1 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
-        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
+        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario2);
 
         //Envio de mensajes de partida creada
         var listaDestinatarios = new List<string> { usuario1.Email, usuario2.Email };

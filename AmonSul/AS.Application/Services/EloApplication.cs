@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -96,9 +97,15 @@ public class EloApplication : IEloApplication
         return lastElo?.PuntuacionElo ?? throw new Exception("No se pudo encontrar el Elo más reciente");
     }
 
-    public async Task<List<ClasificacionEloDTO>> GetClasificacion()
+    public async Task<List<EloUsuarioDTO>> GetEloUsuarios()
     {
-        // Obtener todos los usuarios
+        var response = await _unitOfWork.EloRepository.GetElos();
+
+        var lista = _mapper.Map<List<EloUsuarioDTO>>(response);
+        
+        return lista;
+
+        /*// Obtener todos los usuarios
         var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
         if (usuarios == null) return new List<ClasificacionEloDTO>();
 
@@ -133,7 +140,7 @@ public class EloApplication : IEloApplication
 
         // Esperar todas las tareas y retornar la clasificación
         var clasificacion = await Task.WhenAll(tasks);
-        return clasificacion.ToList();
+        return clasificacion.ToList();*/
     }
 
     private async Task <List<PartidaAmistosa>> PartidasValidadas(string email)
@@ -150,5 +157,50 @@ public class EloApplication : IEloApplication
                       && (p.PartidaValidadaUsuario2 ?? false));
 
         return rawPartidas;
+    }
+
+    public async Task<List<ClasificacionEloDTO>> GetClasificacion()
+    {
+        // Obtener todos los usuarios
+        var listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
+        if (listaUsuarios == null) return new List<ClasificacionEloDTO>();
+
+        //var response = _mapper.Map
+
+        // Crear una lista de tareas para obtener la información de clasificación de cada usuario
+        var tasks = listaUsuarios.Select(usuario => Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+            var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
+            var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
+
+            var view = await scopedEloApplication.GetElo(usuario.Email);
+            var obj = scopedMapper.Map<ClasificacionEloDTO>(view);
+
+            obj.IdFaccion = usuario.IdFaccion;
+            var partidas = await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);
+            if (partidas.Any())
+            {
+                obj.Partidas = partidas.Count;
+                obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
+                obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
+                obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
+                obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
+                obj.NumeroPartidasJugadas = partidas.Count;
+            }
+            else
+            {
+                obj.Elo = 800;
+                obj.NumeroPartidasJugadas = 0;
+            }
+
+            return obj;
+        }));
+
+        // Esperar todas las tareas y retornar la clasificación
+        var clasificacion = await Task.WhenAll(tasks);
+        return clasificacion.ToList();
     }
 }

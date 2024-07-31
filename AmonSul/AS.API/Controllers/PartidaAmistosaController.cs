@@ -106,12 +106,12 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
     }
 
     [HttpGet]
-    [Route("Validadas/{email}")]
+    [Route("Validadas/{idUsuario}")]
     [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPartidaAmistosasByUsuarioValidadas(string email)
+    public async Task<IActionResult> GetPartidaAmistosasByUsuarioValidadas(int idUsuario)
     {
-        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(email);
+        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(idUsuario);
 
         if (response == null) return NotFound();
 
@@ -119,12 +119,12 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
     }
 
     [HttpGet]
-    [Route("Pendientes/{email}")]
+    [Route("Pendientes/{idUsuario}")]
     [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPartidaAmistosasByUsuarioPendientes(string email)
+    public async Task<IActionResult> GetPartidaAmistosasByUsuarioPendientes(int idUsuario)
     {
-        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(email);
+        List<ViewPartidaAmistosaDTO> response = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(idUsuario);
 
         if (response == null) return NotFound();
 

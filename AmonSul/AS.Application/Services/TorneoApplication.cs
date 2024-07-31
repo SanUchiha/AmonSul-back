@@ -57,12 +57,12 @@ public class TorneoApplication : ITorneoApplication
         string folderPath = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Bases");
         string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
 
-        if (!System.IO.File.Exists(filePath))
+        if (!File.Exists(filePath))
         {
             throw new FileNotFoundException("No se encontró el archivo de bases para este torneo.");
         }
 
-        var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+        var fileBytes = await File.ReadAllBytesAsync(filePath);
         var fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
 
         return (fileBytes, fileName);

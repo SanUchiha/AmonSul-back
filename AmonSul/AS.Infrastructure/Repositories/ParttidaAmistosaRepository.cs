@@ -25,7 +25,10 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
     {
         try
         {
-            var response = await _dbamonsulContext.PartidaAmistosas.AsNoTracking().Where(x => x.IdPartidaAmistosa== id).FirstOrDefaultAsync();
+            var response = await _dbamonsulContext.PartidaAmistosas
+                .AsNoTracking()
+                .Where(x => x.IdPartidaAmistosa== id)
+                .FirstOrDefaultAsync();
             return response!;
         }
         catch (Exception ex)
@@ -66,19 +69,30 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
 
     }
 
-    public async Task<bool> Delete(PartidaAmistosa partidaAmistosa)
+    public async Task<bool> Delete(int idPartida)
     {
         try
         {
-            var partidaBorrada = _dbamonsulContext.PartidaAmistosas.Remove(partidaAmistosa);
-            if (partidaBorrada == null) return false;
+            var partidaAmistosa = await _dbamonsulContext.PartidaAmistosas.FindAsync(idPartida);
+            if (partidaAmistosa == null) return false;
+
+            var existingEntity = _dbamonsulContext.ChangeTracker
+                                    .Entries<PartidaAmistosa>()
+                                    .FirstOrDefault(e => e.Entity.IdPartidaAmistosa == partidaAmistosa.IdPartidaAmistosa);
+
+            if (existingEntity != null)
+            {
+                _dbamonsulContext.Entry(existingEntity.Entity).State = EntityState.Detached;
+            }
+
+            _dbamonsulContext.PartidaAmistosas.Remove(partidaAmistosa);
             await _dbamonsulContext.SaveChangesAsync();
 
             return true;
         }
         catch (Exception ex)
         {
-            throw new Exception("Ocurrio un problema en el servidor al eliminar la partida.", ex);
+            throw new Exception("Ocurrió un problema en el servidor al eliminar la partida.", ex);
         }
     }
 
@@ -112,6 +126,23 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
         catch (Exception ex)
         {
             throw new Exception($"{ex.Message}");
+        }
+    }
+
+    public async Task<List<PartidaAmistosa>> GetPartidaAmistosasUsuarioById(int idUsuario)
+    {
+        try
+        {
+            List<PartidaAmistosa> partidas = await _dbamonsulContext.PartidaAmistosas
+                .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                .ToListAsync();
+
+            if (partidas == null) return [];
+            return partidas;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al buscar las partidas por jugador", ex);
         }
     }
 }

@@ -57,6 +57,42 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     }
 
     [HttpGet]
+    [Route("")]
+    public async Task<IActionResult> GetUsuarios()
+    {
+        try
+        {
+            List<UsuarioDTO> response = await _usuarioApplication.GetUsuarios();
+
+            if (response is null) return NoContent();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
+    [Route("Nicks")]
+    public async Task<IActionResult> GetNicks()
+    {
+        try
+        {
+            var response = await _usuarioApplication.GetNicks();
+
+            if (response is null) return NoContent();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
     [Route("Data/{idUsuario}")]
     public async Task<IActionResult> GetUsuarioData(int idUsuario)
     {

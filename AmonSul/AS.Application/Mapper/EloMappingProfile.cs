@@ -10,6 +10,7 @@ public class EloMappingProfile : Profile
     {
         CreateMap<Elo, CreateEloDTO>().ReverseMap();
         CreateMap<Elo, EloDTO>().ReverseMap();
+        CreateMap<Elo, EloUsuarioDTO>().ReverseMap();
         CreateMap<ClasificacionEloDTO, ViewEloDTO>().ReverseMap();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;
@@ -15,6 +16,7 @@ public interface IEloApplication
     Task<ViewEloDTO> GetElo(string email);
     Task<List<ViewEloDTO>> GetAllElos();
     Task<int> GetLastElo(int idUsuario);
+    Task<List<EloUsuarioDTO>> GetEloUsuarios();
     Task<List<ClasificacionEloDTO>> GetClasificacion();
 
 }
