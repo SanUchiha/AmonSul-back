@@ -220,7 +220,9 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         }
 
         bool usuario1 = false;
+        bool usuario2 = false;
         if (usuario.IdUsuario == partida.IdUsuario1) usuario1 = true;
+        else if (usuario.IdUsuario == partida.IdUsuario2) usuario2 = true;
         else return false;
 
         if (usuario1) partida.PartidaValidadaUsuario1 = true;
