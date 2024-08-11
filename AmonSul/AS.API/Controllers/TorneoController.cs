@@ -31,10 +31,23 @@ public class TorneoController : ControllerBase
     }
 
     [HttpGet]
-    [Route("creados/{idUsuario}")]
+    [AllowAnonymous]
+    [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
     {
-        var response = await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
+        List<TorneoCreadoUsuarioDTO> response = await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    [Route("Gestion/info-torneo/{idTorneo}")]
+    public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
+    {
+        var response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
 
         if (response == null) return NotFound();
 

@@ -76,4 +76,43 @@ public class TorneoApplication : ITorneoApplication
 
         return listaTorneos;
     }
+
+    public async Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo)
+    {
+        List<InscripcionTorneo> inscripciones =
+            await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(IdTorneo);
+
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(IdTorneo);
+
+        if (torneo == null) throw new Exception("Torneo no encontrado");
+
+        TorneoCreadoDTO torneoDTO = _mapper.Map<TorneoCreadoDTO>(torneo);
+
+        List<InscripcionTorneoCreadoDTO> inscripcionesDTO =
+            _mapper.Map<List<InscripcionTorneoCreadoDTO>>(inscripciones);
+
+        for (int i = 0; i < inscripciones.Count; i++)
+        {
+            inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
+            inscripcionesDTO[i].FechaEntrega = inscripciones[i].FechaEntregaLista;
+
+            if(inscripciones[i].Lista.Count> 0)
+            {
+                inscripcionesDTO[i].ListaData = inscripciones[i].Lista.ToList()[0].ListaData;
+                inscripcionesDTO[i].FechaEntrega = inscripciones[i].Lista.ToList()[0].FechaEntrega;
+                if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "Entregada";
+            }
+            if (inscripciones[i].EstadoInscripcion == null) inscripcionesDTO[i].EstadoInscripcion = "En proceso";
+            if (inscripciones[i].EsPago == null) inscripcionesDTO[i].EsPago = false;
+        }
+
+        var result = new TorneoGestionInfoDTO
+        {
+            Torneo = torneoDTO,
+            Inscripciones = inscripcionesDTO
+        };
+
+        return result;
+    }
+
 }

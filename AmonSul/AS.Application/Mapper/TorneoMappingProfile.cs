@@ -11,11 +11,10 @@ public class TorneoMappingProfile : Profile
     {
         CreateMap<Torneo, TorneoDTO>().ReverseMap();
         CreateMap<Torneo, CrearTorneoDTO>().ReverseMap();
-        CreateMap<Torneo, TorneoCreadoUsuarioDTO>()
-            .ForMember(dest => dest.InscripcionTorneos, opt => opt.MapFrom(src => src.InscripcionTorneos))
-            .ReverseMap();
+        CreateMap<Torneo, TorneoCreadoUsuarioDTO>().ReverseMap();
 
         CreateMap<InscripcionTorneoCreadoDTO, InscripcionTorneo>().ReverseMap();
 
+        CreateMap<Torneo, TorneoCreadoDTO>().ReverseMap();
     }
 }
