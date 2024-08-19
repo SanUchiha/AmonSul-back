@@ -311,14 +311,13 @@ public class UsuarioApplication : IUsuarioApplication
 
     public async Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO)
     {
-        var usuario = await _unitOfWork.UsuarioRepository.GetById(editarFaccionUsuarioDTO.IdUsuario);
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(editarFaccionUsuarioDTO.IdUsuario);
         if (usuario == null) return false;
 
         usuario.IdFaccion = editarFaccionUsuarioDTO.IdFaccion;
 
-        var result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
 
-        // 5. Devolver el Resultado
         return result;
     }
 

@@ -6,11 +6,11 @@ public class InscripcionUsuarioDTO
     public int IdTorneo { get; set; }
     public string? NombreTorneo { get; set; }
     public int IdUsuario { get; set; }
-    public string Nick { get; set; }
-    public string Email { get; set; }
+    public string? Nick { get; set; }
+    public string? Email { get; set; }
     public string? EstadoInscripcion { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntregaLista { get; set; }
-    public bool? EsPago { get; set; }
+    public string? EsPago { get; set; }
 }

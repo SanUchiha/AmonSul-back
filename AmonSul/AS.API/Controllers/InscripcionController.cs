@@ -7,16 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace AS.Api.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
-public class InscripcionController : ControllerBase
+public class InscripcionController(IInscripcionApplication inscripcionApplication) : ControllerBase
 {
-    private readonly IInscripcionApplication _inscripcionApplication;
-
-    public InscripcionController(IInscripcionApplication inscripcionApplication)
-    {
-        _inscripcionApplication = inscripcionApplication;
-    }
+    private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InscripcionTorneo>>> GetInscripciones()
@@ -70,5 +65,41 @@ public class InscripcionController : ControllerBase
             return NotFound();
         }
         return Ok(inscripcion);
+    }
+
+    //Cambiar estado inscripcion
+    [HttpPost("Estado-Inscripcion")]
+    public async Task<ActionResult> CambiarEstadoInscripcion([FromBody] ActualizarEstadoInscripcion actualizarEstadoInscripcion)
+    {
+        var result = await _inscripcionApplication.CambiarEstadoInscripcion(actualizarEstadoInscripcion);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Created();
+    }
+
+    //Cambiar estado lista
+    [HttpPost("Estado-Lista")]
+    public async Task<ActionResult> CambiarEstadoLista([FromBody] ActualizarEstadoLista actualizarEstadoLista)
+    {
+        var result = await _inscripcionApplication.CambiarEstadoLista(actualizarEstadoLista);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Created();
+    }
+
+    //Cambiar estado pago
+    [HttpPost("Estado-Pago")]
+    public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
+    {
+        var result = await _inscripcionApplication.CambiarEstadoPago(actualizarEstadoPago);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Created();
     }
 }

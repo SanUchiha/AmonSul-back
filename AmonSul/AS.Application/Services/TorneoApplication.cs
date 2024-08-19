@@ -7,16 +7,11 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class TorneoApplication : ITorneoApplication
+public class TorneoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ITorneoApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
 
-    public TorneoApplication(IUnitOfWork unitOfWork, IMapper mapper)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
     public async Task<List<TorneoDTO>> GetTorneos()
     {
         var response = await _unitOfWork.TorneoRepository.GetTorneos();
@@ -50,10 +45,7 @@ public class TorneoApplication : ITorneoApplication
 
     public async Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(int idTorneo)
     {
-        var nombreTorneo = (await GetById(idTorneo)).NombreTorneo;
-
-        if (nombreTorneo == null) throw new Exception();
-
+        string nombreTorneo = (await GetById(idTorneo)).NombreTorneo ?? throw new Exception();
         string folderPath = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Bases");
         string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
 
@@ -82,10 +74,9 @@ public class TorneoApplication : ITorneoApplication
         List<InscripcionTorneo> inscripciones =
             await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(IdTorneo);
 
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(IdTorneo);
-
-        if (torneo == null) throw new Exception("Torneo no encontrado");
-
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(IdTorneo) ??
+            throw new Exception("Torneo no encontrado");
+        
         TorneoCreadoDTO torneoDTO = _mapper.Map<TorneoCreadoDTO>(torneo);
 
         List<InscripcionTorneoCreadoDTO> inscripcionesDTO =
@@ -103,7 +94,7 @@ public class TorneoApplication : ITorneoApplication
                 if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "Entregada";
             }
             if (inscripciones[i].EstadoInscripcion == null) inscripcionesDTO[i].EstadoInscripcion = "En proceso";
-            if (inscripciones[i].EsPago == null) inscripcionesDTO[i].EsPago = false;
+            if (inscripciones[i].EsPago == "NO") inscripcionesDTO[i].EsPago = "NO";
         }
 
         var result = new TorneoGestionInfoDTO

@@ -147,7 +147,10 @@ public partial class DbamonsulContext : DbContext
             entity.ToTable("Inscripcion_Torneo");
 
             entity.Property(e => e.IdInscripcion).HasColumnName("ID_Inscripcion");
-            entity.Property(e => e.EsPago).HasColumnName("Es_Pago");
+            entity.Property(e => e.EsPago)
+                .HasColumnName("Es_Pago")
+                .HasMaxLength(2)
+                .IsUnicode(false);
             entity.Property(e => e.EstadoInscripcion)
                 .HasMaxLength(20)
                 .IsUnicode(false)

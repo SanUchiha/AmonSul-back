@@ -11,4 +11,8 @@ public interface IInscripcionApplication
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
     Task<bool> Register(CrearInscripcionDTO inscripcionTorneo);
+
+    Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
+    Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);
+    Task<bool> CambiarEstadoInscripcion(ActualizarEstadoInscripcion actualizarEstadoInscripcion);
 }

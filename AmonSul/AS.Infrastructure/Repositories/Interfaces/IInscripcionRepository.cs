@@ -10,4 +10,10 @@ public interface IInscripcionRepository
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
     Task<bool> Register(InscripcionTorneo inscripcionTorneo);
+
+    Task<bool> CambiarEstadoPago(InscripcionTorneo actualizarEstadoPago);
+    Task<bool> CambiarEstadoLista(InscripcionTorneo actualizarEstadoLista);
+    Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion);
+
+    Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
 }

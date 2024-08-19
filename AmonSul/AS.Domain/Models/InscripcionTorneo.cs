@@ -9,7 +9,7 @@ public partial class InscripcionTorneo
     public DateOnly? FechaInscripcion { get; set; }
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntregaLista { get; set; }
-    public bool? EsPago { get; set; }
+    public string? EsPago { get; set; }
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }
     public virtual ICollection<Lista> Lista { get; set; } = [];

@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -6,15 +7,39 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class InscripcionApplication: IInscripcionApplication
+public class InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper) : IInscripcionApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
 
-    public InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper)
+    public async Task<bool> CambiarEstadoInscripcion(ActualizarEstadoInscripcion actualizarEstado)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.EstadoInscripcion = actualizarEstado.EstadoInscripcion;
+
+        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
+    }
+
+    public async Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstado)
+    {
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.EstadoLista = actualizarEstado.EstadoLista;
+
+        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
+    }
+
+    public async Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstado)
+    {
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.EsPago = actualizarEstado.EsPago;
+
+        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
     }
 
     public async Task<InscripcionTorneo> Delete(int id)

@@ -10,5 +10,5 @@ public class InscripcionTorneoCreadoDTO
     public string? ListaData { get; set; }
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntrega { get; set; }
-    public bool? EsPago { get; set; }
+    public string? EsPago { get; set; }
 }

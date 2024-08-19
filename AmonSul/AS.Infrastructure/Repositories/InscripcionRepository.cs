@@ -8,6 +8,21 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
+    public Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> CambiarEstadoLista(InscripcionTorneo actualizarEstadoLista)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> CambiarEstadoPago(InscripcionTorneo actualizarEstadoPago)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<InscripcionTorneo> Delete(int idInscripcion)
     {
         var inscripcion = await _dbamonsulContext.InscripcionTorneos
@@ -67,6 +82,24 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         catch
         {
             return false;
+        }
+    }
+
+    public async Task<bool> Update(InscripcionTorneo inscripcionTorneo)
+    {
+        try
+        {
+            _dbamonsulContext.InscripcionTorneos.Update(inscripcionTorneo);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new Exception("La inscripción no se pudo actualizar porque fue modificado por otro usuario.");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al actualizar la inscripción.", ex);
         }
     }
 }
