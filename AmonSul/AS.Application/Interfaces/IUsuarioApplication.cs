@@ -9,6 +9,7 @@ public interface IUsuarioApplication
     Task<bool> Edit(EditarUsuarioDTO usuario);
     Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO);
     Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
+    Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO);
     Task<ViewUsuarioPartidaDTO> GetByEmail(string email);
     Task<UsuarioDTO> GetByNick(string nick);
     Task<List<ViewUsuarioPartidaDTO>> GetAll();
@@ -22,4 +23,6 @@ public interface IUsuarioApplication
     Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email);
 
     Task<UsuarioDataDTO> GetUsuarioData(int idUsuario);
+
+
 }

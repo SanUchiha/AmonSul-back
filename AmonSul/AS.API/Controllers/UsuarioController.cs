@@ -38,6 +38,24 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
 
     }
 
+    [HttpPost]
+    [Route("Cambiar-Pass")]
+    public async Task<IActionResult> CambiarPass([FromBody] CambiarPassDTO cambiarPassDTO)
+    {
+        try
+        {
+            var response = await _usuarioApplication.CambiarPass(cambiarPassDTO);
+
+            if (response) return Ok(response);
+            return BadRequest("No se pudo cambiar la pass del usuario.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor.", detail = ex.Message });
+        }
+
+    }
+
     [HttpGet]
     [Route("All")]
     public async Task<IActionResult> GetAll()
