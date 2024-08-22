@@ -8,14 +8,9 @@ namespace AS.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class EmailController : ControllerBase
+public class EmailController(IEmailApplicacion emailApplicacion) : ControllerBase
 {
-    private readonly IEmailApplicacion _emailApplicacion;
-
-    public EmailController(IEmailApplicacion emailApplicacion)
-    {
-        _emailApplicacion = emailApplicacion;
-    }
+    private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     [HttpPost]
     [AllowAnonymous]

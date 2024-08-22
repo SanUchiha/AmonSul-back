@@ -9,14 +9,9 @@ namespace AS.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class ListaController : ControllerBase
+public class ListaController(IListaApplication listaApplication) : ControllerBase
 {
-    private readonly IListaApplication _listaApplication;
-
-    public ListaController(IListaApplication listaApplication)
-    {
-        _listaApplication = listaApplication;
-    }
+    private readonly IListaApplication _listaApplication = listaApplication;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Lista>>> GetListas()

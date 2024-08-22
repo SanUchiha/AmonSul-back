@@ -38,7 +38,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
 
     }
 
-    [HttpPost]
+    [HttpPut]
     [Route("Cambiar-Pass")]
     public async Task<IActionResult> CambiarPass([FromBody] CambiarPassDTO cambiarPassDTO)
     {
@@ -47,7 +47,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
             var response = await _usuarioApplication.CambiarPass(cambiarPassDTO);
 
             if (response) return Ok(response);
-            return BadRequest("No se pudo cambiar la pass del usuario.");
+            return Unauthorized();
         }
         catch (Exception ex)
         {

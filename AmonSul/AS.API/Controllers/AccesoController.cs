@@ -11,20 +11,10 @@ namespace AS.API.Controllers;
 [Route("api/[controller]")]
 [AllowAnonymous]
 [ApiController]
-public class AccesoController : ControllerBase
+public class AccesoController(
+    ILoginApplication loginApplication) : ControllerBase
 {
-    private readonly IAccountRepository _accountRepository;
-    private readonly DbamonsulContext _dbamonsulContext;
-    private readonly Utilidades _utilidades;
-    private readonly ILoginApplication _loginApplication;
-
-    public AccesoController(IAccountRepository accountRepository, DbamonsulContext dbamonsulContext, Utilidades utilidades, ILoginApplication loginApplication)
-    {
-        _accountRepository = accountRepository;
-        _dbamonsulContext = dbamonsulContext;
-        _utilidades = utilidades;
-        _loginApplication = loginApplication;
-    }
+    private readonly ILoginApplication _loginApplication = loginApplication;
 
     [HttpPost]
     [Route("Login")]

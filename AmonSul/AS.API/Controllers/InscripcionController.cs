@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AS.Api.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class InscripcionController(IInscripcionApplication inscripcionApplication) : ControllerBase
 {
@@ -68,7 +68,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     //Cambiar estado inscripcion
-    [HttpPost("Estado-Inscripcion")]
+    [HttpPut("Estado-Inscripcion")]
     public async Task<ActionResult> CambiarEstadoInscripcion([FromBody] ActualizarEstadoInscripcion actualizarEstadoInscripcion)
     {
         var result = await _inscripcionApplication.CambiarEstadoInscripcion(actualizarEstadoInscripcion);
@@ -80,7 +80,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     //Cambiar estado lista
-    [HttpPost("Estado-Lista")]
+    [HttpPut("Estado-Lista")]
     public async Task<ActionResult> CambiarEstadoLista([FromBody] ActualizarEstadoLista actualizarEstadoLista)
     {
         var result = await _inscripcionApplication.CambiarEstadoLista(actualizarEstadoLista);
@@ -92,7 +92,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     //Cambiar estado pago
-    [HttpPost("Estado-Pago")]
+    [HttpPut("Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
     {
         var result = await _inscripcionApplication.CambiarEstadoPago(actualizarEstadoPago);

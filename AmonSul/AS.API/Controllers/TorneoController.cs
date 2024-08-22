@@ -8,16 +8,11 @@ using System.ComponentModel.DataAnnotations;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
-public class TorneoController : ControllerBase
+public class TorneoController(ITorneoApplication torneoApplication) : ControllerBase
 {
-    private readonly ITorneoApplication _torneoApplication;
-
-    public TorneoController(ITorneoApplication torneoApplication)
-    {
-        _torneoApplication = torneoApplication;
-    }
+    private readonly ITorneoApplication _torneoApplication = torneoApplication;
 
     [HttpGet]
     [Route("")]
