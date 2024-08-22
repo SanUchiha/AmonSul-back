@@ -6,4 +6,6 @@ public interface IEmailApplicacion
 {
     Task SendEmailRegister(EmailRequestDTO request);
     Task SendEmailContacto(EmailContactoDTO request);
+    Task SendEmailResetPass(EmailContactoDTO request);
+
 }

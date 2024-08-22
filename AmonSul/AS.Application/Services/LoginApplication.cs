@@ -21,12 +21,12 @@ public class LoginApplication : ILoginApplication
     {
         var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
             u.Email == loginDTO.Email &&
-            u.Contraseña == _utilidades.encriptarSHA256(loginDTO.Password!)).
+            u.Contraseña == Utilidades.EncriptarSHA256(loginDTO.Password!)).
             FirstOrDefaultAsync();
 
         if (foundUser == null) return new LoginResponse { IsAccess = false };
 
-        var token = _utilidades.generarJWT(foundUser);
+        var token = _utilidades.GenerarJWT(foundUser);
 
         var loginResponse = new LoginResponse
         {

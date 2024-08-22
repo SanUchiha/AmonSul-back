@@ -8,32 +8,33 @@ using System.Text;
 
 namespace AS.Infrastructure;
 
-public class Utilidades
+public class Utilidades(IConfiguration configuration)
 {
-    private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration = configuration;
 
-    public Utilidades(IConfiguration configuration)
+    public static string EncriptarSHA256(string input)
     {
-        _configuration = configuration;
-    }
+        byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
 
-    public string encriptarSHA256(string input) 
-    {
-        using (SHA256 sha256 = SHA256.Create())
+        StringBuilder stringBuilder = new();
+        for (int i = 0; i < bytes.Length; i++)
         {
-            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                stringBuilder.Append(bytes[i].ToString("x2"));
-            }
-
-            return stringBuilder.ToString();
+            stringBuilder.Append(bytes[i].ToString("x2"));
         }
+
+        return stringBuilder.ToString();
     }
 
-    public string generarJWT(Usuario usuario) 
+    public static string GenerarPassTemporal()
+    {
+        const string caracteresPermitidos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const int longitud = 10;
+        Random random = new();
+        return new string(Enumerable.Repeat(caracteresPermitidos, longitud)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    public string GenerarJWT(Usuario usuario) 
     {
         var userClaims = new[]
         {
@@ -56,5 +57,4 @@ public class Utilidades
 
         return new JwtSecurityTokenHandler().WriteToken(jwtConfig);
     }
-
 }

@@ -75,6 +75,25 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     }
 
     [HttpGet]
+    [AllowAnonymous]
+    [Route("Recordar-Pass/{email}")]
+    public async Task<IActionResult> RecordarPass(string email)
+    {
+        try
+        {
+            bool response = await _usuarioApplication.RecordarPass(email);
+
+            if (!response) return NoContent();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
     [Route("")]
     public async Task<IActionResult> GetUsuarios()
     {

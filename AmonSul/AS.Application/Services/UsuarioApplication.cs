@@ -19,39 +19,24 @@ using System.Collections.Concurrent;
 
 namespace AS.Application.Services;
 
-public class UsuarioApplication : IUsuarioApplication
+public class UsuarioApplication(
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IAccountRepository accountRepository,
+    IPartidaAmistosaApplication partidaAmistosaApplication,
+    IEloApplication eloApplication,
+    ITorneoApplication torneoApplication,
+    IServiceProvider serviceProvider,
+    IEmailApplicacion emailApplication) : IUsuarioApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly Utilidades _utilidades;
-    private readonly IAccountRepository _accountRepository;
-    private readonly IPartidaAmistosaApplication _partidaAmistosaApplication;
-    private readonly IEloApplication _eloApplication;
-    private readonly ITorneoApplication _torneoApplication;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly IEmailApplicacion _emailApplication;
-
-    public UsuarioApplication(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
-        Utilidades utilidades, 
-        IAccountRepository accountRepository, 
-        IPartidaAmistosaApplication partidaAmistosaApplication, 
-        IEloApplication eloApplication, 
-        ITorneoApplication torneoApplication, 
-        IServiceProvider serviceProvider, 
-        IEmailApplicacion emailApplication)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _utilidades = utilidades;
-        _accountRepository = accountRepository;
-        _partidaAmistosaApplication = partidaAmistosaApplication;
-        _eloApplication = eloApplication;
-        _torneoApplication = torneoApplication;
-        _serviceProvider = serviceProvider;
-        _emailApplication = emailApplication;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IAccountRepository _accountRepository = accountRepository;
+    private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
+    private readonly IEloApplication _eloApplication = eloApplication;
+    private readonly ITorneoApplication _torneoApplication = torneoApplication;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IEmailApplicacion _emailApplication = emailApplication;
 
     public async Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO)
     {
@@ -61,12 +46,12 @@ public class UsuarioApplication : IUsuarioApplication
         if (usuario == null) return false;
 
         //2. comprobar que la pass antigua es correcta
-        string oldPassEnc = _utilidades.encriptarSHA256(cambiarPassDTO.OldPass!);
+        string oldPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.OldPass!);
         if (oldPassEnc != usuario.Contraseña)
             return false;
 
         //3. encriptar passs nueva
-        string newPassEnc = _utilidades.encriptarSHA256(cambiarPassDTO.NewPass!);
+        string newPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.NewPass!);
 
         //4. actualizar el usuario con la pass nueva
         usuario.Contraseña = newPassEnc;
@@ -91,7 +76,7 @@ public class UsuarioApplication : IUsuarioApplication
 
         if (usuario.Contraseña != null)
         {
-            usuario.Contraseña = _utilidades.encriptarSHA256(usuario.Contraseña);
+            usuario.Contraseña = Utilidades.EncriptarSHA256(usuario.Contraseña);
         }
 
         if (usuario.NuevoEmail != null) usuario.Email = usuario.NuevoEmail;
@@ -192,7 +177,7 @@ public class UsuarioApplication : IUsuarioApplication
 
         //obj.ClasificacionElo
         List<ClasificacionEloDTO> cla = await _eloApplication.GetClasificacion();
-        cla = cla.OrderByDescending(item => item.Elo).ToList();
+        cla = [.. cla.OrderByDescending(item => item.Elo)];
 
         obj.ClasificacionElo = cla.FindIndex(item => item.Nick == obj.Nick)+1;
 
@@ -220,14 +205,14 @@ public class UsuarioApplication : IUsuarioApplication
         //elo
         var elos = await _eloApplication.GetElo(email);
         var clasificacionElo = await _eloApplication.GetClasificacion();
-        clasificacionElo = clasificacionElo.OrderByDescending(x => x.Elo).ToList();
+        clasificacionElo = [.. clasificacionElo.OrderByDescending(x => x.Elo)];
         result.ClasificacionElo = clasificacionElo.FindIndex(x=>x.Nick == result.Nick) +1;
         result.Elos = elos.Elos;
         //partidas
         //var partidas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(168);
         //torneos
         //result.Partidas = partidas;
-        result.PuntuacionElo = elos.Elos[elos.Elos.Count - 1].PuntuacionElo;
+        result.PuntuacionElo = elos.Elos[^1].PuntuacionElo;
 
         var torneos = await _torneoApplication.GetTorneos();
         
@@ -276,14 +261,13 @@ public class UsuarioApplication : IUsuarioApplication
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.IdUsuario);
         response.PartidasValidadas =
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(usuario.IdUsuario);
-        response.PuntuacionElo = response.Elos[response.Elos.Count - 1].PuntuacionElo;
+        response.PuntuacionElo = response.Elos[^1].PuntuacionElo;
 
         var listaElosUsuarios = await _eloApplication.GetEloUsuarios();
-        List<EloUsuarioDTO> listaElosUsuariosFiltrados = listaElosUsuarios
+        List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
             .GroupBy(u => u.IdUsuario)
             .Select(g => g.OrderByDescending(u => u.FechaElo).First())
-            .OrderByDescending(e => e.PuntuacionElo)
-            .ToList();
+            .OrderByDescending(e => e.PuntuacionElo)];
 
         response.ClasificacionElo = listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == response.IdUsuario)+1;
 
@@ -344,12 +328,39 @@ public class UsuarioApplication : IUsuarioApplication
         return result;
     }
 
+    public async Task<bool> RecordarPass(string email)
+    {
+        //1. conseguimos el usuario
+        Usuario usuario  = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+        if (usuario == null) return false;
+
+        //2. conseguimos la contraseña
+        string pass = Utilidades.GenerarPassTemporal();
+        string passEnc = Utilidades.EncriptarSHA256(pass);
+        
+        usuario.Contraseña = passEnc;
+
+        bool actualizarUsuario = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        if (!actualizarUsuario) return false;
+
+        //3. Se la enviamos por correo
+        EmailContactoDTO emailContacto = new()
+        {
+            Email = email,
+            Message = pass
+        };
+
+        await _emailApplication.SendEmailResetPass(emailContacto);
+        
+        return true;
+    }
+
     public async Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO registrarUsuarioDTO)
     {
         try
         {
             var rawPass = registrarUsuarioDTO.Contraseña;
-            registrarUsuarioDTO.Contraseña = _utilidades.encriptarSHA256(registrarUsuarioDTO.Contraseña);
+            registrarUsuarioDTO.Contraseña = Utilidades.EncriptarSHA256(registrarUsuarioDTO.Contraseña);
             var usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
             var rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 
