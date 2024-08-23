@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Inscripcion;
+﻿using AS.Application.DTOs.Email;
+using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -7,19 +8,41 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper) : IInscripcionApplication
+public class InscripcionApplication(
+    IUnitOfWork unitOfWork, 
+    IMapper mapper, 
+    IEmailApplicacion emailApplicacion) : IInscripcionApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
+    private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     public async Task<bool> CambiarEstadoInscripcion(ActualizarEstadoInscripcion actualizarEstado)
     {
+
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
         if (inscripcion == null) return false;
 
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+        if (torneo == null) return false;
+
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+        if (usuario == null) return false;
+
         inscripcion.EstadoInscripcion = actualizarEstado.EstadoInscripcion;
 
-        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        var result = await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        if (result == false) return false;
+
+        EmailContactoDTO emailContactoDTO = new()
+        {
+            Email = usuario.Email,
+            Message = torneo.NombreTorneo,
+        };
+
+        await _emailApplicacion.SendEmailModificacionInscripcion(emailContactoDTO);
+
+        return result;
     }
 
     public async Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstado)
@@ -27,9 +50,26 @@ public class InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper) : II
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
         if (inscripcion == null) return false;
 
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+        if (torneo == null) return false;
+
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+        if (usuario == null) return false;
+
         inscripcion.EstadoLista = actualizarEstado.EstadoLista;
 
-        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        var result = await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        if (result == false) return false;
+
+        EmailContactoDTO emailContactoDTO = new()
+        {
+            Email = usuario.Email,
+            Message = torneo.NombreTorneo,
+        };
+
+        await _emailApplicacion.SendEmailModificacionInscripcion(emailContactoDTO);
+
+        return result;
     }
 
     public async Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstado)
@@ -37,9 +77,26 @@ public class InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper) : II
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(actualizarEstado.IdInscripcion);
         if (inscripcion == null) return false;
 
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+        if (torneo == null) return false;
+
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+        if (usuario == null) return false;
+
         inscripcion.EsPago = actualizarEstado.EsPago;
 
-        return await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        var result = await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        if (result == false) return false;
+
+        EmailContactoDTO emailContactoDTO = new()
+        {
+            Email = usuario.Email,
+            Message = torneo.NombreTorneo,
+        };
+
+        await _emailApplicacion.SendEmailModificacionInscripcion(emailContactoDTO);
+
+        return result;
     }
 
     public async Task<InscripcionTorneo> Delete(int id)
@@ -82,7 +139,23 @@ public class InscripcionApplication(IUnitOfWork unitOfWork, IMapper mapper) : II
 
     public async Task<bool> Register(CrearInscripcionDTO inscripcionTorneo)
     {
-        return await _unitOfWork.InscripcionRepository.Register(
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcionTorneo.IdUsuario);
+        if (usuario == null) return false;
+
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcionTorneo.IdTorneo);
+        if (torneo == null) return false;
+
+        bool registro = await _unitOfWork.InscripcionRepository.Register(
             _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
+
+        EmailContactoDTO emailContactoDTO = new()
+        {
+            Email = usuario.Email,
+            Message = torneo.NombreTorneo,
+        };
+
+        await _emailApplicacion.SendEmailRegistroTorneo(emailContactoDTO);
+
+        return registro;
     }
 }

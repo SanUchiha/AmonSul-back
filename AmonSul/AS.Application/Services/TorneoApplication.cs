@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Inscripcion;
+﻿using AS.Application.DTOs.Email;
+using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -7,10 +8,14 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class TorneoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ITorneoApplication
+public class TorneoApplication(
+    IUnitOfWork unitOfWork, 
+    IMapper mapper,
+    IEmailApplicacion emailApplicacion) : ITorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
+    private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     public async Task<List<TorneoDTO>> GetTorneos()
     {
@@ -28,9 +33,13 @@ public class TorneoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ITorneo
 
     public async Task<bool> Register(CrearTorneoDTO request)
     {
-        var torneo = _mapper.Map<Torneo>(request);
+        Torneo torneo = _mapper.Map<Torneo>(request);
 
-        return await _unitOfWork.TorneoRepository.Register(torneo);
+        bool torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
+
+        await _emailApplicacion.SendEmailNuevoTorneo(request.NombreTorneo!);
+
+        return torneoCreado;
     }
 
     public Task<bool> Edit(TorneoDTO TorneoDTO)

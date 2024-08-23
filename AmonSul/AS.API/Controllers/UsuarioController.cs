@@ -225,7 +225,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            var response = await _usuarioApplication.UpdateProteccionDatos(request);
+            bool response = await _usuarioApplication.UpdateProteccionDatos(request);
 
             if (!response) return NotFound();
 
