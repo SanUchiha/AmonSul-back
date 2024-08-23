@@ -14,6 +14,7 @@ public partial class Usuario
     public DateOnly FechaNacimiento { get; set; }
     public int? IdFaccion { get; set; }
     public string? Telefono { get; set; }
+    public bool? ProteccionDatos { get; set; }
     public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = [];
     public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual ICollection<Comentario> Comentarios { get; set; } = [];

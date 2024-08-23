@@ -6,16 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AS.Application.Services;
 
-public class LoginApplication : ILoginApplication
+public class LoginApplication(DbamonsulContext dbamonsulContext, Utilidades utilidades) : ILoginApplication
 {
-    private readonly DbamonsulContext _dbamonsulContext;
-    private readonly Utilidades _utilidades;
-
-    public LoginApplication(DbamonsulContext dbamonsulContext, Utilidades utilidades)
-    {
-        _dbamonsulContext = dbamonsulContext;
-        _utilidades = utilidades;
-    }
+    private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
+    private readonly Utilidades _utilidades = utilidades;
 
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {

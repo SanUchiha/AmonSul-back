@@ -220,6 +220,24 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     }
 
     [HttpPut]
+    [Route("Proteccion-Datos")]
+    public async Task<IActionResult> UpdateProteccionDatos([FromBody] UpdateProteccionDatosDTO request)
+    {
+        try
+        {
+            var response = await _usuarioApplication.UpdateProteccionDatos(request);
+
+            if (!response) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpPut]
     [Route("modificar-faccion")]
     public async Task<IActionResult> ModificarFaccion([FromBody] EditarFaccionUsuarioDTO request)
     {

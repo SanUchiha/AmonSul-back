@@ -25,5 +25,6 @@ public interface IUsuarioApplication
 
     Task<UsuarioDataDTO> GetUsuarioData(int idUsuario);
 
+    Task<bool> UpdateProteccionDatos(UpdateProteccionDatosDTO updateProteccionDatosDTO);
 
 }

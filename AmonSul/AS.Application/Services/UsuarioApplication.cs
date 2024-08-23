@@ -42,7 +42,6 @@ public class UsuarioApplication(
     {
         //1. comprobar que el usuario existe
         Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(cambiarPassDTO.idUsuario);
-
         if (usuario == null) return false;
 
         //2. comprobar que la pass antigua es correcta
@@ -416,5 +415,21 @@ public class UsuarioApplication(
         {
             throw;
         }
+    }
+
+    public async Task<bool> UpdateProteccionDatos(UpdateProteccionDatosDTO updateProteccionDatosDTO)
+    {
+        //1. Buscamos el usuario
+
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(updateProteccionDatosDTO.IdUsuario);
+        if (usuario == null) return false;
+
+        //2. actualizamos el usuario
+        usuario.ProteccionDatos = updateProteccionDatosDTO.ProteccionDatos;
+
+        //3. lo guardamos en la base de datos
+        bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+
+        return result;
     }
 }

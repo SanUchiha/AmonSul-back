@@ -416,6 +416,8 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.Telefono)
                 .HasMaxLength(9)
                 .IsUnicode(false);
+            entity.Property(e => e.ProteccionDatos)
+                .HasColumnName("Proteccion_Datos");
 
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)

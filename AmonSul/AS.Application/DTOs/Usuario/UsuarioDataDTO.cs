@@ -21,4 +21,5 @@ public class UsuarioDataDTO
     public int PartidasGanadas { get; set; }
     public int PartidasEmpatadas { get; set; }
     public int PartidasPerdidas { get; set; }
+    public bool? ProteccionDatos { get; set; }
 }
