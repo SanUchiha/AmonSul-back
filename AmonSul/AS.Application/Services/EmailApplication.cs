@@ -6,14 +6,14 @@ using AS.Application.Exceptions;
 using Microsoft.Extensions.Options;
 using Azure.Core;
 using AS.Domain.Models;
+using AS.Infrastructure.Repositories.Interfaces;
 
 namespace AS.Application.Services;
 
-public class EmailApplication(IOptions<EmailSettings> emailSettings, IUsuarioApplication usuarioApplication): IEmailApplicacion
+public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork unitOfWork): IEmailApplicacion
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
-    private readonly IUsuarioApplication _usuarioApplication = usuarioApplication;
-
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     public async Task SendEmailContacto(EmailContactoDTO request)
     {
         try
@@ -116,9 +116,9 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUsuarioApp
                 IsBodyHtml = true
             };
 
-            List<DTOs.PartidaAmistosa.ViewUsuarioPartidaDTO> listaDestinatarios = await _usuarioApplication.GetAll();
+            var listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAll();
 
-            
+         
 
             foreach (var destinatario in listaDestinatarios)
             {
