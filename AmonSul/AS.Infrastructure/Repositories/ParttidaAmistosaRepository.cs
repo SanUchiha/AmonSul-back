@@ -135,6 +135,8 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
         {
             List<PartidaAmistosa> partidas = await _dbamonsulContext.PartidaAmistosas
                 .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                .Include(p => p.IdUsuario1Navigation)  
+                .Include(p => p.IdUsuario2Navigation) 
                 .ToListAsync();
 
             if (partidas == null) return [];

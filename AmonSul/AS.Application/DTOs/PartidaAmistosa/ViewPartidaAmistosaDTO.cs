@@ -1,4 +1,6 @@
-﻿namespace AS.Application.DTOs.PartidaAmistosa;
+﻿using System.Text.Json.Serialization;
+
+namespace AS.Application.DTOs.PartidaAmistosa;
 
 public class ViewPartidaAmistosaDTO
 {
@@ -21,4 +23,8 @@ public class ViewPartidaAmistosaDTO
     public string? EjercitoUsuario2 { get; set; }
     public bool? PartidaValidadaUsuario1 { get; set; }
     public bool? PartidaValidadaUsuario2 { get; set; }
+    [JsonIgnore]
+    public Domain.Models.Usuario? IdUsuario1Navigation { get; set; }
+    [JsonIgnore]
+    public Domain.Models.Usuario? IdUsuario2Navigation { get; set; }
 }

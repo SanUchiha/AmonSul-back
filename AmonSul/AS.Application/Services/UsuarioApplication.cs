@@ -241,10 +241,10 @@ public class UsuarioApplication(
 
     public async Task<UsuarioDataDTO> GetUsuarioData(int idUsuario)
     {
-        var usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
         if (usuario == null) return null!;
 
-        var response = _mapper.Map<UsuarioDataDTO>(usuario);
+        UsuarioDataDTO response = _mapper.Map<UsuarioDataDTO>(usuario);
         if(response == null) return null!;
 
         response.Faccion = 
@@ -255,7 +255,7 @@ public class UsuarioApplication(
         {
             item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
         }
-
+        
         response.PartidasPendientes = 
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.IdUsuario);
         response.PartidasValidadas =

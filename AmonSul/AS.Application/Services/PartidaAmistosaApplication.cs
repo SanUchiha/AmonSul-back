@@ -13,27 +13,18 @@ using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 
-public class PartidaAmistosaApplication : IPartidaAmistosaApplication
+public class PartidaAmistosaApplication(
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    ILogger<PartidaAmistosaApplication> logger,
+    IEloApplication eloApplication,
+    IEmailApplicacion emailApplication) : IPartidaAmistosaApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly ILogger<PartidaAmistosaApplication> _logger;
-    private readonly IEmailApplicacion _emailApplication;
-    private readonly IEloApplication _eloApplication;
-
-    public PartidaAmistosaApplication(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
-        ILogger<PartidaAmistosaApplication> logger, 
-        IEloApplication eloApplication, 
-        IEmailApplicacion emailApplication)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _logger = logger;
-        _eloApplication = eloApplication;
-        _emailApplication = emailApplication;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<PartidaAmistosaApplication> _logger = logger;
+    private readonly IEmailApplicacion _emailApplication = emailApplication;
+    private readonly IEloApplication _eloApplication = eloApplication;
 
     public async Task<bool> Delete(int id)
     {
@@ -61,7 +52,7 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
         
         if (detallePartida.GanadorPartida != 0)
         {
-            var ganador = await _unitOfWork.UsuarioRepository.GetById(detallePartida.GanadorPartida);
+            Usuario ganador = await _unitOfWork.UsuarioRepository.GetById(detallePartida.GanadorPartida);
             detallePartida.NickUsuario2 = usuario2.Nick;
             if (detallePartida.GanadorPartida == detallePartida.IdUsuario2) detallePartida.GanadorPartidaNick = detallePartida.NickUsuario2;
             else detallePartida.GanadorPartidaNick = detallePartida.NickUsuario1;
@@ -94,20 +85,26 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidaAmistosasByUsuarioValidadas(int idUsuario)
     {
-        var listaPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidaAmistosasUsuarioById(idUsuario);
+        List<PartidaAmistosa> listaPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidaAmistosasUsuarioById(idUsuario);
         if (listaPartidas.Count == 0) return [];
+
+        listaPartidas = listaPartidas
+            .Where(p => (p.PartidaValidadaUsuario1 ?? false) && (p.PartidaValidadaUsuario2 ?? false))
+            .ToList();
 
         List<ViewPartidaAmistosaDTO> partidas = _mapper.Map<List<ViewPartidaAmistosaDTO>>(listaPartidas);
 
         foreach (var partida in partidas)
         {
-            var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
-            partida.NickUsuario1 = usuario1.Nick;
-            var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
-            partida.NickUsuario2 = usuario2.Nick;
+            //Usuario usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
+            partida.NickUsuario1 = partida.IdUsuario1Navigation!.Nick;
+            //Usuario usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
+            partida.NickUsuario2 = partida.IdUsuario2Navigation!.Nick;
+
             if (partida.GanadorPartida != 0)
             {
-                if (partida.GanadorPartida == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                if (partida.GanadorPartida == partida.IdUsuario2) 
+                    partida.GanadorPartidaNick = partida.NickUsuario2;
                 else partida.GanadorPartidaNick = partida.NickUsuario1;
             }
         }
@@ -116,20 +113,6 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
             .FindAll(p => (p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
                       && (p.PartidaValidadaUsuario1 ?? false)
                       && (p.PartidaValidadaUsuario2 ?? false));
-
-        /*foreach (var partida in partidas)
-        {
-            var usuario1 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario1);
-            partida.NickUsuario1 = usuario1.Nick;
-            var usuario2 = await _unitOfWork.UsuarioRepository.GetById(partida.IdUsuario2);
-            partida.NickUsuario2 = usuario2.Nick;
-            if (partida.GanadorPartida != 0)
-            {
-                if (partida.GanadorPartida == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
-                else partida.GanadorPartidaNick = partida.NickUsuario1;
-            }
-
-        }*/
 
         return partidas;
     }
@@ -205,19 +188,12 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
     public async Task<bool> ValidarPartidaAmistosa(ValidarPartidaDTO validarPartidaDTO)
     {
-        var partida = await GetById(validarPartidaDTO.IdPartida);
-        if (partida == null)
-        {
-            _logger.LogInformation("Partida amistosa no encontrada");
-            return false;
-        }
+        ViewPartidaAmistosaDTO partida = await GetById(validarPartidaDTO.IdPartida);
+        if (partida == null) return false;
 
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
-        if (usuario == null)
-        {
-            _logger.LogInformation("Usuario no encontrado");
-            return false;
-        }
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
+        if (usuario == null) return false;
+
 
         bool usuario1 = false;
         bool usuario2 = false;
@@ -230,11 +206,10 @@ public class PartidaAmistosaApplication : IPartidaAmistosaApplication
 
         UpdatePartidaAmistosaDTO updatePartida = _mapper.Map<UpdatePartidaAmistosaDTO>(partida);
 
-        var result = await Edit(updatePartida);
+        bool result = await Edit(updatePartida);
 
         // Comprobamos si tenemos que actualizar el elo para ambos jugadores
-
-        var partidaValidada = await GetById(validarPartidaDTO.IdPartida);
+        ViewPartidaAmistosaDTO partidaValidada = await GetById(validarPartidaDTO.IdPartida);
 
         if (partidaValidada.EsElo) 
         {
