@@ -37,6 +37,9 @@ public class TorneoApplication(
 
         bool torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
 
+        try { await _emailApplicacion.SendEmailNuevoTorneo(request.NombreTorneo!); }
+        catch { throw new Exception("No se ha podido enviar el correo"); }
+
         await _emailApplicacion.SendEmailNuevoTorneo(request.NombreTorneo!);
 
         return torneoCreado;

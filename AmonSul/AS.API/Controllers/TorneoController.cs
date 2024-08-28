@@ -26,7 +26,7 @@ public class TorneoController(ITorneoApplication torneoApplication) : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    //[AllowAnonymous]
     [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
     {
@@ -38,7 +38,7 @@ public class TorneoController(ITorneoApplication torneoApplication) : Controller
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    //[AllowAnonymous]
     [Route("Gestion/info-torneo/{idTorneo}")]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
