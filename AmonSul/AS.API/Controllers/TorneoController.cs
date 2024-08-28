@@ -62,6 +62,7 @@ public class TorneoController(ITorneoApplication torneoApplication) : Controller
 
     [HttpPost]
     [Route("")]
+    //[AllowAnonymous]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
