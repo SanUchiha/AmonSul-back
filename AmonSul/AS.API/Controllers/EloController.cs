@@ -52,6 +52,19 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("Mensual")]
+    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetClasificacionMensual()
+    {
+        List<ClasificacionEloDTO> response = await _eloApplication.GetClasificacionMensual();
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
     [HttpPost]
     [Route("")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
