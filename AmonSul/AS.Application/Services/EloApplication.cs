@@ -21,17 +21,17 @@ public class EloApplication : IEloApplication
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<bool> RegisterElo(CreateEloDTO requestElo) => 
+    public async Task<bool> RegisterElo(CreateEloDTO requestElo) =>
         await _unitOfWork.EloRepository.RegisterElo(_mapper.Map<Elo>(requestElo));
-    public async Task<Elo> GetEloById(int idElo) => 
+    public async Task<Elo> GetEloById(int idElo) =>
         await _unitOfWork.EloRepository.GetEloById(idElo);
-    public async Task<List<Elo>> GetElos() => 
+    public async Task<List<Elo>> GetElos() =>
         await _unitOfWork.EloRepository.GetElos();
-    public async Task<List<Elo>> GetElosByIdUser(int idUsuario) => 
+    public async Task<List<Elo>> GetElosByIdUser(int idUsuario) =>
         await _unitOfWork.EloRepository.GetElosByIdUser(idUsuario);
-    public async Task<bool> Delete(int idElo) => 
+    public async Task<bool> Delete(int idElo) =>
         await _unitOfWork.EloRepository.Delete(idElo);
-    public async Task<bool> Edit(Elo elo) => 
+    public async Task<bool> Edit(Elo elo) =>
         await _unitOfWork.EloRepository.Edit(elo);
 
     public async Task<ViewEloDTO> GetElo(string email)
@@ -46,7 +46,7 @@ public class EloApplication : IEloApplication
         ViewEloDTO view = new()
         {
             Email = email,
-            Nick = usuario.Nick, 
+            Nick = usuario.Nick,
             IdUsuario = usuario.IdUsuario,
             Elos = elosMapper
         };
@@ -67,7 +67,7 @@ public class EloApplication : IEloApplication
         {
             listaEmails.Add(usuario.Email);
         }
-        
+
         List<ViewEloDTO> listaViewElos = [];
 
         foreach (var item in listaEmails)
@@ -84,7 +84,7 @@ public class EloApplication : IEloApplication
     {
         Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
 
-        if(usuario.Email == null) throw new Exception("Usuario no encontrado");
+        if (usuario.Email == null) throw new Exception("Usuario no encontrado");
 
         ViewEloDTO userElo = await GetElo(usuario.Email);
 
@@ -102,7 +102,7 @@ public class EloApplication : IEloApplication
         var response = await _unitOfWork.EloRepository.GetElos();
 
         var lista = _mapper.Map<List<EloUsuarioDTO>>(response);
-        
+
         return lista;
 
         /*// Obtener todos los usuarios
@@ -143,7 +143,7 @@ public class EloApplication : IEloApplication
         return clasificacion.ToList();*/
     }
 
-    private async Task <List<PartidaAmistosa>> PartidasValidadas(string email)
+    private async Task<List<PartidaAmistosa>> PartidasValidadas(string email)
     {
         var rawPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
         if (rawPartidas == null) return [];
@@ -236,12 +236,12 @@ public class EloApplication : IEloApplication
 
             if (partidasMensuales.Any())
             {
-                obj.Partidas = partidas.Count;
-                obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
-                obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
+                obj.Partidas = partidasMensuales.Count;
+                obj.Ganadas = partidasMensuales.Count(x => x.GanadorPartida == view.IdUsuario);
+                obj.Empatadas = partidasMensuales.Count(x => x.GanadorPartida == 0);
                 obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
                 obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
-                obj.NumeroPartidasJugadas = partidas.Count;
+                obj.NumeroPartidasJugadas = partidasMensuales.Count;
             }
             else
             {
@@ -259,7 +259,7 @@ public class EloApplication : IEloApplication
 
         foreach (var item in clasificacion)
         {
-            if(item.Partidas>0) clasificacionMensual.Add(item);
+            if (item.Partidas > 0) clasificacionMensual.Add(item);
         }
 
         return clasificacionMensual;
