@@ -26,5 +26,6 @@ public partial class Usuario
     public virtual ICollection<PartidaAmistosa> PartidaAmistosaIdUsuario2Navigations { get; set; } = [];
     public virtual ICollection<PartidaTorneo> PartidaTorneoIdUsuario1Navigations { get; set; } = [];
     public virtual ICollection<PartidaTorneo> PartidaTorneoIdUsuario2Navigations { get; set; } = [];
+    public virtual ICollection<PartidaTorneo> PartidaTorneoGanadorPartidaNavigations { get; set; } = [];
     public virtual ICollection<Torneo> Torneos { get; set; } = [];
 }

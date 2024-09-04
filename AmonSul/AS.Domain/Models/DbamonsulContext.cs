@@ -43,6 +43,7 @@ public partial class DbamonsulContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        //Clasificacion general
         modelBuilder.Entity<ClasificacionGeneral>(entity =>
         {
             entity.HasKey(e => e.IdClasificacion).HasName("PK__Clasific__0D78096BD848289A");
@@ -63,6 +64,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Clasificacion_General_Usuario");
         });
 
+        //Clasifiacion torneo
         modelBuilder.Entity<ClasificacionTorneo>(entity =>
         {
             entity.HasKey(e => e.IdClasificacionTorneo).HasName("PK__Clasific__CDB980300F5DB99A");
@@ -87,6 +89,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Clasificacion_Torneo_Usuario");
         });
 
+        //Comentarios
         modelBuilder.Entity<Comentario>(entity =>
         {
             entity.HasKey(e => e.IdComentario).HasName("PK__Comentar__E9AA9973A0E38D7D");
@@ -111,6 +114,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Comentario_Usuario");
         });
 
+        //ELO
         modelBuilder.Entity<Elo>(entity =>
         {
             entity.HasKey(e => e.IdElo).HasName("PK__Elo__2D4D22C31CCC8245");
@@ -127,6 +131,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Elo_Usuario");
         });
 
+        //Faccion
         modelBuilder.Entity<Faccion>(entity =>
         {
             entity.HasKey(e => e.IdFaccion).HasName("PK__Faccion__8743EEA90139EE02");
@@ -140,6 +145,7 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Nombre_Faccion");
         });
 
+        //Inscripciones
         modelBuilder.Entity<InscripcionTorneo>(entity =>
         {
             entity.HasKey(e => e.IdInscripcion).HasName("PK__Inscripc__B84666E0A08239E2");
@@ -178,6 +184,7 @@ public partial class DbamonsulContext : DbContext
                .OnDelete(DeleteBehavior.Cascade);
         });
 
+        //Listas
         modelBuilder.Entity<Lista>(entity =>
         {
             entity.HasKey(e => e.IdLista).HasName("PK__Lista__B5A70F121CFB4DDE");
@@ -194,6 +201,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Lista_Inscripcion");
         });
 
+        //Partidas amistosas
         modelBuilder.Entity<PartidaAmistosa>(entity =>
         {
             entity.HasKey(e => e.IdPartidaAmistosa).HasName("PK__Partida___55DEAFB728B99DE3");
@@ -234,6 +242,7 @@ public partial class DbamonsulContext : DbContext
 
         });
 
+        //Partidas torneo
         modelBuilder.Entity<PartidaTorneo>(entity =>
         {
             entity.HasKey(e => e.IdPartidaTorneo).HasName("PK__Partida___4AA741CABAA82AD2");
@@ -254,6 +263,12 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.PuntosPartida).HasColumnName("Puntos_Partida");
             entity.Property(e => e.ResultadoUsuario1).HasColumnName("Resultado_Usuario1");
             entity.Property(e => e.ResultadoUsuario2).HasColumnName("Resultado_Usuario2");
+            entity.Property(e => e.PartidaValidadaUsuario1).HasColumnName("Partida_Validada_Usuario1");
+            entity.Property(e => e.PartidaValidadaUsuario2).HasColumnName("Partida_Validada_Usuario2");
+            entity.Property(e => e.EjercitoUsuario1).HasColumnName("Ejercito_Usuario1");
+            entity.Property(e => e.EjercitoUsuario2).HasColumnName("Ejercito_Usuario2");
+            entity.Property(e => e.EsElo).HasColumnName("Es_Elo");
+            entity.Property(e => e.NumeroRonda).HasColumnName("Numero_Ronda");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)
@@ -266,8 +281,13 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(d => d.IdUsuario2Navigation).WithMany(p => p.PartidaTorneoIdUsuario2Navigations)
                 .HasForeignKey(d => d.IdUsuario2)
                 .HasConstraintName("FK_Partida_Torneo_Usuario2");
+
+            entity.HasOne(d => d.GanadorPartidaTorneoNavigation).WithMany(p => p.PartidaTorneoGanadorPartidaNavigations)
+                .HasForeignKey(d => d.GanadorPartidaTorneo)
+                .HasConstraintName("FK_Partida_Torneo_Ganador");
         });
 
+        //Rango torneos
         modelBuilder.Entity<RangoTorneo>(entity =>
         {
             entity.HasKey(e => e.IdRango).HasName("PK__Rango_To__B4DBE7A05469851E");
@@ -291,6 +311,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.Puntos9).HasColumnName("Puntos_9");
         });
 
+        //Rondas
         modelBuilder.Entity<Ronda>(entity =>
         {
             entity.HasKey(e => e.IdRonda).HasName("PK__Ronda__2E6F61713267485D");
@@ -316,6 +337,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Ronda_Torneo");
         });
 
+        //Torneos
         modelBuilder.Entity<Torneo>(entity =>
         {
             entity.HasKey(e => e.IdTorneo).HasName("PK__Torneo__F5E859A023B6CC5E");
@@ -375,6 +397,7 @@ public partial class DbamonsulContext : DbContext
                 .HasConstraintName("FK_Torneo_Usuario");
         });
 
+        //Usuarios
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__DE4431C52F8B3BC9");

@@ -11,6 +11,7 @@ public interface IUnitOfWork: IDisposable
     IEloRepository EloRepository { get; }
     IInscripcionRepository InscripcionRepository{ get; }
     IListaRepository ListaRepository { get; }
+    IPartidaTorneoRepository PartidaTorneoRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();
