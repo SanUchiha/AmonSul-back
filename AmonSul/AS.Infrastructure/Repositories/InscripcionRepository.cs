@@ -39,7 +39,9 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     public async Task<InscripcionTorneo> GetInscripcionById(int idInscripcion)
     {
         var insc = await _dbamonsulContext.InscripcionTorneos
-                                          .FirstOrDefaultAsync(it => it.IdInscripcion == idInscripcion);
+            .Include(it => it.Lista)
+            .FirstOrDefaultAsync(it => it.IdInscripcion == idInscripcion);
+
         return insc!;
     }
 

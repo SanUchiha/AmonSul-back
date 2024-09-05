@@ -80,7 +80,8 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
 
     public async Task<Lista> UpdateLista(Lista lista)
     {
-        var existingLista = await _dbamonsulContext.Listas.FindAsync(lista.IdLista);
+        lista.FechaEntrega = DateOnly.FromDateTime(DateTime.Now);
+        Lista? existingLista = await _dbamonsulContext.Listas.FindAsync(lista.IdLista);
         if (existingLista != null)
         {
             _dbamonsulContext.Entry(existingLista).CurrentValues.SetValues(lista);

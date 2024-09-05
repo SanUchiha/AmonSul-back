@@ -42,7 +42,7 @@ public class TorneoController(ITorneoApplication torneoApplication) : Controller
     [Route("Gestion/info-torneo/{idTorneo}")]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
-        var response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
+        TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
 
         if (response == null) return NotFound();
 

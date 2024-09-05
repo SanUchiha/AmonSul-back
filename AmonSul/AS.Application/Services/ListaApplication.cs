@@ -53,7 +53,7 @@ public async Task<List<Lista>> GetListasByTorneo(int idTorneo) =>
 
     public async Task<Lista> UpdateLista(Lista lista) 
     {
-        var updatedLista = await _unitOfWork.ListaRepository.UpdateLista(lista);
+        Lista updatedLista = await _unitOfWork.ListaRepository.UpdateLista(lista);
         return updatedLista;
     }
 

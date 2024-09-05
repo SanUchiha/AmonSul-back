@@ -14,5 +14,6 @@ public class InscripcionMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<InscripcionTorneo, InscripcionTorneoCreadoDTO>().ReverseMap();
+        CreateMap<InscripcionTorneo, InscripcionTorneoDTO>().ReverseMap();
     }
 }

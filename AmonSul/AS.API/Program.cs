@@ -20,7 +20,6 @@ builder.Services.AddSingleton<Utilidades>();
 builder.Services.AddMapperApplication();
 builder.Services.AddInjectionEmailSender(configuration);
 
-
 builder.Services.AddAuthentication(config =>
 {
     config.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;

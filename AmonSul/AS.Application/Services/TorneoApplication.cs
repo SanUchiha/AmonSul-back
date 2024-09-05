@@ -99,11 +99,12 @@ public class TorneoApplication(
             inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
             inscripcionesDTO[i].FechaEntrega = inscripciones[i].FechaEntregaLista;
 
-            if(inscripciones[i].Lista.Count> 0)
+            if(inscripciones[i].Lista.Count > 0)
             {
                 inscripcionesDTO[i].ListaData = inscripciones[i].Lista.ToList()[0].ListaData;
                 inscripcionesDTO[i].FechaEntrega = inscripciones[i].Lista.ToList()[0].FechaEntrega;
-                if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "Entregada";
+                //if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "NO ENTREGADA";
+                if (inscripciones[i].EstadoLista == "NO ENTREGADA") inscripcionesDTO[i].EstadoLista = "ENTREGADA";
             }
             if (inscripciones[i].EstadoInscripcion == null) inscripcionesDTO[i].EstadoInscripcion = "En proceso";
             if (inscripciones[i].EsPago == "NO") inscripcionesDTO[i].EsPago = "NO";

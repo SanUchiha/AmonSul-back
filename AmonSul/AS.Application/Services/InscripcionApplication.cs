@@ -5,6 +5,8 @@ using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace AS.Application.Services;
 
@@ -104,9 +106,22 @@ public class InscripcionApplication(
         return await _unitOfWork.InscripcionRepository.Delete(id);
     }
 
-    public async Task<InscripcionTorneo> GetInscripcionById(int Id)
+    public async Task<InscripcionTorneoDTO> GetInscripcionById(int Id)
     {
-        return await _unitOfWork.InscripcionRepository.GetInscripcionById(Id);
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(Id);
+
+        InscripcionTorneoDTO inscripcionDTO = _mapper.Map<InscripcionTorneoDTO>(inscripcion);
+
+
+            if (inscripcion.Lista.Count > 0)
+            {
+            inscripcionDTO.ListaData = inscripcion.Lista.ToList()[0].ListaData;
+            inscripcionDTO.IdLista = inscripcion.Lista.ToList()[0].IdLista;
+            inscripcionDTO.FechaEntregaLista = inscripcion.Lista.ToList()[0].FechaEntrega;
+                if (inscripcion.EstadoLista == "NO ENTREGADA") inscripcionDTO.EstadoLista = "ENTREGADA";
+            }
+            
+        return inscripcionDTO;
     }
 
     public async Task<List<InscripcionTorneo>> GetInscripciones()

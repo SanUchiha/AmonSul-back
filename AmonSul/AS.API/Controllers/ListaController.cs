@@ -59,7 +59,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpPost]
     public async Task<ActionResult<bool>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
     {
-        var result = await _listaApplication.RegisterLista(lista);
+        bool result = await _listaApplication.RegisterLista(lista);
         if (!result)
         {
             return BadRequest("Unable to register the lista.");
@@ -75,7 +75,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
             return BadRequest("ID mismatch.");
         }
 
-        var updatedLista = await _listaApplication.UpdateLista(lista);
+        Lista updatedLista = await _listaApplication.UpdateLista(lista);
         if (updatedLista == null)
         {
             return NotFound();

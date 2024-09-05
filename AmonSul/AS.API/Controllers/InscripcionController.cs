@@ -21,9 +21,9 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<InscripcionTorneo>> GetInscripcionById(int id)
+    public async Task<ActionResult<InscripcionTorneoDTO>> GetInscripcionById(int id)
     {
-        var inscripcion = await _inscripcionApplication.GetInscripcionById(id);
+        InscripcionTorneoDTO inscripcion = await _inscripcionApplication.GetInscripcionById(id);
         if (inscripcion == null)
         {
             return NotFound();
