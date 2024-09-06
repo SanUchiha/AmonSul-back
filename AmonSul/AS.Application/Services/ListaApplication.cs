@@ -2,7 +2,6 @@
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
-using AS.Infrastructure.Repositories;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -70,10 +69,11 @@ public class ListaApplication: IListaApplication
         return result;
     }
 
-    public async Task<Lista> UpdateLista(Lista lista) 
+    public async Task<bool> UpdateLista(Lista lista) 
     {
         Lista updatedLista = await _unitOfWork.ListaRepository.UpdateLista(lista);
-        
+        if (updatedLista == null) return false;
+
         if (updatedLista != null)
         {
             InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(lista.IdInscripcion!.Value);
@@ -90,7 +90,7 @@ public class ListaApplication: IListaApplication
             await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
         }
 
-        return updatedLista!;
+        return true;
     }
 
 

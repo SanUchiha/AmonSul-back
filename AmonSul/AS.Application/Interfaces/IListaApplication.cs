@@ -12,5 +12,5 @@ public interface IListaApplication
     Task<Lista> GetListaById(int idLista);
     Task<Lista> Delete(int idLista);
     Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
-    Task<Lista> UpdateLista(Lista lista);
+    Task<bool> UpdateLista(Lista lista);
 }

@@ -68,20 +68,19 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Lista>> UpdateLista(int id, [FromBody] Lista lista)
+    public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] Lista lista)
     {
         if (id != lista.IdLista)
         {
             return BadRequest("ID mismatch.");
         }
 
-        Lista updatedLista = await _listaApplication.UpdateLista(lista);
-        if (updatedLista == null)
+        bool result = await _listaApplication.UpdateLista(lista);
+        if (!result)
         {
-            return NotFound();
+            return BadRequest("Unable to register the lista.");
         }
-
-        return Ok(updatedLista);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
