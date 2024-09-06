@@ -138,6 +138,94 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
         }
     }
 
+    public async Task SendEmailOrganizadorEnvioListaTorneo(EmailContactoDTO request)
+    {
+        try
+        {
+            var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+            {
+                EnableSsl = _emailSettings.EnableSsl,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
+            };
+
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_emailSettings.From),
+                Subject = $"Actualización lista",
+                Body = $@"
+                <html>
+                <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+                    <h2 style=""color: #2e6c80;"">Un usuario ha subido la lista</h2>
+                    <p>Hola,</p>
+                    <p>Un jugador ha subido su lista del torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.Message}</strong></span>
+                    .</p>
+                    </p>
+                    <p>Gracias por utilizar Amon Súl.</p>
+                    <hr />
+                </body>
+                </html>",
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(request.Email!);
+
+            await client.SendMailAsync(mailMessage);
+        }
+        catch (SmtpException smtpEx)
+        {
+            throw new EmailSendException("Error occurred while sending email.", smtpEx);
+        }
+        catch (Exception ex)
+        {
+            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
+        }
+    }
+
+    public async Task SendEmailOrganizadorNuevoRegistro(EmailContactoDTO request)
+    {
+        try
+        {
+            var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+            {
+                EnableSsl = _emailSettings.EnableSsl,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
+            };
+
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_emailSettings.From),
+                Subject = $"Inscripción torneo",
+                Body = $@"
+                <html>
+                <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+                    <h2 style=""color: #2e6c80;"">Un nuevo usuario se ha apuntado</h2>
+                    <p>Hola,</p>
+                    <p>Se acaba de apuntar un nuevo jugador al torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.Message}</strong></span>
+                    .</p>
+                    </p>
+                    <p>Gracias por utilizar Amon Súl.</p>
+                    <hr />
+                </body>
+                </html>",
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(request.Email!);
+
+            await client.SendMailAsync(mailMessage);
+        }
+        catch (SmtpException smtpEx)
+        {
+            throw new EmailSendException("Error occurred while sending email.", smtpEx);
+        }
+        catch (Exception ex)
+        {
+            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
+        }
+    }
+
     public async Task SendEmailRegister(EmailRequestDTO request)
     {
         try

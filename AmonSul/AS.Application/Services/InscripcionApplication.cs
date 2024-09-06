@@ -160,6 +160,9 @@ public class InscripcionApplication(
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcionTorneo.IdTorneo);
         if (torneo == null) return false;
 
+        Usuario organizador = await _unitOfWork.UsuarioRepository.GetById(torneo.IdUsuario);
+        if (organizador == null) return false;
+
         bool registro = await _unitOfWork.InscripcionRepository.Register(
             _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
 
@@ -170,6 +173,10 @@ public class InscripcionApplication(
         };
 
         await _emailApplicacion.SendEmailRegistroTorneo(emailContactoDTO);
+
+        emailContactoDTO.Email = organizador.Email;
+        emailContactoDTO.Message = usuario.Nick;
+        await _emailApplicacion.SendEmailOrganizadorNuevoRegistro(emailContactoDTO);
 
         return registro;
     }

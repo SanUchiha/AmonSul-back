@@ -10,4 +10,8 @@ public interface IEmailApplicacion
     Task SendEmailRegistroTorneo(EmailContactoDTO request);
     Task SendEmailModificacionInscripcion(EmailContactoDTO request);
     Task SendEmailNuevoTorneo(string nombreTorneo);
+    Task SendEmailOrganizadorNuevoRegistro(EmailContactoDTO request);
+    Task SendEmailOrganizadorEnvioListaTorneo(EmailContactoDTO request);
+
+
 }

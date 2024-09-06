@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Lista;
+﻿using AS.Application.DTOs.Email;
+using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories;
@@ -11,11 +12,13 @@ public class ListaApplication: IListaApplication
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IEmailApplicacion _emailApplicacion;
 
-    public ListaApplication(IUnitOfWork unitOfWork, IMapper mapper)
+    public ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailApplicacion emailApplicacion)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _emailApplicacion = emailApplicacion;
     }
 
     public async Task<Lista> Delete(int idLista) => 
@@ -35,7 +38,7 @@ public class ListaApplication: IListaApplication
     public async Task<List<Lista>> GetListas() => 
         await _unitOfWork.ListaRepository.GetListas();
 
-public async Task<List<Lista>> GetListasByTorneo(int idTorneo) => 
+    public async Task<List<Lista>> GetListasByTorneo(int idTorneo) => 
         await _unitOfWork.ListaRepository.GetListasByTorneo(idTorneo);
 
     public async Task<List<Lista>> GetListasByUser(int idUsuario) =>      
@@ -45,8 +48,24 @@ public async Task<List<Lista>> GetListasByTorneo(int idTorneo) =>
 
     public async Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
     {
-        var lista = _mapper.Map<Lista>(createListaTorneoDTO);
-        var result = await _unitOfWork.ListaRepository.RegisterLista(lista);
+        Lista lista = _mapper.Map<Lista>(createListaTorneoDTO);
+        bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
+
+        if (result)
+        {
+            InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(createListaTorneoDTO.IdInscripcion);
+            Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+            Usuario organizador = await _unitOfWork.UsuarioRepository.GetById(torneo.IdUsuario);
+            Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+
+            EmailContactoDTO emailContactoDTO = new()
+            {
+                Email = organizador.Email,
+                Message = usuario.Nick,
+            };
+
+            await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
+        }
 
         return result;
     }
@@ -54,7 +73,24 @@ public async Task<List<Lista>> GetListasByTorneo(int idTorneo) =>
     public async Task<Lista> UpdateLista(Lista lista) 
     {
         Lista updatedLista = await _unitOfWork.ListaRepository.UpdateLista(lista);
-        return updatedLista;
+        
+        if (updatedLista != null)
+        {
+            InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(lista.IdInscripcion!.Value);
+            Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+            Usuario organizador = await _unitOfWork.UsuarioRepository.GetById(torneo.IdUsuario);
+            Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+
+            EmailContactoDTO emailContactoDTO = new()
+            {
+                Email = organizador.Email,
+                Message = usuario.Nick,
+            };
+
+            await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
+        }
+
+        return updatedLista!;
     }
 
 
