@@ -8,6 +8,7 @@ public class InscripcionTorneoCreadoDTO
     public string? EstadoInscripcion { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public string? ListaData { get; set; }
+    public string? Ejercito { get; set; }
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntrega { get; set; }
     public string? EsPago { get; set; }

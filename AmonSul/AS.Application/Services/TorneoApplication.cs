@@ -102,6 +102,7 @@ public class TorneoApplication(
             if(inscripciones[i].Lista.Count > 0)
             {
                 inscripcionesDTO[i].ListaData = inscripciones[i].Lista.ToList()[0].ListaData;
+                inscripcionesDTO[i].Ejercito = inscripciones[i].Lista.ToList()[0].Ejercito;
                 inscripcionesDTO[i].FechaEntrega = inscripciones[i].Lista.ToList()[0].FechaEntrega;
                 //if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "NO ENTREGADA";
                 if (inscripciones[i].EstadoLista == "NO ENTREGADA") inscripcionesDTO[i].EstadoLista = "ENTREGADA";

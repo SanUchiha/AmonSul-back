@@ -138,8 +138,27 @@ public class PartidaTorneoApplication : IPartidaTorneoApplication
                 EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
                 EscenarioPartida = "",
                 PuntosPartida = torneo.PuntosTorneo,
-
             };
+
+            foreach (var inscripcion in inscripciones)
+            {
+                if (inscripcion.IdUsuario == item.Jugador1.IdUsuario)
+                {
+                    if(inscripcion.Lista.Count != 0)
+                    {
+                        nuevaPartida.EjercitoUsuario1 = inscripcion.Lista.ToList()[0].Ejercito;
+                    }
+                    
+                }
+                if (inscripcion.IdUsuario == item.Jugador2.IdUsuario)
+                {
+                    if (inscripcion.Lista.Count != 0)
+                    {
+                        nuevaPartida.EjercitoUsuario2 = inscripcion.Lista.ToList()[0].Ejercito;
+                    }
+
+                }
+            }
 
             await _unitOfWork.PartidaTorneoRepository.Register(nuevaPartida);
         }
