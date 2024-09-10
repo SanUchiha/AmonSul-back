@@ -195,6 +195,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.FechaEntrega).HasColumnName("Fecha_Entrega");
             entity.Property(e => e.IdInscripcion).HasColumnName("ID_Inscripcion");
             entity.Property(e => e.ListaData).HasColumnName("Lista_Data");
+            entity.Property(e => e.Ejercito).HasColumnName("Ejercito");
 
             entity.HasOne(d => d.IdInscripcionNavigation).WithMany(p => p.Lista)
                 .HasForeignKey(d => d.IdInscripcion)

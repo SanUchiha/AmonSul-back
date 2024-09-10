@@ -112,13 +112,13 @@ public class InscripcionApplication(
 
         InscripcionTorneoDTO inscripcionDTO = _mapper.Map<InscripcionTorneoDTO>(inscripcion);
 
-
             if (inscripcion.Lista.Count > 0)
             {
-            inscripcionDTO.ListaData = inscripcion.Lista.ToList()[0].ListaData;
-            inscripcionDTO.IdLista = inscripcion.Lista.ToList()[0].IdLista;
-            inscripcionDTO.FechaEntregaLista = inscripcion.Lista.ToList()[0].FechaEntrega;
-                if (inscripcion.EstadoLista == "NO ENTREGADA") inscripcionDTO.EstadoLista = "ENTREGADA";
+                inscripcionDTO.ListaData = inscripcion.Lista.ToList()[0].ListaData;
+                inscripcionDTO.IdLista = inscripcion.Lista.ToList()[0].IdLista;
+                inscripcionDTO.Ejercito = inscripcion.Lista.ToList()[0].Ejercito;
+                inscripcionDTO.FechaEntregaLista = inscripcion.Lista.ToList()[0].FechaEntrega;
+                    if (inscripcion.EstadoLista == "NO ENTREGADA") inscripcionDTO.EstadoLista = "ENTREGADA";
             }
             
         return inscripcionDTO;

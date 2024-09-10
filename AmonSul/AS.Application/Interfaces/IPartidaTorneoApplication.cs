@@ -1,8 +1,9 @@
-﻿using AS.Domain.Models;
+﻿using AS.Application.DTOs.PartidaTorneo;
+using AS.Domain.Models;
 
-namespace AS.Infrastructure.Repositories.Interfaces;
+namespace AS.Application.Interfaces;
 
-public interface IPartidaTorneoRepository
+public interface IPartidaTorneoApplication
 {
     //GET
     Task<List<PartidaTorneo>> GetPartidasTorneos(); //Todas las partidas del torneo
@@ -14,7 +15,7 @@ public interface IPartidaTorneoRepository
 
     Task<bool> Edit(PartidaTorneo partidaTorneo);
     Task<bool> Register(PartidaTorneo partidaTorneo);
-    Task<bool> GenerateRound(List<PartidaTorneo> partidasRonda);
+    Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO);
 
     Task<bool> Delete(int idPartida);
 }

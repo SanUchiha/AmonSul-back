@@ -10,4 +10,5 @@ public partial class Lista
     public string? ListaData { get; set; }
     public DateOnly? FechaEntrega { get; set; }
     public virtual InscripcionTorneo? IdInscripcionNavigation { get; set; }
+    public string? Ejercito { get; set; }
 }

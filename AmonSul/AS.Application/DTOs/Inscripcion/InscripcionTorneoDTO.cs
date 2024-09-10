@@ -11,5 +11,6 @@ public class InscripcionTorneoDTO
     public DateOnly? FechaEntregaLista { get; set; }
     public string? EsPago { get; set; }
     public string? ListaData { get; set; }
+    public string? Ejercito { get; set; }
     public int IdLista { get; set; }
 }

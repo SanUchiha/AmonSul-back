@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Torneo;
+﻿using AS.Application.DTOs.PartidaTorneo;
+using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -10,39 +11,18 @@ namespace AS.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class TorneoController(ITorneoApplication torneoApplication) : ControllerBase
+public class TorneoController(
+    ITorneoApplication torneoApplication, 
+    IPartidaTorneoApplication partidaTorneoApplication) : ControllerBase
 {
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
+    private readonly IPartidaTorneoApplication _partidaTorneoApplication = partidaTorneoApplication;
 
     [HttpGet]
     [Route("")]
     public async Task<IActionResult> GetTorneos()
     {
         var response = await _torneoApplication.GetTorneos();
-        
-        if(response == null) return NotFound();
-
-        return Ok(response);
-    }
-
-    [HttpGet]
-    //[AllowAnonymous]
-    [Route("Gestion/Creados/{idUsuario}")]
-    public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
-    {
-        List<TorneoCreadoUsuarioDTO> response = await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
-
-        if (response == null) return NotFound();
-
-        return Ok(response);
-    }
-
-    [HttpGet]
-    //[AllowAnonymous]
-    [Route("Gestion/info-torneo/{idTorneo}")]
-    public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
-    {
-        TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
 
         if (response == null) return NotFound();
 
@@ -92,5 +72,43 @@ public class TorneoController(ITorneoApplication torneoApplication) : Controller
         {
             return StatusCode(500, "Error interno del servidor: " + ex.Message);
         }
+    }
+
+    [HttpPost]
+    [Route("Gestion/Generar-Ronda")]
+    //[AllowAnonymous]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GenerarRonda([FromBody, Required] GenerarRondaDTO request)
+    {
+        bool response = await _partidaTorneoApplication.GenerateRound(request);
+
+        if (response == false) return BadRequest("No se ha podido generar la ronda");
+
+        return Created(string.Empty, "La ronda ha sido creada con éxito");
+    }
+
+    [HttpGet]
+    //[AllowAnonymous]
+    [Route("Gestion/Creados/{idUsuario}")]
+    public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
+    {
+        List<TorneoCreadoUsuarioDTO> response = await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    //[AllowAnonymous]
+    [Route("Gestion/info-torneo/{idTorneo}")]
+    public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
+    {
+        TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
     }
 }

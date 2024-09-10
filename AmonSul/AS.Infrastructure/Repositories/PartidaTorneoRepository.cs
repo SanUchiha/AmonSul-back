@@ -166,4 +166,24 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             throw new Exception("Ocurrio un problema en el servidor al crea la partida.", ex);
         }
     }
+
+    public async Task<bool> GenerateRound(List<PartidaTorneo> partidasRonda)
+    {
+        try
+        {
+            foreach (var item in partidasRonda)
+            {
+                var response = await _dbamonsulContext.PartidaTorneos.AddAsync(item);
+                if (response == null) return false;
+
+                await _dbamonsulContext.SaveChangesAsync();
+            }
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al generar las partidas de la ronda.", ex);
+        }
+    }
 }
