@@ -2,16 +2,19 @@
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using AutoMapper;
 
 namespace AS.Application.Services;
 
 public class PartidaTorneoApplication : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public PartidaTorneoApplication(IUnitOfWork unitOfWork)
+    public PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public Task<bool> Register(PartidaTorneo partidaTorneo)
@@ -34,9 +37,13 @@ public class PartidaTorneoApplication : IPartidaTorneoApplication
         throw new NotImplementedException();
     }
 
-    public Task<List<PartidaTorneo>> GetPartidasTorneo(int idTorneo)
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneo(int idTorneo)
     {
-        throw new NotImplementedException();
+        List<PartidaTorneo> rawPartidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(idTorneo);
+
+        List<PartidaTorneoDTO> partidas = _mapper.Map<List<PartidaTorneoDTO>>(rawPartidas);
+
+        return partidas;
     }
 
     public Task<List<PartidaTorneo>> GetPartidasTorneoByRonda(int idTorneo, int ronda)

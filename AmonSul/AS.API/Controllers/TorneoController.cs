@@ -111,4 +111,15 @@ public class TorneoController(
 
         return Ok(response);
     }
+
+    //Todas las partidas de un torneo
+    [Route("Gestion/Partidas/{idTorneo}")]
+    public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
+    {
+        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneo(idTorneo);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
 }
