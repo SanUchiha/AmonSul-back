@@ -8,6 +8,9 @@ public class PartidaTorneoMappingProfile : Profile
 {
     public PartidaTorneoMappingProfile()
     {
-        CreateMap<PartidaTorneo, PartidaTorneoDTO>().ReverseMap();
+        CreateMap<PartidaTorneo, PartidaTorneoDTO>()
+             .ForMember(dest => dest.Nick1, opt => opt.MapFrom(src => src.IdUsuario1Navigation!.Nick))
+             .ForMember(dest => dest.Nick2, opt => opt.MapFrom(src => src.IdUsuario2Navigation!.Nick))
+             .ReverseMap();
     }
 }
