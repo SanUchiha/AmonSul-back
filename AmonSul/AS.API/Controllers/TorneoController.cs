@@ -112,7 +112,7 @@ public class TorneoController(
         return Ok(response);
     }
 
-    //Todas las partidas de un torneo
+    [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}")]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
