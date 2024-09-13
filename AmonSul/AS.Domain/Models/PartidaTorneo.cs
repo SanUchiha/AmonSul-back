@@ -23,4 +23,6 @@ public partial class PartidaTorneo
     public string? EjercitoUsuario1 { get; set; }
     public string? EjercitoUsuario2 { get; set; }
     public int? NumeroRonda  { get; set; }
+    public bool? LiderMuertoUsuario1 { get; set; }
+    public bool? LiderMuertoUsuario2 { get; set; }
 }

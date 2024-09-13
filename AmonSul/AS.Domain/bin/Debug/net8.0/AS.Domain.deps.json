@@ -851,7 +851,10 @@
       },
       "AS.Utils/1.0.0": {
         "runtime": {
-          "AS.Utils.dll": {}
+          "AS.Utils.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

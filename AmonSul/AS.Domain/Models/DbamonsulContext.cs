@@ -270,6 +270,8 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.EjercitoUsuario2).HasColumnName("Ejercito_Usuario2");
             entity.Property(e => e.EsElo).HasColumnName("Es_Elo");
             entity.Property(e => e.NumeroRonda).HasColumnName("Numero_Ronda");
+            entity.Property(e => e.LiderMuertoUsuario1).HasColumnName("Lider_Muerto_Usuario1");
+            entity.Property(e => e.LiderMuertoUsuario2).HasColumnName("Lider_Muerto_Usuario2");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)
