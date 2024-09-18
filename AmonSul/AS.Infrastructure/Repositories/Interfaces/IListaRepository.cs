@@ -12,4 +12,5 @@ public interface IListaRepository
     Task<Lista> Delete(int idLista);
     Task<bool> RegisterLista(Lista lista);
     Task<Lista> UpdateLista(Lista lista);
+    Task<Lista> GetListaTorneo(int idTorneo, int idUsuario);
 }

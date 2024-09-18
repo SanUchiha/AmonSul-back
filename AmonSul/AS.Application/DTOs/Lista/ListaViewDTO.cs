@@ -1,6 +1,4 @@
-﻿using AS.Domain.Models;
-
-namespace AS.Application.DTOs.Lista;
+﻿namespace AS.Application.DTOs.Lista;
 
 public class ListaViewDTO
 {

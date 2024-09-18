@@ -1,6 +1,8 @@
 ﻿using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
+using AS.Application.Services;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Login;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -93,5 +95,17 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         }
 
         return Ok(deletedLista);
+    }
+
+    [HttpPost]
+    [Route("Lista-Torneo")]
+    public async Task<ActionResult<bool>>GetListaTorneo([FromBody] ListaTorneoRequestDTO requestDTO)
+    {
+        string? listaData = await _listaApplication.GetListaTorneo(requestDTO);
+        if (listaData is null)
+        {
+            return BadRequest("Unable to get the lista.");
+        }
+        return Ok(listaData);
     }
 }

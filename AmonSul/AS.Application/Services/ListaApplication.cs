@@ -7,18 +7,11 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class ListaApplication: IListaApplication
+public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailApplicacion emailApplicacion) : IListaApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly IEmailApplicacion _emailApplicacion;
-
-    public ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailApplicacion emailApplicacion)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _emailApplicacion = emailApplicacion;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     public async Task<Lista> Delete(int idLista) => 
         await _unitOfWork.ListaRepository.Delete(idLista);
@@ -43,7 +36,14 @@ public class ListaApplication: IListaApplication
     public async Task<List<Lista>> GetListasByUser(int idUsuario) =>      
         await _unitOfWork.ListaRepository.GetListasByUser(idUsuario);
 
+    public async Task<string> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO )
+    {
+        Lista lista = await _unitOfWork.ListaRepository.GetListaTorneo(listaTorneoRequestDTO.IdTorneo, listaTorneoRequestDTO.IdUsuario);
 
+        if (lista is null) return "";
+        
+        return lista.ListaData!;
+    }
 
     public async Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
     {

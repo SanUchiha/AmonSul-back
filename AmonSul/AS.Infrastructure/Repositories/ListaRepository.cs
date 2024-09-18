@@ -1,5 +1,6 @@
 ﻿using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
@@ -69,6 +70,20 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
             .Include(l => l.IdInscripcionNavigation)
             .Where(l => l.IdInscripcionNavigation!.IdUsuario == idUsuario)
             .ToListAsync();
+    }
+
+    public async Task<Lista> GetListaTorneo(int idTorneo, int idUsuario)
+    {
+        List<Lista> listas = await _dbamonsulContext.InscripcionTorneos
+                                            .Where(it => it.IdTorneo == idTorneo && it.IdUsuario == idUsuario)
+                                            .SelectMany(it => it.Lista)
+                                            .ToListAsync();
+
+        if (listas == null || listas.Count == 0) return null!;
+
+        Lista lista = listas[0];
+
+        return lista;
     }
 
     public async Task<bool> RegisterLista(Lista lista)
