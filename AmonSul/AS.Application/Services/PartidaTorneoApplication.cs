@@ -6,16 +6,10 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class PartidaTorneoApplication : IPartidaTorneoApplication
+public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper) : IPartidaTorneoApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
 
     public Task<bool> Register(PartidaTorneo partidaTorneo)
     {
@@ -27,9 +21,41 @@ public class PartidaTorneoApplication : IPartidaTorneoApplication
         throw new NotImplementedException();
     }
 
-    public Task<bool> Edit(PartidaTorneo partidaTorneo)
+    public async Task<bool> Edit(UpdatePartidaTorneoDTO request)
     {
-        throw new NotImplementedException();
+        // Obtener la entidad existente
+        PartidaTorneo existingEntity = await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
+        if (existingEntity == null) return false;
+
+        // Actualizar las propiedades que no son nulas
+        if (request.ResultadoUsuario1.HasValue)
+            existingEntity.ResultadoUsuario1 = request.ResultadoUsuario1.Value;
+
+        if (request.ResultadoUsuario2.HasValue)
+            existingEntity.ResultadoUsuario2 = request.ResultadoUsuario2.Value;
+
+        if (request.EscenarioPartida != null)
+            existingEntity.EscenarioPartida = request.EscenarioPartida;
+
+        if (request.GanadorPartidaTorneo.HasValue)
+            existingEntity.GanadorPartidaTorneo = request.GanadorPartidaTorneo.Value;
+
+        if (request.PartidaValidadaUsuario1.HasValue)
+            existingEntity.PartidaValidadaUsuario1 = request.PartidaValidadaUsuario1.Value;
+
+        if (request.PartidaValidadaUsuario2.HasValue)
+            existingEntity.PartidaValidadaUsuario2 = request.PartidaValidadaUsuario2.Value;
+
+        if (request.LiderMuertoUsuario1.HasValue)
+            existingEntity.LiderMuertoUsuario1 = request.LiderMuertoUsuario1.Value;
+
+        if (request.LiderMuertoUsuario2.HasValue)
+            existingEntity.LiderMuertoUsuario2 = request.LiderMuertoUsuario2.Value;
+
+        // Guardar los cambios en la base de datos
+        bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+
+        return result;
     }
 
     public Task<PartidaTorneo> GetById(int idPartida)

@@ -139,18 +139,22 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
 
     public async Task<bool> Edit(PartidaTorneo partidaTorneo)
     {
+        using var transaction = await _dbamonsulContext.Database.BeginTransactionAsync();
+
         PartidaTorneo? existingEntity = await _dbamonsulContext.PartidaTorneos
-            .FirstOrDefaultAsync(p => p.IdPartidaTorneo == partidaTorneo.IdPartidaTorneo);
+            .Where(p => p.IdPartidaTorneo == partidaTorneo.IdPartidaTorneo)
+            .FirstOrDefaultAsync();
 
         if (existingEntity == null) return false;
 
-        // Actualiza las propiedades de la entidad existente
         _dbamonsulContext.Entry(existingEntity).CurrentValues.SetValues(partidaTorneo);
 
         await _dbamonsulContext.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return true;
     }
+
 
     public async Task<bool> Register(PartidaTorneo partidaTorneo)
     {

@@ -1,6 +1,8 @@
-﻿using AS.Application.DTOs.PartidaTorneo;
+﻿using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -119,6 +121,19 @@ public class TorneoController(
         List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneo(idTorneo);
 
         if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpPut]
+    [Route("Editar-Partida")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ValidarPartidaAmistosa([FromBody, Required] UpdatePartidaTorneoDTO request)
+    {
+        var response = await _partidaTorneoApplication.Edit(request);
+
+        if (response == false) return BadRequest("No se ha podido editar la partida");
 
         return Ok(response);
     }
