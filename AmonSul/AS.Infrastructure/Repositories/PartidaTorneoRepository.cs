@@ -1,5 +1,6 @@
 ﻿using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
@@ -149,9 +150,18 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
 
         _dbamonsulContext.Entry(existingEntity).CurrentValues.SetValues(partidaTorneo);
 
+        if(existingEntity.ResultadoUsuario1 != null && 
+           existingEntity.ResultadoUsuario2 != null)
+        {
+            if (existingEntity.ResultadoUsuario1 == existingEntity.ResultadoUsuario2) existingEntity.GanadorPartidaTorneo = 0;
+            else
+            {
+                if (existingEntity.ResultadoUsuario1 > existingEntity.ResultadoUsuario2) existingEntity.GanadorPartidaTorneo = existingEntity.IdUsuario1;
+                else existingEntity.GanadorPartidaTorneo = existingEntity.IdUsuario2;
+            }
+        }
         await _dbamonsulContext.SaveChangesAsync();
         await transaction.CommitAsync();
-
         return true;
     }
 
