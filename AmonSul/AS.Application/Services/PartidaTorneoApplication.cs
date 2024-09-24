@@ -72,9 +72,13 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper) : 
         return partidas;
     }
 
-    public Task<List<PartidaTorneo>> GetPartidasTorneoByRonda(int idTorneo, int ronda)
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoByRonda(int idTorneo, int ronda)
     {
-        throw new NotImplementedException();
+        List<PartidaTorneo> rawPartidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoByRonda(idTorneo, ronda);
+
+        List<PartidaTorneoDTO> partidas = _mapper.Map<List<PartidaTorneoDTO>>(rawPartidas);
+
+        return partidas;
     }
 
     public Task<List<PartidaTorneo>> GetPartidasTorneoByUsuario(int idTorneo, int idUsuario)
