@@ -153,7 +153,7 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         if(existingEntity.ResultadoUsuario1 != null && 
            existingEntity.ResultadoUsuario2 != null)
         {
-            if (existingEntity.ResultadoUsuario1 == existingEntity.ResultadoUsuario2) existingEntity.GanadorPartidaTorneo = 0;
+            if (existingEntity.ResultadoUsuario1 == existingEntity.ResultadoUsuario2) existingEntity.GanadorPartidaTorneo = null;
             else
             {
                 if (existingEntity.ResultadoUsuario1 > existingEntity.ResultadoUsuario2) existingEntity.GanadorPartidaTorneo = existingEntity.IdUsuario1;
@@ -164,7 +164,6 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         await transaction.CommitAsync();
         return true;
     }
-
 
     public async Task<bool> Register(PartidaTorneo partidaTorneo)
     {
