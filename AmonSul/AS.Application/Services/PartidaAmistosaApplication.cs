@@ -52,7 +52,6 @@ public class PartidaAmistosaApplication(
         
         if (detallePartida.GanadorPartida != 0)
         {
-            Usuario ganador = await _unitOfWork.UsuarioRepository.GetById(detallePartida.GanadorPartida);
             detallePartida.NickUsuario2 = usuario2.Nick;
             if (detallePartida.GanadorPartida == detallePartida.IdUsuario2) detallePartida.GanadorPartidaNick = detallePartida.NickUsuario2;
             else detallePartida.GanadorPartidaNick = detallePartida.NickUsuario1;
@@ -193,7 +192,6 @@ public class PartidaAmistosaApplication(
 
         Usuario usuario = await _unitOfWork.UsuarioRepository.GetByEmail(validarPartidaDTO.EmailJugador);
         if (usuario == null) return false;
-
 
         bool usuario1 = false;
         bool usuario2 = false;
