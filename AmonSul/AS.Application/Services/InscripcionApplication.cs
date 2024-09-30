@@ -1,14 +1,12 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Inscripcion;
-using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Torneo;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using AS.Domain.DTOs.Usuario;
-using AS.Domain.DTOs.Torneo;
+using System.Net.Mail;
 
 namespace AS.Application.Services;
 
@@ -43,9 +41,14 @@ public class InscripcionApplication(
             NombreTorneo = torneo.NombreTorneo,
             EstadoLista = actualizarEstado.EstadoLista!
         };
-        EmailListaDTO request = emailListaDTO;
-
-        await _emailApplicacion.SendEmailModificacionLista(emailListaDTO);
+        try
+        {
+            await _emailApplicacion.SendEmailModificacionLista(emailListaDTO);
+        }
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
 
         return result;
     }
@@ -73,7 +76,14 @@ public class InscripcionApplication(
             EstadoPago = actualizarEstado.EsPago!
         };
 
-        await _emailApplicacion.SendEmailModificacionPago(emailPagoDTO);
+        try
+        {
+            await _emailApplicacion.SendEmailModificacionPago(emailPagoDTO);
+        }
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
 
         return result;
     }
@@ -157,7 +167,10 @@ public class InscripcionApplication(
             emailContactoDTO.Message = usuario.Nick;
             await _emailApplicacion.SendEmailOrganizadorNuevoRegistro(emailContactoDTO);
         }
-        catch { }
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
 
         return registro;
     }
