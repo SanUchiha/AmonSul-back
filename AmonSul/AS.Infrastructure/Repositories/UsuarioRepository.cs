@@ -1,4 +1,5 @@
-﻿using AS.Domain.Exceptions;
+﻿using AS.Domain.DTOs.Usuario;
+using AS.Domain.Exceptions;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -80,6 +81,27 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
                 .Include(u => u.PartidaTorneoIdUsuario2Navigations)
                 .Include(u => u.Torneos)
                 .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+            return response ?? throw new Exception("Usuario no encontrado");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+        }
+    }
+
+    public async Task<UsuarioEmailDto> GetEmailNickById(int idUsuario)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Usuarios
+                .Where(u => u.IdUsuario == idUsuario)
+                .Select(u => new UsuarioEmailDto
+                {
+                    Email = u.Email,
+                    Nick = u.Nick
+                })
+                .FirstOrDefaultAsync();
+
             return response ?? throw new Exception("Usuario no encontrado");
         }
         catch (Exception ex)

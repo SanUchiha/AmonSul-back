@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Usuario;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -12,4 +13,7 @@ public interface IUsuarioRepository
     Task<bool> Register(Usuario usuario);
     Task<bool> Delete(string email);
     Task<Usuario> GetUsuario(string id);
+
+    Task<UsuarioEmailDto> GetEmailNickById(int id);
+
 }

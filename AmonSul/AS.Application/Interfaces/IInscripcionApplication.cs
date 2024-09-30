@@ -14,5 +14,4 @@ public interface IInscripcionApplication
 
     Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);
-    Task<bool> CambiarEstadoInscripcion(ActualizarEstadoInscripcion actualizarEstadoInscripcion);
 }

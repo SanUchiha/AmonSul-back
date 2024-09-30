@@ -48,7 +48,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpPost]
     public async Task<ActionResult> Register([FromBody] CrearInscripcionDTO inscripcionTorneo)
     {
-        var result = await _inscripcionApplication.Register(inscripcionTorneo);
+        bool result = await _inscripcionApplication.Register(inscripcionTorneo);
         if (!result)
         {
             return BadRequest();
@@ -65,18 +65,6 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
             return NotFound();
         }
         return Ok(inscripcion);
-    }
-
-    //Cambiar estado inscripcion
-    [HttpPut("Estado-Inscripcion")]
-    public async Task<ActionResult> CambiarEstadoInscripcion([FromBody] ActualizarEstadoInscripcion actualizarEstadoInscripcion)
-    {
-        var result = await _inscripcionApplication.CambiarEstadoInscripcion(actualizarEstadoInscripcion);
-        if (!result)
-        {
-            return BadRequest();
-        }
-        return Created();
     }
 
     //Cambiar estado lista

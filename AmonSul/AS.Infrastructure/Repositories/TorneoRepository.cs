@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Torneo;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,28 @@ public class TorneoRepository : ITorneoRepository
         catch (Exception ex)
         {
             throw new Exception("Ocurrio un problema en el servidor.", ex);
+        }
+    }
+
+    public async Task<TorneoUsuarioDto> GetNombreById(int idTorneo)
+    {
+        try
+        {
+            TorneoUsuarioDto? response = await _dbamonsulContext.Torneos
+                              .AsNoTracking()
+                              .Where(t => t.IdTorneo == idTorneo)
+                              .Select(t => new TorneoUsuarioDto
+                              {
+                                  NombreTorneo = t.NombreTorneo,
+                                  IdUsuario = t.IdUsuario
+                              })
+                              .FirstOrDefaultAsync();
+
+            return response ?? throw new Exception("Torneo no encontrado");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema en el servidor.", ex);
         }
     }
 
