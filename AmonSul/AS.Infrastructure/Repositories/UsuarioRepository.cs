@@ -127,6 +127,23 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
+    public async Task<List<string>> GetAllEmail()
+    {
+        try
+        {
+            List<string> emails = await _dbamonsulContext.Usuarios
+                .AsNoTracking()
+                .Select(u => u.Email)
+                .ToListAsync();
+
+            return emails ?? [];
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los emails.", ex);
+        }
+    }
+
     public async Task<bool> Delete(string email)
     {
         try

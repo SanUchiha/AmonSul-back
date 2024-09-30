@@ -15,5 +15,5 @@ public interface IUsuarioRepository
     Task<Usuario> GetUsuario(string id);
 
     Task<UsuarioEmailDto> GetEmailNickById(int id);
-
+    Task<List<string>> GetAllEmail();
 }

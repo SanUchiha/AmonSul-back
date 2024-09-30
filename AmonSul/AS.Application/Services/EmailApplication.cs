@@ -1,12 +1,11 @@
-﻿using AS.Application.Interfaces;
-using System.Net.Mail;
-using System.Net;
-using AS.Application.DTOs.Email;
+﻿using AS.Application.DTOs.Email;
 using AS.Application.Exceptions;
-using Microsoft.Extensions.Options;
-using Azure.Core;
+using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
 
 namespace AS.Application.Services;
 
@@ -47,7 +46,7 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
         }
     }
 
-    public async Task SendEmailModificacionInscripcion(EmailContactoDTO request)
+    public async Task SendEmailModificacionLista(EmailListaDTO request)
     {
         try
         {
@@ -61,23 +60,92 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
             using var mailMessage = new MailMessage
             {
                 From = new MailAddress(_emailSettings.From),
-                Subject = $"Modificacion estado inscripción",
+                Subject = $"Actualización del estado de tu lista para el torneo {request.NombreTorneo}",
                 Body = $@"
-                <html>
-                <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
-                    <p>Hola,</p>
-                    <p>Se ha modificado el estado de tu inscripción para el torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.Message}</strong></span>.</p>
-                    <p>Ya puedes entrar al dashboard para visualizarla.</p>
-                    <p>Gracias por utilizar Amon Súl.</p>
-                    <hr />
-                </body>
-                </html>",
+                    <html>
+                    <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;"">
+                        <div style=""max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+                            <h2 style=""font-size: 24px; color: #2e6c80; margin-bottom: 20px;"">Estado de la lista actualizado</h2>
+                            <p>Hola,</p>
+                            <p>El estado de tu lista para el torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.NombreTorneo}</strong></span> pasa a ser <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.EstadoLista}</strong></span>.</p>
+                            <p>Puedes acceder a tu dashboard para revisar los detalles.</p>
+                            <p>Gracias por ser parte de Amon Súl.</p>
+                            <hr style=""margin-top: 30px;"" />
+                            <p style=""font-size: 12px; color: #888;"">Este es un mensaje automático, por favor no respondas a este correo.</p>
+                        </div>
+                    </body>
+                    </html>",
                 IsBodyHtml = true
             };
 
-            mailMessage.To.Add(request.Email!);
+            mailMessage.To.Add(request.EmailTo!);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
+        }
+        catch (SmtpException smtpEx)
+        {
+            throw new EmailSendException("Error occurred while sending email.", smtpEx);
+        }
+        catch (Exception ex)
+        {
+            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
+        }
+    }
+
+    public async Task SendEmailModificacionPago(EmailPagoDTO request)
+    {
+        try
+        {
+            SmtpClient client = new(_emailSettings.SmtpServer, _emailSettings.Port)
+            {
+                EnableSsl = _emailSettings.EnableSsl,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
+            };
+
+            string pago = "";
+            if (request.EstadoPago == "SI") pago = "PAGADA";
+            else pago = "NO PAGADA";
+
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_emailSettings.From),
+                Subject = $"Confirmación de pago para el torneo {request.NombreTorneo}",
+                Body = $@"
+                        <html>
+                        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;"">
+                            <div style=""max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+                                <h2 style=""font-size: 24px; color: #2e6c80; margin-bottom: 20px;"">Estado de Pago Actualizado</h2>
+                                <p>Hola,</p>
+                                <p>El estado de tu inscripción para el torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.NombreTorneo}</strong></span> ha sido actualizado a <span style=""font-size: 18px; color: #2e6c80;""><strong>{pago}</strong></span>.</p>
+                                <p>Puedes acceder a tu dashboard para revisar los detalles.</p>
+                                <p>Gracias por ser parte de Amon Súl, y esperamos que disfrutes del torneo.</p>
+                                <hr style=""margin-top: 30px;"" />
+                                <p style=""font-size: 12px; color: #888;"">Este es un mensaje automático, por favor no respondas a este correo.</p>
+                            </div>
+                        </body>
+                        </html>",
+                IsBodyHtml = true
+
+            };
+
+            mailMessage.To.Add(request.EmailTo!);
+
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx) 
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
@@ -100,41 +168,51 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
                 Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
             };
 
-            using var mailMessage = new MailMessage
+            string templateBody = $@"
+            <html>
+            <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+                <p>Hola,</p>
+                <p>Nos complace informarte que se ha creado un nuevo torneo llamado <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span>.</p>      
+                <p>Puedes acceder a más detalles y gestionar tu inscripción de Amon Sûl.</p>
+                <p>Gracias por formar parte de Amon Súl.</p>
+            </body>
+            </html>";
+
+            List<string> listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAllEmail();
+
+            // Dividimos la lista de destinatarios en bloques de 10
+            const int batchSize = 10;
+            for (int i = 0; i < listaDestinatarios.Count; i += batchSize)
             {
-                From = new MailAddress(_emailSettings.From),
-                Subject = $"Nuevo Torneo Creado",
-                Body = $@"
-                <html>
-                <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
-                    <p>Hola,</p>
-                    <p>Nos complace informarte que se ha creado un nuevo torneo llamado <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span>.</p>      
-                    <p>Puedes acceder a más detalles y gestionar tu inscripción a través del dashboard.</p>
-                    <p>Gracias por formar parte de Amon Súl.</p>
-                </body>
-                </html>",
-                IsBodyHtml = true
-            };
+                using MailMessage mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_emailSettings.From),
+                    Subject = $"Nuevo Torneo Creado",
+                    Body = templateBody,
+                    IsBodyHtml = true
+                };
 
-            var listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAll();
+                // Agregar los destinatarios en bloques de 10
+                List<string> destinatariosBatch = listaDestinatarios.Skip(i).Take(batchSize).ToList();
+                foreach (string destinatario in destinatariosBatch)
+                {
+                    mailMessage.To.Add(destinatario);
+                }
 
-         
-
-            foreach (var destinatario in listaDestinatarios)
-            {
-                mailMessage.To.Add(destinatario.Email);
+                try
+                {
+                    await client.SendMailAsync(mailMessage);
+                }
+                catch (SmtpException smtpEx)
+                {
+                    Console.WriteLine(smtpEx.Message);
+                }
             }
-            mailMessage.To.Add(_emailSettings.From);
+        }
 
-            await client.SendMailAsync(mailMessage);
-        }
-        catch (SmtpException smtpEx)
-        {
-            throw new EmailSendException("Error occurred while sending email.", smtpEx);
-        }
         catch (Exception ex)
         {
-            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
+            throw new EmailSendException("An unexpected error occurred while created tournament.", ex);
         }
     }
 
@@ -170,7 +248,14 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
 
             mailMessage.To.Add(request.Email!);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
@@ -200,7 +285,7 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
                 Body = $@"
                 <html>
                 <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
-                    <h2 style=""color: #2e6c80;"">Un nuevo usuario se ha apuntado</h2>
+                    <h2 style=""color: #2e6c80;"">Un nuevo jugador se ha apuntado</h2>
                     <p>Hola,</p>
                     <p>Se acaba de apuntar un nuevo jugador al torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.Message}</strong></span>
                     .</p>
@@ -214,7 +299,14 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
 
             mailMessage.To.Add(request.Email!);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
@@ -251,7 +343,14 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
             }
             mailMessage.To.Add(_emailSettings.From);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
@@ -295,7 +394,14 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
 
             mailMessage.To.Add(request.Email!);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
@@ -350,7 +456,14 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
 
             mailMessage.To.Add(request.Email!);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine(smtpEx.Message);
+            }
         }
         catch (SmtpException smtpEx)
         {
