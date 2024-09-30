@@ -39,6 +39,9 @@ public partial class DbamonsulContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    public virtual DbSet<Ganador> Ganador { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -448,6 +451,22 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)
                 .HasConstraintName("FK_Usuario_Faccion");
+        });
+
+        //Ganadores
+        modelBuilder.Entity<Ganador>(entity =>
+        {
+            entity.HasKey(e => e.IdGanador).HasName("PK__Ganador__160354F0762D9D53");
+
+            entity.ToTable("Ganador");
+
+            entity.Property(e => e.IdGanador).HasColumnName("Id_Ganador");
+            entity.Property(e => e.IdUsuario)
+                .HasColumnName("Id_Usuario")
+                .IsRequired();
+            entity.Property(e => e.IdTorneo)
+                .HasColumnName("Id_Torneo")
+                .IsRequired();
         });
 
         OnModelCreatingPartial(modelBuilder);

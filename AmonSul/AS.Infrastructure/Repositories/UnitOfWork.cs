@@ -3,35 +3,21 @@ using AS.Infrastructure.Repositories.Interfaces;
 
 namespace AS.Infrastructure.Repositories;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(DbamonsulContext context, Utilidades utilidades) : IUnitOfWork
 {
-    private readonly DbamonsulContext _context;
+    private readonly DbamonsulContext _context = context;
 
-    public IAccountRepository AccountRepository { get; private set; }
-    public IUsuarioRepository UsuarioRepository { get; private set; }
-    public IFaccionRepository FaccionRepository { get; private set; }
-    public ITorneoRepository TorneoRepository { get; private set; }
-    public IPartidaAmistosaRepository PartidaAmistosaRepository{ get; private set; }
-    public IInscripcionRepository InscripcionRepository { get; private set; }
-    public IListaRepository ListaRepository { get; private set; }
-    public IEloRepository EloRepository { get; private set; }
-    public IPartidaTorneoRepository PartidaTorneoRepository { get; private set; }
-    public Utilidades _utilidades;
-
-    public UnitOfWork(DbamonsulContext context, Utilidades utilidades)
-    {
-        _context = context;
-        _utilidades = utilidades;
-        AccountRepository = new AccountRepository(context, utilidades);
-        UsuarioRepository = new UsuarioRepository(context);
-        FaccionRepository = new FaccionRepository(context);
-        TorneoRepository = new TorneoRepository(context);
-        PartidaAmistosaRepository = new PartidaAmistosaRepository(context);
-        EloRepository = new EloRepository(context);
-        InscripcionRepository = new InscripcionRepository(context);
-        ListaRepository = new ListaRepository(context);
-        PartidaTorneoRepository = new PartidaTorneoRepository(context);
-    }
+    public IAccountRepository AccountRepository { get; private set; } = new AccountRepository(context, utilidades);
+    public IUsuarioRepository UsuarioRepository { get; private set; } = new UsuarioRepository(context);
+    public IFaccionRepository FaccionRepository { get; private set; } = new FaccionRepository(context);
+    public ITorneoRepository TorneoRepository { get; private set; } = new TorneoRepository(context);
+    public IPartidaAmistosaRepository PartidaAmistosaRepository { get; private set; } = new PartidaAmistosaRepository(context);
+    public IInscripcionRepository InscripcionRepository { get; private set; } = new InscripcionRepository(context);
+    public IListaRepository ListaRepository { get; private set; } = new ListaRepository(context);
+    public IEloRepository EloRepository { get; private set; } = new EloRepository(context);
+    public IPartidaTorneoRepository PartidaTorneoRepository { get; private set; } = new PartidaTorneoRepository(context);
+    public IGanadorRepository GanadorRepository { get; private set; } = new GanadorRepository(context);
+    public Utilidades _utilidades = utilidades;
 
     public void Dispose() => _context.Dispose();
     public void SaveChanges() => _context.SaveChanges();

@@ -2,7 +2,6 @@
 
 public interface IUnitOfWork: IDisposable
 {
-    // Declaramos todas las interfaces a nivel de repo
     IAccountRepository AccountRepository { get; }
     IUsuarioRepository UsuarioRepository { get; }
     IFaccionRepository FaccionRepository { get; }
@@ -12,6 +11,7 @@ public interface IUnitOfWork: IDisposable
     IInscripcionRepository InscripcionRepository{ get; }
     IListaRepository ListaRepository { get; }
     IPartidaTorneoRepository PartidaTorneoRepository { get; }
+    IGanadorRepository GanadorRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();
