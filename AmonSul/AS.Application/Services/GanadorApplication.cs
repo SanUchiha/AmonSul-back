@@ -23,7 +23,7 @@ public class GanadorApplication(
 
     public async Task<bool> Register(List<GanadorDTO> ganadoresDTO)
     {
-        foreach (var item in ganadoresDTO)
+        foreach (GanadorDTO item in ganadoresDTO)
         {
             Ganador ganador = _mapper.Map<Ganador>(item);
             await _unitOfWork.GanadorRepository.Register(ganador);
