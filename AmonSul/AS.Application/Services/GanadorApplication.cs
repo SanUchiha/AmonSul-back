@@ -1,4 +1,5 @@
-﻿using AS.Application.Interfaces;
+﻿using AS.Application.DTOs.Ganador;
+using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -19,4 +20,15 @@ public class GanadorApplication(
     public async Task<Ganador> GetById(int id) => await _unitOfWork.GanadorRepository.GetById(id);
 
     public async Task<bool> Register(Ganador ganador) => await _unitOfWork.GanadorRepository.Register(ganador);
+
+    public async Task<bool> Register(List<GanadorDTO> ganadoresDTO)
+    {
+        foreach (var item in ganadoresDTO)
+        {
+            Ganador ganador = _mapper.Map<Ganador>(item);
+            await _unitOfWork.GanadorRepository.Register(ganador);
+        }
+
+        return true;
+    }
 }

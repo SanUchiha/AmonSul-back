@@ -1,8 +1,6 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.DTOs.PartidaTorneo;
+﻿using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
-using AS.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -84,7 +82,7 @@ public class TorneoController(
     public async Task<IActionResult> GenerarRonda([FromBody, Required] GenerarRondaDTO request)
     {
         bool response = await _partidaTorneoApplication.GenerateRound(request);
-
+        
         if (response == false) return BadRequest("No se ha podido generar la ronda");
 
         return Created(string.Empty, "La ronda ha sido creada con éxito");

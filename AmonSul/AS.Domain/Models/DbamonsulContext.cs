@@ -467,6 +467,9 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdTorneo)
                 .HasColumnName("Id_Torneo")
                 .IsRequired();
+            entity.Property(e => e.Resultado)
+                .HasColumnName("Resultado")
+                .IsRequired();
         });
 
         OnModelCreatingPartial(modelBuilder);

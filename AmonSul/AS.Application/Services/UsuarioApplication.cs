@@ -358,27 +358,27 @@ public class UsuarioApplication(
     {
         try
         {
-            var rawPass = registrarUsuarioDTO.Contraseña;
+            string rawPass = registrarUsuarioDTO.Contraseña;
             registrarUsuarioDTO.Contraseña = Utilidades.EncriptarSHA256(registrarUsuarioDTO.Contraseña);
-            var usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
-            var rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
+            Usuario usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
+            bool rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 
-            var loginDTO = new LoginDTO
+            LoginDTO loginDTO = new()
             {
                 Email = registrarUsuarioDTO.Email,
                 Password = rawPass
             };
 
-            var login = await _accountRepository.Login(loginDTO);
+            LoginResponse login = await _accountRepository.Login(loginDTO);
 
-            var response = new RegistrarUsuarioResponseDTO
+            RegistrarUsuarioResponseDTO response = new()
             {
                 Status = true,
                 Message = "Usuario creado con existo",
                 Token = login.Token
             };
 
-            var listaDestinatarios = new List<string> { registrarUsuarioDTO.Email };
+            List<string> listaDestinatarios = [registrarUsuarioDTO.Email];
 
 
             EmailRequestDTO request = new()
@@ -397,8 +397,7 @@ public class UsuarioApplication(
                 throw new Exception(emailEx.Message);
             }
 
-
-            var usuarioRegistrado = await GetByEmail(registrarUsuarioDTO.Email);
+            ViewUsuarioPartidaDTO usuarioRegistrado = await GetByEmail(registrarUsuarioDTO.Email);
 
             CreateEloDTO createElo = new() 
             { 
@@ -409,7 +408,6 @@ public class UsuarioApplication(
             await _eloApplication.RegisterElo(createElo);
 
             return response;
-
         }
         catch
         {

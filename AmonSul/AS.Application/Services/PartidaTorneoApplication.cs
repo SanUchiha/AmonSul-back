@@ -101,7 +101,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
     {
-        //Si es segunda ronda actualizamos el elo de la ronda anterior
+        //Si es segunda ronda o mas actualizamos el elo de la ronda anterior
         if (generarRondaDTO.IdRonda > 1)
         {
             int numeroRonda = generarRondaDTO.IdRonda;
@@ -115,8 +115,6 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
             //Actualizamos el elo de los jugadores
             foreach (PartidaTorneo partida in partidas)
             {
-                if(partida.GanadorPartidaTorneo == null) continue;
-
                 //1. Actualizar el elo para los jugadores
                 int eloJugador1 = await _eloApplication.GetLastElo((int)partida.IdUsuario1!);
                 int eloJugador2 = await _eloApplication.GetLastElo((int)partida.IdUsuario2!);
@@ -140,7 +138,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
                     nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
                 }
                 //Empate
-                if (partida.GanadorPartidaTorneo == 0)
+                if (partida.GanadorPartidaTorneo == null)
                 {
                     nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
                     nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
@@ -170,7 +168,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
 
         List<Usuario> jugadores = [];
 
-        foreach (var item in inscripciones)
+        foreach (InscripcionTorneo item in inscripciones)
         {
             Usuario jugador = await _unitOfWork.UsuarioRepository.GetById(item.IdUsuario);
             jugadores.Add(jugador);
@@ -195,28 +193,60 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
         // Misma comunidad NO
         if (!generarRondaDTO.MismaComunidadCheck)
         {
-            // 3. Los emparejamos 
+            // Inicializa una sola instancia de Random
+            Random randomJugador = new();
+
+            // Emparejamos los jugadores
             while (jugadoresSinEmparejar.Count >= 2)
             {
                 Usuario jugador1, jugador2;
-                bool emparejamientoValido = false;
+                int index1;
+                int index2;
+                int intentos = 0;
+                const int maxIntentos = 100; 
 
                 do
                 {
-                    // Seleccionamos dos jugadores aleatorios
-                    jugador1 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
-                    jugador2 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
-
-                    if (jugador1.IdUsuario == jugador2.IdUsuario) continue;
-                    if (jugador1.IdFaccion == jugador2.IdFaccion) continue;
-
-                    emparejamientoValido = true;
-
+                    index1 = randomJugador.Next(jugadoresSinEmparejar.Count);
+                    index2 = randomJugador.Next(jugadoresSinEmparejar.Count);
+                    intentos++;
                 }
-                while (!emparejamientoValido);
+                while (
+                    (index1 == index2 ||
+                     jugadoresSinEmparejar[index1].IdFaccion == jugadoresSinEmparejar[index2].IdFaccion) &&
+                     intentos < maxIntentos);
+
+                if (intentos >= maxIntentos)
+                {
+                    // Si hay al menos dos jugadores restantes, emparejamos directamente
+                    if (jugadoresSinEmparejar.Count >= 2)
+                    {
+                        index1 = 0; 
+                        index2 = 1;
+
+                        jugador1 = jugadoresSinEmparejar[index1];
+                        jugador2 = jugadoresSinEmparejar[index2];
+
+                        // Crear el nuevo emparejamiento
+                        EmparejamientoDTO pairing = new()
+                        {
+                            Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugador1.IdUsuario, Nick = jugador1.Nick },
+                            Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = jugador2.IdUsuario, Nick = jugador2.Nick }
+                        };
+
+                        emparejamientos.Add(pairing);
+
+                        jugadoresSinEmparejar.RemoveAt(1); 
+                        jugadoresSinEmparejar.RemoveAt(0); 
+                    }
+                    break; // Salimos del bucle principal
+                }
+
+                jugador1 = jugadoresSinEmparejar[index1];
+                jugador2 = jugadoresSinEmparejar[index2];
 
                 // Crear el nuevo emparejamiento
-                var nuevoEmparejamiento = new EmparejamientoDTO
+                EmparejamientoDTO nuevoEmparejamiento = new()
                 {
                     Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugador1.IdUsuario, Nick = jugador1.Nick },
                     Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = jugador2.IdUsuario, Nick = jugador2.Nick }
@@ -226,8 +256,9 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
                 emparejamientos.Add(nuevoEmparejamiento);
 
                 // Remover los jugadores emparejados
-                jugadoresSinEmparejar.Remove(jugador1);
-                jugadoresSinEmparejar.Remove(jugador2);
+                jugadoresSinEmparejar.RemoveAt(Math.Max(index1, index2)); // Eliminar el jugador en el índice mayor primero para evitar problemas de índice
+                jugadoresSinEmparejar.RemoveAt(Math.Min(index1, index2)); // Luego eliminamos el otro
+                intentos = 0;
             }
 
             // Crear las partidas
