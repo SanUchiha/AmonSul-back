@@ -178,12 +178,13 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
 
         // Generar pairing predefinidos
         List<EmparejamientoDTO>? emparejamientos = generarRondaDTO.Emparejamientos ?? [];
+        List<EmparejamientoDTO> emparejamientosAleatorios = [];
 
         // Generarmos los pairing restantes en base a la configuracion
         // 1. Seleccionamos los jugadores que estan sin emparejar
         List<Usuario> jugadoresSinEmparejar = 
             jugadores.Where(j =>
-                !emparejamientos.Any
+                !emparejamientosAleatorios.Any
                     (e => e.Jugador1.IdUsuario == j.IdUsuario || e.Jugador2.IdUsuario == j.IdUsuario))
             .ToList();
 
@@ -195,40 +196,171 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
         // Misma comunidad NO
         if (!generarRondaDTO.MismaComunidadCheck)
         {
-            // 3. Los emparejamos 
-            while (jugadoresSinEmparejar.Count >= 2)
+            // Agrupar jugadores por facción
+            Dictionary<int, List<Usuario>> jugadoresPorFaccion = [];
+            foreach (var jugador in jugadoresSinEmparejar)
             {
-                Usuario jugador1, jugador2;
-                bool emparejamientoValido = false;
+                int idFaccion = jugador.IdFaccion ?? -1;
+                if (!jugadoresPorFaccion.TryGetValue(idFaccion, out List<Usuario>? value))
+                {
+                    value = ([]);
+                    jugadoresPorFaccion[idFaccion] = value;
+                }
 
+                value.Add(jugador);
+            }
+
+            while (jugadoresPorFaccion.Any(f => f.Value.Count > 0) && jugadoresSinEmparejar.Count > 0)
+            {
+                List<KeyValuePair<int, List<Usuario>>> faccionesRestantes = jugadoresPorFaccion.Where(f => f.Value.Count > 0).ToList();
+
+                // Seleccionamos aleatoriamente una facción con jugadores
+                KeyValuePair<int, List<Usuario>> randomFaccion = faccionesRestantes[random.Next(faccionesRestantes.Count)];
+                Usuario jugador1 = randomFaccion.Value[0]; // Primer jugador
+
+                // Remover jugador1 de su facción
+                jugadoresSinEmparejar.Remove(jugador1);
+                randomFaccion.Value.RemoveAt(0);
+
+                // Si no hay mas jugadores, removemos facción
+                if (randomFaccion.Value.Count == 0)
+                    jugadoresPorFaccion.Remove(randomFaccion.Key);
+
+                // Buscar un jugador de una facción diferente
+                Usuario? jugador2 = jugadoresPorFaccion
+                    .Where(f => f.Key != randomFaccion.Key && f.Value.Count > 0)
+                    .SelectMany(f => f.Value)
+                    .FirstOrDefault();
+
+                // Remover al jugador 2 de su faccion
+                if (jugador2 == null)
+                {
+                    // Si no hay un jugador disponible de una facción diferente, selecciona un jugador de la misma facción
+                    if (randomFaccion.Value.Count > 0)
+                    {
+                        jugador2 = randomFaccion.Value[0];
+                        jugadoresSinEmparejar.Remove(jugador2);
+                        randomFaccion.Value.RemoveAt(0);
+                        if (randomFaccion.Value.Count == 0)
+                            jugadoresPorFaccion.Remove(randomFaccion.Key);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    // Remover jugador2 de su respectiva facción
+                    int idFaccionJugador2 = jugador2.IdFaccion ?? -1;
+                    jugadoresSinEmparejar.Remove(jugador2);
+                    jugadoresPorFaccion[idFaccionJugador2].Remove(jugador2);
+
+                    // Eliminar la facción si no hay más jugadores
+                    if (jugadoresPorFaccion[idFaccionJugador2].Count == 0)
+                        jugadoresPorFaccion.Remove(idFaccionJugador2);
+                }
+
+                // Crear el emparejamiento
+                emparejamientosAleatorios.Add(new EmparejamientoDTO
+                {
+                    Jugador1 = new JugadorEmparejamientoDTO 
+                    { 
+                        IdUsuario = jugador1.IdUsuario,
+                        Nick = jugador1.Nick, 
+                        IdFaccion = jugador1.IdFaccion,
+                    },
+                    Jugador2 = new JugadorEmparejamientoDTO 
+                    { 
+                        IdUsuario = jugador2.IdUsuario, 
+                        Nick = jugador2.Nick, 
+                        IdFaccion = jugador2.IdFaccion,
+                    }
+                });
+            }
+
+            // Caso en que queda un solo jugador sin emparejar
+            if (jugadoresSinEmparejar.Count == 1)
+            {
+                Usuario ultimoJugador = jugadoresSinEmparejar[0];
+                jugadoresSinEmparejar.RemoveAt(0);
+
+                // Buscar emparejamiento con facciones distintas y reasignar si es posible
+                foreach (var emparejamiento in emparejamientos)
+                {
+                    if (emparejamiento.Jugador1.IdUsuario != ultimoJugador.IdUsuario &&
+                        emparejamiento.Jugador2.IdUsuario != ultimoJugador.IdUsuario)
+                    {
+                        // Remplazar Jugador2 del emparejamiento para mantener diversidad
+                        JugadorEmparejamientoDTO jugadorExistente = emparejamiento.Jugador2;
+                        emparejamiento.Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = ultimoJugador.IdUsuario, Nick = ultimoJugador.Nick };
+
+                        // Crear un emparejamiento nuevo con el jugador anterior
+                        EmparejamientoDTO ajusteEmparejamiento = new()
+                        {
+                            Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugadorExistente.IdUsuario, Nick = jugadorExistente.Nick },
+                            Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = ultimoJugador.IdUsuario, Nick = ultimoJugador.Nick }
+                        };
+
+                        emparejamientos.Add(ajusteEmparejamiento);
+                        break;
+                    }
+                }
+            }
+
+            // Comprobar que los emparejamientos son validos.
+            // Validar emparejamientos
+            List<EmparejamientoDTO> emparejamientosInvalidos = emparejamientosAleatorios
+                .Where(e => e.Jugador1.IdFaccion == e.Jugador2.IdFaccion)
+                .ToList();
+
+            // Modificar emparejamientos inválidos
+            foreach (var emparejamiento in emparejamientosInvalidos)
+            {
+                bool emparejamientoValido = false;
                 do
                 {
-                    // Seleccionamos dos jugadores aleatorios
-                    jugador1 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
-                    jugador2 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
+                    // Obtener el jugador que necesita ser reemplazado
+                    JugadorEmparejamientoDTO jugadorACambiar = emparejamiento.Jugador2;
 
-                    if (jugador1.IdUsuario == jugador2.IdUsuario) continue;
-                    if (jugador1.IdFaccion == jugador2.IdFaccion) continue;
+                    // Buscar un emparejamiento alternativo donde podamos tomar el jugador para reemplazo
+                    EmparejamientoDTO? emparejamientoAlternativo = emparejamientosAleatorios
+                        .FirstOrDefault(e => e.Jugador1.IdUsuario != jugadorACambiar.IdUsuario &&
+                                             e.Jugador2.IdUsuario != jugadorACambiar.IdUsuario &&
+                                             e.Jugador1.IdFaccion != emparejamiento.Jugador1.IdFaccion &&
+                                             e.Jugador2.IdFaccion != emparejamiento.Jugador1.IdFaccion);
 
-                    emparejamientoValido = true;
+                    if (emparejamientoAlternativo != null)
+                    {
+                        // Intercambiar jugadores
+                        JugadorEmparejamientoDTO jugadorAlternativo = emparejamientoAlternativo.Jugador2;
+                        if (jugadorACambiar.IdFaccion != emparejamientoAlternativo.Jugador1.IdFaccion &&
+                            emparejamiento.Jugador1.IdFaccion != jugadorAlternativo.IdFaccion)
+                        {
+                            // Realizar el intercambio
+                            emparejamiento.Jugador2 = new JugadorEmparejamientoDTO
+                            {
+                                IdUsuario = jugadorAlternativo.IdUsuario,
+                                Nick = jugadorAlternativo.Nick,
+                                IdFaccion = jugadorAlternativo.IdFaccion
+                            };
 
+                            emparejamientoAlternativo.Jugador2 = new JugadorEmparejamientoDTO
+                            {
+                                IdUsuario = jugadorACambiar.IdUsuario,
+                                Nick = jugadorACambiar.Nick,
+                                IdFaccion = jugadorACambiar.IdFaccion
+                            };
+                            emparejamientoValido = true;
+                        }
+                        else emparejamientoValido = false;
+                    }
                 }
                 while (!emparejamientoValido);
-
-                // Crear el nuevo emparejamiento
-                var nuevoEmparejamiento = new EmparejamientoDTO
-                {
-                    Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugador1.IdUsuario, Nick = jugador1.Nick },
-                    Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = jugador2.IdUsuario, Nick = jugador2.Nick }
-                };
-
-                // Añadir el emparejamiento a la lista
-                emparejamientos.Add(nuevoEmparejamiento);
-
-                // Remover los jugadores emparejados
-                jugadoresSinEmparejar.Remove(jugador1);
-                jugadoresSinEmparejar.Remove(jugador2);
+                
             }
+
+            emparejamientos.AddRange(emparejamientosAleatorios);
 
             // Crear las partidas
             foreach (var item in emparejamientos)
@@ -273,7 +405,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
                 do
                 {
                     // Seleccionamos dos jugadores aleatorios
-                    jugador1 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
+                    jugador1 = jugadoresSinEmparejar[0];
                     jugador2 = jugadoresSinEmparejar[new Random().Next(jugadoresSinEmparejar.Count)];
 
                     if (jugador1.IdUsuario == jugador2.IdUsuario) continue;
