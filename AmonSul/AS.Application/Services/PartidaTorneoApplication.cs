@@ -101,7 +101,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
     {
-        //Si es segunda ronda actualizamos el elo de la ronda anterior
+        //Si es segunda ronda o mas actualizamos el elo de la ronda anterior
         if (generarRondaDTO.IdRonda > 1)
         {
             int numeroRonda = generarRondaDTO.IdRonda;
@@ -115,8 +115,6 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
             //Actualizamos el elo de los jugadores
             foreach (PartidaTorneo partida in partidas)
             {
-                if(partida.GanadorPartidaTorneo == null) continue;
-
                 //1. Actualizar el elo para los jugadores
                 int eloJugador1 = await _eloApplication.GetLastElo((int)partida.IdUsuario1!);
                 int eloJugador2 = await _eloApplication.GetLastElo((int)partida.IdUsuario2!);
@@ -140,7 +138,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
                     nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
                 }
                 //Empate
-                if (partida.GanadorPartidaTorneo == 0)
+                if (partida.GanadorPartidaTorneo == null)
                 {
                     nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
                     nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
@@ -170,7 +168,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
 
         List<Usuario> jugadores = [];
 
-        foreach (var item in inscripciones)
+        foreach (InscripcionTorneo item in inscripciones)
         {
             Usuario jugador = await _unitOfWork.UsuarioRepository.GetById(item.IdUsuario);
             jugadores.Add(jugador);

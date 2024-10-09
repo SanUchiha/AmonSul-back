@@ -1,11 +1,12 @@
-﻿using AS.Application.Interfaces;
-using AS.Domain.Models;
+﻿using AS.Application.DTOs.Ganador;
+using AS.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class GanadorController(IGanadorApplication ganadorApplication) : ControllerBase
 {
@@ -44,25 +45,21 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register([FromBody] Ganador ganador)
+    public async Task<IActionResult> Register([FromBody] List<GanadorDTO> ganadores)
     {
-        if (ganador == null)
-        {
-            return BadRequest("El ganador no puede ser nulo.");
-        }
+        if (ganadores.Count == 0) return BadRequest("El ganador no puede ser nulo.");
 
         try
         {
-            bool result = await _ganadorApplication.Register(ganador);
+            bool result = await _ganadorApplication.Register(ganadores);
             if (result)
-            {
-                return CreatedAtAction(nameof(GetById), new { id = ganador.IdGanador }, ganador);
-            }
-            return BadRequest("No se pudo registrar el ganador.");
+                return StatusCode(200);
+
+            return BadRequest("No se pudo registrar los resultados del torneo.");
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Ocurrió un problema al registrar el ganador: {ex.Message}");
+            return StatusCode(500, $"Ocurrió un problema al registrar los resultados: {ex.Message}");
         }
     }
 

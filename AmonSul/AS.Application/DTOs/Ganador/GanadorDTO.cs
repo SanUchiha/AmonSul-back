@@ -1,8 +1,7 @@
-﻿namespace AS.Domain.Models;
+﻿namespace AS.Application.DTOs.Ganador;
 
-public partial class Ganador
+public class GanadorDTO
 {
-    public int IdGanador { get; set; }
     public int IdTorneo { get; set; }
     public int IdUsuario { get; set; }
     public int Resultado { get; set; }
