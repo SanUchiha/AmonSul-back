@@ -216,7 +216,7 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
             // 1. Seleccionamos los jugadores que estan sin emparejar
             List<Usuario> jugadoresSinEmparejar =
                 jugadores.Where(j =>
-                    !emparejamientosAleatorios.Any
+                    !emparejamientos.Any
                         (e => e.Jugador1.IdUsuario == j.IdUsuario || e.Jugador2.IdUsuario == j.IdUsuario))
                 .ToList();
 
