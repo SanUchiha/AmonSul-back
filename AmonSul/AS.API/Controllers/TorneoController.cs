@@ -42,7 +42,6 @@ public class TorneoController(
 
     [HttpPost]
     [Route("")]
-    //[AllowAnonymous]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
@@ -76,7 +75,6 @@ public class TorneoController(
 
     [HttpPost]
     [Route("Gestion/Generar-Ronda")]
-    //[AllowAnonymous]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GenerarRonda([FromBody, Required] GenerarRondaDTO request)
@@ -89,7 +87,6 @@ public class TorneoController(
     }
 
     [HttpGet]
-    //[AllowAnonymous]
     [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
     {
@@ -101,7 +98,6 @@ public class TorneoController(
     }
 
     [HttpGet]
-    //[AllowAnonymous]
     [Route("Gestion/info-torneo/{idTorneo}")]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
@@ -127,11 +123,37 @@ public class TorneoController(
     [Route("Editar-Partida")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ValidarPartidaAmistosa([FromBody, Required] UpdatePartidaTorneoDTO request)
+    public async Task<IActionResult> EdtarPartida([FromBody, Required] UpdatePartidaTorneoDTO request)
     {
-        var response = await _partidaTorneoApplication.Edit(request);
+        bool response = await _partidaTorneoApplication.Edit(request);
 
         if (response == false) return BadRequest("No se ha podido editar la partida");
+
+        return Ok(response);
+    }
+
+    [HttpPut]
+    [Route("Editar-Pairing")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> EdtarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
+    {
+        bool response = await _partidaTorneoApplication.EdtarPairing(request);
+
+        if (response == false) return BadRequest("No se ha podido editar la partida");
+
+        return Ok(response);
+    }
+
+    [HttpDelete]
+    [Route("Eliminar-Partida/{idPartida}")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeletePartida(int idPartida)
+    {
+        bool response = await _partidaTorneoApplication.Delete(idPartida);
+
+        if (response == false) return BadRequest("No se ha podido eliminar la partida");
 
         return Ok(response);
     }

@@ -8,7 +8,10 @@ using AutoMapper;
 
 namespace AS.Application.Services;
 
-public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IEloApplication eloApplication) : IPartidaTorneoApplication
+public class PartidaTorneoApplication(
+    IUnitOfWork unitOfWork, 
+    IMapper mapper, 
+    IEloApplication eloApplication) : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
@@ -19,10 +22,8 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
         throw new NotImplementedException();
     }
 
-    public Task<bool> Delete(int idPartida)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<bool> Delete(int idPartida) =>
+        await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
 
     public async Task<bool> Edit(UpdatePartidaTorneoDTO request)
     {
@@ -496,5 +497,24 @@ public class PartidaTorneoApplication(IUnitOfWork unitOfWork, IMapper mapper, IE
         }
 
         return true;
+    }
+
+    public async Task<bool> EdtarPairing(UpdatePairingTorneoDTO request)
+    {
+        // Obtener la entidad existente
+        PartidaTorneo existingEntity = await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
+        if (existingEntity == null) return false;
+
+        // Actualizar las propiedades que no son nulas
+        if (request.IdUsuario1.HasValue)
+            existingEntity.IdUsuario1 = request.IdUsuario1.Value;
+
+        if (request.IdUsuario2.HasValue)
+            existingEntity.IdUsuario2 = request.IdUsuario2.Value;
+
+        // Guardar los cambios en la base de datos
+        bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+
+        return result;
     }
 }
