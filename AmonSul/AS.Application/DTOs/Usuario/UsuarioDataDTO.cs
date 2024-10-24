@@ -2,6 +2,7 @@
 using AS.Application.DTOs.Faccion;
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.Torneo;
 
 namespace AS.Application.DTOs.Usuario;
 
@@ -22,4 +23,6 @@ public class UsuarioDataDTO
     public int PartidasEmpatadas { get; set; }
     public int PartidasPerdidas { get; set; }
     public bool? ProteccionDatos { get; set; }
+    public List<ViewPartidaTorneoDTO> PartidasTorneo{ get; set; } = [];
+    public List<ClasificacionTorneosDTO> ClasificacionTorneos{ get; set; } = [];
 }

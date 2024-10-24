@@ -1,6 +1,8 @@
-﻿using AS.Application.DTOs.PartidaTorneo;
+﻿using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -163,6 +165,18 @@ public class TorneoController(
     public async Task<IActionResult> GetPartidasRondaTorneo(int idTorneo, int idRonda)
     {
         List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoByRonda(idTorneo, idRonda);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    //Obtiene todas las partidas en torneos de un usuario
+    [HttpGet]
+    [Route("Partidas/Usuario/{idUsuario}")]
+    public async Task<IActionResult> GetPartidasUsuarioTorneos(int idUsuario)
+    {
+        List<ViewPartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneosByUsuario(idUsuario);
 
         if (response == null) return NotFound();
 

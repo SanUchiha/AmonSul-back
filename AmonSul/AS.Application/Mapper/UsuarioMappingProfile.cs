@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.Application.DTOs.Faccion;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Domain.Models;
 using AutoMapper;
@@ -15,7 +16,17 @@ public class UsuarioMappingProfile : Profile
         CreateMap<Usuario, UsuarioViewDTO>().ReverseMap();
         CreateMap<Usuario, ViewUsuarioPartidaDTO>().ReverseMap();
         CreateMap<ViewUsuarioPartidaDTO, ViewDetalleUsuarioDTO>().ReverseMap();
-        CreateMap<UsuarioDataDTO, Usuario>().ReverseMap();
+        CreateMap<Usuario, UsuarioDataDTO>()
+                   .ForMember(dest => dest.PartidasValidadas, opt => opt.Ignore()) // Se calcularán después
+                   .ForMember(dest => dest.PartidasPendientes, opt => opt.Ignore()) // Se calcularán después
+                   .ForMember(dest => dest.ClasificacionElo, opt => opt.Ignore()) // Se calculará después
+                   .ForMember(dest => dest.NumeroPartidasJugadas, opt => opt.Ignore()) // Se calculará después
+                   .ForMember(dest => dest.PartidasGanadas, opt => opt.Ignore()) // Se calculará después
+                   .ForMember(dest => dest.PartidasEmpatadas, opt => opt.Ignore()) // Se calculará después
+                   .ForMember(dest => dest.PartidasPerdidas, opt => opt.Ignore()); // Se calculará después;
         CreateMap<UsuarioNickDTO, Usuario>().ReverseMap();
+        CreateMap<Faccion, FaccionDTO>().ReverseMap(); // Mapeo entre Faccion y FaccionDTO
+        CreateMap<PartidaTorneo, ViewPartidaTorneoDTO>().ReverseMap(); 
+        
     }
 }

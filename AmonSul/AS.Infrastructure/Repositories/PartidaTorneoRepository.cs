@@ -107,8 +107,9 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         try
         {
             List<PartidaTorneo> partidas = await _dbamonsulContext.PartidaTorneos
-                .Where(p => p.IdUsuario1 == idUsuario || 
-                            p.IdUsuario2 == idUsuario)
+                .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                .Include(p => p.IdUsuario1Navigation)
+                .Include(p => p.IdUsuario2Navigation)
                 .ToListAsync();
 
             if (partidas == null) return [];

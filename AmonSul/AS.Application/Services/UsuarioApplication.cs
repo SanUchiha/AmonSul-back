@@ -3,9 +3,11 @@ using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Faccion;
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.Torneo;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
+using AS.Application.Mapper;
 using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
@@ -16,6 +18,7 @@ using Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Security.Claims;
 
 namespace AS.Application.Services;
 
@@ -245,32 +248,35 @@ public class UsuarioApplication(
         if (usuario == null) return null!;
 
         UsuarioDataDTO response = _mapper.Map<UsuarioDataDTO>(usuario);
-        if(response == null) return null!;
+        if (response == null) return null!;
 
-        response.Faccion = 
+        response.Faccion =
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
-        response.InscripcionesTorneo = 
+        response.InscripcionesTorneo =
             _mapper.Map<List<InscripcionUsuarioDTO>>(usuario.InscripcionTorneos);
         foreach (var item in response.InscripcionesTorneo)
         {
             item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
         }
-        
-        response.PartidasPendientes = 
+
+        response.PartidasTorneo = await PartidasTorneo(idUsuario);
+        response.PartidasPendientes =
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.IdUsuario);
         response.PartidasValidadas =
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(usuario.IdUsuario);
         response.PuntuacionElo = response.Elos[^1].PuntuacionElo;
 
-        var listaElosUsuarios = await _eloApplication.GetEloUsuarios();
+        List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
         List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
-            .GroupBy(u => u.IdUsuario)
-            .Select(g => g.OrderByDescending(u => u.FechaElo).First())
-            .OrderByDescending(e => e.PuntuacionElo)];
+                .GroupBy(u => u.IdUsuario)
+                .Select(g => g.OrderByDescending(u => u.FechaElo).First())
+                .OrderByDescending(e => e.PuntuacionElo)];
 
-        response.ClasificacionElo = listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == response.IdUsuario)+1;
+        response.ClasificacionElo = 
+            listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == response.IdUsuario) + 1;
 
-        response.NumeroPartidasJugadas = response.PartidasValidadas.Count;
+        response.NumeroPartidasJugadas = 
+            response.PartidasValidadas.Count + response.PartidasTorneo.Count;
 
         int contadorVictorias = 0;
         int contadorEmpates = 0;
@@ -281,12 +287,99 @@ public class UsuarioApplication(
             else if (partida.GanadorPartida == 0) contadorEmpates++;
             else contadorDerrotas++;
         }
+        foreach (var partida in response.PartidasTorneo)
+        {
+            if (partida.GanadorPartidaTorneo == response.IdUsuario) contadorVictorias++;
+            else if (partida.GanadorPartidaTorneo == 0) contadorEmpates++;
+            else contadorDerrotas++;
+        }
         response.PartidasGanadas = contadorVictorias;
         response.PartidasEmpatadas = contadorEmpates;
         response.PartidasPerdidas = contadorDerrotas;
 
+        List<Ganador> listaResultadosRaw = await _unitOfWork.GanadorRepository.GetAllByUsuario(idUsuario);
+
+        List<ClasificacionTorneosDTO> clasificacionTorneos = [];
+        if(listaResultadosRaw.Count > 0)
+        {
+            foreach (var item in listaResultadosRaw)
+            {
+                Torneo torneo = await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);
+                ClasificacionTorneosDTO c = new()
+                {
+                    Resultado = item.Resultado,
+                    NombreTorneo = torneo.NombreTorneo
+                };
+                clasificacionTorneos.Add( c );
+
+            }
+        }
+
+        response.ClasificacionTorneos = clasificacionTorneos;
+
         return response;
     }
+
+    /* public async Task<UsuarioDataDTO> GetUsuarioData(int idUsuario)
+     {
+         Usuario usuario = 
+             await _unitOfWork.UsuarioRepository.GetById(idUsuario) ??
+             throw new Exception("Usuario no encontrado");
+
+         // Mapea la entidad Usuario al DTO UsuarioDataDTO
+         UsuarioDataDTO usuarioData = _mapper.Map<UsuarioDataDTO>(usuario);
+
+         usuarioData.ClasificacionElo = await CalcularClasificacionEloAsync(usuario);
+         usuarioData.NumeroPartidasJugadas = CalcularNumeroPartidas(usuario);
+         usuarioData.PartidasGanadas = CalcularPartidasGanadas(usuario);
+         usuarioData.PartidasEmpatadas = CalcularPartidasEmpatadas(usuario);
+         usuarioData.PartidasPerdidas = CalcularPartidasPerdidas(usuario);
+         usuarioData.PartidasValidadas = ObtenerPartidasValidadas(usuario);
+         usuarioData.PartidasPendientes = ObtenerPartidasPendientes(usuario);
+
+         return usuarioData;
+     }
+
+     private List<ViewPartidaAmistosaDTO> ObtenerPartidasPendientes(Usuario usuario) =>
+         usuario.PartidaAmistosaGanadorPartidaNavigations
+             .Where(p => p.PartidaValidadaUsuario1 == false || p.PartidaValidadaUsuario2 == false)
+             .Select(p => _mapper.Map<ViewPartidaAmistosaDTO>(p))
+             .ToList();
+
+     private List<ViewPartidaAmistosaDTO> ObtenerPartidasValidadas(Usuario usuario) =>
+         usuario.PartidaAmistosaGanadorPartidaNavigations
+             .Where(p => p.PartidaValidadaUsuario1 == true && p.PartidaValidadaUsuario2 == true)
+             .Select(p => _mapper.Map<ViewPartidaAmistosaDTO>(p))
+             .ToList();
+
+     private int CalcularPartidasPerdidas(int partidasGanadas, int partidasEmpatadas, int numeroPartidasJugadas) =>
+         numeroPartidasJugadas - (partidasEmpatadas + partidasGanadas);
+
+     private int CalcularPartidasEmpatadas(Usuario usuario) =>
+         usuario.PartidaAmistosaIdUsuario1Navigations
+             .Where(p => p.GanadorPartida != null)
+             .Count() +
+         usuario.PartidaTorneoIdUsuario1Navigations
+             .Where(p => p.GanadorPartidaTorneo != null)
+             .Count();
+
+     private int CalcularPartidasGanadas(Usuario usuario) =>
+         usuario.PartidaAmistosaGanadorPartidaNavigations.Count +
+         usuario.PartidaTorneoGanadorPartidaNavigations.Count;
+
+     private int CalcularNumeroPartidas(Usuario usuario) =>
+         usuario.
+
+     private async Task<int> CalcularClasificacionEloAsync(Usuario usuario)
+     {
+         List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
+         List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
+                 .GroupBy(u => u.IdUsuario)
+                 .Select(g => g.OrderByDescending(u => u.FechaElo).First())
+                 .OrderByDescending(e => e.PuntuacionElo)];
+
+         return listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == usuario.IdUsuario) + 1;
+     }*/
 
     public async Task<List<UsuarioDTO>> GetUsuarios()
     {
@@ -429,5 +522,21 @@ public class UsuarioApplication(
         bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
 
         return result;
+    }
+
+    private async Task<List<ViewPartidaTorneoDTO>> PartidasTorneo(int idUsuario)
+    {
+        try
+        {
+            List<PartidaTorneo> partidasTorneoRaw =
+                await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneosByUsuario(idUsuario);
+
+            return _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasTorneoRaw);
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
+
     }
 }

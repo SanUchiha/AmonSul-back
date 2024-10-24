@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -143,7 +144,7 @@ public class EloApplication : IEloApplication
         return clasificacion.ToList();*/
     }
 
-    private async Task<List<PartidaAmistosa>> PartidasValidadas(string email)
+/*    private async Task<List<PartidaAmistosa>> PartidasValidadas(string email)
     {
         var rawPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
         if (rawPartidas == null) return [];
@@ -157,15 +158,13 @@ public class EloApplication : IEloApplication
                       && (p.PartidaValidadaUsuario2 ?? false));
 
         return rawPartidas;
-    }
+    }*/
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacion()
     {
         // Obtener todos los usuarios
-        var listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
-        if (listaUsuarios == null) return new List<ClasificacionEloDTO>();
-
-        //var response = _mapper.Map
+        List<Usuario> listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
+        if (listaUsuarios == null) return [];
 
         // Crear una lista de tareas para obtener la información de clasificación de cada usuario
         var tasks = listaUsuarios.Select(usuario => Task.Run(async () =>
@@ -174,14 +173,27 @@ public class EloApplication : IEloApplication
             var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
             var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
+            var scopedPartidaTorneoApplication = scope.ServiceProvider.GetRequiredService<IPartidaTorneoApplication>();
+
             var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
-            var view = await scopedEloApplication.GetElo(usuario.Email);
-            var obj = scopedMapper.Map<ClasificacionEloDTO>(view);
+            ViewEloDTO view = await scopedEloApplication.GetElo(usuario.Email);
+            ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 
             obj.IdFaccion = usuario.IdFaccion;
-            var partidas = await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);
-            if (partidas.Any())
+            List<ViewPartidaAmistosaDTO> partidasAmistosas = 
+                await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);
+            List<ViewPartidaTorneoDTO> partidasTorneo =
+                await scopedPartidaTorneoApplication.GetPartidasTorneosByUsuario(view.IdUsuario);
+
+            List<MatchDTO> partidasAmistosasMapped =
+                _mapper.Map<List<MatchDTO>>(partidasAmistosas);
+            List<MatchDTO> partidasTorneoMapped =
+                _mapper.Map<List<MatchDTO>>(partidasTorneo);
+
+            List<MatchDTO> partidas = [.. partidasAmistosasMapped, .. partidasTorneoMapped];
+
+            if (partidas.Count != 0)
             {
                 obj.Partidas = partidas.Count;
                 obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
@@ -200,15 +212,15 @@ public class EloApplication : IEloApplication
         }));
 
         // Esperar todas las tareas y retornar la clasificación
-        var clasificacion = await Task.WhenAll(tasks);
-        return clasificacion.ToList();
+        ClasificacionEloDTO[] clasificacion = await Task.WhenAll(tasks);
+        return [.. clasificacion];
     }
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacionMensual()
     {
         // Obtener todos los usuarios
         List<Usuario> listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
-        if (listaUsuarios == null) return new List<ClasificacionEloDTO>();
+        if (listaUsuarios == null) return [];
 
         int mesActual = DateTime.Now.Month;
         int anoActual = DateTime.Now.Year;
@@ -234,7 +246,7 @@ public class EloApplication : IEloApplication
                             x.FechaPartida.Value.Year == anoActual)
                 .ToList();
 
-            if (partidasMensuales.Any())
+            if (partidasMensuales.Count != 0)
             {
                 obj.Partidas = partidasMensuales.Count;
                 obj.Ganadas = partidasMensuales.Count(x => x.GanadorPartida == view.IdUsuario);
@@ -255,7 +267,7 @@ public class EloApplication : IEloApplication
         // Esperar todas las tareas y retornar la clasificación
         ClasificacionEloDTO[] clasificacion = await Task.WhenAll(tasks);
 
-        List<ClasificacionEloDTO> clasificacionMensual = new();
+        List<ClasificacionEloDTO> clasificacionMensual = [];
 
         foreach (var item in clasificacion)
         {

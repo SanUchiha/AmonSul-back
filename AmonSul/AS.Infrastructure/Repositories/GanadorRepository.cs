@@ -42,6 +42,20 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
         }
     }
 
+    public async Task<List<Ganador>> GetAllByUsuario(int idUsuario)
+    {
+        try
+        {
+            return await _dbamonsulContext.Ganador
+                .Where(g => g.IdUsuario == idUsuario)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los ganadores.", ex);
+        }
+    }
+
     public async Task<Ganador> GetById(int id)
     {
         try

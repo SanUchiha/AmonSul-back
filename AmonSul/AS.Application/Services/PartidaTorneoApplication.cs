@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -95,9 +96,25 @@ public class PartidaTorneoApplication(
         throw new NotImplementedException();
     }
 
-    public Task<List<PartidaTorneo>> GetPartidasTorneosByUsuario(int idUsuario)
+    public async Task<List<ViewPartidaTorneoDTO>> GetPartidasTorneosByUsuario(int idUsuario)
     {
-        throw new NotImplementedException();
+        List<PartidaTorneo> partidasRaw = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneosByUsuario(idUsuario);
+
+        List<ViewPartidaTorneoDTO> response = _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasRaw);
+
+        foreach (var partida in response)
+        {
+            partida.NickUsuario1 = partida.IdUsuario1Navigation!.Nick;
+            partida.NickUsuario2 = partida.IdUsuario2Navigation!.Nick;
+
+            if (partida.GanadorPartidaTorneo != 0)
+            {
+                if (partida.GanadorPartidaTorneo == partida.IdUsuario2)
+                    partida.GanadorPartidaNick = partida.NickUsuario2;
+                else partida.GanadorPartidaNick = partida.NickUsuario1;
+            }
+        }
+        return response;
     }
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
