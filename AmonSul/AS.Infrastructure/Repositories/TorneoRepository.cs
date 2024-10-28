@@ -31,7 +31,7 @@ public class TorneoRepository : ITorneoRepository
     {
         try
         {
-            var response = await _dbamonsulContext.Torneos
+            Torneo? response = await _dbamonsulContext.Torneos
                               .AsNoTracking()
                               .FirstOrDefaultAsync(t => t.IdTorneo == Id);
          
@@ -42,6 +42,12 @@ public class TorneoRepository : ITorneoRepository
             throw new Exception("Ocurrio un problema en el servidor.", ex);
         }
     }
+
+    public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
+        await _dbamonsulContext.Torneos
+           .Where(u => u.IdTorneo == IdTorneo)
+           .Select(u => u.IdUsuario)
+           .FirstOrDefaultAsync();
 
     public async Task<TorneoUsuarioDto> GetNombreById(int idTorneo)
     {

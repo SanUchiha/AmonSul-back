@@ -2,6 +2,7 @@
 using AS.Application.Interfaces;
 using AS.Application.Services;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.DTOs.Login;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +59,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(listas);
     }
 
+    //Añade una nueva lista
     [HttpPost]
     public async Task<ActionResult<bool>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
     {
@@ -69,19 +71,17 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(result);
     }
 
+    //Actualiza una lista de un torneo    
     [HttpPut("{id}")]
-    public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] Lista lista)
+    public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] UpdateListaDTO request)
     {
-        if (id != lista.IdLista)
-        {
+        if (id != request.IdLista)
             return BadRequest("ID mismatch.");
-        }
 
-        bool result = await _listaApplication.UpdateLista(lista);
+        bool result = await _listaApplication.UpdateLista(request);
         if (!result)
-        {
             return BadRequest("Unable to register the lista.");
-        }
+
         return Ok(result);
     }
 

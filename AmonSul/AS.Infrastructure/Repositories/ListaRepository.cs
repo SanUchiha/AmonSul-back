@@ -1,4 +1,5 @@
 ﻿using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using Azure.Core;
 using Microsoft.EntityFrameworkCore;
@@ -93,13 +94,18 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         return true;
     }
 
-    public async Task<Lista> UpdateLista(Lista lista)
+    public async Task<Lista> UpdateLista(UpdateListaDTO updateListaDTO)
     {
-        lista.FechaEntrega = DateOnly.FromDateTime(DateTime.Now);
-        Lista? existingLista = await _dbamonsulContext.Listas.FindAsync(lista.IdLista);
+        updateListaDTO.FechaEntrega = DateOnly.FromDateTime(DateTime.Now);
+        Lista? existingLista = await _dbamonsulContext.Listas.FindAsync(updateListaDTO.IdLista);
+
         if (existingLista != null)
         {
-            _dbamonsulContext.Entry(existingLista).CurrentValues.SetValues(lista);
+            existingLista.FechaEntrega = updateListaDTO.FechaEntrega;
+            existingLista.ListaData = updateListaDTO.ListaData;
+            existingLista.Bando = updateListaDTO.Ejercito.Band;
+            existingLista.Ejercito = updateListaDTO.Ejercito.Name;
+            _dbamonsulContext.Entry(existingLista).CurrentValues.SetValues(existingLista);
             await _dbamonsulContext.SaveChangesAsync();
         }
         return existingLista!;

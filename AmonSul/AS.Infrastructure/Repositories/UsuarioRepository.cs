@@ -68,9 +68,6 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         try
         {
             var response = await _dbamonsulContext.Usuarios
-                .Include(u => u.ClasificacionGenerals)
-                .Include(u => u.ClasificacionTorneos)
-                .Include(u => u.Comentarios)
                 .Include(u => u.Elos)
                 .Include(u => u.IdFaccionNavigation)
                 .Include(u => u.InscripcionTorneos)
@@ -93,7 +90,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            var response = await _dbamonsulContext.Usuarios
+            UsuarioEmailDto? response = await _dbamonsulContext.Usuarios
                 .Where(u => u.IdUsuario == idUsuario)
                 .Select(u => new UsuarioEmailDto
                 {

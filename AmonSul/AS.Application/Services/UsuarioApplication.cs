@@ -256,7 +256,10 @@ public class UsuarioApplication(
             _mapper.Map<List<InscripcionUsuarioDTO>>(usuario.InscripcionTorneos);
         foreach (var item in response.InscripcionesTorneo)
         {
-            item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
+            Torneo torneoAux =
+                await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);
+            item.NombreTorneo =  torneoAux.NombreTorneo;
+            item.IdOrganizador = torneoAux.IdUsuario;
         }
 
         response.PartidasTorneo = await PartidasTorneo(idUsuario);

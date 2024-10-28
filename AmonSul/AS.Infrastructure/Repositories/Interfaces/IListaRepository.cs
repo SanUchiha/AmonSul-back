@@ -1,4 +1,5 @@
 ﻿using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Lista;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -11,6 +12,6 @@ public interface IListaRepository
     Task<Lista> GetListaById(int IdLista);
     Task<Lista> Delete(int idLista);
     Task<bool> RegisterLista(Lista lista);
-    Task<Lista> UpdateLista(Lista lista);
+    Task<Lista> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
     Task<Lista> GetListaTorneo(int idTorneo, int idUsuario);
 }

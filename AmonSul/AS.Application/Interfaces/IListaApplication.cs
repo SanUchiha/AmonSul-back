@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Lista;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Lista;
 
 namespace AS.Application.Interfaces;
 
@@ -12,6 +13,6 @@ public interface IListaApplication
     Task<Lista> GetListaById(int idLista);
     Task<Lista> Delete(int idLista);
     Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
-    Task<bool> UpdateLista(Lista lista);
+    Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
     Task<string> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO);
 }

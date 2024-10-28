@@ -1,7 +1,9 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -25,7 +27,6 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
 
         return _mapper.Map<ListaViewDTO>(lista);
     }
-     
 
     public async Task<List<Lista>> GetListas() => 
         await _unitOfWork.ListaRepository.GetListas();
@@ -48,50 +49,51 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
     public async Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
     {
         Lista lista = _mapper.Map<Lista>(createListaTorneoDTO);
+        lista.Bando = createListaTorneoDTO.Ejercito.Band;
+        lista.Ejercito = createListaTorneoDTO.Ejercito.Name;
         bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
 
-        if (result)
+        if (!result) return false;
+
+        int idOrganizador =
+            await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(createListaTorneoDTO.IdTorneo);
+        UsuarioEmailDto organizador =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
+        UsuarioEmailDto usuario =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(createListaTorneoDTO.IdUsuario);
+
+        EmailContactoDTO emailContactoDTO = new()
         {
-            InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(createListaTorneoDTO.IdInscripcion);
-            Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
-            Usuario organizador = await _unitOfWork.UsuarioRepository.GetById(torneo.IdUsuario);
-            Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+            Email = organizador.Email,
+            Message = usuario.Nick,
+        };
 
-            EmailContactoDTO emailContactoDTO = new()
-            {
-                Email = organizador.Email,
-                Message = usuario.Nick,
-            };
-
-            await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
-        }
+        await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
 
         return result;
     }
 
-    public async Task<bool> UpdateLista(Lista lista) 
+    public async Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO) 
     {
-        Lista updatedLista = await _unitOfWork.ListaRepository.UpdateLista(lista);
-        if (updatedLista == null) return false;
+        Lista result = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
+        if (result == null) return false;
 
-        if (updatedLista != null)
+        int idOrganizador = 
+            await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(updateListaTorneoDTO.IdTorneo);
+        UsuarioEmailDto organizador =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
+        UsuarioEmailDto usuario =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(updateListaTorneoDTO.IdUsuario);
+
+        EmailContactoDTO emailContactoDTO = new()
         {
-            InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(lista.IdInscripcion!.Value);
-            Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
-            Usuario organizador = await _unitOfWork.UsuarioRepository.GetById(torneo.IdUsuario);
-            Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(inscripcion.IdUsuario);
+            Email = organizador.Email,
+            Message = usuario.Nick,
+        };
 
-            EmailContactoDTO emailContactoDTO = new()
-            {
-                Email = organizador.Email,
-                Message = usuario.Nick,
-            };
-
-            await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
-        }
+        await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
+        
 
         return true;
     }
-
-
 }
