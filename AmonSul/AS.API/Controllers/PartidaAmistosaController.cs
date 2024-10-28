@@ -53,13 +53,14 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         return Ok(response);
     }
 
+    // Registrar una partida amistosa
     [HttpPost]
     [Route("")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CrearPartidaAmistosa([FromBody, Required] CreatePartidaAmistosaDTO request)
     {
-        var response = await _partidaAmistosaApplication.Register(request);
+        bool response = await _partidaAmistosaApplication.Register(request);
 
         if (response == false) return BadRequest("No se ha podido crear la partida");
 

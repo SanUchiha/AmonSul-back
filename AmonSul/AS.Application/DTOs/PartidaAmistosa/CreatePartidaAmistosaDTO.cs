@@ -1,4 +1,6 @@
-﻿namespace AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.Application.DTOs.Lista;
+
+namespace AS.Application.DTOs.PartidaAmistosa;
 
 public class CreatePartidaAmistosaDTO
 {
@@ -12,6 +14,6 @@ public class CreatePartidaAmistosaDTO
     public bool EsElo { get; set; } 
     public required int PuntosPartida { get; set; }
     public bool EsTorneo{ get; set; }
-    public string? EjercitoUsuario1 { get; set; }
-    public string? EjercitoUsuario2 { get; set; }
+    public ArmyDTO? EjercitoUsuario1 { get; set; }
+    public ArmyDTO? EjercitoUsuario2 { get; set; }
 }
