@@ -6,7 +6,7 @@ namespace AS.Infrastructure.Repositories.Interfaces;
 public interface ITorneoRepository
 {
     Task<List<Torneo>> GetTorneos();
-    Task<List<Torneo>> GetTorneosCreadosUsuario(int idUsuario);
+    Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int idUsuario);
     Task<Torneo> GetById(int Id);
     Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo);
     Task<bool> Edit(Torneo torneo);

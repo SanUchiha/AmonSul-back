@@ -1,5 +1,5 @@
 ﻿using AS.Application.DTOs.Torneo;
-using AS.Domain.Models;
+using AS.Domain.DTOs.Torneo;
 
 namespace AS.Application.Interfaces;
 

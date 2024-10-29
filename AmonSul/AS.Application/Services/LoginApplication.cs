@@ -13,7 +13,7 @@ public class LoginApplication(DbamonsulContext dbamonsulContext, Utilidades util
 
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
-        var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
+        Usuario? foundUser = await _dbamonsulContext.Usuarios.Where(u =>
             u.Email == loginDTO.Email &&
             u.Contraseña == Utilidades.EncriptarSHA256(loginDTO.Password!)).
             FirstOrDefaultAsync();

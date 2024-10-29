@@ -65,9 +65,8 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     {
         bool result = await _listaApplication.RegisterLista(lista);
         if (!result)
-        {
             return BadRequest("Unable to register the lista.");
-        }
+
         return Ok(result);
     }
 

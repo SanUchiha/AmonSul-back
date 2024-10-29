@@ -2,6 +2,7 @@
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -72,14 +73,9 @@ public class TorneoApplication(
         return (fileBytes, fileName);
     }
 
-    public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario)
-    {
-        var response = await _unitOfWork.TorneoRepository.GetTorneosCreadosUsuario(IdUsuario);
+    public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario) =>        
+        await _unitOfWork.TorneoRepository.GetTorneosCreadosUsuario(IdUsuario);
 
-        var listaTorneos = _mapper.Map<List<TorneoCreadoUsuarioDTO>>(response);
-
-        return listaTorneos;
-    }
 
     public async Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo)
     {
@@ -101,16 +97,24 @@ public class TorneoApplication(
 
             if(inscripciones[i].Lista.Count > 0)
             {
-                inscripcionesDTO[i].ListaData = inscripciones[i].Lista.ToList()[0].ListaData;
+                inscripcionesDTO[i].Bando = inscripciones[i].Lista.ToList()[0].Bando;
+                inscripcionesDTO[i].IdLista = inscripciones[i].Lista.ToList()[0].IdLista;
                 inscripcionesDTO[i].Ejercito = inscripciones[i].Lista.ToList()[0].Ejercito;
                 inscripcionesDTO[i].FechaEntrega = inscripciones[i].Lista.ToList()[0].FechaEntrega;
-                //if (inscripciones[i].EstadoLista == null) inscripcionesDTO[i].EstadoLista = "NO ENTREGADA";
-                if (inscripciones[i].EstadoLista == "NO ENTREGADA") inscripcionesDTO[i].EstadoLista = "ENTREGADA";
+                if (inscripciones[i].EstadoLista == "NO ENTREGADA") 
+                {
+                    inscripcionesDTO[i].EstadoLista = "ENTREGADA";
+                    //TODO: actualizar inscipcion
+                    await _unitOfWork.InscripcionRepository.CambiarEstadoLista(
+                        inscripcionesDTO[i].IdInscripcion,
+                        "ENTREGADA");
+                }
+
             }
             if (inscripciones[i].EsPago == "NO") inscripcionesDTO[i].EsPago = "NO";
         }
 
-        var result = new TorneoGestionInfoDTO
+        TorneoGestionInfoDTO result = new()
         {
             Torneo = torneoDTO,
             Inscripciones = inscripcionesDTO

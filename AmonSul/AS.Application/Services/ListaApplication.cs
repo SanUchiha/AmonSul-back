@@ -78,6 +78,8 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         Lista result = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
         if (result == null) return false;
 
+        if (updateListaTorneoDTO.IdOrganizador == 0) return true;
+
         int idOrganizador = 
             await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(updateListaTorneoDTO.IdTorneo);
         UsuarioEmailDto organizador =

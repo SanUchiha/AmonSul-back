@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.Torneo;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AutoMapper;
 

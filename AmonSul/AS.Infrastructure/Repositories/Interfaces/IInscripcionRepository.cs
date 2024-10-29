@@ -12,7 +12,7 @@ public interface IInscripcionRepository
     Task<bool> Register(InscripcionTorneo inscripcionTorneo);
 
     Task<bool> CambiarEstadoPago(InscripcionTorneo actualizarEstadoPago);
-    Task<bool> CambiarEstadoLista(InscripcionTorneo actualizarEstadoLista);
+    Task<bool> CambiarEstadoLista(int idInscripcion, string estadoLista);
     Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion);
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
