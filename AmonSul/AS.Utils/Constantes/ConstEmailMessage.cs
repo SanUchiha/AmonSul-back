@@ -2,8 +2,8 @@
 {
     public static class ConstEmailMessage
     {
-        public const string MessageBienvenidaAsunto = "Bienvenido a AmonSûl";
-        public const string MessageBienvenidaBody =
+        public const string MESSAGE_BIENVENIDA_ASUNTO = "Bienvenid@ a AmonSûl";
+        public const string MESSAGE_BIENVENIDA_BODY =
             "¡Enhorabuena!\n\n" +
 
             "El usuario ha sido creado con éxito. " +
@@ -11,13 +11,16 @@
             
             "Un saludo.";
 
-        public const string MessageCreacionPartidaAsunto = "Se ha creado una partida";
-        public const string MessageCreacionPartidaBody =
+        public const string MESSAGE_CREACION_PARTIDA_ASUNTO = "Se ha creado una partida";
+        public const string MESSAGE_CREACION_PARTIDA_BODY =
             "Hola, \n\n" +
 
             "Se ha registrado una partida.\n" +
             "Ya puedes entrar en Amon Sûl y validarla para que se haga efectiva.\n\n" +
             
             "Un saludo";
+
+        public const string MESSAGE_NUEVA_RONDA_ASUNTO = "Nueva ronda generada";
+        public const string MESSAGE_NUEVO_TORNEO_ASUNTO = "Nueva torneo";
     }
 }

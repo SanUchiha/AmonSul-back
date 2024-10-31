@@ -166,23 +166,13 @@ public class PartidaAmistosaApplication(
         var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario2);
 
         //Envio de mensajes de partida creada
-        var listaDestinatarios = new List<string> { usuario1.Email, usuario2.Email };
+        var listaDestinatarios = 
+            new List<string> { usuario1.Email, usuario2.Email };
 
-        EmailRequestDTO requestEmail = new()
-        {
-            EmailTo = listaDestinatarios,
-            Subject = ConstEmailMessage.MessageCreacionPartidaAsunto,
-            Body = ConstEmailMessage.MessageCreacionPartidaBody,
-        };
 
-        try
-        {
-            await _emailApplication.SendEmailRegister(requestEmail);
-        }
-        catch (EmailSendException emailEx)
-        {
-            _logger.LogError(emailEx, "Error al enviar el correo de creación de partdia. ${emailEx.Message}", emailEx.Message);
-        }
+        if (listaDestinatarios.Count > 0)
+            _ = Task.Run(() => 
+            _emailApplication.SendEmailNuevaPartida(listaDestinatarios));
 
         return registro;
     }

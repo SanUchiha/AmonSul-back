@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Hangfire;
 using Microsoft.Extensions.Options;
@@ -179,7 +180,10 @@ public class EmailApplication(
         foreach (List<string> items in destinatarioGroups)
         {
             BackgroundJob.Enqueue(() =>
-            EnviarCorreoAsync(items, templateBody));
+            EnviarCorreoAsync(
+                items, 
+                templateBody,
+                Utils.Constantes.ConstEmailMessage.MESSAGE_NUEVO_TORNEO_ASUNTO));
         }
     }
 
@@ -204,11 +208,14 @@ public class EmailApplication(
         foreach (List<string> items in destinatarioGroups)
         {
             BackgroundJob.Enqueue(() =>
-            EnviarCorreoAsync(items, templateBody));
+            EnviarCorreoAsync(
+                items, 
+                templateBody, 
+                Utils.Constantes.ConstEmailMessage.MESSAGE_NUEVA_RONDA_ASUNTO));
         }
     }
 
-    public async Task EnviarCorreoAsync(List<string> destinatarios, string templateBody)
+    public async Task EnviarCorreoAsync(List<string> destinatarios, string templateBody, string asunto)
     {
         using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
         {
@@ -220,7 +227,7 @@ public class EmailApplication(
         using var mailMessage = new MailMessage
         {
             From = new MailAddress(_emailSettings.From),
-            Subject = "Nuevo Torneo Creado",
+            Subject = asunto,
             Body = templateBody,
             IsBodyHtml = true,
         };
@@ -345,47 +352,23 @@ public class EmailApplication(
         }
     }
 
-    public async Task SendEmailRegister(EmailRequestDTO request)
+    public void SendEmailNuevaPartida(List<string> destinatarios)
     {
-        try
-        {
-            var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
-            {
-                EnableSsl = _emailSettings.EnableSsl,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
-            };
+        string templateBody = Utils.Constantes.ConstEmailMessage.MESSAGE_CREACION_PARTIDA_BODY;
 
-            using var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_emailSettings.From),
-                Subject = request.Subject,
-                Body = request.Body,
-                IsBodyHtml = true
-            };
+        List<List<string>> destinatarioGroups = destinatarios
+          .Select((item, index) => new { item, index })
+          .GroupBy(x => x.index / 5)
+          .Select(g => g.Select(x => x.item).ToList())
+          .ToList();
 
-            foreach (var recipient in request.EmailTo)
-            {
-                mailMessage.To.Add(recipient);
-            }
-            mailMessage.To.Add(_emailSettings.From);
-
-            try
-            {
-                await client.SendMailAsync(mailMessage);
-            }
-            catch (SmtpException smtpEx)
-            {
-                Console.WriteLine(smtpEx.Message);
-            }
-        }
-        catch (SmtpException smtpEx)
+        foreach (List<string> items in destinatarioGroups)
         {
-            throw new EmailSendException("Error occurred while sending email.", smtpEx);
-        }
-        catch (Exception ex)
-        {
-            throw new EmailSendException("An unexpected error occurred while sending email.", ex);
+            BackgroundJob.Enqueue(() =>
+            EnviarCorreoAsync(
+                items, 
+                templateBody,
+                Utils.Constantes.ConstEmailMessage.MESSAGE_CREACION_PARTIDA_ASUNTO));
         }
     }
 
@@ -502,5 +485,25 @@ public class EmailApplication(
         }
     }
 
+    public void SendEmailNuevoUsuario(List<string> destinatarios)
+    {
+        string templateBody = Utils.Constantes.ConstEmailMessage.MESSAGE_BIENVENIDA_BODY;
 
+        destinatarios.Add(_emailSettings.From);
+
+        List<List<string>> destinatarioGroups = destinatarios
+          .Select((item, index) => new { item, index })
+          .GroupBy(x => x.index / 5)
+          .Select(g => g.Select(x => x.item).ToList())
+          .ToList();
+
+        foreach (List<string> items in destinatarioGroups)
+        {
+            BackgroundJob.Enqueue(() =>
+            EnviarCorreoAsync(
+                items, 
+                templateBody,
+                Utils.Constantes.ConstEmailMessage.MESSAGE_BIENVENIDA_ASUNTO));
+        }
+    }
 }

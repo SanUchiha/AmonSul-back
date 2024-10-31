@@ -5,20 +5,14 @@ using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Torneo;
 using AS.Application.DTOs.Usuario;
-using AS.Application.Exceptions;
 using AS.Application.Interfaces;
-using AS.Application.Mapper;
 using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
 using AS.Infrastructure.Repositories.Interfaces;
-using AS.Utils.Constantes;
 using AutoMapper;
-using Azure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Security.Claims;
 
 namespace AS.Application.Services;
 
@@ -476,23 +470,6 @@ public class UsuarioApplication(
 
             List<string> listaDestinatarios = [registrarUsuarioDTO.Email];
 
-
-            EmailRequestDTO request = new()
-            {
-                EmailTo = listaDestinatarios,
-                Subject = ConstEmailMessage.MessageBienvenidaAsunto,
-                Body = ConstEmailMessage.MessageBienvenidaBody
-            };
-
-            try
-            {
-                await _emailApplication.SendEmailRegister(request);
-            }
-            catch (EmailSendException emailEx)
-            {
-                throw new Exception(emailEx.Message);
-            }
-
             ViewUsuarioPartidaDTO usuarioRegistrado = await GetByEmail(registrarUsuarioDTO.Email);
 
             CreateEloDTO createElo = new() 
@@ -502,6 +479,11 @@ public class UsuarioApplication(
             };
 
             await _eloApplication.RegisterElo(createElo);
+
+
+            if (listaDestinatarios.Count > 0)
+                _ = Task.Run(() => _emailApplication.SendEmailNuevoUsuario(
+                    listaDestinatarios));
 
             return response;
         }

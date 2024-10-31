@@ -4,7 +4,8 @@ namespace AS.Application.Interfaces;
 
 public interface IEmailApplicacion
 {
-    Task SendEmailRegister(EmailRequestDTO request);
+    void SendEmailNuevaPartida(List<string> destinatarios);
+    void SendEmailNuevoUsuario(List<string> destinatarios);
     Task SendEmailContacto(EmailContactoDTO request);
     Task SendEmailResetPass(EmailContactoDTO request);
     Task SendEmailRegistroTorneo(EmailContactoDTO request);
