@@ -10,11 +10,9 @@ using System.Net.Mail;
 namespace AS.Application.Services;
 
 public class EmailApplication(
-    IOptions<EmailSettings> emailSettings, 
-    IUnitOfWork unitOfWork): IEmailApplicacion
+    IOptions<EmailSettings> emailSettings): IEmailApplicacion
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task SendEmailContacto(EmailContactoDTO request)
     {
@@ -180,7 +178,31 @@ public class EmailApplication(
 
         foreach (List<string> items in destinatarioGroups)
         {
-            // Encolar el envío de correo
+            BackgroundJob.Enqueue(() =>
+            EnviarCorreoAsync(items, templateBody));
+        }
+    }
+
+    public void SendEmailRonda(string nombreTorneo, int ronda, List<string> destinatarios)
+    {
+        string templateBody = $@"
+        <html>
+        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+            <p>Hola,</p>
+            <p>La ronda número <span style=""font-size: 18px; color: #2e6c80;""><strong>{ronda}</strong></span> para el torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span> ya está generada.</p>      
+            <p>Puedes acceder a Amon Sûl y ver los detalles.</p>
+            <p>Gracias por formar parte de Amon Súl.</p>
+        </body>
+        </html>";
+
+        List<List<string>> destinatarioGroups = destinatarios
+          .Select((item, index) => new { item, index })
+          .GroupBy(x => x.index / 5)
+          .Select(g => g.Select(x => x.item).ToList())
+          .ToList();
+
+        foreach (List<string> items in destinatarioGroups)
+        {
             BackgroundJob.Enqueue(() =>
             EnviarCorreoAsync(items, templateBody));
         }
@@ -479,4 +501,6 @@ public class EmailApplication(
             throw new EmailSendException("An unexpected error occurred while sending email.", ex);
         }
     }
+
+
 }

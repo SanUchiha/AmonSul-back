@@ -79,7 +79,6 @@ public class TorneoApplication(
     public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario) =>        
         await _unitOfWork.TorneoRepository.GetTorneosCreadosUsuario(IdUsuario);
 
-
     public async Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo)
     {
         List<InscripcionTorneo> inscripciones =

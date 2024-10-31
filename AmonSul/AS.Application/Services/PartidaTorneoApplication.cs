@@ -10,13 +10,15 @@ using AutoMapper;
 namespace AS.Application.Services;
 
 public class PartidaTorneoApplication(
-    IUnitOfWork unitOfWork, 
-    IMapper mapper, 
-    IEloApplication eloApplication) : IPartidaTorneoApplication
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IEloApplication eloApplication,
+    IEmailApplicacion emailApplicacion) : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEloApplication _eloApplication = eloApplication;
+    private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     public Task<bool> Register(PartidaTorneo partidaTorneo)
     {
@@ -179,17 +181,19 @@ public class PartidaTorneoApplication(
                 await _eloApplication.RegisterElo(createElo2);
             }
         }
-    
+
         // Traernos todas las inscripciones del torneo
         List<InscripcionTorneo> inscripciones = await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(generarRondaDTO.IdTorneo);
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(generarRondaDTO.IdTorneo);
 
         List<Usuario> jugadores = [];
+        List<string> destinatarios = [];
 
         foreach (InscripcionTorneo item in inscripciones)
         {
             Usuario jugador = await _unitOfWork.UsuarioRepository.GetById(item.IdUsuario);
             jugadores.Add(jugador);
+            destinatarios.Add(jugador.Email);
         }
 
         // Generar pairing predefinidos
@@ -512,6 +516,12 @@ public class PartidaTorneoApplication(
 
             }
         }
+
+        if (destinatarios.Count > 0)
+            _ = Task.Run(() => _emailApplicacion.SendEmailRonda(
+                torneo.NombreTorneo!,
+                generarRondaDTO.IdRonda,
+                destinatarios));
 
         return true;
     }
