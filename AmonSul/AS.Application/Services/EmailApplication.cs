@@ -1,7 +1,6 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
-using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Hangfire;
 using Microsoft.Extensions.Options;
@@ -173,15 +172,21 @@ public class EmailApplication(
         </body>
         </html>";
 
-        foreach (string item in destinatarios)
+        List<List<string>> destinatarioGroups = destinatarios
+          .Select((item, index) => new { item, index })
+          .GroupBy(x => x.index / 5)
+          .Select(g => g.Select(x => x.item).ToList())
+          .ToList();
+
+        foreach (List<string> items in destinatarioGroups)
         {
             // Encolar el envío de correo
             BackgroundJob.Enqueue(() =>
-            EnviarCorreoAsync(item, templateBody));
+            EnviarCorreoAsync(items, templateBody));
         }
     }
 
-    public async Task EnviarCorreoAsync(string destinatario, string templateBody)
+    public async Task EnviarCorreoAsync(List<string> destinatarios, string templateBody)
     {
         using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
         {
@@ -197,7 +202,10 @@ public class EmailApplication(
             Body = templateBody,
             IsBodyHtml = true,
         };
-        mailMessage.To.Add(destinatario);
+        foreach (var item in destinatarios)
+        {
+            mailMessage.To.Add(item);
+        }
 
         try
         {

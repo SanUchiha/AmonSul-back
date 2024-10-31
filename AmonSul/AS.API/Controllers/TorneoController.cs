@@ -3,8 +3,6 @@ using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Torneo;
-using AS.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -134,8 +132,6 @@ public class TorneoController(
             return StatusCode(500, "Error interno del servidor: " + ex.Message);
         }
     }
-
-   
 
     [HttpPut]
     [Route("Editar-Partida")]

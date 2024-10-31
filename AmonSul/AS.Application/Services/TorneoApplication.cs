@@ -1,12 +1,10 @@
-﻿using AS.Application.DTOs.Email;
-using AS.Application.DTOs.Inscripcion;
+﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using Hangfire;
 
 namespace AS.Application.Services;
 
