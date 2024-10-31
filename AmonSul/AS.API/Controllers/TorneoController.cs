@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class TorneoController(
     ITorneoApplication torneoApplication, 
@@ -106,15 +106,13 @@ public class TorneoController(
 
     [HttpPost]
     [Route("")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
     {
-        var response = await _torneoApplication.Register(request);
+        bool response = await _torneoApplication.Register(request);
 
-        if (response == false) return BadRequest("No se ha podido crear la partida");
+        if (response == false) return BadRequest("No se ha podido crear el torneo");
 
-        return Created(string.Empty, "La partida ha sido creada con éxito");
+        return Created(string.Empty, "El torneo ha sido creada con éxito");
     }
 
     [HttpGet]

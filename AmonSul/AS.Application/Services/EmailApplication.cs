@@ -3,16 +3,20 @@ using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using Hangfire;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
 namespace AS.Application.Services;
 
-public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork unitOfWork): IEmailApplicacion
+public class EmailApplication(
+    IOptions<EmailSettings> emailSettings, 
+    IUnitOfWork unitOfWork): IEmailApplicacion
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
     public async Task SendEmailContacto(EmailContactoDTO request)
     {
         try
@@ -157,62 +161,55 @@ public class EmailApplication(IOptions<EmailSettings> emailSettings, IUnitOfWork
         }
     }
 
-    public async Task SendEmailNuevoTorneo(string nombreTorneo)
+    public void SendEmailNuevoTorneo(string nombreTorneo, List<string> destinatarios)
     {
+        string templateBody = $@"
+        <html>
+        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+            <p>Hola,</p>
+            <p>Nos complace informarte que se ha creado un nuevo torneo llamado <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span>.</p>      
+            <p>Puedes acceder a más detalles y gestionar tu inscripción de Amon Sûl.</p>
+            <p>Gracias por formar parte de Amon Súl.</p>
+        </body>
+        </html>";
+
+        foreach (string item in destinatarios)
+        {
+            // Encolar el envío de correo
+            BackgroundJob.Enqueue(() =>
+            EnviarCorreoAsync(item, templateBody));
+        }
+    }
+
+    public async Task EnviarCorreoAsync(string destinatario, string templateBody)
+    {
+        using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
+        {
+            EnableSsl = _emailSettings.EnableSsl,
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
+        };
+
+        using var mailMessage = new MailMessage
+        {
+            From = new MailAddress(_emailSettings.From),
+            Subject = "Nuevo Torneo Creado",
+            Body = templateBody,
+            IsBodyHtml = true,
+        };
+        mailMessage.To.Add(destinatario);
+
         try
         {
-            var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
-            {
-                EnableSsl = _emailSettings.EnableSsl,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(_emailSettings.From, _emailSettings.Password)
-            };
-
-            string templateBody = $@"
-            <html>
-            <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
-                <p>Hola,</p>
-                <p>Nos complace informarte que se ha creado un nuevo torneo llamado <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span>.</p>      
-                <p>Puedes acceder a más detalles y gestionar tu inscripción de Amon Sûl.</p>
-                <p>Gracias por formar parte de Amon Súl.</p>
-            </body>
-            </html>";
-
-            List<string> listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAllEmail();
-
-            // Dividimos la lista de destinatarios en bloques de 10
-            const int batchSize = 10;
-            for (int i = 0; i < listaDestinatarios.Count; i += batchSize)
-            {
-                using MailMessage mailMessage = new MailMessage
-                {
-                    From = new MailAddress(_emailSettings.From),
-                    Subject = $"Nuevo Torneo Creado",
-                    Body = templateBody,
-                    IsBodyHtml = true
-                };
-
-                // Agregar los destinatarios en bloques de 10
-                List<string> destinatariosBatch = listaDestinatarios.Skip(i).Take(batchSize).ToList();
-                foreach (string destinatario in destinatariosBatch)
-                {
-                    mailMessage.To.Add(destinatario);
-                }
-
-                try
-                {
-                    await client.SendMailAsync(mailMessage);
-                }
-                catch (SmtpException smtpEx)
-                {
-                    Console.WriteLine(smtpEx.Message);
-                }
-            }
+            await client.SendMailAsync(mailMessage);
         }
-
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
         catch (Exception ex)
         {
-            throw new EmailSendException("An unexpected error occurred while created tournament.", ex);
+            throw new EmailSendException("Error al enviar email.", ex);
         }
     }
 

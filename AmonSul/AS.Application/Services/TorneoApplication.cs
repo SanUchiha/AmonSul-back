@@ -6,6 +6,7 @@ using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using Hangfire;
 
 namespace AS.Application.Services;
 
@@ -37,11 +38,15 @@ public class TorneoApplication(
         Torneo torneo = _mapper.Map<Torneo>(request);
 
         bool torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
+        if(!torneoCreado) return false;
 
-        try { await _emailApplicacion.SendEmailNuevoTorneo(request.NombreTorneo!); }
-        catch { throw new Exception("No se ha podido enviar el correo"); }
+        List<string> listaDestinatarios =
+           await _unitOfWork.UsuarioRepository.GetAllEmail();
 
-        await _emailApplicacion.SendEmailNuevoTorneo(request.NombreTorneo!);
+        if (listaDestinatarios.Count > 0)
+            _ = Task.Run(() => _emailApplicacion.SendEmailNuevoTorneo(
+                request.NombreTorneo!,
+                listaDestinatarios));
 
         return torneoCreado;
     }
