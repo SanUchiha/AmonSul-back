@@ -7,7 +7,7 @@ public static class CorsConfiguration
     public static IServiceCollection AddCorsConfiguration(this IServiceCollection services) =>
         services.AddCors(options =>
         {
-            options.AddPolicy("Cors",
+            options.AddPolicy("CORS",
                 builder => builder
                     .AllowAnyOrigin()
                     .AllowAnyMethod()
