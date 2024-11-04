@@ -16,6 +16,10 @@ public class TorneoMappingProfile : Profile
 
         CreateMap<InscripcionTorneoCreadoDTO, InscripcionTorneo>().ReverseMap();
 
-        CreateMap<Torneo, TorneoCreadoDTO>().ReverseMap();
+        CreateMap<CrearTorneoDTO, Torneo>()
+            .ForMember(dest => dest.BasesTorneo, opt =>
+                opt.MapFrom(src => string.IsNullOrEmpty(src.BasesTorneo)
+                    ? null
+                    : Convert.FromBase64String(src.BasesTorneo)));
     }
 }

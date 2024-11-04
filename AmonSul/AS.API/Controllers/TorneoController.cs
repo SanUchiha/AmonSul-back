@@ -3,6 +3,7 @@ using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Torneo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +11,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class TorneoController(
     ITorneoApplication torneoApplication, 
@@ -102,6 +103,7 @@ public class TorneoController(
         return Ok(response);
     }
 
+    //Crear Torneo
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)

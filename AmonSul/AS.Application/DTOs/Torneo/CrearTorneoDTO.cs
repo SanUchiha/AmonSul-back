@@ -1,6 +1,4 @@
-﻿using AS.Domain.Models;
-
-namespace AS.Application.DTOs.Torneo;
+﻿namespace AS.Application.DTOs.Torneo;
 
 public class CrearTorneoDTO
 {
@@ -21,7 +19,7 @@ public class CrearTorneoDTO
     public bool? EsMatchedPlayTorneo { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
-    public byte[]? BasesTorneo { get; set; }
+    public string? BasesTorneo { get; set; }
     public string? CartelTorneo { get; set; }
     public string? MetodosPago { get; set; }
     public TimeOnly? HoraInicioTorneo { get; set; }

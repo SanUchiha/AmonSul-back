@@ -34,9 +34,13 @@ public class TorneoApplication(
     public async Task<bool> Register(CrearTorneoDTO request)
     {
         Torneo torneo = _mapper.Map<Torneo>(request);
+        torneo.BasesTorneo = null;
 
         bool torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
         if(!torneoCreado) return false;
+
+        if(request.BasesTorneo!.Length > 0)
+            await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
 
         List<string> listaDestinatarios =
            await _unitOfWork.UsuarioRepository.GetAllEmail();
@@ -47,6 +51,21 @@ public class TorneoApplication(
                 listaDestinatarios));
 
         return torneoCreado;
+    }
+
+    private async Task GuardarBasesEnPDFAsync(string basesTorneo, string nombreTorneo)
+    {
+        // Decodifica la cadena Base64 a un arreglo de bytes.
+        byte[] basesBytes = Convert.FromBase64String(basesTorneo);
+
+        // Define la ruta y el nombre del archivo, asegurándote de que el nombre del torneo sea seguro para usar como nombre de archivo.
+        string filePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "Bases",
+            nombreTorneo);
+        
+        await File.WriteAllBytesAsync(nombreTorneo, basesBytes);
     }
 
     public Task<bool> Edit(TorneoDTO TorneoDTO)

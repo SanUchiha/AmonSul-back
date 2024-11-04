@@ -83,7 +83,7 @@ public class TorneoRepository : ITorneoRepository
         }
         catch (Exception ex)
         {
-            throw new Exception("Ocurrio un problema en el servidor al crea la partida.", ex);
+            throw new Exception("Ocurrio un problema en el servidor al crea el torneo.", ex);
         }
     }
 
