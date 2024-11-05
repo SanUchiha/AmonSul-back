@@ -158,11 +158,11 @@ public class PartidaTorneoApplication(
                 inscripciones,
                 jugadores);
 
-      /*  if (destinatarios.Count > 0)
+        if (destinatarios.Count > 0)
             _ = Task.Run(() => _emailApplicacion.SendEmailRonda(
                 torneo.NombreTorneo!,
                 generarRondaDTO.IdRonda,
-                destinatarios));*/
+                destinatarios));
 
         return true;
     }
