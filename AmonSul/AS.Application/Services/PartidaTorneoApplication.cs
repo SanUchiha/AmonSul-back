@@ -250,17 +250,20 @@ public class PartidaTorneoApplication(
         foreach (InscripcionTorneo inscripcion in inscripciones)
         {
             List<Lista> lista = [.. inscripcion.Lista];
-            string? bando = lista[0].Bando;
-            if (bando == "good") listaJugadoresLuz.Add(inscripcion);
-            else listaJugadoresOscuridad.Add(inscripcion);
+            if (lista != null && lista.Count > 0)
+            {
+                string? bando = lista[0].Bando;
+                if (bando == "good") listaJugadoresLuz.Add(inscripcion);
+                else listaJugadoresOscuridad.Add(inscripcion);
+            }
         }
 
         listaJugadoresLuz = [.. listaJugadoresLuz.OrderBy(x => random.Next())];
         listaJugadoresOscuridad = [.. listaJugadoresOscuridad.OrderBy(x => random.Next())];
 
         while (jugadoresSinEmparejar.Count >= 2
-               && listaJugadoresLuz.Count > 1
-               && listaJugadoresOscuridad.Count > 1)
+               && listaJugadoresLuz.Count > 0
+               && listaJugadoresOscuridad.Count > 0)
         {
             // Cruzamos los jugadores de cada lista
             InscripcionTorneo inscripcionLuz = listaJugadoresLuz[0];
@@ -289,10 +292,6 @@ public class PartidaTorneoApplication(
         }
         while (jugadoresSinEmparejar.Count >= 2)
         {
-            // Cruzamos los jugadores de cada lista
-            InscripcionTorneo inscripcionLuz = listaJugadoresLuz[0];
-            InscripcionTorneo inscripcionOscuridad = listaJugadoresOscuridad[0];
-
             Usuario usuario1 = jugadoresSinEmparejar[0];
             Usuario usuario2 = jugadoresSinEmparejar[1];
             

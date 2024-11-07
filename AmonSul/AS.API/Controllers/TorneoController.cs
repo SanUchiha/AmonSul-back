@@ -103,7 +103,11 @@ public class TorneoController(
         return Ok(response);
     }
 
-    //Crear Torneo
+    /// <summary>
+    /// Crear torneo
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
@@ -115,6 +119,11 @@ public class TorneoController(
         return Created(string.Empty, "El torneo ha sido creada con éxito");
     }
 
+    /// <summary>
+    /// Obtener las bases de un torneo
+    /// </summary>
+    /// <param name="idTorneo"></param>
+    /// <returns></returns>
     [HttpGet]
     [Route("bases/{idTorneo}")]
     public async Task<IActionResult> GetBasesTorneo(int idTorneo)
@@ -135,6 +144,11 @@ public class TorneoController(
         }
     }
 
+    /// <summary>
+    /// Editar la partida de un torneo
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut]
     [Route("Editar-Partida")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
@@ -174,7 +188,11 @@ public class TorneoController(
         return Ok(response);
     }
 
-    //Obtiene todas las partidas en torneos de un usuario
+    /// <summary>
+    /// Obtiene todas las partidas en torneos de un usuario
+    /// </summary>
+    /// <param name="idUsuario"></param>
+    /// <returns></returns>
     [HttpGet]
     [Route("Partidas/Usuario/{idUsuario}")]
     public async Task<IActionResult> GetPartidasUsuarioTorneos(int idUsuario)
