@@ -63,30 +63,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     //Obtiene todas las insc de un torneo
     public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo)
     {
-            return await _dbamonsulContext.InscripcionTorneos
-             .Include(it => it.IdUsuarioNavigation)
-             .Where(it => it.IdTorneo == idTorneo)
-             .Select(it => new InscripcionTorneo
-             {
-                 IdInscripcion = it.IdInscripcion,
-                 IdTorneo = it.IdTorneo,
-                 IdUsuario = it.IdUsuario,
-                 EstadoInscripcion = it.EstadoInscripcion,
-                 FechaInscripcion = it.FechaInscripcion,
-                 EstadoLista = it.EstadoLista,
-                 FechaEntregaLista = it.FechaEntregaLista,
-                 EsPago = it.EsPago,
-                 IdUsuarioNavigation = it.IdUsuarioNavigation,
-                 Lista = it.Lista.Select(l => new Lista
-                 {
-                     IdLista = l.IdLista,
-                     IdInscripcion = l.IdInscripcion,
-                     Bando = l.Bando,
-                     FechaEntrega = l.FechaEntrega,
-                     Ejercito = l.Ejercito
-                 }).ToList()
-             })
-             .ToListAsync();
+        return await _dbamonsulContext.InscripcionTorneos
+            .Include(it => it.IdUsuarioNavigation) // Incluye el usuario relacionado
+            .Include(it => it.Lista)              // Incluye la lista relacionada
+            .Where(it => it.IdTorneo == idTorneo) // Filtra por el torneo
+            .ToListAsync();
     }
 
     //Obtiene todas las ins de un usuario

@@ -124,17 +124,23 @@ public class PartidaTorneoApplication(
         _ = ActualizarEloAsync(generarRondaDTO);
         
         // Traer todas las inscripciones del torneo
-        List<InscripcionTorneo> inscripciones = await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(generarRondaDTO.IdTorneo);
+        List<InscripcionTorneo> inscripciones = 
+            await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(generarRondaDTO.IdTorneo);
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(generarRondaDTO.IdTorneo);
 
         List<Usuario> jugadores = [];
         List<string> destinatarios = [];
 
-        foreach (InscripcionTorneo item in inscripciones)
+        List<int> usuarioIds = 
+            inscripciones.Select(i => i.IdUsuario).Distinct().ToList();
+
+        List<Usuario> usuarios = 
+            await _unitOfWork.UsuarioRepository.GetByIds(usuarioIds);
+
+        foreach (var usuario in usuarios)
         {
-            Usuario jugador = await _unitOfWork.UsuarioRepository.GetById(item.IdUsuario);
-            jugadores.Add(jugador);
-            destinatarios.Add(jugador.Email);
+            jugadores.Add(usuario);
+            destinatarios.Add(usuario.Email);
         }
 
         // Generar pairing predefinidos

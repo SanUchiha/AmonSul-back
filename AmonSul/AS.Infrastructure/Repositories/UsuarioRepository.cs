@@ -198,4 +198,29 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
             throw new Exception($"{ex.Message}");
         }
     }
+
+    public async Task<List<Usuario>> GetByIds(List<int> usuarioIds)
+    {
+        try
+        {
+            var response = await _dbamonsulContext.Usuarios
+                .Include(u => u.Elos)
+                .Include(u => u.IdFaccionNavigation)
+                .Include(u => u.InscripcionTorneos)
+                .Include(u => u.PartidaAmistosaGanadorPartidaNavigations)
+                .Include(u => u.PartidaAmistosaIdUsuario1Navigations)
+                .Include(u => u.PartidaAmistosaIdUsuario2Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario1Navigations)
+                .Include(u => u.PartidaTorneoIdUsuario2Navigations)
+                .Include(u => u.Torneos)
+                .Where(u => usuarioIds.Contains(u.IdUsuario))
+                .ToListAsync();
+
+            return response ?? throw new Exception("No se encontraron usuarios.");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los usuarios por IDs.", ex);
+        }
+    }
 }
