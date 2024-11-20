@@ -63,7 +63,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     //Obtiene todas las insc de un torneo
     public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo)
     {
-        return await _dbamonsulContext.InscripcionTorneos
+            return await _dbamonsulContext.InscripcionTorneos
              .Include(it => it.IdUsuarioNavigation)
              .Where(it => it.IdTorneo == idTorneo)
              .Select(it => new InscripcionTorneo
@@ -109,9 +109,9 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             await _dbamonsulContext.SaveChangesAsync();
             return true;
         }
-        catch
+        catch (DbUpdateException ex)
         {
-            return false;
+            throw new Exception("Error al registrar la inscripción.", ex);
         }
     }
 

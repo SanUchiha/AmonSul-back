@@ -196,7 +196,6 @@ public class PartidaTorneoApplication(
                     jugadoresSinEmparejar,
                     inscripciones,
                     generarRondaDTO,
-                    emparejamientosAleatorios,
                     emparejamientos);
         }
         //Luz VS Osc NO
@@ -241,7 +240,6 @@ public class PartidaTorneoApplication(
         List<Usuario> jugadoresSinEmparejar, 
         List<InscripcionTorneo> inscripciones, 
         GenerarRondaDTO generarRondaDTO, 
-        List<EmparejamientoDTO> emparejamientosAleatorios, 
         List<EmparejamientoDTO> emparejamientos)
     {
         List<InscripcionTorneo> listaJugadoresLuz = [];

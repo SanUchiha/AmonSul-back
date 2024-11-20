@@ -15,7 +15,7 @@ public static class DataBaseContextConfigurations
             options.UseSqlServer(
                 configuration.GetConnectionString("MyASPString"),
                 b => b.MigrationsAssembly(assembly)),
-                ServiceLifetime.Transient);
+                ServiceLifetime.Scoped);
 
         return services;
     }

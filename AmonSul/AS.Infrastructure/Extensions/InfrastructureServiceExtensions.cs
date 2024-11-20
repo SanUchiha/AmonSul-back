@@ -13,7 +13,7 @@ public static class InfrastructureServiceExtensions
         services.AddRepositoryServices(configuration);
         services.AddHangfireConfiguration(configuration);
         services.AddJwtAuthentication(configuration);
-        services.AddSingleton<Utilidades>();
+        services.AddScoped<Utilidades>();
 
         return services;
     }
