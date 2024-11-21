@@ -250,8 +250,11 @@ public class PartidaTorneoApplication(
     {
         List<InscripcionTorneo> listaJugadoresLuz = [];
         List<InscripcionTorneo> listaJugadoresOscuridad = [];
+        List<InscripcionTorneo> inscripcionesSinEmparejar = inscripciones
+            .Where(i => jugadoresSinEmparejar.Any(j => j.IdUsuario == i.IdUsuario))
+            .ToList();
 
-        foreach (InscripcionTorneo inscripcion in inscripciones)
+        foreach (InscripcionTorneo inscripcion in inscripcionesSinEmparejar)
         {
             List<Lista> lista = [.. inscripcion.Lista];
             if (lista != null && lista.Count > 0)

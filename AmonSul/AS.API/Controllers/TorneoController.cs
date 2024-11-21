@@ -21,6 +21,12 @@ public class TorneoController(
     private readonly IPartidaTorneoApplication _partidaTorneoApplication = partidaTorneoApplication;
 
     #region Gestion torneo
+
+    /// <summary>
+    /// Generar Rondas
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("Gestion/Generar-Ronda")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
