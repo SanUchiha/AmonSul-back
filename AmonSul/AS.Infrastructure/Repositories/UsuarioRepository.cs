@@ -223,4 +223,25 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
             throw new Exception("Ocurrió un problema al obtener los usuarios por IDs.", ex);
         }
     }
+
+    public async Task<string> GetComunidadNameByIdUser(int idUser)
+    {
+        try
+        {
+            Usuario? user = await _dbamonsulContext.Usuarios
+                .Include(u => u.IdFaccionNavigation)
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUser);
+
+            if (user!.IdFaccion == null) return "";
+
+            string response = user.IdFaccionNavigation!.NombreFaccion;
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(
+                "Ocurrió un problema al obtener el nombre de la facción por idUsuario.", ex);
+        }
+    }
 }

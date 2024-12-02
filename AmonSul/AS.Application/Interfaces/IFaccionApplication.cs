@@ -9,4 +9,5 @@ public interface IFaccionApplication
     Task<bool> Edit(FaccionDTO faccionDTO);
     Task<bool> Register(RegistrarFaccionDTO registrarFaccionDTO);
     Task<bool> Delete(FaccionDTO faccionDTO);
+    Task<string> GetFaccionNameByIdUserAsync(int idUser);
 }

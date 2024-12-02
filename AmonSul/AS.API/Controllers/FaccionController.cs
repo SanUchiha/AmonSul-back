@@ -28,6 +28,28 @@ public class FaccionController(IFaccionApplication faccionApplication) : Control
         }
     }
 
+    /// <summary>
+    /// Obtener la faccion del usuario
+    /// </summary>
+    /// <param name="idUser"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("Faccion/{idUser}")]
+    public async Task<IActionResult> GetFaccionByIdUser(int idUser)
+    {
+        try
+        {
+            var response = 
+                await _faccionApplication.GetFaccionNameByIdUserAsync(idUser);
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPost]
     [AllowAnonymous]
     [Route("Registrar")]

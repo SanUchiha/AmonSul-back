@@ -1,14 +1,10 @@
 ﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.Email;
 using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
-using AS.Utils.Constantes;
 using AS.Utils.Statics;
 using AutoMapper;
-using Azure;
 using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
@@ -136,6 +132,23 @@ public class PartidaAmistosaApplication(
         }
 
         return partidas;
+    }
+
+    public async Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosasByUser(int idUser)
+    {
+        List<PartidaAmistosa> response = 
+            await _unitOfWork.PartidaAmistosaRepository.GetPartidaAmistosasUsuarioById(idUser);
+
+        List<ViewPartidaAmistosaDTO> partidasAmistosas = 
+            _mapper.Map<List<ViewPartidaAmistosaDTO>>(response);
+
+        foreach (var item in partidasAmistosas)
+        {
+            if (item.GanadorPartida == item.IdUsuario1) item.GanadorPartidaNick = item.NickUsuario1;            
+            else if (item.GanadorPartida == item.IdUsuario2) item.GanadorPartidaNick = item.NickUsuario2;
+        }
+
+        return partidasAmistosas;
     }
 
     public async Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosasValidadas()

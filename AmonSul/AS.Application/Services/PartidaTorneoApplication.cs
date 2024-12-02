@@ -121,7 +121,7 @@ public class PartidaTorneoApplication(
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
     {
-        _ = ActualizarEloAsync(generarRondaDTO);
+        await ActualizarEloAsync(generarRondaDTO);
         
         // Traer todas las inscripciones del torneo
         List<InscripcionTorneo> inscripciones = 

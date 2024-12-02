@@ -17,7 +17,8 @@ public class FaccionRepository : IFaccionRepository
     {
         try
         {
-            var response = await _dbamonsulContext.Facciones.ToListAsync();
+            List<Faccion> response = 
+                await _dbamonsulContext.Facciones.ToListAsync();
             return response;
         }
         catch (Exception ex)
@@ -26,11 +27,13 @@ public class FaccionRepository : IFaccionRepository
         }
     }
 
-    public async Task<Faccion> GetById(int id)
+    public async Task<Faccion> GetById(int? id)
     {
         try
         {
-            var response = await _dbamonsulContext.Facciones.FirstOrDefaultAsync(f =>f.IdFaccion == id);
+            Faccion? response = 
+                await _dbamonsulContext.Facciones.FirstOrDefaultAsync(
+                    f =>f.IdFaccion == id);
             return response!;
         }
         catch (Exception ex)

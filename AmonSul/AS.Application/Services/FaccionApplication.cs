@@ -48,4 +48,11 @@ public class FaccionApplication : IFaccionApplication
     {
         throw new NotImplementedException();
     }
+
+    public async Task<string> GetFaccionNameByIdUserAsync(int idUser)
+    {
+        string numbreFaccion = await _unitOfWork.UsuarioRepository.GetComunidadNameByIdUser(idUser);
+
+        return numbreFaccion;
+    }
 }

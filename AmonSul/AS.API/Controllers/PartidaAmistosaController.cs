@@ -14,6 +14,22 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
 {
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
 
+    /// <summary>
+    /// Obtiene las partidas amistosas de un jugador
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("partidas/{idUser}")]
+    [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPartidasAmistosasById(int idUser)
+    {
+        List<ViewPartidaAmistosaDTO> response = 
+            await _partidaAmistosaApplication.GetPartidasAmistosasByUser(idUser);
+
+        return Ok(response);
+    }
+
     [HttpGet]
     [Route("Todas")]
     [ProducesResponseType(typeof(List<ViewPartidaAmistosaDTO>), StatusCodes.Status200OK)]

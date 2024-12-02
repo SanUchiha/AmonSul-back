@@ -14,4 +14,6 @@ public interface IPartidaAmistosaApplication
     Task<bool> Register(CreatePartidaAmistosaDTO partidaAmistosa);
     Task<bool> Delete(int id);
     Task<bool> ValidarPartidaAmistosa(ValidarPartidaDTO validarPartidaDTO);
+
+    Task<List<ViewPartidaAmistosaDTO>> GetPartidasAmistosasByUser(int idUser);
 }
