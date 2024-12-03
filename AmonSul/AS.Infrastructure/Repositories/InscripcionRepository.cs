@@ -74,7 +74,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .ToListAsync();
     }
 
-    //Obtiene todas las ins de un usuario
+    /// <summary>
+    /// Obtiene todas las ins de un usuario
+    /// </summary>
+    /// <param name="idUsuario"></param>
+    /// <returns></returns>
     public async Task<List<InscripcionTorneo>> GetInscripcionesByUser(int idUsuario)
     {
         var insc = await _dbamonsulContext.InscripcionTorneos

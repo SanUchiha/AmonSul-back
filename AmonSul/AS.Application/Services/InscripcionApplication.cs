@@ -125,16 +125,11 @@ public class InscripcionApplication(
 
     public async Task<List<InscripcionUsuarioDTO>> GetInscripcionesByUser(int idUsuario)
     {
-        List<InscripcionTorneo> insc = await _unitOfWork.InscripcionRepository.GetInscripcionesByUser(idUsuario);
+        List<InscripcionTorneo> insc = 
+            await _unitOfWork.InscripcionRepository.GetInscripcionesByUser(idUsuario);
 
-        var result = _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
-        if (result.Count > 0)
-        {
-            foreach (var item in result)
-            {
-                item.NombreTorneo = (await _unitOfWork.TorneoRepository.GetById(item.IdTorneo)).NombreTorneo;
-            }
-        }
+        List<InscripcionUsuarioDTO> result =
+            _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
         
         return result;
     }

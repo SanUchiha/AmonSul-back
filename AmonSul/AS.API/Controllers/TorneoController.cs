@@ -168,6 +168,11 @@ public class TorneoController(
         return Ok(response);
     }
 
+    /// <summary>
+    /// Editar el pairing de un torneo
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut]
     [Route("Editar-Pairing")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
@@ -181,6 +186,11 @@ public class TorneoController(
         return Ok(response);
     }
 
+    /// <summary>
+    /// Eliminar una partida de un torneo
+    /// </summary>
+    /// <param name="idPartida"></param>
+    /// <returns></returns>
     [HttpDelete]
     [Route("Eliminar-Partida/{idPartida}")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
@@ -203,7 +213,8 @@ public class TorneoController(
     [Route("Partidas/Usuario/{idUsuario}")]
     public async Task<IActionResult> GetPartidasUsuarioTorneos(int idUsuario)
     {
-        List<ViewPartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneosByUsuario(idUsuario);
+        List<ViewPartidaTorneoDTO> response = 
+            await _partidaTorneoApplication.GetPartidasTorneosByUsuario(idUsuario);
 
         if (response == null) return NotFound();
 

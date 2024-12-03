@@ -31,10 +31,17 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripcion);
     }
 
+    /// <summary>
+    /// Obtener las inscripciones de un usuario
+    /// </summary>
+    /// <param name="idUsuario"></param>
+    /// <returns></returns>
     [HttpGet("byUser/{idUsuario}")]
     public async Task<ActionResult<IList<InscripcionTorneo>>> GetInscripcionesByUser(int idUsuario)
     {
-        var inscripciones = await _inscripcionApplication.GetInscripcionesByUser(idUsuario);
+        List<InscripcionUsuarioDTO> inscripciones = 
+            await _inscripcionApplication.GetInscripcionesByUser(idUsuario);
+        
         return Ok(inscripciones);
     }
 

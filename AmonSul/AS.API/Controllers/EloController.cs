@@ -13,13 +13,18 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 {
     private readonly IEloApplication _eloApplication = EloApplication;
 
+    /// <summary>
+    /// Obtener el Elo de un usuario por su email
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
     [HttpGet]
     [Route("usuario/{email}")]
     [ProducesResponseType(typeof(ViewEloDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPartidasAmistosas(string email)
     {
-        var response = await _eloApplication.GetElo(email);
+        ViewEloDTO response = await _eloApplication.GetElo(email);
         
         if(response == null) return NotFound();
 
