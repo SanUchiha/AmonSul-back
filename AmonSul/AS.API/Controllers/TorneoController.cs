@@ -177,11 +177,29 @@ public class TorneoController(
     [Route("Editar-Pairing")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> EdtarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
+    public async Task<IActionResult> EditarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.EdtarPairing(request);
 
         if (response == false) return BadRequest("No se ha podido editar la partida");
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Agregar un pairing a un torneo
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("Agregar-Pairing")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AddPairing([FromBody, Required] AddPairingTorneoDTO request)
+    {
+        bool response = await _partidaTorneoApplication.Register(request);
+
+        if (response == false) return BadRequest("No se ha podido agregar la partida");
 
         return Ok(response);
     }

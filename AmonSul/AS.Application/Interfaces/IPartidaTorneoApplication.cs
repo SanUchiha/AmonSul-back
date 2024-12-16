@@ -15,10 +15,9 @@ public interface IPartidaTorneoApplication
     Task<List<PartidaTorneo>> GetPartidasTorneoByUsuario(int idTorneo, int idUsuario); // Todas las partidas de un torneo de un jugador
 
     Task<bool> Edit(UpdatePartidaTorneoDTO request);
-    Task<bool> Register(PartidaTorneo partidaTorneo);
+    Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO);
     Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO);
     Task<bool> EdtarPairing(UpdatePairingTorneoDTO request);
-
 
     Task<bool> Delete(int idPartida);
 }

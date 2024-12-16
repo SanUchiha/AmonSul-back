@@ -20,10 +20,16 @@ public class PartidaTorneoApplication(
     private readonly IEloApplication _eloApplication = eloApplication;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
-    public Task<bool> Register(PartidaTorneo partidaTorneo)
+    public async Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO)
     {
-        throw new NotImplementedException();
+        PartidaTorneo partida = _mapper.Map<PartidaTorneo>(addPairingTorneoDTO);
+        
+        bool response = 
+            await _unitOfWork.PartidaTorneoRepository.Register(partida);
+
+        return response;
     }
+        
 
     public async Task<bool> Delete(int idPartida) =>
         await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
