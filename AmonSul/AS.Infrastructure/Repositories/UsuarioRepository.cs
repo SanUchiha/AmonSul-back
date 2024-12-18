@@ -1,4 +1,5 @@
-﻿using AS.Domain.DTOs.Usuario;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -242,6 +243,34 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         {
             throw new Exception(
                 "Ocurrió un problema al obtener el nombre de la facción por idUsuario.", ex);
+        }
+    }
+
+    public async Task<List<UsersElosDTO>> GetAllUserWithElo()
+    {
+        try
+        {
+            var result = 
+                await _dbamonsulContext.Usuarios
+                    .Select(u => new UsersElosDTO
+                    {
+                        IdUsuario = u.IdUsuario,
+                        Elos= u.Elos
+                            .Select(e => new EloPuntuacionDTO 
+                            {
+                                PuntuacionElo = e.PuntuacionElo,
+                                FechaRegistroElo = e.FechaElo,
+                            }).ToList()                     
+                    })
+                    .ToListAsync();
+
+            return result;
+                
+        }
+        catch (Exception ex) 
+        {
+            throw new Exception(
+               "Ocurrió un problema al obtener el elo de los usuarios.", ex);
         }
     }
 }

@@ -2,6 +2,7 @@
 using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Elos;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -9,18 +10,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AS.Application.Services;
 
-public class EloApplication : IEloApplication
+public class EloApplication(
+    IUnitOfWork unitOfWork, 
+    IMapper mapper, 
+    IServiceProvider serviceProvider) 
+        : IEloApplication
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly IServiceProvider _serviceProvider;
-
-    public EloApplication(IUnitOfWork unitOfWork, IMapper mapper, IServiceProvider serviceProvider)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public async Task<bool> RegisterElo(CreateEloDTO requestElo) =>
         await _unitOfWork.EloRepository.RegisterElo(_mapper.Map<Elo>(requestElo));
@@ -275,5 +273,28 @@ public class EloApplication : IEloApplication
         }
 
         return clasificacionMensual;
+    }
+
+    public async Task<int> GetRanking(int idUsuario)
+    {
+        List<UsersElosDTO> usersElosDTO = 
+            await _unitOfWork.UsuarioRepository.GetAllUserWithElo();
+
+        var lastEloForUser = usersElosDTO
+            .Where(user => user.Elos.Count != 0)
+            .Select(user => new
+            {
+                user.IdUsuario,
+                LastElo = user.Elos
+                    .OrderByDescending(e => e.FechaRegistroElo)
+                    //.ThenByDescending(e => e.PuntuacionElo)
+                    .FirstOrDefault()
+            })
+            .Where(result => result.LastElo != null)
+            .OrderByDescending(u => u.LastElo!.PuntuacionElo)
+            .ToList();
+
+        return lastEloForUser
+                .FindIndex(x => x.IdUsuario == idUsuario) + 1;
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class EloController(IEloApplication EloApplication) : ControllerBase
 {
@@ -55,6 +55,20 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         if (response == null) return NotFound();
 
         return Ok(response);
+    }
+    /// <summary>
+    /// Obtener el ranking de un jugador
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("Ranking/{idUsuario}")]
+    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetClasificacion(int idUsuario)
+    {
+        int ranking = await _eloApplication.GetRanking(idUsuario);
+
+        return Ok(ranking);
     }
 
     [HttpGet]

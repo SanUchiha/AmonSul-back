@@ -1,4 +1,5 @@
-﻿using AS.Domain.DTOs.Usuario;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -18,4 +19,5 @@ public interface IUsuarioRepository
     Task<List<string>> GetAllEmail();
     Task<List<Usuario>> GetByIds(List<int> usuarioIds);
     Task<string> GetComunidadNameByIdUser(int idUser);
+    Task<List<UsersElosDTO>> GetAllUserWithElo();
 }
