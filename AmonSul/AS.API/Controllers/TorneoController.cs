@@ -2,6 +2,7 @@
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Application.Services;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,11 +15,13 @@ namespace AS.API.Controllers;
 [Authorize]
 [ApiController]
 public class TorneoController(
-    ITorneoApplication torneoApplication, 
-    IPartidaTorneoApplication partidaTorneoApplication) : ControllerBase
+    ITorneoApplication torneoApplication,
+    IPartidaTorneoApplication partidaTorneoApplication,
+    IGanadorApplication ganadorApplication) : ControllerBase
 {
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
     private readonly IPartidaTorneoApplication _partidaTorneoApplication = partidaTorneoApplication;
+    private readonly IGanadorApplication _ganadorApplication = ganadorApplication;
 
     #region Gestion torneo
 
@@ -74,7 +77,6 @@ public class TorneoController(
         return Ok(response);
     }
 
-
     [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}/{idRonda}")]
     public async Task<IActionResult> GetPartidasRondaTorneo(int idTorneo, int idRonda)
@@ -85,6 +87,16 @@ public class TorneoController(
 
         return Ok(response);
     }
+
+    [HttpGet]
+    [Route("Gestion/issave/{idTorneo}")]
+    public async Task<IActionResult> isSaveTournament(int idTorneo)
+    {
+        bool response = await _ganadorApplication.IsSave(idTorneo);
+        
+        return Ok(response);
+    }
+
     #endregion
 
     [HttpGet]
@@ -231,7 +243,7 @@ public class TorneoController(
     [Route("Partidas/Usuario/{idUsuario}")]
     public async Task<IActionResult> GetPartidasUsuarioTorneos(int idUsuario)
     {
-        List<ViewPartidaTorneoDTO> response = 
+        List<ViewPartidaTorneoDTO> response =
             await _partidaTorneoApplication.GetPartidasTorneosByUsuario(idUsuario);
 
         if (response == null) return NotFound();

@@ -9,4 +9,6 @@ public interface IGanadorApplication
     Task<List<Ganador>> GetAll();
     Task<bool> Register(List<GanadorDTO> ganadoresDTO);
     Task<bool> Delete(int id);
+
+    Task<bool> IsSave(int idTorneo);
 }
