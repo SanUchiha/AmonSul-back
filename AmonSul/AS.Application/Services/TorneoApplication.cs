@@ -43,7 +43,7 @@ public class TorneoApplication(
         
         if(!torneoCreado) return false;
 
-        if(request.BasesTorneo!.Length > 0)
+        if(!string.IsNullOrEmpty(request.BasesTorneo))
             await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
 
         List<string> listaDestinatarios =
