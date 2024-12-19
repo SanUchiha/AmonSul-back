@@ -16,4 +16,5 @@ public class CreatePartidaAmistosaDTO
     public bool EsTorneo{ get; set; }
     public ArmyDTO? EjercitoUsuario1 { get; set; }
     public ArmyDTO? EjercitoUsuario2 { get; set; }
+    public bool? PartidaValidadaUsuario1 { get; set; }
 }

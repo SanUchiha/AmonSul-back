@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.Elo;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Statics;
@@ -165,23 +166,24 @@ public class PartidaAmistosaApplication(
         partidaAmistosa.EjercitoUsuario1 = request.EjercitoUsuario1!.Name;
         partidaAmistosa.EjercitoUsuario2 = request.EjercitoUsuario2!.Name;
 
-        if (request.ResultadoUsuario1 == request.ResultadoUsuario2) partidaAmistosa.GanadorPartida = 0;
+        if (request.ResultadoUsuario1 == request.ResultadoUsuario2) 
+            partidaAmistosa.GanadorPartida = 0;
         else
         {
-            if (request.ResultadoUsuario1 > request.ResultadoUsuario2) partidaAmistosa.GanadorPartida = request.IdUsuario1;
+            if (request.ResultadoUsuario1 > request.ResultadoUsuario2) 
+                partidaAmistosa.GanadorPartida = request.IdUsuario1;
             else partidaAmistosa.GanadorPartida = request.IdUsuario2;
         }
 
-        var registro = await _unitOfWork.PartidaAmistosaRepository.Register(partidaAmistosa);
+        bool registro =
+            await _unitOfWork.PartidaAmistosaRepository.Register(partidaAmistosa);
 
-        //Conseguir los mails
-        var usuario1 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario1);
-        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(request.IdUsuario2);
+        UsuarioEmailDto email1 = 
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(request.IdUsuario1);
+        UsuarioEmailDto email2 =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(request.IdUsuario2);
 
-        //Envio de mensajes de partida creada
-        var listaDestinatarios = 
-            new List<string> { usuario1.Email, usuario2.Email };
-
+        List<string> listaDestinatarios = [email1.Email, email1.Email];
 
         if (listaDestinatarios.Count > 0)
             _ = Task.Run(() => 

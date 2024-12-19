@@ -69,7 +69,11 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
         return Ok(response);
     }
 
-    // Registrar una partida amistosa
+    /// <summary>
+    /// Registrar una partida amistosa
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
@@ -78,9 +82,13 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
     {
         bool response = await _partidaAmistosaApplication.Register(request);
 
-        if (response == false) return BadRequest("No se ha podido crear la partida");
+        if (response == false) 
+            return BadRequest("No se ha podido crear la partida");
 
-        return CreatedAtAction(nameof(CrearPartidaAmistosa), new { result = response}, "La partida ha sido creada con exito");
+        return CreatedAtAction(
+            nameof(CrearPartidaAmistosa), 
+            new { result = response}, 
+            "La partida ha sido creada con exito");
     }
 
     [HttpPut]
