@@ -91,6 +91,11 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
             "La partida ha sido creada con exito");
     }
 
+    /// <summary>
+    /// Valida una partida amistosa
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut]
     [Route("Validar")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]

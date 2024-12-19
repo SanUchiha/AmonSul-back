@@ -13,15 +13,12 @@ namespace AS.Application.Services;
 public class PartidaAmistosaApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    ILogger<PartidaAmistosaApplication> logger,
-    IEloApplication eloApplication,
-    IEmailApplicacion emailApplication) : IPartidaAmistosaApplication
+    IEmailApplicacion emailApplication) 
+        : IPartidaAmistosaApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
-    private readonly ILogger<PartidaAmistosaApplication> _logger = logger;
     private readonly IEmailApplicacion _emailApplication = emailApplication;
-    private readonly IEloApplication _eloApplication = eloApplication;
 
     public async Task<bool> Delete(int id)
     {
@@ -212,60 +209,6 @@ public class PartidaAmistosaApplication(
         UpdatePartidaAmistosaDTO updatePartida = _mapper.Map<UpdatePartidaAmistosaDTO>(partida);
 
         bool result = await Edit(updatePartida);
-
-        // Comprobamos si tenemos que actualizar el elo para ambos jugadores
-        ViewPartidaAmistosaDTO partidaValidada = await GetById(validarPartidaDTO.IdPartida);
-
-        if (partidaValidada.EsElo) 
-        {
-            if (partidaValidada.PartidaValidadaUsuario1 == true &&
-            partidaValidada.PartidaValidadaUsuario2 == true)
-            {
-                int eloJugador1 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario1);
-                int eloJugador2 = await _eloApplication.GetLastElo(partidaValidada.IdUsuario2);
-
-                double scoreGanador = 1.0;
-                double scorePerdedor = 0.0;
-                double scoreEmpate = 0.5;
-                int nuevoEloJugador1 = 800;
-                int nuevoEloJugador2 = 800;
-
-                //GanaJugador1
-                if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario1)
-                {
-                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreGanador);
-                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scorePerdedor);
-                }
-                //GanaJugador2
-                if (partidaValidada.GanadorPartida == partidaValidada.IdUsuario2)
-                {
-                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scorePerdedor);
-                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
-                }
-                //Empate
-                if (partidaValidada.GanadorPartida == 0)
-                {
-                    nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
-                    nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
-                }
-
-                //Elo jugador 1
-                CreateEloDTO createElo1 = new()
-                {
-                    IdUsuario = partidaValidada.IdUsuario1,
-                    PuntuacionElo = nuevoEloJugador1
-                };
-                await _eloApplication.RegisterElo(createElo1);
-
-                //Elo jugador 2
-                CreateEloDTO createElo2 = new()
-                {
-                    IdUsuario = partidaValidada.IdUsuario2,
-                    PuntuacionElo = nuevoEloJugador2
-                };
-                await _eloApplication.RegisterElo(createElo2);
-            }
-        }
 
         return result;
     }
