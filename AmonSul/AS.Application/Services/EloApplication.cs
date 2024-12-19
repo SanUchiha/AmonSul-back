@@ -165,31 +165,31 @@ public class EloApplication(
         if (listaUsuarios == null) return [];
 
         // Crear una lista de tareas para obtener la información de clasificación de cada usuario
-        var tasks = listaUsuarios.Select(usuario => Task.Run(async () =>
+        IEnumerable<Task<ClasificacionEloDTO>> tasks =
+            listaUsuarios.Select(usuario => Task.Run(async () =>
         {
             using var scope = _serviceProvider.CreateScope();
             var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
             var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
             var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
             var scopedPartidaTorneoApplication = scope.ServiceProvider.GetRequiredService<IPartidaTorneoApplication>();
-
             var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
             ViewEloDTO view = await scopedEloApplication.GetElo(usuario.Email);
             ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 
             obj.IdFaccion = usuario.IdFaccion;
-            List<ViewPartidaAmistosaDTO> partidasAmistosas = 
-                await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);
+            /*List<ViewPartidaAmistosaDTO> partidasAmistosas = 
+                await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);*/
             List<ViewPartidaTorneoDTO> partidasTorneo =
                 await scopedPartidaTorneoApplication.GetPartidasTorneosByUsuario(view.IdUsuario);
 
-            List<MatchDTO> partidasAmistosasMapped =
-                _mapper.Map<List<MatchDTO>>(partidasAmistosas);
+            /*List<MatchDTO> partidasAmistosasMapped =
+                _mapper.Map<List<MatchDTO>>(partidasAmistosas);*/
             List<MatchDTO> partidasTorneoMapped =
                 _mapper.Map<List<MatchDTO>>(partidasTorneo);
 
-            List<MatchDTO> partidas = [.. partidasAmistosasMapped, .. partidasTorneoMapped];
+            List<MatchDTO> partidas = [.. partidasTorneoMapped];
 
             if (partidas.Count != 0)
             {

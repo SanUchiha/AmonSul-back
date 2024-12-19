@@ -1,6 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
 using AS.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,18 +43,24 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    /// Obtiene la clasificacion general por elo
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Route("Clasificacion")]
     [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetClasificacion()
     {
-        List<ClasificacionEloDTO> response = await _eloApplication.GetClasificacion();
+        List<ClasificacionEloDTO> response = 
+            await _eloApplication.GetClasificacion();
 
         if (response == null) return NotFound();
 
         return Ok(response);
     }
+    
     /// <summary>
     /// Obtener el ranking de un jugador
     /// </summary>
