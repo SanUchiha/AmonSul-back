@@ -10,4 +10,5 @@ public interface IEloRepository
     Task<bool> Edit(Elo elo);
     Task<bool> RegisterElo(Elo elo);
     Task<bool> Delete(int idElo);
+    Task<bool> CheckEloByUser(int idUsuario);
 }

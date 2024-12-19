@@ -19,4 +19,5 @@ public interface IEloApplication
     Task<List<ClasificacionEloDTO>> GetClasificacion();
     Task<List<ClasificacionEloDTO>> GetClasificacionMensual();
     Task<int> GetRanking(int idUsuario);
+    Task <bool> CheckEloByUser(int idUsuario);
 }

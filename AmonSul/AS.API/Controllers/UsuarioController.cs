@@ -129,7 +129,11 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
         }
     }
 
-    //Carga los datos del dashboard
+    /// <summary>
+    /// Carga los datos de un usuario
+    /// </summary>
+    /// <param name="idUsuario"></param>
+    /// <returns></returns>
     [HttpGet]
     [Route("Data/{idUsuario}")]
     public async Task<IActionResult> GetUsuarioData(int idUsuario)

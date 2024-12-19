@@ -90,7 +90,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/issave/{idTorneo}")]
-    public async Task<IActionResult> isSaveTournament(int idTorneo)
+    public async Task<IActionResult> IsSaveTournament(int idTorneo)
     {
         bool response = await _ganadorApplication.IsSave(idTorneo);
         

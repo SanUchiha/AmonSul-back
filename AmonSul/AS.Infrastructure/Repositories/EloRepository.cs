@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
 
-public class EloRepository : IEloRepository
+public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
 {
-    private readonly DbamonsulContext _dbamonsulContext;
-
-    public EloRepository(DbamonsulContext dbamonsulContext)
-    {
-        _dbamonsulContext = dbamonsulContext;
-    }
+    private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
     public async Task<List<Elo>> GetElos()
     {
@@ -79,6 +74,26 @@ public class EloRepository : IEloRepository
         {
             throw new Exception("Ocurrio un problema en el servidor al conseguir el Elo por el Id.", ex);
         }
+    }
+
+    public async Task<bool> CheckEloByUser(int idUsuario)
+    {
+        bool response = 
+            await _dbamonsulContext.Elos.AnyAsync(x => x.IdUsuario == idUsuario);
+
+        if (response) return true;
+
+        Elo elo = new()
+        {
+            IdUsuario = idUsuario,
+            FechaElo = DateTime.Now,
+            PuntuacionElo = 800
+        };
+
+        await _dbamonsulContext.Elos.AddAsync(elo);
+        await _dbamonsulContext.SaveChangesAsync();
+
+        return true;
     }
 }
     

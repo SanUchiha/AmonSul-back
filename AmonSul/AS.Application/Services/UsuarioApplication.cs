@@ -261,7 +261,14 @@ public class UsuarioApplication(
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioPendientes(usuario.IdUsuario);
         response.PartidasValidadas =
             await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(usuario.IdUsuario);
-        response.PuntuacionElo = response.Elos[^1].PuntuacionElo;
+
+        if (response.Elos.Count > 0)
+            response.PuntuacionElo = response.Elos[^1].PuntuacionElo;
+        else 
+        {
+            await _eloApplication.CheckEloByUser(idUsuario);
+            response.PuntuacionElo = 800;
+        }
 
         List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
         List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios

@@ -20,7 +20,8 @@ public class AccesoController(
     [Route("Login")]
     public async Task<IActionResult> Login(LoginDTO loginDTO)
     {
-        if (loginDTO == null || loginDTO.Email == null || loginDTO.Password == null) return BadRequest();
+        if (loginDTO == null || loginDTO.Email == null || loginDTO.Password == null)
+            return BadRequest();
 
         LoginResponse response = await _loginApplication.Login(loginDTO);
 

@@ -297,4 +297,12 @@ public class EloApplication(
         return lastEloForUser
                 .FindIndex(x => x.IdUsuario == idUsuario) + 1;
     }
+
+    /// <summary>
+    /// Chechea si existe elo para el usuario
+    /// </summary>
+    /// <param name="idUsuario"></param>
+    /// <returns></returns>
+    public async Task<bool> CheckEloByUser(int idUsuario) => 
+        await _unitOfWork.EloRepository.CheckEloByUser(idUsuario);
 }
