@@ -89,13 +89,26 @@ public class TorneoApplication(
         string folderPath = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Bases");
         string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
 
+        byte[] fileBytes;
+        string fileName;
+
         if (!File.Exists(filePath))
         {
-            throw new FileNotFoundException("No se encontró el archivo de bases para este torneo.");
+            string filePathWithoutCaracters = filePath.Replace("\"", "");
+            if (File.Exists(filePathWithoutCaracters))
+            {
+                fileBytes = await File.ReadAllBytesAsync(filePathWithoutCaracters);
+                fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
+
+                return (fileBytes, fileName);
+            }
+
+            throw new FileNotFoundException(
+                "No se encontró el archivo de bases para este torneo.");
         }
 
-        var fileBytes = await File.ReadAllBytesAsync(filePath);
-        var fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
+        fileBytes = await File.ReadAllBytesAsync(filePath);
+        fileName = $"Bases_Torneo_{nombreTorneo}.pdf";
 
         return (fileBytes, fileName);
     }
