@@ -12,12 +12,13 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
 {
     private readonly IGanadorApplication _ganadorApplication = ganadorApplication;
 
+    //Obtener todos los ganadores
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         try
         {
-            var ganadores = await _ganadorApplication.GetAll();
+            List<GanadorDTO> ganadores = await _ganadorApplication.GetAll();
             return Ok(ganadores);
         }
         catch (Exception ex)

@@ -41,6 +41,10 @@ public partial class DbamonsulContext : DbContext
 
     public virtual DbSet<Ganador> Ganador { get; set; }
 
+    public virtual DbSet<Liga> Liga { get; set; }
+
+    public virtual DbSet<LigaTorneo> LigaTorneo { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -472,6 +476,43 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.Resultado)
                 .HasColumnName("Resultado")
                 .IsRequired();
+        });
+
+        //Ligas
+        modelBuilder.Entity<Liga>(entity =>
+        {
+            entity.HasKey(e => e.IdLiga).HasName("PK__Liga__0CCA9DE1B35035A6");
+
+            entity.Property(e => e.NombreLiga)
+                .HasColumnName("Nombre_Liga")
+                .IsRequired();
+            entity.Property(e => e.IdLiga)
+                .HasColumnName("Id_Liga")
+                .IsRequired();
+        });
+
+        //LigaTorneo
+        modelBuilder.Entity<LigaTorneo>(entity =>
+        {
+
+            entity.Property(e => e.IdTorneo)
+                .HasColumnName("Id_Torneo")
+                .IsRequired();
+            entity.Property(e => e.IdLiga)
+                .HasColumnName("Id_Liga")
+                .IsRequired();
+
+            entity.HasKey(lt => new { lt.IdLiga, lt.IdTorneo });
+
+            entity
+                .HasOne(lt => lt.Liga)
+                .WithMany(l => l.LigaTorneos)
+                .HasForeignKey(lt => lt.IdLiga);
+
+            entity
+                .HasOne(lt => lt.Torneo)
+                .WithMany(t => t.LigaTorneos)
+                .HasForeignKey(lt => lt.IdTorneo);
         });
 
         OnModelCreatingPartial(modelBuilder);

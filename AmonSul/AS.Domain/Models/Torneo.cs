@@ -33,4 +33,5 @@ public partial class Torneo
     public virtual ICollection<InscripcionTorneo> InscripcionTorneos { get; set; } = [];
     public virtual ICollection<PartidaTorneo> PartidaTorneos { get; set; } = [];
     public virtual ICollection<Ronda> Ronda { get; set; } = [];
+    public virtual ICollection<LigaTorneo>? LigaTorneos { get; set; } = [];
 }

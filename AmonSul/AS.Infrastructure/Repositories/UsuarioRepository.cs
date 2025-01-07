@@ -1,4 +1,6 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Ganador;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
 using AS.Domain.Models;
@@ -271,6 +273,28 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         {
             throw new Exception(
                "Ocurrió un problema al obtener el elo de los usuarios.", ex);
+        }
+    }
+
+    public async Task<List<GanadorNickDTO>> GetAllSoloNicks()
+    {
+        try
+        {
+            var usuarios = await _dbamonsulContext.Usuarios
+                .Select(u => new GanadorNickDTO
+                {
+                    IdUsuario = u.IdUsuario,
+                    Nick = u.Nick
+                })
+                .ToListAsync();
+
+            if (usuarios.Count == 0) return [];
+
+            return usuarios;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener el nick de todos los usuarios.", ex);
         }
     }
 }

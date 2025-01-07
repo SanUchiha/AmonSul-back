@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Ganador;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -16,8 +17,43 @@ public class GanadorApplication(
     public async Task<bool> Delete(int id) => 
         await _unitOfWork.GanadorRepository.Delete(id);
 
-    public async Task<List<Ganador>> GetAll() => 
-        await _unitOfWork.GanadorRepository.GetAll();
+    /// <summary>
+    /// Obtiene todos los ganadores
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<GanadorDTO>> GetAll()
+    {
+        List<Ganador> ganadores = 
+            await _unitOfWork.GanadorRepository.GetAll();
+
+        if (ganadores is null) return [];
+
+        // Conseguir nombre de los torneos.
+        List<int> idsTorneos = ganadores
+            .Select(g => g.IdTorneo)
+            .Distinct()
+            .ToList();
+
+        if (idsTorneos.Count <= 0) return [];
+
+        var tournaments =
+            await _unitOfWork.TorneoRepository.GetAllSoloNames();
+
+        var nicks = 
+            await _unitOfWork.UsuarioRepository.GetAllSoloNicks();
+
+        List<GanadorDTO> ganadoresMapper = 
+            _mapper.Map<List<GanadorDTO>>(ganadores);
+
+        foreach (var item in ganadoresMapper)
+        {
+            item.NombreTorneo = tournaments.FirstOrDefault(t => t.IdTorneo == item.IdTorneo)!.TournamentName;
+            item.Nick = nicks.FirstOrDefault(n => n.IdUsuario == item.IdUsuario)!.Nick;
+        }
+
+        return ganadoresMapper;
+    }
+        
 
     public async Task<Ganador> GetById(int id) => 
         await _unitOfWork.GanadorRepository.GetById(id);

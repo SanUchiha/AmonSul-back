@@ -17,6 +17,7 @@ public class UnitOfWork(DbamonsulContext context, Utilidades utilidades) : IUnit
     public IEloRepository EloRepository { get; private set; } = new EloRepository(context);
     public IPartidaTorneoRepository PartidaTorneoRepository { get; private set; } = new PartidaTorneoRepository(context);
     public IGanadorRepository GanadorRepository { get; private set; } = new GanadorRepository(context);
+    public ILigaRepository LigaRepository { get; private set; } = new LigaRepository(context);
     public Utilidades _utilidades = utilidades;
 
     public void Dispose() => _context.Dispose();

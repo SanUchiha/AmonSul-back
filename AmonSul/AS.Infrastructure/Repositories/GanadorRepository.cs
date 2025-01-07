@@ -1,8 +1,5 @@
-﻿using AS.Domain.DTOs.Usuario;
-using AS.Domain.Exceptions;
-using AS.Domain.Models;
+﻿using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
@@ -33,8 +30,10 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
     {
         try
         {
-            return await _dbamonsulContext.Ganador
+            List<Ganador> ganadores = await _dbamonsulContext.Ganador
                 .ToListAsync();
+
+            return ganadores;
         }
         catch (Exception ex)
         {
@@ -66,12 +65,8 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
             Ganador? ganador = await _dbamonsulContext.Ganador
                 .FirstOrDefaultAsync(g => g.IdGanador == id);
 
-            if (ganador == null)
-            {
+            return ganador ??
                 throw new KeyNotFoundException($"No se encontró un ganador con ID {id}.");
-            }
-
-            return ganador;
         }
         catch (Exception ex)
         {

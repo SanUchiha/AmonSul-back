@@ -1,18 +1,14 @@
-﻿using AS.Domain.DTOs.Torneo;
+﻿using AS.Domain.DTOs.Ganador;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
 
-public class TorneoRepository : ITorneoRepository
+public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoRepository
 {
-    private readonly DbamonsulContext _dbamonsulContext;
-
-    public TorneoRepository(DbamonsulContext dbamonsulContext)
-    {
-        _dbamonsulContext = dbamonsulContext;
-    }
+    private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
     public async Task<List<Torneo>> GetTorneos()
     {
@@ -107,5 +103,25 @@ public class TorneoRepository : ITorneoRepository
                 NombreTorneo = t.NombreTorneo
             })
             .ToListAsync();
+
+    public async Task<List<GanadorTorneoDTO>> GetAllSoloNames()
+    {
+        try
+        {
+            List<GanadorTorneoDTO> response = await _dbamonsulContext.Torneos
+                .Select(t => new GanadorTorneoDTO
+                {
+                    IdTorneo = t.IdTorneo,
+                    TournamentName = t.NombreTorneo
+                })
+                .ToListAsync();
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al conseguir los torneos.", ex);
+        }
+    }
 }
 

@@ -6,7 +6,7 @@ namespace AS.Application.Interfaces;
 public interface IGanadorApplication
 {
     Task<Ganador> GetById(int id);
-    Task<List<Ganador>> GetAll();
+    Task<List<GanadorDTO>> GetAll();
     Task<bool> Register(List<GanadorDTO> ganadoresDTO);
     Task<bool> Delete(int id);
 

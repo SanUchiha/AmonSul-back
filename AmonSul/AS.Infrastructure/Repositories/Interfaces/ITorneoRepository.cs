@@ -1,4 +1,5 @@
-﻿using AS.Domain.DTOs.Torneo;
+﻿using AS.Domain.DTOs.Ganador;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -14,4 +15,5 @@ public interface ITorneoRepository
     Task<bool> Delete(int id);
 
     Task<TorneoUsuarioDto> GetNombreById(int idTorneo);
+    Task<List<GanadorTorneoDTO>> GetAllSoloNames();
 }

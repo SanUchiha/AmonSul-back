@@ -12,6 +12,7 @@ public interface IUnitOfWork: IDisposable
     IListaRepository ListaRepository { get; }
     IPartidaTorneoRepository PartidaTorneoRepository { get; }
     IGanadorRepository GanadorRepository { get; }
+    ILigaRepository LigaRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();

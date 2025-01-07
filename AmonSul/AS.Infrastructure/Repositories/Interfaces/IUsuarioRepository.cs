@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 
@@ -20,4 +21,5 @@ public interface IUsuarioRepository
     Task<List<Usuario>> GetByIds(List<int> usuarioIds);
     Task<string> GetComunidadNameByIdUser(int idUser);
     Task<List<UsersElosDTO>> GetAllUserWithElo();
+    Task<List<GanadorNickDTO>> GetAllSoloNicks();
 }
