@@ -41,3 +41,4 @@ AmonSul/AS.Infrastructure/bin/Release/net8.0/AS.Infrastructure.deps.json
 AmonSul/AS.Application/bin/Debug/net8.0/AS.Application.deps.json
 AmonSul/AS.Infrastructure/bin/Debug/net8.0/AS.Infrastructure.deps.json
 AmonSul/AS.Utils/bin/Release/net8.0/AS.Utils.deps.json
+AmonSul/AS.Application/bin/Debug/net8.0/AS.Application.runtimeconfig.json

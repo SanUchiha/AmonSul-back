@@ -96,11 +96,18 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(deletedLista);
     }
 
-    [HttpPost]
-    [Route("Lista-Torneo")]
-    public async Task<ActionResult<bool>>GetListaTorneo([FromBody] ListaTorneoRequestDTO requestDTO)
+    
+    [HttpGet]
+    [Route("Lista-Torneo/{idTorneo}/{idUsuario}")]
+    public async Task<ActionResult<bool>>GetListaTorneo(int idTorneo, int idUsuario)
     {
-        string? listaData = await _listaApplication.GetListaTorneo(requestDTO);
+        ListaTorneoRequestDTO listaTorneoRequestDTO = new()
+        {
+            IdTorneo = idTorneo,
+            IdUsuario = idUsuario
+        };
+
+        string? listaData = await _listaApplication.GetListaTorneo(listaTorneoRequestDTO);
         if (listaData is null)
         {
             return BadRequest("Unable to get the lista.");
