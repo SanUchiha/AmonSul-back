@@ -7,6 +7,7 @@ using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Claims;
 
 namespace AS.Application.Services;
 
@@ -100,7 +101,9 @@ public class EloApplication(
     {
         var response = await _unitOfWork.EloRepository.GetElos();
 
-        var lista = _mapper.Map<List<EloUsuarioDTO>>(response);
+        List<EloUsuarioDTO> lista = _mapper.Map<List<EloUsuarioDTO>>(response);
+
+        lista = lista.Where(l => l.PuntuacionElo != 800).ToList();
 
         return lista;
 
@@ -176,42 +179,47 @@ public class EloApplication(
             var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
             ViewEloDTO view = await scopedEloApplication.GetElo(usuario.Email);
-            ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 
-            obj.IdFaccion = usuario.IdFaccion;
-            /*List<ViewPartidaAmistosaDTO> partidasAmistosas = 
-                await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.IdUsuario);*/
             List<ViewPartidaTorneoDTO> partidasTorneo =
                 await scopedPartidaTorneoApplication.GetPartidasTorneosByUsuario(view.IdUsuario);
 
-            /*List<MatchDTO> partidasAmistosasMapped =
-                _mapper.Map<List<MatchDTO>>(partidasAmistosas);*/
             List<MatchDTO> partidasTorneoMapped =
                 _mapper.Map<List<MatchDTO>>(partidasTorneo);
 
             List<MatchDTO> partidas = [.. partidasTorneoMapped];
 
+            partidas = partidas.Where(p => 
+                p.FechaPartida!.Value.Year == DateOnly.FromDateTime(DateTime.UtcNow).Year).ToList();
+
+            ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
+
+                obj.IdFaccion = usuario.IdFaccion;
             if (partidas.Count != 0)
             {
+                
                 obj.Partidas = partidas.Count;
                 obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
                 obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
                 obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
                 obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
                 obj.NumeroPartidasJugadas = partidas.Count;
+
+
             }
             else
             {
-                obj.Elo = 800;
-                obj.NumeroPartidasJugadas = 0;
+                obj = null!;
             }
-
             return obj;
+
         }));
 
         // Esperar todas las tareas y retornar la clasificación
         ClasificacionEloDTO[] clasificacion = await Task.WhenAll(tasks);
-        return [.. clasificacion];
+
+       //clasificacion = clasificacion.Where(c => c != null).ToList();
+
+        return [.. clasificacion.Where(c => c != null).ToList()];
     }
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacionMensual()
