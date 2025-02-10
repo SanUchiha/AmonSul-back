@@ -7,7 +7,7 @@ public interface IGanadorApplication
 {
     Task<Ganador> GetById(int id);
     Task<List<GanadorDTO>> GetAll();
-    Task<bool> Register(List<GanadorDTO> ganadoresDTO);
+    Task<bool> SaveResultTournamentAsync(GuardarResultadosDTO guardarResultadosDTO);
     Task<bool> Delete(int id);
 
     Task<bool> IsSave(int idTorneo);

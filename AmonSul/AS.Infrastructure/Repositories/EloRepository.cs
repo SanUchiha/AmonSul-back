@@ -34,7 +34,6 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
         }
     }
 
-
     public async Task<bool> RegisterElo(Elo elo)
     {
         try

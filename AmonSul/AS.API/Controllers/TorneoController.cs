@@ -2,7 +2,6 @@
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
-using AS.Application.Services;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;

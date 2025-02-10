@@ -12,7 +12,6 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
 {
     private readonly IGanadorApplication _ganadorApplication = ganadorApplication;
 
-    //Obtener todos los ganadores
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -46,17 +45,19 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register([FromBody] List<GanadorDTO> ganadores)
+    public async Task<IActionResult> SaveResult([FromBody] GuardarResultadosDTO guardarResultadosDTO)
     {
-        if (ganadores.Count == 0) return BadRequest("El ganador no puede ser nulo.");
+        if (guardarResultadosDTO.GanadoresDTO.Count == 0) return BadRequest();
 
         try
         {
-            bool result = await _ganadorApplication.Register(ganadores);
-            if (result)
-                return StatusCode(200);
+            bool result = 
+                await _ganadorApplication.SaveResultTournamentAsync(guardarResultadosDTO);
+            if (!result)
+                return BadRequest("No se pudo registrar los resultados del torneo.");
 
-            return BadRequest("No se pudo registrar los resultados del torneo.");
+            return StatusCode(200);
+
         }
         catch (Exception ex)
         {

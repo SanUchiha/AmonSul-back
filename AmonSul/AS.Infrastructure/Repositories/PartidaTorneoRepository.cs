@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Azure.Core;
 using Microsoft.EntityFrameworkCore;
@@ -200,6 +201,31 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         catch (Exception ex)
         {
             throw new Exception("Ocurrio un problema en el servidor al generar las partidas de la ronda.", ex);
+        }
+    }
+
+    public async Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda)
+    {
+        try
+        {
+            List<UpdateEloPartidaDTO> partidas = await _dbamonsulContext.PartidaTorneos
+                .Where(p => p.IdTorneo == idTorneo &&
+                            p.NumeroRonda == idRonda)
+                .Select(p => new UpdateEloPartidaDTO
+                {
+                    IdUsuario1 = p.IdUsuario1,
+                    IdUsuario2 = p.IdUsuario2,
+                    GanadorPartidaTorneo = p.GanadorPartidaTorneo
+                })
+                .ToListAsync();
+
+            if (partidas == null) return [];
+
+            return partidas;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al buscar las partidas", ex);
         }
     }
 }

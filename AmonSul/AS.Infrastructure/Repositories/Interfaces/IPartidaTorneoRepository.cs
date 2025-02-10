@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -17,4 +18,5 @@ public interface IPartidaTorneoRepository
     Task<bool> GenerateRound(List<PartidaTorneo> partidasRonda);
 
     Task<bool> Delete(int idPartida);
+    Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
 }
