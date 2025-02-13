@@ -83,9 +83,20 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
-    public Task<bool> Edit(Torneo torneo)
+    public async Task<bool> Edit(Torneo torneo)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var isUpdate = _dbamonsulContext.Torneos.Update(torneo);
+            if (isUpdate == null) return false;
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrio un problema en el servidor al modificar el torneo.", ex);
+        }
     }
 
     public Task<bool> Delete(int id)

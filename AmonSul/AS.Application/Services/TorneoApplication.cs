@@ -59,10 +59,8 @@ public class TorneoApplication(
 
     private static async Task GuardarBasesEnPDFAsync(string basesTorneo, string nombreTorneo)
     {
-        // Decodifica la cadena Base64 a un arreglo de bytes.
         byte[] basesBytes = Convert.FromBase64String(basesTorneo);
 
-        // Define la ruta y el nombre del archivo, asegurándote de que el nombre del torneo sea seguro para usar como nombre de archivo.
         string filePath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "wwwroot",
@@ -71,11 +69,6 @@ public class TorneoApplication(
             ".pdf");
         
         await File.WriteAllBytesAsync(filePath, basesBytes);
-    }
-
-    public Task<bool> Edit(TorneoDTO TorneoDTO)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<bool> Delete(int id)
@@ -162,4 +155,74 @@ public class TorneoApplication(
         return result;
     }
 
+    public async Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request)
+    {
+        var torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        if (torneo == null) return false;
+
+        if (request.LimiteParticipantes.HasValue)
+            torneo.LimiteParticipantes = request.LimiteParticipantes.Value;
+
+        if (request.FechaInicioTorneo.HasValue)
+            torneo.FechaInicioTorneo = request.FechaInicioTorneo.Value;
+
+        if (request.FechaFinTorneo.HasValue)
+            torneo.FechaFinTorneo = request.FechaFinTorneo.Value;
+
+        if (request.PrecioTorneo.HasValue)
+            torneo.PrecioTorneo = request.PrecioTorneo.Value;
+
+        if (request.NumeroPartidas.HasValue)
+            torneo.NumeroPartidas = request.NumeroPartidas.Value;
+
+        if (request.PuntosTorneo.HasValue)
+            torneo.PuntosTorneo = request.PuntosTorneo.Value;
+
+        if (!string.IsNullOrWhiteSpace(request.LugarTorneo))
+            torneo.LugarTorneo = request.LugarTorneo;
+
+        if (request.FechaEntregaListas.HasValue)
+            torneo.FechaEntregaListas = request.FechaEntregaListas.Value;
+
+        if (request.FechaFinInscripcion.HasValue)
+            torneo.FechaFinInscripcion = request.FechaFinInscripcion.Value;
+
+        if (!string.IsNullOrWhiteSpace(request.CartelTorneo))
+            torneo.CartelTorneo = request.CartelTorneo;
+
+        if (!string.IsNullOrWhiteSpace(request.MetodosPago))
+            torneo.MetodosPago = request.MetodosPago;
+
+        if (request.HoraInicioTorneo.HasValue)
+            torneo.HoraInicioTorneo = request.HoraInicioTorneo.Value;
+
+        if (request.HoraFinTorneo.HasValue)
+            torneo.HoraFinTorneo = request.HoraFinTorneo.Value;
+
+        torneo.BasesTorneo = null;
+        torneo.DescripcionTorneo ??= "";
+        torneo.MetodosPago ??= "";
+
+        bool torneoEditado = await _unitOfWork.TorneoRepository.Edit(torneo);
+
+        if (!torneoEditado) return false;
+
+        if (string.IsNullOrWhiteSpace(request.BasesTorneo)) return true;
+
+        await GuardarBasesEnPDFAsync(request.BasesTorneo, torneo.NombreTorneo);
+
+        return torneoEditado;
+    }
+
+    public async Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request)
+    {
+        var torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        if (torneo == null) return false;
+
+        if (string.IsNullOrWhiteSpace(request.BasesTorneo)) return false;
+
+        await GuardarBasesEnPDFAsync(request.BasesTorneo, torneo.NombreTorneo);
+
+        return true;
+    }
 }

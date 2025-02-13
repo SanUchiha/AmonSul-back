@@ -24,11 +24,6 @@ public class TorneoController(
 
     #region Gestion torneo
 
-    /// <summary>
-    /// Generar Rondas
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route("Gestion/Generar-Ronda")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
@@ -95,6 +90,18 @@ public class TorneoController(
         
         return Ok(response);
     }
+
+    [HttpPatch]
+    [Route("Gestion/editar")]
+    public async Task<IActionResult> UpdateTorneo(
+        [FromBody, Required] UpdateTorneoDTO request) => 
+            Ok(await _torneoApplication.UpdateTorneoAsync(request));
+
+    [HttpPatch]
+    [Route("Gestion/subir-bases")]
+    public async Task<IActionResult> UpdateBasesTorneo(
+    [FromBody, Required] UpdateBasesDTO request) =>
+        Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
 
     #endregion
 
