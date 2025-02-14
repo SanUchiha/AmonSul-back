@@ -1,10 +1,10 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.API.Filters;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,8 +26,6 @@ public class TorneoController(
 
     [HttpPost]
     [Route("Gestion/Generar-Ronda")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GenerarRonda([FromBody, Required] GenerarRondaDTO request)
     {
         bool response = await _partidaTorneoApplication.GenerateRound(request);
@@ -51,6 +49,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/info-torneo/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
         TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
@@ -62,6 +61,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
         List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneo(idTorneo);
@@ -73,6 +73,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}/{idRonda}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetPartidasRondaTorneo(int idTorneo, int idRonda)
     {
         List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoByRonda(idTorneo, idRonda);
@@ -84,6 +85,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/issave/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> IsSaveTournament(int idTorneo)
     {
         bool response = await _ganadorApplication.IsSave(idTorneo);
@@ -127,11 +129,6 @@ public class TorneoController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// Crear torneo
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
@@ -143,11 +140,6 @@ public class TorneoController(
         return Created(string.Empty, "El torneo ha sido creada con éxito");
     }
 
-    /// <summary>
-    /// Obtener las bases de un torneo
-    /// </summary>
-    /// <param name="idTorneo"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("bases/{idTorneo}")]
     public async Task<IActionResult> GetBasesTorneo(int idTorneo)
@@ -168,15 +160,8 @@ public class TorneoController(
         }
     }
 
-    /// <summary>
-    /// Editar la partida de un torneo
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPut]
     [Route("Editar-Partida")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EdtarPartida([FromBody, Required] UpdatePartidaTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.Edit(request);
@@ -186,15 +171,8 @@ public class TorneoController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// Editar el pairing de un torneo
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPut]
     [Route("Editar-Pairing")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EditarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.EdtarPairing(request);
@@ -204,15 +182,8 @@ public class TorneoController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// Agregar un pairing a un torneo
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route("Agregar-Pairing")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddPairing([FromBody, Required] AddPairingTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.Register(request);
@@ -222,15 +193,8 @@ public class TorneoController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// Eliminar una partida de un torneo
-    /// </summary>
-    /// <param name="idPartida"></param>
-    /// <returns></returns>
     [HttpDelete]
     [Route("Eliminar-Partida/{idPartida}")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeletePartida(int idPartida)
     {
         bool response = await _partidaTorneoApplication.Delete(idPartida);
@@ -240,11 +204,6 @@ public class TorneoController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// Obtiene todas las partidas en torneos de un usuario
-    /// </summary>
-    /// <param name="idUsuario"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("Partidas/Usuario/{idUsuario}")]
     public async Task<IActionResult> GetPartidasUsuarioTorneos(int idUsuario)

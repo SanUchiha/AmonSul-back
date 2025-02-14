@@ -1,3 +1,4 @@
+using AS.API.Filters;
 using AS.Application.Extensions;
 using AS.Infrastructure.Extensions;
 using Hangfire;
@@ -14,6 +15,8 @@ services.AddSwaggerGen();
 
 services.AddInfrastructureServices(configuration);
 services.AddApplicationServices(configuration);
+
+services.AddScoped<AdminTorneoFilter>();
 
 var app = builder.Build();
 

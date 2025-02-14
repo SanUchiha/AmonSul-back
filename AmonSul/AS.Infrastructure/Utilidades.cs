@@ -50,7 +50,7 @@ public class Utilidades(IConfiguration configuration)
         var jwtConfig = new JwtSecurityToken
             (
                 claims: userClaims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                expires: DateTime.UtcNow.AddHours(12),
                 signingCredentials: credentials
 
             );
