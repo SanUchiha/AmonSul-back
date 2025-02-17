@@ -61,7 +61,6 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
         List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneo(idTorneo);

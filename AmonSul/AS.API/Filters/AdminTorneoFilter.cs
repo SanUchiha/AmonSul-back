@@ -29,7 +29,7 @@ public class AdminTorneoFilter(IServiceProvider serviceProvider) : ActionFilterA
         var userEncontrado = await unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(idTorneo);
         if (userId != userEncontrado)
         {
-            context.Result = new ForbidResult();
+            context.Result = new UnauthorizedResult();
             return;
         }
 
