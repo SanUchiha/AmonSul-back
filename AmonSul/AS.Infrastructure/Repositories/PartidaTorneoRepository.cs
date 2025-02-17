@@ -111,6 +111,7 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                 .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
                 .Include(p => p.IdUsuario1Navigation)
                 .Include(p => p.IdUsuario2Navigation)
+                .Include(p => p.IdTorneoNavigation)
                 .ToListAsync();
 
             if (partidas == null) return [];
