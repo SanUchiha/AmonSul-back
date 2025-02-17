@@ -232,18 +232,6 @@ public class PartidaTorneoApplication(
                     generarRondaDTO,
                     emparejamientos);
         }
-
-
-      /*  List<int> ids = [];
-        foreach (var item in listaEmparejadosLuzVsOscuridad)
-        {
-            ids.Add(item.Jugador1.IdUsuario);
-            ids.Add(item.Jugador2.IdUsuario);
-        }
-
-        jugadoresSinEmparejar = jugadoresSinEmparejar
-            .Where(jugador => !ids.Contains(jugador.IdUsuario))
-            .ToList();*/       
     }
 
     private async Task<List<EmparejamientoDTO>> GenerarPrimeraRondaLuzVsOscuridadAsync(
@@ -323,6 +311,18 @@ public class PartidaTorneoApplication(
             jugadoresSinEmparejar.Remove(usuario2);
         }
 
+        //Controlamos bye
+        if(jugadoresSinEmparejar.Count > 0)
+        {
+            EmparejamientoDTO nuevoEmparejamiento = new()
+            {
+                Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugadoresSinEmparejar[0].IdUsuario, Nick = jugadoresSinEmparejar[0].Nick },
+                Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = 568, Nick = "BYE"}
+            };
+
+            emparejamientos.Add(nuevoEmparejamiento);
+        }
+
         // Crear las partidas
         foreach (var item in emparejamientos)
         {
@@ -395,6 +395,18 @@ public class PartidaTorneoApplication(
             // Remover los jugadores emparejados
             jugadoresSinEmparejar.Remove(jugador1);
             jugadoresSinEmparejar.Remove(jugador2);
+        }
+
+        //Controlamos bye
+        if (jugadoresSinEmparejar.Count > 0)
+        {
+            EmparejamientoDTO nuevoEmparejamiento = new()
+            {
+                Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugadoresSinEmparejar[0].IdUsuario, Nick = jugadoresSinEmparejar[0].Nick },
+                Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = 568, Nick = "BYE" }
+            };
+
+            emparejamientos.Add(nuevoEmparejamiento);
         }
 
         // Crear las partidas
@@ -602,6 +614,18 @@ public class PartidaTorneoApplication(
 
         emparejamientos.AddRange(emparejamientosAleatorios);
 
+        //Controlamos bye
+        if (jugadoresSinEmparejar.Count > 0)
+        {
+            EmparejamientoDTO nuevoEmparejamiento = new()
+            {
+                Jugador1 = new JugadorEmparejamientoDTO { IdUsuario = jugadoresSinEmparejar[0].IdUsuario, Nick = jugadoresSinEmparejar[0].Nick },
+                Jugador2 = new JugadorEmparejamientoDTO { IdUsuario = 568, Nick = "BYE" }
+            };
+
+            emparejamientos.Add(nuevoEmparejamiento);
+        }
+
         // Crear las partidas
         foreach (var item in emparejamientos)
         {
@@ -722,7 +746,9 @@ public class PartidaTorneoApplication(
                         IdUsuario = (int)partida.IdUsuario1,
                         PuntuacionElo = nuevoEloJugador1
                     };
-                    await _eloApplication.RegisterElo(createElo1);
+
+                    if(createElo1.IdUsuario != 568)
+                        await _eloApplication.RegisterElo(createElo1);
 
                     //Elo jugador 2
                     CreateEloDTO createElo2 = new()
@@ -730,7 +756,9 @@ public class PartidaTorneoApplication(
                         IdUsuario = (int)partida.IdUsuario2,
                         PuntuacionElo = nuevoEloJugador2
                     };
-                    await _eloApplication.RegisterElo(createElo2);
+
+                    if (createElo2.IdUsuario != 568)
+                        await _eloApplication.RegisterElo(createElo2);
                 }
             }
         }
