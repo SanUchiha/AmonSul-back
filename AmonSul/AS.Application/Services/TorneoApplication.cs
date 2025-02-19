@@ -24,11 +24,34 @@ public class TorneoApplication(
         return _mapper.Map<List<TorneoDTO>>(response);
     }
 
-    public async Task<TorneoDTO> GetById(int Id)
+    public async Task<TorneoDTO> GetById(int id)
     {
-        var response = await _unitOfWork.TorneoRepository.GetById(Id);
+        var response = await _unitOfWork.TorneoRepository.GetById(id);
 
-        return _mapper.Map<TorneoDTO>(response);
+        var torneoDTO = _mapper.Map<TorneoDTO>(response);
+
+        bool tieneBases = TieneBases(id, torneoDTO.NombreTorneo);
+        torneoDTO.tieneBases = tieneBases;
+
+        return torneoDTO;
+    }
+
+    private bool TieneBases(int idTorneo, string nombreTorneo)
+    {
+        string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Bases");
+        string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
+
+        if (!File.Exists(filePath))
+        {
+            string filePathWithoutCaracters = filePath.Replace("\"", "");
+            if (File.Exists(filePathWithoutCaracters))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        else return true;
     }
 
     public async Task<bool> Register(CrearTorneoDTO request)
