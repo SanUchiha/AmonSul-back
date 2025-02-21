@@ -1,8 +1,10 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 
@@ -30,13 +32,13 @@ public class TorneoApplication(
 
         var torneoDTO = _mapper.Map<TorneoDTO>(response);
 
-        bool tieneBases = TieneBases(id, torneoDTO.NombreTorneo);
+        bool tieneBases = TieneBases(torneoDTO.NombreTorneo);
         torneoDTO.tieneBases = tieneBases;
 
         return torneoDTO;
     }
 
-    private bool TieneBases(int idTorneo, string nombreTorneo)
+    private static bool TieneBases(string nombreTorneo)
     {
         string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Bases");
         string filePath = Path.Combine(folderPath, nombreTorneo + ".pdf");
@@ -61,10 +63,10 @@ public class TorneoApplication(
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
 
-        bool torneoCreado = 
+        ResultTorneoCreadoDTO torneoCreado = 
             await _unitOfWork.TorneoRepository.Register(torneo);
         
-        if(!torneoCreado) return false;
+        if(!torneoCreado.HasCreated) return false;
 
         if(!string.IsNullOrEmpty(request.BasesTorneo))
             await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
@@ -77,7 +79,16 @@ public class TorneoApplication(
                 request.NombreTorneo!,
                 listaDestinatarios));
 
-        return torneoCreado;
+        LigaTorneo ligaTorneo = new()
+        {
+            IdLiga = 2,
+            IdTorneo = torneoCreado.IdTorneo
+        };
+
+        if (torneoCreado.HasCreated)
+            await _unitOfWork.LigaRepository.AddTorneoToLigaAsync(ligaTorneo);
+
+        return torneoCreado.HasCreated;
     }
 
     private static async Task GuardarBasesEnPDFAsync(string basesTorneo, string nombreTorneo)

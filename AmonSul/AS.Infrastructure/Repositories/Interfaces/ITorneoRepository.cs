@@ -1,6 +1,7 @@
 ﻿using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -11,7 +12,7 @@ public interface ITorneoRepository
     Task<Torneo> GetById(int Id);
     Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo);
     Task<bool> Edit(Torneo torneo);
-    Task<bool> Register(Torneo torneo);
+    Task<ResultTorneoCreadoDTO> Register(Torneo torneo);
     Task<bool> Delete(int id);
 
     Task<TorneoUsuarioDto> GetNombreById(int idTorneo);

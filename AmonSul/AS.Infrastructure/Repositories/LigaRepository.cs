@@ -8,9 +8,12 @@ public class LigaRepository(DbamonsulContext dbamonsulContext) : ILigaRepository
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
-    public Task<bool> AddTorneoToLigaAsync()
+    public async Task<bool> AddTorneoToLigaAsync(LigaTorneo ligaTorneo)
     {
-        throw new NotImplementedException();
+        await _dbamonsulContext.LigaTorneo.AddAsync(ligaTorneo);
+        await _dbamonsulContext.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<List<Liga>> GetAllLigasAsync()

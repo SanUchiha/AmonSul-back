@@ -1,6 +1,7 @@
 ﻿using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,21 +68,25 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
-    public async Task<bool> Register(Torneo torneo)
+    public async Task<ResultTorneoCreadoDTO> Register(Torneo torneo)
     {
         try
         {
-            var response = await _dbamonsulContext.Torneos.AddAsync(torneo);
-            if (response == null) return false;
+            await _dbamonsulContext.Torneos.AddAsync(torneo);
             await _dbamonsulContext.SaveChangesAsync();
 
-            return true;
+            return new ResultTorneoCreadoDTO
+            {
+                IdTorneo = torneo.IdTorneo,
+                HasCreated = true
+            };
         }
         catch (Exception ex)
         {
-            throw new Exception("Ocurrio un problema en el servidor al crea el torneo.", ex);
+            throw new Exception("Ocurrió un problema en el servidor al crear el torneo.", ex);
         }
     }
+
 
     public async Task<bool> Edit(Torneo torneo)
     {

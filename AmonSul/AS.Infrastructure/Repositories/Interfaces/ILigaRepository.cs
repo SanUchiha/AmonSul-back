@@ -7,5 +7,5 @@ public interface ILigaRepository
     Task <List<Liga>> GetAllLigasAsync();
     Task <Liga?> GetLigaByIdAsync(int idLiga);
     Task<List<LigaTorneo>?> GetTorneosByIdLigaAsync(int idLiga);
-    Task <bool> AddTorneoToLigaAsync();
+    Task<bool> AddTorneoToLigaAsync(LigaTorneo ligaTorneo);
 }
