@@ -12,15 +12,8 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 {
     private readonly IEloApplication _eloApplication = EloApplication;
 
-    /// <summary>
-    /// Obtener el Elo de un usuario por su email
-    /// </summary>
-    /// <param name="email"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("usuario/{email}")]
-    [ProducesResponseType(typeof(ViewEloDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPartidasAmistosas(string email)
     {
         ViewEloDTO response = await _eloApplication.GetElo(email);
@@ -32,8 +25,6 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 
     [HttpGet]
     [Route("")]
-    [ProducesResponseType(typeof(List<ViewEloDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllElos()
     {
         var response = await _eloApplication.GetAllElos();
@@ -43,14 +34,8 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         return Ok(response);
     }
 
-    /// <summary>
-    /// Obtiene la clasificacion general por elo
-    /// </summary>
-    /// <returns></returns>
     [HttpGet]
     [Route("Clasificacion")]
-    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetClasificacion()
     {
         List<ClasificacionEloDTO> response = 
@@ -61,14 +46,8 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         return Ok(response);
     }
     
-    /// <summary>
-    /// Obtener el ranking de un jugador
-    /// </summary>
-    /// <returns></returns>
     [HttpGet]
     [Route("Ranking/{idUsuario}")]
-    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetClasificacion(int idUsuario)
     {
         int ranking = await _eloApplication.GetRanking(idUsuario);
@@ -78,8 +57,6 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 
     [HttpGet]
     [Route("Mensual")]
-    [ProducesResponseType(typeof(List<ClasificacionEloDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetClasificacionMensual()
     {
         List<ClasificacionEloDTO> response = await _eloApplication.GetClasificacionMensual();
@@ -91,8 +68,6 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 
     [HttpPost]
     [Route("")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegistrarElo([FromBody] CreateEloDTO request)
     {
         var response = await _eloApplication.RegisterElo(request);

@@ -7,7 +7,6 @@ using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using System.Security.Claims;
 
 namespace AS.Application.Services;
 

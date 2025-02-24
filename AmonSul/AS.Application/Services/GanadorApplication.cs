@@ -124,14 +124,16 @@ public class GanadorApplication(
                         IdUsuario = (int)partida.IdUsuario1,
                         PuntuacionElo = nuevoEloJugador1
                     };
-                    await _eloApplication.RegisterElo(createElo1);
+                    if (createElo1.IdUsuario != 568)
+                        await _eloApplication.RegisterElo(createElo1);
 
                     CreateEloDTO createElo2 = new()
                     {
                         IdUsuario = (int)partida.IdUsuario2,
                         PuntuacionElo = nuevoEloJugador2
                     };
-                    await _eloApplication.RegisterElo(createElo2);
+                    if (createElo1.IdUsuario != 568)
+                        await _eloApplication.RegisterElo(createElo2);
                 }
             }
         }
