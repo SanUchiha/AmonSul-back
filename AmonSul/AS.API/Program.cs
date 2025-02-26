@@ -7,31 +7,26 @@ using Microsoft.EntityFrameworkCore;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 IServiceCollection services = builder.Services;
-var connection = configuration.GetConnectionString("MyASPString");
+string? connection = configuration.GetConnectionString("MyASPString");
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
-
 services.AddInfrastructureServices(configuration);
 services.AddApplicationServices(configuration);
-
 services.AddScoped<AdminTorneoFilter>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseCors("CORS");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseHangfireDashboard();
+
 BackgroundJob.Enqueue(() => Console.WriteLine("Amon sûl configurada correctamente."));
 
 app.Run();
