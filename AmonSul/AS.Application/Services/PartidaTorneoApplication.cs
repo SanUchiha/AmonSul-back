@@ -766,22 +766,22 @@ public class PartidaTorneoApplication(
 
     public async Task<bool> EdtarPairing(UpdatePairingTorneoDTO request)
     {
-        // Obtener la entidad existente
-        PartidaTorneo existingEntity = await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
+        PartidaTorneo existingEntity = 
+            await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
         if (existingEntity == null) return false;
 
-        // Actualizar las propiedades que no son nulas
         if (request.IdUsuario1.HasValue)
             existingEntity.IdUsuario1 = request.IdUsuario1.Value;
 
         if (request.IdUsuario2.HasValue)
             existingEntity.IdUsuario2 = request.IdUsuario2.Value;
 
-        // Guardar los cambios en la base de datos
-        bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+        if (!string.IsNullOrEmpty(request.EjercitoUsuario1))
+            existingEntity.EjercitoUsuario1 = request.EjercitoUsuario1;
 
-        return result;
+        if (!string.IsNullOrEmpty(request.EjercitoUsuario2))
+            existingEntity.EjercitoUsuario2 = request.EjercitoUsuario2;
+
+        return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
     }
-
-
 }
