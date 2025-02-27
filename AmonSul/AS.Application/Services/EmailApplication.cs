@@ -1,8 +1,6 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.Exceptions;
 using AS.Application.Interfaces;
-using AS.Domain.Models;
-using AS.Infrastructure.Repositories.Interfaces;
 using Hangfire;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -166,10 +164,17 @@ public class EmailApplication(
         <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
             <p>Hola,</p>
             <p>Nos complace informarte que se ha creado un nuevo torneo llamado <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span>.</p>      
-            <p>Puedes acceder a más detalles y gestionar tu inscripción de Amon Sûl.</p>
-            <p>Gracias por formar parte de Amon Súl.</p>
+            <p>Puedes acceder a más detalles y gestionar tu inscripción desde Amon Sûl.</p>
+            <p>Gracias por formar parte de AS.</p>
         </body>
         </html>";
+
+        List<string> emailsExcluidos = _emailSettings.EmailsExcluidos;
+
+        if(emailsExcluidos.Count > 0)
+            destinatarios = destinatarios
+                .Where(email => !emailsExcluidos.Contains(email))
+                .ToList();
 
         List<List<string>> destinatarioGroups = destinatarios
           .Select((item, index) => new { item, index })
@@ -195,7 +200,7 @@ public class EmailApplication(
             <p>Hola,</p>
             <p>La ronda número <span style=""font-size: 18px; color: #2e6c80;""><strong>{ronda}</strong></span> para el torneo <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span> ya está generada.</p>      
             <p>Puedes acceder a Amon Sûl y ver los detalles.</p>
-            <p>Gracias por formar parte de Amon Súl.</p>
+            <p>Gracias por formar parte de AS.</p>
         </body>
         </html>";
 

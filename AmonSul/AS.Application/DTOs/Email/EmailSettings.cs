@@ -8,4 +8,5 @@ public class EmailSettings
     public required string Username { get; set; }
     public required string Password { get; set; }
     public required string From { get; set; }
+    public List<string> EmailsExcluidos { get; set; } = [];
 }
