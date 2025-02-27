@@ -104,9 +104,16 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
-    public Task<bool> Delete(int id)
+    public async Task<bool> Delete(int id)
     {
-        throw new NotImplementedException();
+        Torneo? torneo = await _dbamonsulContext.Torneos.FindAsync(id);
+
+        if (torneo == null) return false;
+
+        _dbamonsulContext.Torneos.Remove(torneo);
+        await _dbamonsulContext.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int idUsuario) =>

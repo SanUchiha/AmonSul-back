@@ -104,6 +104,16 @@ public class TorneoController(
     [FromBody, Required] UpdateBasesDTO request) =>
         Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
 
+    [HttpDelete]
+    [Route("Gestion/{idTorneo}")]
+    //[ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> DeleteTournament(int idTorneo)
+    {
+        bool response = await _torneoApplication.Delete(idTorneo);
+
+        return Ok(response);
+    }
+
     #endregion
 
     [HttpGet]

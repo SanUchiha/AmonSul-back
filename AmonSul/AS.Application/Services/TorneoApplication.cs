@@ -105,10 +105,8 @@ public class TorneoApplication(
         await File.WriteAllBytesAsync(filePath, basesBytes);
     }
 
-    public Task<bool> Delete(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<bool> Delete(int id) => 
+        await _unitOfWork.TorneoRepository.Delete(id);
 
     public async Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(int idTorneo)
     {
