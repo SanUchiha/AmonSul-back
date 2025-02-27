@@ -1,13 +1,14 @@
 ﻿using AS.Application.DTOs;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   // [Authorize]
+    [Authorize]
     public class LigasController(ILigaApplication ligaApplication) : ControllerBase
     {
         private readonly ILigaApplication _ligaApplication = ligaApplication;

@@ -158,7 +158,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            var response = await _usuarioApplication.GetByEmail(email);
+            ViewUsuarioPartidaDTO? response = await _usuarioApplication.GetByEmail(email);
 
             if (response is null) return NotFound();
 
@@ -266,7 +266,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            var response = await _usuarioApplication.GetUsuario(email);
+            UsuarioViewDTO? response = await _usuarioApplication.GetUsuario(email);
 
             if (response is null) return NotFound();
 

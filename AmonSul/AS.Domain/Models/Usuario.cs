@@ -9,12 +9,15 @@ public partial class Usuario
     public string Email { get; set; } = null!;
     public string Contraseña { get; set; } = null!;
     public string Nick { get; set; } = null!;
+    public string? NickLGDA { get; set; }
     public string? Ciudad { get; set; }
     public DateOnly FechaRegistro { get; set; }
     public DateOnly FechaNacimiento { get; set; }
     public int? IdFaccion { get; set; }
     public string? Telefono { get; set; }
     public bool? ProteccionDatos { get; set; }
+    public string? Imagen { get; set; }
+
     public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = [];
     public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual ICollection<Comentario> Comentarios { get; set; } = [];

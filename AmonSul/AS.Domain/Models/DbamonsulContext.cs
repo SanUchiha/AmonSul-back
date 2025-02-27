@@ -453,6 +453,11 @@ public partial class DbamonsulContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.ProteccionDatos)
                 .HasColumnName("Proteccion_Datos");
+            entity.Property(e => e.NickLGDA)
+                .HasColumnName("Nick_LGDA")
+                .HasMaxLength(50);
+            entity.Property(e => e.Imagen)
+               .HasColumnType("text");
 
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)

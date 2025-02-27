@@ -13,4 +13,6 @@ public class UsuarioViewDTO
     public DateOnly FechaNacimiento { get; set; }
     public int? IdFaccion { get; set; }
     public string? Telefono { get; set; }
+    public string? NickLGDA { get; set; }
+    public string? Imagen { get; set; }
 }
