@@ -6,6 +6,7 @@ using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Rewrite;
 using System.Net.Mail;
 
 namespace AS.Application.Services;
@@ -88,6 +89,59 @@ public class InscripcionApplication(
         return result;
     }
 
+    public async Task<bool> CreaInsciprcionEquipo(CreateEquipoDTO createEquipoDTO)
+    {
+        Equipo equipo = new()
+        {
+            IdCapitan = createEquipoDTO.IdCapitan,
+            NombreEquipo = createEquipoDTO.NombreEquipo
+        };
+        Equipo equipoCreated = await _unitOfWork.InscripcionRepository.CreateEquipoAsync(equipo);
+
+        if(equipoCreated == null) return false;
+
+        if(createEquipoDTO.Miembros!.Count == 0) return false;   
+
+        foreach (var item in createEquipoDTO.Miembros)
+        {
+            EquipoUsuario equipoUsuario = new()
+            {
+                IdEquipo = equipoCreated.IdEquipo,
+                IdUsuario = item
+            };
+            await _unitOfWork.InscripcionRepository.AddUsuarioToEquipoAsync(equipoUsuario);
+
+            CrearInscripcionEquipoDTO crearInscripcionEquipoDTO = new()
+            {
+                IdTorneo = createEquipoDTO.IdTorneo,
+                IdUsuario = item,
+                IdEquipo = equipoCreated.IdEquipo
+            };
+
+            InscripcionTorneo inscripcion = _mapper.Map<InscripcionTorneo>(crearInscripcionEquipoDTO);
+            await _unitOfWork.InscripcionRepository.Register(inscripcion);
+        }
+
+        EquipoUsuario equipoUsuarioCapitan = new()
+        {
+            IdEquipo = equipoCreated.IdEquipo,
+            IdUsuario = createEquipoDTO.IdCapitan
+        };
+        await _unitOfWork.InscripcionRepository.AddUsuarioToEquipoAsync(equipoUsuarioCapitan);
+
+        CrearInscripcionEquipoDTO crearInscripcionEquipoCapitanDTO = new()
+        {
+            IdTorneo = createEquipoDTO.IdTorneo,
+            IdUsuario = createEquipoDTO.IdCapitan,
+            IdEquipo = equipoCreated.IdEquipo
+        };
+
+        InscripcionTorneo inscripcionCapitan = _mapper.Map<InscripcionTorneo>(crearInscripcionEquipoCapitanDTO);
+        bool result = await _unitOfWork.InscripcionRepository.Register(inscripcionCapitan);
+
+        return result;
+    }
+
     public async Task<InscripcionTorneo> Delete(int id)
     {
         return await _unitOfWork.InscripcionRepository.Delete(id);
@@ -111,6 +165,38 @@ public class InscripcionApplication(
         return inscripcionDTO;
     }
 
+    public async Task<InscripcionTorneoEquiposDTO> GetInscripcionEquipoByIdAsync(int idInscripcion)
+    {
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+
+        InscripcionTorneoEquiposDTO inscripcionDTO = 
+            _mapper.Map<InscripcionTorneoEquiposDTO>(inscripcion);
+
+        if(inscripcionDTO.IdEquipo == 0) return inscripcionDTO;
+
+        //Buscamos los componentes del equipo
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(inscripcionDTO.IdEquipo);
+
+        if (equipo is null) return inscripcionDTO;
+
+        List<ComponentesEquipoDTO> componentes = [];
+
+        var nickCapitan = await _unitOfWork.UsuarioRepository.GetEmailNickById(equipo.IdCapitan);
+        componentes.Add(new ComponentesEquipoDTO() { IdUsuario = equipo.IdCapitan, Nick = nickCapitan.Nick.Trim()});
+
+        foreach (var item in equipo.Miembros)
+        {
+            var nick = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario);
+            componentes.Add(new ComponentesEquipoDTO() { IdUsuario = item.IdUsuario, Nick = nick.Nick.Trim() });
+        }
+
+        inscripcionDTO.IdCapitan = equipo.IdCapitan;
+        inscripcionDTO.NombreEquipo = equipo.NombreEquipo;
+        inscripcionDTO.ComponentesEquipo = componentes;
+
+        return inscripcionDTO;
+    }
+
     public async Task<List<InscripcionTorneo>> GetInscripciones()
     {
         return await _unitOfWork.InscripcionRepository.GetInscripciones();
@@ -125,13 +211,13 @@ public class InscripcionApplication(
 
     public async Task<List<InscripcionUsuarioDTO>> GetInscripcionesByUser(int idUsuario)
     {
-        List<InscripcionTorneo> insc = 
+        List<InscripcionTorneo> inscripcionTorneos = 
             await _unitOfWork.InscripcionRepository.GetInscripcionesByUser(idUsuario);
 
-        List<InscripcionUsuarioDTO> result =
-            _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
+        List<InscripcionUsuarioDTO> inscripcionUsuarioDTOs =
+            _mapper.Map<List<InscripcionUsuarioDTO>>(inscripcionTorneos);
         
-        return result;
+        return inscripcionUsuarioDTOs;
     }
 
     public async Task<bool> Register(CrearInscripcionDTO inscripcionTorneo)

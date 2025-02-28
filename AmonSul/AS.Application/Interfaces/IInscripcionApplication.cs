@@ -14,4 +14,6 @@ public interface IInscripcionApplication
 
     Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);
+    Task<bool> CreaInsciprcionEquipo(CreateEquipoDTO createEquipoDTO);
+    Task<InscripcionTorneoEquiposDTO> GetInscripcionEquipoByIdAsync(int idUsuario);
 }

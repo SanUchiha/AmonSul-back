@@ -16,4 +16,9 @@ public interface IInscripcionRepository
     Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion);
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
+
+    Task<List<Equipo>> GetAllEquiposByTorneoAsync(int Id_Torneo);
+    Task<Equipo?> GetEquipoByIdAsync(int id);
+    Task<Equipo> CreateEquipoAsync(Equipo equipo);
+    Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);
 }

@@ -8,6 +8,12 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
+    public async Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsuario)
+    {
+        _dbamonsulContext.EquipoUsuario.Add(equipoUsuario);
+        return await _dbamonsulContext.SaveChangesAsync() > 0;
+    }
+
     public Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion)
     {
         throw new NotImplementedException();
@@ -32,6 +38,13 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         throw new NotImplementedException();
     }
 
+    public async Task<Equipo> CreateEquipoAsync(Equipo equipo)
+    {
+        _dbamonsulContext.Equipo.Add(equipo);
+        await _dbamonsulContext.SaveChangesAsync();
+        return equipo;
+    }
+
     public async Task<InscripcionTorneo> Delete(int idInscripcion)
     {
         var inscripcion = await _dbamonsulContext.InscripcionTorneos
@@ -43,6 +56,14 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         await _dbamonsulContext.SaveChangesAsync();
         return inscripcion;
     }
+
+    public async Task<List<Equipo>> GetAllEquiposByTorneoAsync(int Id_Torneo) => 
+        await _dbamonsulContext.Equipo.Include(e => e.Miembros).ToListAsync();
+
+    public async Task<Equipo?> GetEquipoByIdAsync(int id) => 
+        await _dbamonsulContext.Equipo
+            .Include(e => e.Miembros)
+            .FirstOrDefaultAsync(e => e.IdEquipo == id);
 
     //Obtiene una ins por id
     public async Task<InscripcionTorneo> GetInscripcionById(int idInscripcion)
@@ -84,6 +105,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         var insc = await _dbamonsulContext.InscripcionTorneos
                                       .Include(it => it.IdTorneoNavigation)
                                       .Include(it => it.IdUsuarioNavigation)
+                                      .Include(it => it.Equipo)
                                       .Where(it => it.IdUsuario == idUsuario)
                                       .ToListAsync();
         return insc;

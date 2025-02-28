@@ -31,11 +31,18 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripcion);
     }
 
-    /// <summary>
-    /// Obtener las inscripciones de un usuario
-    /// </summary>
-    /// <param name="idUsuario"></param>
-    /// <returns></returns>
+    [HttpGet("Equipo/{idInscripcion}")]
+    public async Task<ActionResult<InscripcionTorneoDTO>> GetInscripcionEquipoByIdUsuario(int idInscripcion)
+    {
+        InscripcionTorneoEquiposDTO inscripcion = 
+            await _inscripcionApplication.GetInscripcionEquipoByIdAsync(idInscripcion);
+        if (inscripcion == null)
+        {
+            return NotFound();
+        }
+        return Ok(inscripcion);
+    }
+
     [HttpGet("byUser/{idUsuario}")]
     public async Task<ActionResult<IList<InscripcionTorneo>>> GetInscripcionesByUser(int idUsuario)
     {
@@ -96,5 +103,12 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
             return BadRequest();
         }
         return Created();
+    }
+
+    [HttpPost("Equipo")]
+    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO)
+    {
+        bool result = await _inscripcionApplication.CreaInsciprcionEquipo(createEquipoDTO); 
+        return Ok(result);
     }
 }

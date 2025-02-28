@@ -14,37 +14,23 @@ public partial class DbamonsulContext : DbContext
     }
 
     public virtual DbSet<ClasificacionGeneral> ClasificacionGenerals { get; set; }
-
     public virtual DbSet<ClasificacionTorneo> ClasificacionTorneos { get; set; }
-
     public virtual DbSet<Comentario> Comentarios { get; set; }
-
     public virtual DbSet<Elo> Elos { get; set; }
-
     public virtual DbSet<Faccion> Facciones { get; set; }
-
     public virtual DbSet<InscripcionTorneo> InscripcionTorneos { get; set; }
-
     public virtual DbSet<Lista> Listas { get; set; }
-
     public virtual DbSet<PartidaAmistosa> PartidaAmistosas { get; set; }
-
     public virtual DbSet<PartidaTorneo> PartidaTorneos { get; set; }
-
     public virtual DbSet<RangoTorneo> RangoTorneos { get; set; }
-
     public virtual DbSet<Ronda> Ronda { get; set; }
-
     public virtual DbSet<Torneo> Torneos { get; set; }
-
     public virtual DbSet<Usuario> Usuarios { get; set; }
-
     public virtual DbSet<Ganador> Ganador { get; set; }
-
     public virtual DbSet<Liga> Liga { get; set; }
-
     public virtual DbSet<LigaTorneo> LigaTorneo { get; set; }
-
+    public virtual DbSet<Equipo> Equipo { get; set; }
+    public virtual DbSet<EquipoUsuario> EquipoUsuario { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -189,6 +175,13 @@ public partial class DbamonsulContext : DbContext
                .WithOne(e => e.IdInscripcionNavigation)
                .HasForeignKey(e => e.IdInscripcion)
                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(i => i.Equipo)
+                  .WithMany(e => e.Inscripciones)
+                  .HasForeignKey(i => i.IdEquipo);
+
+            entity.Property(e => e.IdEquipo).HasColumnName("Id_Equipo");
+
         });
 
         //Lista
@@ -518,6 +511,54 @@ public partial class DbamonsulContext : DbContext
                 .HasOne(lt => lt.Torneo)
                 .WithMany(t => t.LigaTorneos)
                 .HasForeignKey(lt => lt.IdTorneo);
+        });
+
+        //Equipo
+        modelBuilder.Entity<Equipo>(entity =>
+        {
+            entity.HasKey(e => e.IdEquipo).HasName("PK__Equipo__4B9119C08347A15E");
+
+            entity.Property(e => e.IdEquipo)
+                .HasColumnName("Id_Equipo")
+                .IsRequired();
+            entity.Property(e => e.NombreEquipo)
+                .HasColumnName("Nombre_Equipo")
+                .IsRequired();
+            entity.Property(e => e.IdCapitan)
+                .HasColumnName("Id_Capitan")
+                .IsRequired();
+
+            entity.HasOne(e => e.Capitan)
+                .WithMany()
+                .HasForeignKey(e => e.IdCapitan)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //Equipo-Usuario
+        modelBuilder.Entity<EquipoUsuario>(entity =>
+        {
+            entity.Property(e => e.IdEquipo)
+                .HasColumnName("Id_Equipo")
+                .IsRequired();
+            entity.Property(e => e.IdUsuario)
+                .HasColumnName("Id_Usuario")
+                .IsRequired();
+
+            entity.HasKey(e => new { e.IdUsuario, e.IdEquipo });
+
+            entity.ToTable("Equipo_Usuario");
+
+            entity
+                .HasOne(eu => eu.Equipo)
+                .WithMany(e => e.Miembros)
+                .HasForeignKey(eu => eu.IdEquipo)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity
+                .HasOne(eu => eu.Usuario)
+                .WithMany()
+                .HasForeignKey(eu => eu.IdUsuario)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -270,14 +270,7 @@ public class UsuarioApplication(
             response.PuntuacionElo = 800;
         }
 
-        List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
-        List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
-                .GroupBy(u => u.IdUsuario)
-                .Select(g => g.OrderByDescending(u => u.FechaElo).First())
-                .OrderByDescending(e => e.PuntuacionElo)];
-
-        response.ClasificacionElo = 
-            listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == response.IdUsuario) + 1;
+        response.ClasificacionElo = await _eloApplication.GetRanking(idUsuario) ?? 0;
 
         response.NumeroPartidasJugadas = 
             response.PartidasValidadas.Count + response.PartidasTorneo.Count;
