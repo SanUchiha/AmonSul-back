@@ -1,3 +1,4 @@
+using AS.API.Configurations;
 using AS.API.Filters;
 using AS.Application.Extensions;
 using AS.Infrastructure.Extensions;
@@ -11,7 +12,7 @@ string? connection = configuration.GetConnectionString("MyASPString");
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
+services.AddSwaggerConfigurations();
 services.AddInfrastructureServices(configuration);
 services.AddApplicationServices(configuration);
 services.AddScoped<AdminTorneoFilter>();
