@@ -21,7 +21,7 @@ public class TorneoApplication(
 
     public async Task<List<TorneoDTO>> GetTorneos()
     {
-        var response = await _unitOfWork.TorneoRepository.GetTorneos();
+        List<Torneo> response = await _unitOfWork.TorneoRepository.GetTorneos();
 
         return _mapper.Map<List<TorneoDTO>>(response);
     }
@@ -33,7 +33,7 @@ public class TorneoApplication(
         var torneoDTO = _mapper.Map<TorneoDTO>(response);
 
         bool tieneBases = TieneBases(torneoDTO.NombreTorneo);
-        torneoDTO.tieneBases = tieneBases;
+        torneoDTO.TieneBases = tieneBases;
 
         return torneoDTO;
     }
@@ -71,13 +71,16 @@ public class TorneoApplication(
         if(!string.IsNullOrEmpty(request.BasesTorneo))
             await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
 
-        List<string> listaDestinatarios =
-           await _unitOfWork.UsuarioRepository.GetAllEmail();
+        if (!torneo.NombreTorneo.Contains("test"))
+        {
+            List<string> listaDestinatarios =
+          await _unitOfWork.UsuarioRepository.GetAllEmail();
 
-        if (listaDestinatarios.Count > 0)
-            _ = Task.Run(() => _emailApplicacion.SendEmailNuevoTorneo(
-                request.NombreTorneo!,
-                listaDestinatarios));
+            if (listaDestinatarios.Count > 0)
+                _ = Task.Run(() => _emailApplicacion.SendEmailNuevoTorneo(
+                    request.NombreTorneo!,
+                    listaDestinatarios));
+        }
 
         LigaTorneo ligaTorneo = new()
         {

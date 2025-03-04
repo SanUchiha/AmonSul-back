@@ -24,4 +24,5 @@ public class CrearTorneoDTO
     public string? MetodosPago { get; set; }
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
+    public DateOnly? InicioInscripciones { get; set; }
 }

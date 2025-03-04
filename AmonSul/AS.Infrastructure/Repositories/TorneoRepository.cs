@@ -15,8 +15,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     {
         try
         {
-            var response = await _dbamonsulContext.Torneos.ToListAsync();
-            return response;
+            return await _dbamonsulContext.Torneos.ToListAsync();
         }
         catch (Exception ex)
         {

@@ -106,7 +106,7 @@ public class TorneoController(
 
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]
-    //[ServiceFilter(typeof(AdminTorneoFilter))]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> DeleteTournament(int idTorneo)
     {
         bool response = await _torneoApplication.Delete(idTorneo);
@@ -120,7 +120,7 @@ public class TorneoController(
     [Route("")]
     public async Task<IActionResult> GetTorneos()
     {
-        var response = await _torneoApplication.GetTorneos();
+        List<TorneoDTO> response = await _torneoApplication.GetTorneos();
 
         if (response == null) return NotFound();
 
@@ -131,7 +131,7 @@ public class TorneoController(
     [Route("id/{idtorneo}")]
     public async Task<IActionResult> GetTorneo(int idtorneo)
     {
-        var response = await _torneoApplication.GetById(idtorneo);
+        TorneoDTO response = await _torneoApplication.GetById(idtorneo);
 
         if (response == null) return NotFound();
 

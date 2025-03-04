@@ -23,10 +23,11 @@ public class TorneoDTO
     public bool? EsMatchedPlayTorneo { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
+    public DateOnly? InicioInscripciones { get; set; }
     public byte[]? BasesTorneo { get; set; }
     public string? CartelTorneo { get; set; }
     public string? MetodosPago { get; set; }
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
-    public bool tieneBases { get; set; }
+    public bool TieneBases { get; set; }
 }
