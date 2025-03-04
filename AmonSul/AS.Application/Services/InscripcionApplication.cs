@@ -1,6 +1,8 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Equipo;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
@@ -263,5 +265,11 @@ public class InscripcionApplication(
         inscripcionEquipoDTO.EmailOrganizador = organizador.Email;
 
         return inscripcionEquipoDTO;
+    }
+
+    public async Task<List<EquipoDTO>> GetInscripcionesEquipoByTorneoAsync(int idTorneo)
+    {
+        List<EquipoDTO> equipos = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(idTorneo);
+        return equipos;
     }
 }

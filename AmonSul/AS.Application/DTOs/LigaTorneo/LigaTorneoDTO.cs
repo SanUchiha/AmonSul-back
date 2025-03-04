@@ -1,6 +1,6 @@
 ﻿using AS.Domain.Models;
 
-namespace AS.Application.DTOs;
+namespace AS.Application.DTOs.LigaTorneo;
 
 public class LigaTorneoDTO
 {

@@ -10,4 +10,6 @@ public class TorneoCreadoDTO
     public string EstadoTorneo { get; set; } = null!;
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
+    public DateOnly? InicioInscripciones { get; set; }
+    public int? JugadoresXEquipo { get; set; }
 }

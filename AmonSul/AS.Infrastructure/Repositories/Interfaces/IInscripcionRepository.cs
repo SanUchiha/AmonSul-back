@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Equipo;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -17,7 +18,7 @@ public interface IInscripcionRepository
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
 
-    Task<List<Equipo>> GetAllEquiposByTorneoAsync(int Id_Torneo);
+    Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int Id_Torneo);
     Task<Equipo?> GetEquipoByIdAsync(int id);
     Task<Equipo> CreateEquipoAsync(Equipo equipo);
     Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);

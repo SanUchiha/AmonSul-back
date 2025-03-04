@@ -1,4 +1,6 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Domain.DTOs.Equipo;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;
@@ -18,4 +20,5 @@ public interface IInscripcionApplication
     Task<bool> CreaInsciprcionEquipo(CreateEquipoDTO createEquipoDTO);
     Task<List<InscripcionUsuarioEquipoDTO>> GetInscripcionEquipoByIdAsync(int idUser);
     Task<InscripcionEquipoDTO> GetInscripcionEquipo(int idInscripcion);
+    Task<List<EquipoDTO>> GetInscripcionesEquipoByTorneoAsync(int idTorneo);
 }

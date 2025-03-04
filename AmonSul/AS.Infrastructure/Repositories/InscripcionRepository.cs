@@ -1,4 +1,6 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Equipo;
+using AS.Domain.DTOs.Inscripcion;
+using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -58,8 +60,50 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return inscripcion;
     }
 
-    public async Task<List<Equipo>> GetAllEquiposByTorneoAsync(int Id_Torneo) => 
-        await _dbamonsulContext.Equipo.Include(e => e.Miembros).ToListAsync();
+    public async Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int idTorneo) =>
+        await _dbamonsulContext.Equipo
+            .Where(e => e.Inscripciones.Any(i => i.IdTorneo == idTorneo))
+            .Select(e => new
+            {
+                e.IdEquipo,
+                e.NombreEquipo,
+                e.IdCapitan,
+                Inscripciones = e.Inscripciones.Where(i => i.IdTorneo == idTorneo)
+                .Select(i => new
+                {
+                    i.IdInscripcion,
+                    i.IdTorneo,
+                    i.IdUsuario,
+                    i.FechaInscripcion,
+                    i.EstadoLista,
+                    i.FechaEntregaLista,
+                    i.EsPago,
+                    i.IdUsuarioNavigation!.Nick,
+                    Lista = i.Lista.FirstOrDefault()
+                }).ToList()
+            })
+            .ToListAsync()
+            .ContinueWith(task => task.Result.Select(e => new EquipoDTO
+            {
+                IdEquipo = e.IdEquipo,
+                NombreEquipo = e.NombreEquipo,
+                IdCapitan = e.IdCapitan,
+                Inscripciones = e.Inscripciones.Select(i => new InscripcionTorneoDTO
+                {
+                    IdInscripcion = i.IdInscripcion,
+                    IdTorneo = i.IdTorneo,
+                    IdUsuario = i.IdUsuario,
+                    FechaInscripcion = i.FechaInscripcion,
+                    EstadoLista = i.EstadoLista,
+                    FechaEntregaLista = i.FechaEntregaLista,
+                    EsPago = i.EsPago,
+                    Nick = i.Nick,
+                    IdLista = i.Lista != null ? i.Lista.IdLista : 0,
+                    ListaData = i.Lista != null ? i.Lista.ListaData ?? null: null,
+                    Ejercito = i.Lista != null ? i.Lista.Ejercito ?? null : null
+                }).ToList()
+            }).ToList());
+
 
     public async Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int idEquipo)
     {

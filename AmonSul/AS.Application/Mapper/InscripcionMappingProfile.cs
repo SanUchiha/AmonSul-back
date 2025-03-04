@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 using AutoMapper;
 

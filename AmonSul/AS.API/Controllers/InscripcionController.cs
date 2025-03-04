@@ -1,7 +1,7 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AS.Api.Controllers;
