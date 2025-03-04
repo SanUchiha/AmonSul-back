@@ -5,7 +5,7 @@ namespace AS.Infrastructure.Repositories.Interfaces;
 public interface IInscripcionRepository
 {
     Task<List<InscripcionTorneo>> GetInscripciones();
-    Task<List<InscripcionTorneo>> GetInscripcionesByUser(int idUsuario);
+    Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario);
     Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo);
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
@@ -21,4 +21,6 @@ public interface IInscripcionRepository
     Task<Equipo?> GetEquipoByIdAsync(int id);
     Task<Equipo> CreateEquipoAsync(Equipo equipo);
     Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);
+    Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUser);
+    Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int value);
 }

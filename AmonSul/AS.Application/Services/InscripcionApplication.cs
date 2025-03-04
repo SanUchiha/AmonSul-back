@@ -7,6 +7,7 @@ using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Rewrite;
+using System.Collections.Generic;
 using System.Net.Mail;
 
 namespace AS.Application.Services;
@@ -165,57 +166,25 @@ public class InscripcionApplication(
         return inscripcionDTO;
     }
 
-    public async Task<InscripcionTorneoEquiposDTO> GetInscripcionEquipoByIdAsync(int idInscripcion)
-    {
-        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
-
-        InscripcionTorneoEquiposDTO inscripcionDTO = 
-            _mapper.Map<InscripcionTorneoEquiposDTO>(inscripcion);
-
-        if(inscripcionDTO.IdEquipo == 0) return inscripcionDTO;
-
-        //Buscamos los componentes del equipo
-        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(inscripcionDTO.IdEquipo);
-
-        if (equipo is null) return inscripcionDTO;
-
-        List<ComponentesEquipoDTO> componentes = [];
-
-        var nickCapitan = await _unitOfWork.UsuarioRepository.GetEmailNickById(equipo.IdCapitan);
-        componentes.Add(new ComponentesEquipoDTO() { IdUsuario = equipo.IdCapitan, Nick = nickCapitan.Nick.Trim()});
-
-        foreach (var item in equipo.Miembros)
-        {
-            var nick = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario);
-            componentes.Add(new ComponentesEquipoDTO() { IdUsuario = item.IdUsuario, Nick = nick.Nick.Trim() });
-        }
-
-        inscripcionDTO.IdCapitan = equipo.IdCapitan;
-        inscripcionDTO.NombreEquipo = equipo.NombreEquipo;
-        inscripcionDTO.ComponentesEquipo = componentes;
-
-        return inscripcionDTO;
-    }
-
     public async Task<List<InscripcionTorneo>> GetInscripciones()
     {
         return await _unitOfWork.InscripcionRepository.GetInscripciones();
     }
 
-    public async Task<List<InscripcionUsuarioDTO>> GetInscripcionesByTorneo(int idTorneo)
+    public async Task<List<InscripcionUsuarioIndividualDTO>> GetInscripcionesByTorneo(int idTorneo)
     {
         List<InscripcionTorneo> insc = await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo);
 
-        return _mapper.Map<List<InscripcionUsuarioDTO>>(insc);
+        return _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(insc);
     }
 
-    public async Task<List<InscripcionUsuarioDTO>> GetInscripcionesByUser(int idUsuario)
+    public async Task<List<InscripcionUsuarioIndividualDTO>> GetInscripcionesIndividualByUser(int idUsuario)
     {
         List<InscripcionTorneo> inscripcionTorneos = 
-            await _unitOfWork.InscripcionRepository.GetInscripcionesByUser(idUsuario);
+            await _unitOfWork.InscripcionRepository.GetInscripcionesIndividualByUser(idUsuario);
 
-        List<InscripcionUsuarioDTO> inscripcionUsuarioDTOs =
-            _mapper.Map<List<InscripcionUsuarioDTO>>(inscripcionTorneos);
+        List<InscripcionUsuarioIndividualDTO> inscripcionUsuarioDTOs =
+            _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(inscripcionTorneos);
         
         return inscripcionUsuarioDTOs;
     }
@@ -254,5 +223,45 @@ public class InscripcionApplication(
         }
 
         return registro;
+    }
+
+    public async Task<List<InscripcionUsuarioEquipoDTO>> GetInscripcionEquipoByIdAsync(int idUser)
+    {
+        List<InscripcionTorneo> inscripcionTorneos =
+            await _unitOfWork.InscripcionRepository.GetInscripcionesEquipoByUser(idUser);
+
+        List<InscripcionUsuarioEquipoDTO> inscripcionUsuarioDTOs =
+            _mapper.Map<List<InscripcionUsuarioEquipoDTO>>(inscripcionTorneos);
+
+        return inscripcionUsuarioDTOs;
+    }
+
+    public async Task<InscripcionEquipoDTO> GetInscripcionEquipo(int idInscripcion)
+    {
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(inscripcion.IdEquipo!.Value);
+        List<InscripcionTorneo> inscripciones = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(inscripcion.IdEquipo!.Value);
+
+        List<ComponentesEquipoDTO> componentesEquipoDTOs = _mapper.Map<List<ComponentesEquipoDTO>>(inscripciones);
+        InscripcionEquipoDTO inscripcionEquipoDTO = _mapper.Map<InscripcionEquipoDTO>(inscripcion);
+
+        inscripcionEquipoDTO.IdCapitan = equipo!.IdCapitan;
+        inscripcionEquipoDTO.NombreEquipo = equipo.NombreEquipo;
+
+        foreach (var item in componentesEquipoDTOs)
+        {
+            if (inscripcionEquipoDTO.IdCapitan == item.IdUsuario) item.EsCapitan = true;
+            var nick = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario);
+            item.Nick = nick.Nick;
+        }
+        inscripcionEquipoDTO.ComponentesEquipoDTO = componentesEquipoDTOs;
+
+        inscripcionEquipoDTO.IdOrganizador= await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcionEquipoDTO.IdTorneo);
+
+        UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcionEquipoDTO.IdOrganizador);
+
+        inscripcionEquipoDTO.EmailOrganizador = organizador.Email;
+
+        return inscripcionEquipoDTO;
     }
 }

@@ -1,8 +1,6 @@
-﻿using AS.Domain.Models;
+﻿namespace AS.Application.DTOs.Inscripcion;
 
-namespace AS.Application.DTOs.Inscripcion;
-
-public class InscripcionUsuarioDTO
+public class InscripcionUsuarioIndividualDTO
 {
     public int IdInscripcion { get; set; }
     public int IdTorneo { get; set; }
@@ -15,5 +13,4 @@ public class InscripcionUsuarioDTO
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntregaLista { get; set; }
     public string? EsPago { get; set; }
-    public int? IdEquipo { get; set; }
 }

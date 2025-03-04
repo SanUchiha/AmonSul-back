@@ -246,9 +246,9 @@ public class UsuarioApplication(
 
         response.Faccion =
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
-        response.InscripcionesTorneo =
-            _mapper.Map<List<InscripcionUsuarioDTO>>(usuario.InscripcionTorneos);
-        foreach (var item in response.InscripcionesTorneo)
+        response.InscripcionesIndividualTorneo =
+            _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(usuario.InscripcionTorneos);
+        foreach (var item in response.InscripcionesIndividualTorneo)
         {
             Torneo torneoAux =
                 await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);

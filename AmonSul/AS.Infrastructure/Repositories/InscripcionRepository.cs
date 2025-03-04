@@ -1,6 +1,7 @@
 ﻿using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace AS.Infrastructure.Repositories;
 
@@ -60,6 +61,16 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     public async Task<List<Equipo>> GetAllEquiposByTorneoAsync(int Id_Torneo) => 
         await _dbamonsulContext.Equipo.Include(e => e.Miembros).ToListAsync();
 
+    public async Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int idEquipo)
+    {
+        var insc = await _dbamonsulContext.InscripcionTorneos
+            .Include(it => it.Lista)
+            .Where(it => it.IdEquipo == idEquipo)
+            .ToListAsync();
+
+        return insc!;
+    }
+
     public async Task<Equipo?> GetEquipoByIdAsync(int id) => 
         await _dbamonsulContext.Equipo
             .Include(e => e.Miembros)
@@ -95,21 +106,24 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .ToListAsync();
     }
 
+    public async Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUsuario) => 
+        await _dbamonsulContext.InscripcionTorneos
+                .Include(it => it.IdTorneoNavigation)
+                .Include(it => it.IdUsuarioNavigation)
+                .Where(it => it.IdUsuario == idUsuario && it.IdEquipo != null)
+                .ToListAsync();
+
     /// <summary>
     /// Obtiene todas las ins de un usuario
     /// </summary>
     /// <param name="idUsuario"></param>
     /// <returns></returns>
-    public async Task<List<InscripcionTorneo>> GetInscripcionesByUser(int idUsuario)
-    {
-        var insc = await _dbamonsulContext.InscripcionTorneos
-                                      .Include(it => it.IdTorneoNavigation)
-                                      .Include(it => it.IdUsuarioNavigation)
-                                      .Include(it => it.Equipo)
-                                      .Where(it => it.IdUsuario == idUsuario)
-                                      .ToListAsync();
-        return insc;
-    }
+    public async Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario) => 
+        await _dbamonsulContext.InscripcionTorneos
+                .Include(it => it.IdTorneoNavigation)
+                .Include(it => it.IdUsuarioNavigation)
+                .Where(it => it.IdUsuario == idUsuario && it.IdEquipo == null)
+                .ToListAsync();
 
     //Registra una ins
     public async Task<bool> Register(InscripcionTorneo inscripcionTorneo)
