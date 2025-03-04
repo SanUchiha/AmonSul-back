@@ -26,6 +26,7 @@ public partial class Torneo
     public string? MetodosPago { get; set; }
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
+    public TimeOnly? InicioInscripciones { get; set; }
     public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual ICollection<Comentario> Comentarios { get; set; } = [];
     public virtual RangoTorneo? IdRangoTorneoNavigation { get; set; }

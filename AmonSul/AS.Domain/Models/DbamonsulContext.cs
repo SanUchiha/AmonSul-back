@@ -377,6 +377,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.FechaInicioTorneo).HasColumnName("Fecha_Inicio_Torneo");
             entity.Property(e => e.HoraFinTorneo).HasColumnName("Hora_Fin_Torneo");
             entity.Property(e => e.HoraInicioTorneo).HasColumnName("Hora_Inicio_Torneo");
+            entity.Property(e => e.InicioInscripciones).HasColumnName("Inicio_Inscripciones");
             entity.Property(e => e.IdRangoTorneo).HasColumnName("ID_Rango_Torneo");
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
             entity.Property(e => e.LimiteParticipantes).HasColumnName("Limite_Participantes");
