@@ -10,7 +10,10 @@ public partial class InscripcionTorneo
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntregaLista { get; set; }
     public string? EsPago { get; set; }
+    public int? IdEquipo { get; set; }
+
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }
     public virtual ICollection<Lista> Lista { get; set; } = [];
+    public virtual Equipo? Equipo { get; set; } = null!;
 }

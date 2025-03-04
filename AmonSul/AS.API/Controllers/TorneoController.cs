@@ -1,8 +1,10 @@
 ﻿using AS.API.Filters;
+using AS.Application.DTOs.Equipo;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +18,11 @@ namespace AS.API.Controllers;
 public class TorneoController(
     ITorneoApplication torneoApplication,
     IPartidaTorneoApplication partidaTorneoApplication,
-    IGanadorApplication ganadorApplication) : ControllerBase
+    IGanadorApplication ganadorApplication,
+    IInscripcionApplication inscripcionApplication) : ControllerBase
 {
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
+    private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
     private readonly IPartidaTorneoApplication _partidaTorneoApplication = partidaTorneoApplication;
     private readonly IGanadorApplication _ganadorApplication = ganadorApplication;
 
@@ -60,6 +64,17 @@ public class TorneoController(
     }
 
     [HttpGet]
+    [Route("Gestion/info-torneo-equipo/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> GetInfoTorneoEquipoCreado(int idTorneo)
+    {
+        TorneoEquipoGestionInfoDTO torneo = await _torneoApplication.GetInfoTorneoEquipoCreado(idTorneo);
+        if (torneo == null) return NotFound();
+
+        return Ok(torneo);
+    }
+
+    [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}")]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
@@ -88,21 +103,22 @@ public class TorneoController(
     public async Task<IActionResult> IsSaveTournament(int idTorneo)
     {
         bool response = await _ganadorApplication.IsSave(idTorneo);
-        
+
         return Ok(response);
     }
 
     [HttpPatch]
     [Route("Gestion/editar")]
     public async Task<IActionResult> UpdateTorneo(
-        [FromBody, Required] UpdateTorneoDTO request) => 
+        [FromBody, Required] UpdateTorneoDTO request) =>
             Ok(await _torneoApplication.UpdateTorneoAsync(request));
 
     [HttpPatch]
     [Route("Gestion/subir-bases")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> UpdateBasesTorneo(
-    [FromBody, Required] UpdateBasesDTO request) =>
-        Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
+        [FromBody, Required] UpdateBasesDTO request) =>
+            Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
 
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]
@@ -223,5 +239,16 @@ public class TorneoController(
         if (response == null) return NotFound();
 
         return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("equipos/{idTorneo}")]
+    public async Task<IActionResult> GetEquiposByTorneoAsync(int idTorneo)
+    {
+        List<EquipoDTO> equipos = await _inscripcionApplication.GetInscripcionesEquipoByTorneoAsync(idTorneo);
+
+        if (equipos == null) return NotFound();
+
+        return Ok(equipos);
     }
 }

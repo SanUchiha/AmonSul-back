@@ -15,7 +15,8 @@ public class UsuarioDataDTO
     public List<ViewPartidaAmistosaDTO> PartidasValidadas { get; set; } = [];
     public List<ViewPartidaAmistosaDTO> PartidasPendientes { get; set; } = [];
     public List<EloDTO> Elos { get; set; } = [];
-    public List<InscripcionUsuarioDTO> InscripcionesTorneo { get; set; } = [];
+    public List<InscripcionUsuarioIndividualDTO> InscripcionesIndividualTorneo { get; set; } = [];
+    public List<InscripcionUsuarioEquipoDTO> InscripcionesEquipoTorneo { get; set; } = [];
     public int ClasificacionElo { get; set; }
     public int PuntuacionElo { get; set; }
     public int NumeroPartidasJugadas { get; set; }

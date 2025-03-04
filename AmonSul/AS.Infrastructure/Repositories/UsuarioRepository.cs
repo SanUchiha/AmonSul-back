@@ -252,7 +252,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            var result = 
+            List<UsersElosDTO> result = 
                 await _dbamonsulContext.Usuarios
                     .Select(u => new UsersElosDTO
                     {

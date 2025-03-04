@@ -1,4 +1,6 @@
-﻿namespace AS.Domain.Models;
+﻿using AS.Domain.Types;
+
+namespace AS.Domain.Models;
 
 public partial class Torneo
 {
@@ -14,7 +16,7 @@ public partial class Torneo
     public int PuntosTorneo { get; set; }
     public string EstadoTorneo { get; set; } = null!;
     public string LugarTorneo { get; set; } = null!;
-    public string? TipoTorneo { get; set; }
+    public string TipoTorneo { get; set; } = TorneoType.INDIVIDUAL;
     public bool EsPrivadoTorneo { get; set; }
     public bool EsLiga { get; set; }
     public int? IdRangoTorneo { get; set; }

@@ -54,18 +54,12 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
 
         if (!result) return false;
-
-        int idOrganizador =
-            await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(createListaTorneoDTO.IdTorneo);
-        UsuarioEmailDto organizador =
-            await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
-        UsuarioEmailDto usuario =
-            await _unitOfWork.UsuarioRepository.GetEmailNickById(createListaTorneoDTO.IdUsuario);
+        await _unitOfWork.UsuarioRepository.GetEmailNickById(createListaTorneoDTO.IdUsuario);
 
         EmailContactoDTO emailContactoDTO = new()
         {
-            Email = organizador.Email,
-            Message = usuario.Nick,
+            Email = createListaTorneoDTO.EmailOrganizador,
+            Message = createListaTorneoDTO.Nick,
         };
 
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);

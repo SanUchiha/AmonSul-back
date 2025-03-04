@@ -2,8 +2,11 @@
 using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
+using AS.Domain.Types;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -259,5 +262,52 @@ public class TorneoApplication(
         await GuardarBasesEnPDFAsync(request.BasesTorneo, torneo.NombreTorneo);
 
         return true;
+    }
+
+    public async Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo)
+    {
+        Torneo torneo 
+            = await _unitOfWork.TorneoRepository.GetById(idTorneo) 
+            ?? throw new Exception("Torneo no encontrado");
+
+        TorneoCreadoDTO torneoDTO = _mapper.Map<TorneoCreadoDTO>(torneo);
+
+        torneoDTO.JugadoresXEquipo = torneo.TipoTorneo switch
+        {
+            TorneoType.PAREJAS => 2,
+            TorneoType.EQUIPOS_4 => 4,
+            TorneoType.EQUIPOS_6 => 6,
+            _ => (int?)1,
+        };
+        List<EquipoDTO> equipos = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(idTorneo);
+
+        List<EquipoDTO> equipoDTOs = [];
+
+        foreach (var item in equipos)
+        {
+
+            UsuarioEmailDto capi = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdCapitan);
+            EquipoDTO equipoDTO = new()
+            {
+                NombreEquipo = item.NombreEquipo,
+                IdEquipo  = item.IdEquipo,
+                IdCapitan = item.IdCapitan,
+                NickCapitan = capi.Nick,
+                EmailCapitan = capi.Email,
+                Inscripciones = [.. item.Inscripciones],
+                FechaInscripcion = item.Inscripciones[0].FechaInscripcion,
+                EsPago = item.Inscripciones[0].EsPago
+            };
+
+            equipoDTOs.Add(equipoDTO);
+        }
+
+        TorneoEquipoGestionInfoDTO result = new()
+        {
+            Torneo = torneoDTO,
+            Equipos = equipoDTOs
+        };
+
+        return result;
     }
 }

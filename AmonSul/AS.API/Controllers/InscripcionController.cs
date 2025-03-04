@@ -1,13 +1,13 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AS.Api.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class InscripcionController(IInscripcionApplication inscripcionApplication) : ControllerBase
 {
@@ -31,17 +31,21 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripcion);
     }
 
-    /// <summary>
-    /// Obtener las inscripciones de un usuario
-    /// </summary>
-    /// <param name="idUsuario"></param>
-    /// <returns></returns>
-    [HttpGet("byUser/{idUsuario}")]
-    public async Task<ActionResult<IList<InscripcionTorneo>>> GetInscripcionesByUser(int idUsuario)
+    [HttpGet("Individual/byUser/{idUsuario}")]
+    public async Task<ActionResult<List<InscripcionUsuarioIndividualDTO>>> GetInscripcionesIndividualByUser(int idUsuario)
     {
-        List<InscripcionUsuarioDTO> inscripciones = 
-            await _inscripcionApplication.GetInscripcionesByUser(idUsuario);
+        List<InscripcionUsuarioIndividualDTO> inscripciones = 
+            await _inscripcionApplication.GetInscripcionesIndividualByUser(idUsuario);
         
+        return Ok(inscripciones);
+    }
+
+    [HttpGet("Equipo/byUser/{idUsuario}")]
+    public async Task<ActionResult<List<InscripcionUsuarioEquipoDTO>>> GetInscripcionesEquipoByUser(int idUsuario)
+    {
+        List<InscripcionUsuarioEquipoDTO> inscripciones =
+            await _inscripcionApplication.GetInscripcionEquipoByIdAsync(idUsuario);
+
         return Ok(inscripciones);
     }
 
@@ -96,5 +100,21 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
             return BadRequest();
         }
         return Created();
+    }
+
+    [HttpPost("Equipo")]
+    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO)
+    {
+        bool result = await _inscripcionApplication.CreaInsciprcionEquipo(createEquipoDTO); 
+        return Ok(result);
+    }
+
+    [HttpGet("Equipo/{idInscripcion}")]
+    public async Task<ActionResult<List<InscripcionUsuarioEquipoDTO>>> GetInscripcionEquipo(int idInscripcion)
+    {
+        InscripcionEquipoDTO inscripcionEquipoDTO =
+            await _inscripcionApplication.GetInscripcionEquipo(idInscripcion);
+
+        return Ok(inscripcionEquipoDTO);
     }
 }

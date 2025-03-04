@@ -10,6 +10,5 @@ public class ListaMappingProfile : Profile
     {
         CreateMap<CreateListaTorneoDTO, Lista>().ReverseMap();
         CreateMap<ListaViewDTO, Lista>().ReverseMap();
-
     }
 }

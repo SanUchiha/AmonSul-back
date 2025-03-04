@@ -246,9 +246,9 @@ public class UsuarioApplication(
 
         response.Faccion =
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
-        response.InscripcionesTorneo =
-            _mapper.Map<List<InscripcionUsuarioDTO>>(usuario.InscripcionTorneos);
-        foreach (var item in response.InscripcionesTorneo)
+        response.InscripcionesIndividualTorneo =
+            _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(usuario.InscripcionTorneos);
+        foreach (var item in response.InscripcionesIndividualTorneo)
         {
             Torneo torneoAux =
                 await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);
@@ -270,14 +270,7 @@ public class UsuarioApplication(
             response.PuntuacionElo = 800;
         }
 
-        List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
-        List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
-                .GroupBy(u => u.IdUsuario)
-                .Select(g => g.OrderByDescending(u => u.FechaElo).First())
-                .OrderByDescending(e => e.PuntuacionElo)];
-
-        response.ClasificacionElo = 
-            listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == response.IdUsuario) + 1;
+        response.ClasificacionElo = await _eloApplication.GetRanking(idUsuario) ?? 0;
 
         response.NumeroPartidasJugadas = 
             response.PartidasValidadas.Count + response.PartidasTorneo.Count;

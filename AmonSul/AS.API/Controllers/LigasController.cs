@@ -1,4 +1,4 @@
-﻿using AS.Application.DTOs;
+﻿using AS.Application.DTOs.LigaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using Microsoft.AspNetCore.Authorization;

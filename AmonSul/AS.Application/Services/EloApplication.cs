@@ -105,60 +105,7 @@ public class EloApplication(
         lista = lista.Where(l => l.PuntuacionElo != 800).ToList();
 
         return lista;
-
-        /*// Obtener todos los usuarios
-        var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
-        if (usuarios == null) return new List<ClasificacionEloDTO>();
-
-        // Crear una lista de tareas para obtener la información de clasificación de cada usuario
-        var tasks = usuarios.Select(usuario => Task.Run(async () =>
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var scopedUnitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            var scopedMapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-            var scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
-            var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
-
-            var view = await scopedEloApplication.GetElo(usuario.Email);
-            var obj = scopedMapper.Map<ClasificacionEloDTO>(view);
-
-            var partidas = await scopedPartidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(view.Email);
-            if (partidas.Any())
-            {
-                obj.Partidas = partidas.Count;
-                obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
-                obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
-                obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
-                obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
-            }
-            else
-            {
-                obj.Elo = 800;
-            }
-
-            return obj;
-        }));
-
-        // Esperar todas las tareas y retornar la clasificación
-        var clasificacion = await Task.WhenAll(tasks);
-        return clasificacion.ToList();*/
     }
-
-/*    private async Task<List<PartidaAmistosa>> PartidasValidadas(string email)
-    {
-        var rawPartidas = await _unitOfWork.PartidaAmistosaRepository.GetPartidasAmistosas();
-        if (rawPartidas == null) return [];
-
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
-        if (usuario == null) return [];
-
-        rawPartidas = rawPartidas
-            .FindAll(p => (p.IdUsuario1 == usuario.IdUsuario || p.IdUsuario2 == usuario.IdUsuario)
-                      && (p.PartidaValidadaUsuario1 ?? false)
-                      && (p.PartidaValidadaUsuario2 ?? false));
-
-        return rawPartidas;
-    }*/
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacion()
     {
@@ -195,15 +142,12 @@ public class EloApplication(
                 obj.IdFaccion = usuario.IdFaccion;
             if (partidas.Count != 0)
             {
-                
                 obj.Partidas = partidas.Count;
                 obj.Ganadas = partidas.Count(x => x.GanadorPartida == view.IdUsuario);
                 obj.Empatadas = partidas.Count(x => x.GanadorPartida == 0);
                 obj.Perdidas = obj.Partidas - obj.Ganadas - obj.Empatadas;
                 obj.Elo = view.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo ?? 800;
                 obj.NumeroPartidasJugadas = partidas.Count;
-
-
             }
             else
             {
@@ -213,12 +157,9 @@ public class EloApplication(
 
         }));
 
-        // Esperar todas las tareas y retornar la clasificación
         ClasificacionEloDTO[] clasificacion = await Task.WhenAll(tasks);
 
-       //clasificacion = clasificacion.Where(c => c != null).ToList();
-
-        return [.. clasificacion.Where(c => c != null).ToList()];
+        return [.. clasificacion.Where(c => c != null && c.IdUsuario != 568).ToList()];
     }
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacionMensual()
@@ -282,27 +223,58 @@ public class EloApplication(
         return clasificacionMensual;
     }
 
-    public async Task<int> GetRanking(int idUsuario)
+    public async Task<int?> GetRanking(int idUsuario)
     {
         List<UsersElosDTO> usersElosDTO = 
             await _unitOfWork.UsuarioRepository.GetAllUserWithElo();
 
-        var lastEloForUser = usersElosDTO
+        List<UsersElosDTO> users = [];
+
+        foreach (var item in usersElosDTO)
+        {
+            if (item.Elos.Count > 1 && item.IdUsuario != 568) users.Add(item);
+        }
+
+        var lastEloForUser = users
             .Where(user => user.Elos.Count != 0)
             .Select(user => new
             {
                 user.IdUsuario,
                 LastElo = user.Elos
                     .OrderByDescending(e => e.FechaRegistroElo)
-                    //.ThenByDescending(e => e.PuntuacionElo)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
             })
             .Where(result => result.LastElo != null)
             .OrderByDescending(u => u.LastElo!.PuntuacionElo)
             .ToList();
 
-        return lastEloForUser
-                .FindIndex(x => x.IdUsuario == idUsuario) + 1;
+        int rank = 1;
+
+        List<RankingEloDTO> ranking = [];
+
+        foreach (var item in lastEloForUser)
+        {
+            RankingEloDTO rankingIndividual = new()
+            {
+                IdUsuario = item.IdUsuario,
+                Elo = item.LastElo!.PuntuacionElo!.Value,
+                Ranking = rank
+            };
+            rank++;
+            ranking.Add(rankingIndividual);
+        }
+
+        foreach (var item in ranking)
+        {
+            Console.WriteLine("Id: {0}, puntos: {1}, ranking: {2}",
+               item.IdUsuario, item.Elo, item.Ranking);
+        }
+
+        RankingEloDTO? posicionRanking = ranking.FirstOrDefault(x => x.IdUsuario == idUsuario);
+
+        if (posicionRanking != null) return posicionRanking.Ranking;
+
+        return null;
     }
 
     /// <summary>

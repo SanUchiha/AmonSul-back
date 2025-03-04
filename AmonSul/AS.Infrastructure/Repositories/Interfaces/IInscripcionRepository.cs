@@ -1,11 +1,12 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Equipo;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
 public interface IInscripcionRepository
 {
     Task<List<InscripcionTorneo>> GetInscripciones();
-    Task<List<InscripcionTorneo>> GetInscripcionesByUser(int idUsuario);
+    Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario);
     Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo);
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
@@ -16,4 +17,11 @@ public interface IInscripcionRepository
     Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion);
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
+
+    Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int Id_Torneo);
+    Task<Equipo?> GetEquipoByIdAsync(int id);
+    Task<Equipo> CreateEquipoAsync(Equipo equipo);
+    Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);
+    Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUser);
+    Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int value);
 }
