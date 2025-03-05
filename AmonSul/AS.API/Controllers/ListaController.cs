@@ -59,7 +59,6 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(listas);
     }
 
-    //Añade una nueva lista
     [HttpPost]
     public async Task<ActionResult<bool>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
     {

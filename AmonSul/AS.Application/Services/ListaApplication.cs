@@ -51,14 +51,20 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         Lista lista = _mapper.Map<Lista>(createListaTorneoDTO);
         lista.Bando = createListaTorneoDTO.Ejercito.Band;
         lista.Ejercito = createListaTorneoDTO.Ejercito.Name;
-        bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
 
+        bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
         if (!result) return false;
-        await _unitOfWork.UsuarioRepository.GetEmailNickById(createListaTorneoDTO.IdUsuario);
+
+        string? emailOrganizador = createListaTorneoDTO.EmailOrganizador;
+        if (emailOrganizador is null)
+        {
+            int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(createListaTorneoDTO.IdTorneo);
+            emailOrganizador = (await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador)).Email;
+        }
 
         EmailContactoDTO emailContactoDTO = new()
         {
-            Email = createListaTorneoDTO.EmailOrganizador,
+            Email = emailOrganizador,
             Message = createListaTorneoDTO.Nick,
         };
 
