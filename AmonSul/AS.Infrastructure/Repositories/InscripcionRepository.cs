@@ -60,6 +60,15 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return inscripcion;
     }
 
+    public async Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo)
+    {
+        InscripcionTorneo? inscripcionTorneo = await _dbamonsulContext.InscripcionTorneos
+            .FirstOrDefaultAsync(it => it.IdTorneo == idTorneo && it.IdUsuario == idUsuario);
+
+        if (inscripcionTorneo == null) return false;
+        return true;
+    }
+
     public async Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int idTorneo) =>
         await _dbamonsulContext.Equipo
             .Where(e => e.Inscripciones.Any(i => i.IdTorneo == idTorneo))
@@ -104,7 +113,6 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                 }).ToList()
             }).ToList());
 
-
     public async Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int idEquipo)
     {
         var insc = await _dbamonsulContext.InscripcionTorneos
@@ -120,7 +128,6 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .Include(e => e.Miembros)
             .FirstOrDefaultAsync(e => e.IdEquipo == id);
 
-    //Obtiene una ins por id
     public async Task<InscripcionTorneo> GetInscripcionById(int idInscripcion)
     {
         var insc = await _dbamonsulContext.InscripcionTorneos
@@ -130,25 +137,17 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return insc!;
     }
 
-    //Obtiene una lista de todas las ins
     public async Task<List<InscripcionTorneo>> GetInscripciones()
     {
         return await _dbamonsulContext.InscripcionTorneos.ToListAsync();
     }
 
-    /// <summary>
-    /// Obtiene todas las insc de un torneo
-    /// </summary>
-    /// <param name="idTorneo"></param>
-    /// <returns></returns>
-    public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo)
-    {
-        return await _dbamonsulContext.InscripcionTorneos
+    public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo) =>
+        await _dbamonsulContext.InscripcionTorneos
             .Include(it => it.IdUsuarioNavigation) // Incluye el usuario relacionado
             .Include(it => it.Lista)              // Incluye la lista relacionada
             .Where(it => it.IdTorneo == idTorneo) // Filtra por el torneo
             .ToListAsync();
-    }
 
     public async Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUsuario) => 
         await _dbamonsulContext.InscripcionTorneos
@@ -157,11 +156,6 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                 .Where(it => it.IdUsuario == idUsuario && it.IdEquipo != null)
                 .ToListAsync();
 
-    /// <summary>
-    /// Obtiene todas las ins de un usuario
-    /// </summary>
-    /// <param name="idUsuario"></param>
-    /// <returns></returns>
     public async Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario) => 
         await _dbamonsulContext.InscripcionTorneos
                 .Include(it => it.IdTorneoNavigation)
@@ -169,7 +163,6 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                 .Where(it => it.IdUsuario == idUsuario && it.IdEquipo == null)
                 .ToListAsync();
 
-    //Registra una ins
     public async Task<bool> Register(InscripcionTorneo inscripcionTorneo)
     {
         try

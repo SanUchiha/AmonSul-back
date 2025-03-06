@@ -24,4 +24,5 @@ public interface IInscripcionRepository
     Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);
     Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUser);
     Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int value);
+    Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo);
 }

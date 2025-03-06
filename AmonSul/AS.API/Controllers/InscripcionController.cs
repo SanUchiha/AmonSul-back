@@ -3,6 +3,7 @@ using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace AS.Api.Controllers;
 
@@ -50,11 +51,8 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     [HttpGet("byTorneo/{idTorneo}")]
-    public async Task<ActionResult<IEnumerable<InscripcionTorneo>>> GetInscripcionesByTorneo(int idTorneo)
-    {
-        var inscripciones = await _inscripcionApplication.GetInscripcionesByTorneo(idTorneo);
-        return Ok(inscripciones);
-    }
+    public async Task<ActionResult<List<InscripcionUsuarioIndividualDTO>>> GetInscripcionesByTorneo(int idTorneo) =>
+        Ok(await _inscripcionApplication.GetInscripcionesByTorneo(idTorneo));
 
     [HttpPost]
     public async Task<ActionResult> Register([FromBody] CrearInscripcionDTO inscripcionTorneo)
@@ -116,5 +114,13 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
             await _inscripcionApplication.GetInscripcionEquipo(idInscripcion);
 
         return Ok(inscripcionEquipoDTO);
+    }
+
+    [HttpGet("apuntado/{idUsuario}/{idTorneo}")]
+    public async Task<ActionResult<bool>> EstaApuntado(int idUsuario, int idTorneo)
+    {
+        bool esApuntado = await _inscripcionApplication.EstaApuntadoAsync(idUsuario, idTorneo);
+
+        return Ok(esApuntado);
     }
 }

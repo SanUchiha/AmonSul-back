@@ -272,4 +272,9 @@ public class InscripcionApplication(
         List<EquipoDTO> equipos = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(idTorneo);
         return equipos;
     }
+
+    public async Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo)
+    {
+        return await _unitOfWork.InscripcionRepository.EstaApuntadoAsync(idUsuario, idTorneo);
+    }
 }
