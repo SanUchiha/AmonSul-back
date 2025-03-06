@@ -1,6 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Ganador;
-using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
 using AS.Domain.Models;
@@ -296,5 +295,12 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         {
             throw new Exception("Ocurrió un problema al obtener el nick de todos los usuarios.", ex);
         }
+    }
+
+    public async Task<List<Usuario>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
+    {
+        return await _dbamonsulContext.Usuarios
+              .Where(u => !u.InscripcionTorneos.Any(it => it.IdTorneo == idTorneo))
+              .ToListAsync();
     }
 }

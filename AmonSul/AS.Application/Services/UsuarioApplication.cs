@@ -317,67 +317,6 @@ public class UsuarioApplication(
         return response;
     }
 
-    /* public async Task<UsuarioDataDTO> GetUsuarioData(int idUsuario)
-     {
-         Usuario usuario = 
-             await _unitOfWork.UsuarioRepository.GetById(idUsuario) ??
-             throw new Exception("Usuario no encontrado");
-
-         // Mapea la entidad Usuario al DTO UsuarioDataDTO
-         UsuarioDataDTO usuarioData = _mapper.Map<UsuarioDataDTO>(usuario);
-
-         usuarioData.ClasificacionElo = await CalcularClasificacionEloAsync(usuario);
-         usuarioData.NumeroPartidasJugadas = CalcularNumeroPartidas(usuario);
-         usuarioData.PartidasGanadas = CalcularPartidasGanadas(usuario);
-         usuarioData.PartidasEmpatadas = CalcularPartidasEmpatadas(usuario);
-         usuarioData.PartidasPerdidas = CalcularPartidasPerdidas(usuario);
-         usuarioData.PartidasValidadas = ObtenerPartidasValidadas(usuario);
-         usuarioData.PartidasPendientes = ObtenerPartidasPendientes(usuario);
-
-         return usuarioData;
-     }
-
-     private List<ViewPartidaAmistosaDTO> ObtenerPartidasPendientes(Usuario usuario) =>
-         usuario.PartidaAmistosaGanadorPartidaNavigations
-             .Where(p => p.PartidaValidadaUsuario1 == false || p.PartidaValidadaUsuario2 == false)
-             .Select(p => _mapper.Map<ViewPartidaAmistosaDTO>(p))
-             .ToList();
-
-     private List<ViewPartidaAmistosaDTO> ObtenerPartidasValidadas(Usuario usuario) =>
-         usuario.PartidaAmistosaGanadorPartidaNavigations
-             .Where(p => p.PartidaValidadaUsuario1 == true && p.PartidaValidadaUsuario2 == true)
-             .Select(p => _mapper.Map<ViewPartidaAmistosaDTO>(p))
-             .ToList();
-
-     private int CalcularPartidasPerdidas(int partidasGanadas, int partidasEmpatadas, int numeroPartidasJugadas) =>
-         numeroPartidasJugadas - (partidasEmpatadas + partidasGanadas);
-
-     private int CalcularPartidasEmpatadas(Usuario usuario) =>
-         usuario.PartidaAmistosaIdUsuario1Navigations
-             .Where(p => p.GanadorPartida != null)
-             .Count() +
-         usuario.PartidaTorneoIdUsuario1Navigations
-             .Where(p => p.GanadorPartidaTorneo != null)
-             .Count();
-
-     private int CalcularPartidasGanadas(Usuario usuario) =>
-         usuario.PartidaAmistosaGanadorPartidaNavigations.Count +
-         usuario.PartidaTorneoGanadorPartidaNavigations.Count;
-
-     private int CalcularNumeroPartidas(Usuario usuario) =>
-         usuario.
-
-     private async Task<int> CalcularClasificacionEloAsync(Usuario usuario)
-     {
-         List<EloUsuarioDTO> listaElosUsuarios = await _eloApplication.GetEloUsuarios();
-         List<EloUsuarioDTO> listaElosUsuariosFiltrados = [.. listaElosUsuarios
-                 .GroupBy(u => u.IdUsuario)
-                 .Select(g => g.OrderByDescending(u => u.FechaElo).First())
-                 .OrderByDescending(e => e.PuntuacionElo)];
-
-         return listaElosUsuariosFiltrados.FindIndex(u => u.IdUsuario == usuario.IdUsuario) + 1;
-     }*/
-
     public async Task<List<UsuarioDTO>> GetUsuarios()
     {
         // Obtener la lista de usuarios y facciones
@@ -389,6 +328,34 @@ public class UsuarioApplication(
 
         // Mapear los usuarios a DTOs
         var response = _mapper.Map<List<UsuarioDTO>>(listaUsuarios);
+
+        // Asignar la facción correspondiente a cada usuario
+        foreach (var usuarioDTO in response)
+        {
+            if (usuarioDTO.Faccion == null && usuarioDTO.IdFaccion != null)
+            {
+                var idFaccion = usuarioDTO.IdFaccion.Value;
+                if (faccionesDictionary.TryGetValue(idFaccion, out var faccion))
+                {
+                    usuarioDTO.Faccion = _mapper.Map<FaccionDTO>(faccion);
+                }
+            }
+        }
+        return response;
+    }
+
+    public async Task<List<UsuarioDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
+    {
+        // Obtener la lista de usuarios y facciones
+        List<Usuario> listaUsuarios = 
+            await _unitOfWork.UsuarioRepository.GetUsuariosNoInscritosTorneoAsync(idTorneo);
+        List<Faccion> listaFacciones = await _unitOfWork.FaccionRepository.GetFacciones();
+
+        // Crear un diccionario para acceder rápidamente a las facciones por IdFaccion
+        Dictionary<int, Faccion> faccionesDictionary = listaFacciones.ToDictionary(f => f.IdFaccion);
+
+        // Mapear los usuarios a DTOs
+        List<UsuarioDTO> response = _mapper.Map<List<UsuarioDTO>>(listaUsuarios);
 
         // Asignar la facción correspondiente a cada usuario
         foreach (var usuarioDTO in response)

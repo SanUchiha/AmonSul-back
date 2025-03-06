@@ -129,11 +129,6 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
         }
     }
 
-    /// <summary>
-    /// Carga los datos de un usuario
-    /// </summary>
-    /// <param name="idUsuario"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route("Data/{idUsuario}")]
     public async Task<IActionResult> GetUsuarioData(int idUsuario)
@@ -305,6 +300,24 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
             string response = await _usuarioApplication.GetNickById(idUsuario);
 
             if (response is null) return NotFound();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
+    [Route("no-inscritos-torneo/{idTorneo}")]
+    public async Task<IActionResult> GetUsuariosNoInscritosTorneo(int idTorneo)
+    {
+        try
+        {
+            List<UsuarioDTO> response = await _usuarioApplication.GetUsuariosNoInscritosTorneoAsync(idTorneo);
+
+            if (response is null) return NoContent();
 
             return Ok(response);
         }
