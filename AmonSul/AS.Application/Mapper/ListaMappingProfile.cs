@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Lista;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AutoMapper;
 
@@ -10,5 +11,6 @@ public class ListaMappingProfile : Profile
     {
         CreateMap<CreateListaTorneoDTO, Lista>().ReverseMap();
         CreateMap<ListaViewDTO, Lista>().ReverseMap();
+        CreateMap<ListaDTO, Lista>().ReverseMap();
     }
 }

@@ -3,9 +3,9 @@
 public partial class PartidaTorneo
 {
     public int IdPartidaTorneo { get; set; }
-    public int? IdTorneo { get; set; }
-    public int? IdUsuario1 { get; set; }
-    public int? IdUsuario2 { get; set; }
+    public int IdTorneo { get; set; }
+    public int IdUsuario1 { get; set; }
+    public int IdUsuario2 { get; set; }
     public int? ResultadoUsuario1 { get; set; }
     public int? ResultadoUsuario2 { get; set; }
     public DateOnly? FechaPartida { get; set; }

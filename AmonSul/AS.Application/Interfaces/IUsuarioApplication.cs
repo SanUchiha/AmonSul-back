@@ -27,4 +27,5 @@ public interface IUsuarioApplication
 
     Task<bool> UpdateProteccionDatos(UpdateProteccionDatosDTO updateProteccionDatosDTO);
     Task<List<UsuarioDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
+    Task<List<UsuarioInscripcionTorneoDTO>> GetUsuariosByTorneo(int idTorneo);
 }

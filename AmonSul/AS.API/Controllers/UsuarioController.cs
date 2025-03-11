@@ -112,6 +112,24 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     }
 
     [HttpGet]
+    [Route("torneo/{idTorneo}")]
+    public async Task<IActionResult> GetUsuariosByTorneo(int idTorneo)
+    {
+        try
+        {
+            List<UsuarioInscripcionTorneoDTO> response = await _usuarioApplication.GetUsuariosByTorneo(idTorneo);
+
+            if (response is null) return NoContent();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
+
+    [HttpGet]
     [Route("Nicks")]
     public async Task<IActionResult> GetNicks()
     {

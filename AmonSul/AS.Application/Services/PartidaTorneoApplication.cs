@@ -770,17 +770,17 @@ public class PartidaTorneoApplication(
             await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
         if (existingEntity == null) return false;
 
-        if (request.IdUsuario1.HasValue)
-            existingEntity.IdUsuario1 = request.IdUsuario1.Value;
+        List<Usuario> inscripciones = await _unitOfWork.UsuarioRepository.GetUsuariosByTorneo(existingEntity.IdTorneo);
 
-        if (request.IdUsuario2.HasValue)
-            existingEntity.IdUsuario2 = request.IdUsuario2.Value;
+        Usuario? inscripcion1 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario1);
+        Usuario? inscripcion2 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario2);
 
-        if (!string.IsNullOrEmpty(request.EjercitoUsuario1))
-            existingEntity.EjercitoUsuario1 = request.EjercitoUsuario1;
+        if (inscripcion1 is null || inscripcion2 is null) return false;
 
-        if (!string.IsNullOrEmpty(request.EjercitoUsuario2))
-            existingEntity.EjercitoUsuario2 = request.EjercitoUsuario2;
+        existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
+        existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
+        existingEntity.EjercitoUsuario1 = inscripcion1.InscripcionTorneos.FirstOrDefault()!.Lista.FirstOrDefault()!.Ejercito;
+        existingEntity.EjercitoUsuario2 = inscripcion2.InscripcionTorneos.FirstOrDefault()!.Lista.FirstOrDefault()!.Ejercito;
 
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
     }

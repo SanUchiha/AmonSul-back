@@ -303,4 +303,54 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
               .Where(u => !u.InscripcionTorneos.Any(it => it.IdTorneo == idTorneo))
               .ToListAsync();
     }
+
+    public async Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo)
+    {
+        try
+        {
+            List<Usuario> usuarios = await _dbamonsulContext.Usuarios
+                .Where(u => u.InscripcionTorneos.Any(i => i.IdTorneo == idTorneo))
+                .Select(u => new Usuario
+                {
+                    IdUsuario = u.IdUsuario,
+                    NombreUsuario = u.NombreUsuario,
+                    PrimerApellido = u.PrimerApellido,
+                    SegundoApellido = u.SegundoApellido,
+                    Email = u.Email,
+                    Contraseña = u.Contraseña,
+                    Nick = u.Nick,
+                    NickLGDA = u.NickLGDA,
+                    Ciudad = u.Ciudad,
+                    FechaRegistro = u.FechaRegistro,
+                    FechaNacimiento = u.FechaNacimiento,
+                    IdFaccion = u.IdFaccion,
+                    Telefono = u.Telefono,
+                    ProteccionDatos = u.ProteccionDatos,
+                    Imagen = u.Imagen,
+                    InscripcionTorneos = u.InscripcionTorneos
+                        .Where(i => i.IdTorneo == idTorneo)
+                        .Select(i => new InscripcionTorneo
+                        {
+                            IdInscripcion = i.IdInscripcion,
+                            IdTorneo = i.IdTorneo,
+                            IdUsuario = i.IdUsuario,
+                            EstadoInscripcion = i.EstadoInscripcion,
+                            FechaInscripcion = i.FechaInscripcion,
+                            EstadoLista = i.EstadoLista,
+                            FechaEntregaLista = i.FechaEntregaLista,
+                            EsPago = i.EsPago,
+                            IdEquipo = i.IdEquipo,
+                            Lista = i.Lista.ToList() // Se incluye la lista de listas
+                        })
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return usuarios;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los usuarios inscritos en el torneo.", ex);
+        }
+    }
 }

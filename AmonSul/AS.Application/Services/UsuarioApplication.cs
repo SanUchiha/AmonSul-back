@@ -344,6 +344,33 @@ public class UsuarioApplication(
         return response;
     }
 
+    public async Task<List<UsuarioInscripcionTorneoDTO>> GetUsuariosByTorneo(int idTorneo)
+    {
+        // Obtener la lista de usuarios y facciones
+        List<Usuario> listaUsuarios = await _unitOfWork.UsuarioRepository.GetUsuariosByTorneo(idTorneo);
+        List<Faccion> listaFacciones = await _unitOfWork.FaccionRepository.GetFacciones();
+
+        // Crear un diccionario para acceder rápidamente a las facciones por IdFaccion
+        Dictionary<int, Faccion> faccionesDictionary = listaFacciones.ToDictionary(f => f.IdFaccion);
+
+        // Mapear los usuarios a DTOs
+        List<UsuarioInscripcionTorneoDTO> response = _mapper.Map<List<UsuarioInscripcionTorneoDTO>>(listaUsuarios);
+
+        // Asignar la facción correspondiente a cada usuario
+        foreach (UsuarioInscripcionTorneoDTO usuarioDTO in response)
+        {
+            if (usuarioDTO.Faccion == null && usuarioDTO.IdFaccion != null)
+            {
+                int idFaccion = usuarioDTO.IdFaccion.Value;
+                if (faccionesDictionary.TryGetValue(idFaccion, out var faccion))
+                {
+                    usuarioDTO.Faccion = _mapper.Map<FaccionDTO>(faccion);
+                }
+            }
+        }
+        return response;
+    }
+
     public async Task<List<UsuarioDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
     {
         // Obtener la lista de usuarios y facciones
