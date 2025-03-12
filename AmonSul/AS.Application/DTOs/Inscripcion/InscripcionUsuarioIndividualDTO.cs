@@ -1,4 +1,6 @@
-﻿namespace AS.Application.DTOs.Inscripcion;
+﻿using AS.Domain.DTOs.Torneo;
+
+namespace AS.Application.DTOs.Inscripcion;
 
 public class InscripcionUsuarioIndividualDTO
 {
@@ -13,4 +15,5 @@ public class InscripcionUsuarioIndividualDTO
     public string? EstadoLista { get; set; }
     public DateOnly? FechaEntregaLista { get; set; }
     public string? EsPago { get; set; }
+    public TorneoViewDTO? Torneo { get; set; }
 }

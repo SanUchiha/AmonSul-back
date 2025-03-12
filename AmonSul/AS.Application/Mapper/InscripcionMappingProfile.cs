@@ -15,14 +15,18 @@ public class InscripcionMappingProfile : Profile
         CreateMap<InscripcionTorneo, InscripcionUsuarioIndividualDTO>()
             .ForMember(dest => dest.Nick, opt => opt.MapFrom(src => src.IdUsuarioNavigation!.Nick))
             .ForMember(dest => dest.NombreTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.NombreTorneo))
+            .ForMember(dest => dest.Torneo, opt => opt.MapFrom(src => src.IdTorneoNavigation))
             .ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionUsuarioEquipoDTO>()
             .ForMember(dest => dest.Nick, opt => opt.MapFrom(src => src.IdUsuarioNavigation!.Nick))
             .ForMember(dest => dest.NombreTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.NombreTorneo))
+            .ForMember(dest => dest.Torneo, opt => opt.MapFrom(src => src.IdTorneoNavigation))
             .ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionTorneoEquiposDTO>().ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionTorneoCreadoDTO>().ReverseMap();
-        CreateMap<InscripcionTorneo, InscripcionTorneoDTO>().ReverseMap();
+        CreateMap<InscripcionTorneo, InscripcionTorneoDTO>()
+            .ForMember(dest => dest.Torneo, opt => opt.MapFrom(src => src.IdTorneoNavigation))
+            .ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionEquipoDTO>().ReverseMap();
         CreateMap<InscripcionTorneo, ComponentesEquipoDTO>()
             .ForMember(dest => dest.IdLista, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.IdLista))

@@ -13,7 +13,7 @@ public class TorneoMappingProfile : Profile
         CreateMap<Torneo, UpdateTorneoDTO>().ReverseMap();
         CreateMap<Torneo, TorneoDTO>().ReverseMap();
         CreateMap<Torneo, TorneoCreadoDTO>().ReverseMap();
-        CreateMap<Torneo, TorneoCreadoUsuarioDTO>().ReverseMap();
+        CreateMap<Torneo, TorneoViewDTO>().ReverseMap();
 
         CreateMap<InscripcionTorneoCreadoDTO, InscripcionTorneo>().ReverseMap();
 

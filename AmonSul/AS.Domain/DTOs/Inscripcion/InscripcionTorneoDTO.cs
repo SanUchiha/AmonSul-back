@@ -1,4 +1,6 @@
-﻿namespace AS.Domain.DTOs.Inscripcion;
+﻿using AS.Domain.DTOs.Torneo;
+
+namespace AS.Domain.DTOs.Inscripcion;
 
 public class InscripcionTorneoDTO
 {
@@ -13,4 +15,5 @@ public class InscripcionTorneoDTO
     public string? Ejercito { get; set; }
     public int IdLista { get; set; }
     public string? Nick { get; set; }
+    public TorneoViewDTO? Torneo { get; set; }
 }

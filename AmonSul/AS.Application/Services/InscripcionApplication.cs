@@ -8,8 +8,6 @@ using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Rewrite;
-using System.Collections.Generic;
 using System.Net.Mail;
 
 namespace AS.Application.Services;

@@ -1,6 +1,4 @@
-﻿using AS.Domain.Models;
-
-namespace AS.Application.DTOs.Torneo;
+﻿namespace AS.Application.DTOs.Torneo;
 
 public class TorneoDTO
 {

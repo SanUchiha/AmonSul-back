@@ -2,13 +2,13 @@
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace AS.Api.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class InscripcionController(IInscripcionApplication inscripcionApplication) : ControllerBase
 {

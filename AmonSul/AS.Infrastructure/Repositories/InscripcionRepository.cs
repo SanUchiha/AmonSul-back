@@ -132,6 +132,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     {
         var insc = await _dbamonsulContext.InscripcionTorneos
             .Include(it => it.Lista)
+            .Include(it => it.IdTorneoNavigation)
             .FirstOrDefaultAsync(it => it.IdInscripcion == idInscripcion);
 
         return insc!;
