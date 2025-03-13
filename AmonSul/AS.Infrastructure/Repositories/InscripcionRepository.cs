@@ -60,6 +60,39 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return inscripcion;
     }
 
+    public async Task<bool> DeleteEquipoAsync(int idEquipo)
+    {
+        Equipo? equipo = await GetEquipoByIdAsync(idEquipo);
+        if (equipo == null) return false;
+
+        try
+        {
+            using var transaction = await _dbamonsulContext.Database.BeginTransactionAsync();
+
+            foreach (var inscripcion in equipo.Inscripciones)
+            {
+                _dbamonsulContext.Listas.RemoveRange(inscripcion.Lista);
+            }
+            _dbamonsulContext.InscripcionTorneos.RemoveRange(equipo.Inscripciones);
+            _dbamonsulContext.EquipoUsuario.RemoveRange(equipo.Miembros);
+            _dbamonsulContext.Equipo.Remove(equipo);
+
+            await _dbamonsulContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return true;
+        }
+        catch (DbUpdateException dbEx)
+        {
+            Console.WriteLine($"Error de base de datos: {dbEx.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error general: {ex.Message}");
+        }
+        return false;
+    }
+
     public async Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo)
     {
         InscripcionTorneo? inscripcionTorneo = await _dbamonsulContext.InscripcionTorneos
@@ -126,6 +159,8 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     public async Task<Equipo?> GetEquipoByIdAsync(int id) => 
         await _dbamonsulContext.Equipo
             .Include(e => e.Miembros)
+            .Include(e => e.Inscripciones)
+                    .ThenInclude(i => i.Lista)
             .FirstOrDefaultAsync(e => e.IdEquipo == id);
 
     public async Task<InscripcionTorneo> GetInscripcionById(int idInscripcion)

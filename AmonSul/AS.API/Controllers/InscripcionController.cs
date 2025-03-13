@@ -68,12 +68,19 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpDelete("{id}")]
     public async Task<ActionResult<InscripcionTorneo>> Delete(int id)
     {
-        var inscripcion = await _inscripcionApplication.Delete(id);
+        InscripcionTorneo inscripcion = await _inscripcionApplication.Delete(id);
         if (inscripcion == null)
         {
             return NotFound();
         }
         return Ok(inscripcion);
+    }
+
+    [HttpDelete("Equipo/{idEquipo}")]
+    public async Task<ActionResult<InscripcionTorneo>> DeleteEquipo(int idEquipo)
+    {
+        bool isDelete = await _inscripcionApplication.DeleteEquipo(idEquipo);
+        return Ok(isDelete);
     }
 
     //Cambiar estado lista

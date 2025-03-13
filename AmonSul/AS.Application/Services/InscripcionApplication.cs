@@ -275,4 +275,7 @@ public class InscripcionApplication(
     {
         return await _unitOfWork.InscripcionRepository.EstaApuntadoAsync(idUsuario, idTorneo);
     }
+
+    public async Task<bool> DeleteEquipo(int idEquipo) => 
+        await _unitOfWork.InscripcionRepository.DeleteEquipoAsync(idEquipo);
 }
