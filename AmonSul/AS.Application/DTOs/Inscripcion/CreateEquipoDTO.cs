@@ -1,6 +1,4 @@
-﻿using AS.Domain.Models;
-
-namespace AS.Application.DTOs.Inscripcion;
+﻿namespace AS.Application.DTOs.Inscripcion;
 
 public class CreateEquipoDTO
 {

@@ -23,4 +23,6 @@ public interface IInscripcionApplication
     Task<List<EquipoDTO>> GetInscripcionesEquipoByTorneoAsync(int idTorneo);
     Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo);
     Task<bool> DeleteEquipo(int idEquipo);
+    Task<bool> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO);
+    Task<bool> DeleteMiembroAsync(int idInscripcion);
 }

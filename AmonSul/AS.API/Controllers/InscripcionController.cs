@@ -83,7 +83,6 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(isDelete);
     }
 
-    //Cambiar estado lista
     [HttpPut("Estado-Lista")]
     public async Task<ActionResult> CambiarEstadoLista([FromBody] ActualizarEstadoLista actualizarEstadoLista)
     {
@@ -95,7 +94,6 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Created();
     }
 
-    //Cambiar estado pago
     [HttpPut("Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
     {
@@ -130,4 +128,12 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
 
         return Ok(esApuntado);
     }
+
+    [HttpPost("Registar-miembro-Equipo")]
+    public async Task<IActionResult> RegisterMiembro([FromBody] CreateMiembroEquipoDTO createMiembroEquipoDTO) => 
+        Ok(await _inscripcionApplication.RegisterMiembroAsync(createMiembroEquipoDTO));
+
+    [HttpDelete("miembro/{idInscripcion}")]
+    public async Task<ActionResult<InscripcionTorneo>> DeleteMiembro(int idInscripcion) => 
+        Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
 }
