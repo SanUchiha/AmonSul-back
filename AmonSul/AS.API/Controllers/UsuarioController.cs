@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -333,7 +334,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            List<UsuarioDTO> response = await _usuarioApplication.GetUsuariosNoInscritosTorneoAsync(idTorneo);
+            List<UsuarioSinEquipoDTO> response = await _usuarioApplication.GetUsuariosNoInscritosTorneoAsync(idTorneo);
 
             if (response is null) return NoContent();
 

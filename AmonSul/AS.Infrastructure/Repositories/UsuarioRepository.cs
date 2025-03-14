@@ -297,11 +297,16 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
-    public async Task<List<Usuario>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
+    public async Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
     {
         return await _dbamonsulContext.Usuarios
-              .Where(u => !u.InscripcionTorneos.Any(it => it.IdTorneo == idTorneo))
-              .ToListAsync();
+                .Where(u => !u.InscripcionTorneos.Any(it => it.IdTorneo == idTorneo))
+                .Select(u => new UsuarioSinEquipoDTO
+                {
+                    IdUsuario = u.IdUsuario,
+                    Nick = u.Nick
+                })
+                .ToListAsync();
     }
 
     public async Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo)

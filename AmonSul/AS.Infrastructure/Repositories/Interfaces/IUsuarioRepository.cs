@@ -22,6 +22,6 @@ public interface IUsuarioRepository
     Task<string> GetComunidadNameByIdUser(int idUser);
     Task<List<UsersElosDTO>> GetAllUserWithElo();
     Task<List<GanadorNickDTO>> GetAllSoloNicks();
-    Task<List<Usuario>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
+    Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
     Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo);
 }

@@ -6,6 +6,7 @@ using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Torneo;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
@@ -371,12 +372,12 @@ public class UsuarioApplication(
         return response;
     }
 
-    public async Task<List<UsuarioDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
+    public async Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo)
     {
         // Obtener la lista de usuarios y facciones
-        List<Usuario> listaUsuarios = 
+        List<UsuarioSinEquipoDTO> usuarioSinEquipoDTOs = 
             await _unitOfWork.UsuarioRepository.GetUsuariosNoInscritosTorneoAsync(idTorneo);
-        List<Faccion> listaFacciones = await _unitOfWork.FaccionRepository.GetFacciones();
+       /* List<Faccion> listaFacciones = await _unitOfWork.FaccionRepository.GetFacciones();
 
         // Crear un diccionario para acceder rápidamente a las facciones por IdFaccion
         Dictionary<int, Faccion> faccionesDictionary = listaFacciones.ToDictionary(f => f.IdFaccion);
@@ -395,8 +396,8 @@ public class UsuarioApplication(
                     usuarioDTO.Faccion = _mapper.Map<FaccionDTO>(faccion);
                 }
             }
-        }
-        return response;
+        }*/
+        return usuarioSinEquipoDTOs;
     }
 
     public async Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO)
