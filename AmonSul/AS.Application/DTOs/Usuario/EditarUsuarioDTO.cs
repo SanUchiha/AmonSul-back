@@ -2,12 +2,11 @@
 
 public class EditarUsuarioDTO
 {
+    public int IdUsuario { get; set; }
     public string? NombreUsuario { get; set; } = null!;
     public string? PrimerApellido { get; set; } = null!;
     public string? SegundoApellido { get; set; }
-    public string Email { get; set; } = null!;
-    public string? NuevoEmail { get; set; } = null!;
-    public string? Contraseña { get; set; } = null!;
+    public string? Email { get; set; } = null!;
     public string? Nick { get; set; } = null!;
     public string? Ciudad { get; set; }
     public DateOnly? FechaNacimiento { get; set; }

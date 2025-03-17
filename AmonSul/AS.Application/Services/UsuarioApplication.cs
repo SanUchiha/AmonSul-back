@@ -52,7 +52,7 @@ public class UsuarioApplication(
 
         //4. actualizar el usuario con la pass nueva
         usuario.Contraseña = newPassEnc;
-        bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
 
@@ -63,32 +63,24 @@ public class UsuarioApplication(
         return _unitOfWork.UsuarioRepository.Delete(email);
     }
 
-    public async Task<bool> Edit(EditarUsuarioDTO usuario)
+    public async Task<bool> EditAsync(EditarUsuarioDTO editarUsuarioDTO)
     {
-        var usuarioEncontrado = await GetByEmail(usuario.Email);
-        if (usuarioEncontrado == null) return false;
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetByIdFast(editarUsuarioDTO.IdUsuario);
+        if (usuario == null) return false;
 
-        var rawUsuario = await _unitOfWork.UsuarioRepository.GetUsuario(usuario.Email);
-        if (rawUsuario == null) return false;
+        usuario.NombreUsuario = editarUsuarioDTO.NombreUsuario ?? usuario.NombreUsuario;
+        usuario.PrimerApellido = editarUsuarioDTO.PrimerApellido ?? usuario.PrimerApellido;
+        usuario.SegundoApellido = editarUsuarioDTO.SegundoApellido ?? usuario.SegundoApellido;
+        usuario.Email = editarUsuarioDTO.Email ?? usuario.Email;
+        usuario.Nick = editarUsuarioDTO.Nick ?? usuario.Nick;
+        usuario.NickLGDA = editarUsuarioDTO.NickLGDA ?? usuario.NickLGDA;
+        usuario.Ciudad = editarUsuarioDTO.Ciudad ?? usuario.Ciudad;
+        usuario.FechaNacimiento = editarUsuarioDTO.FechaNacimiento ?? usuario.FechaNacimiento;
+        usuario.IdFaccion = editarUsuarioDTO.IdFaccion ?? usuario.IdFaccion;
+        usuario.Telefono = editarUsuarioDTO.Telefono ?? usuario.Telefono;
+        usuario.Imagen = editarUsuarioDTO.Imagen ?? usuario.Imagen;
 
-        if (usuario.Contraseña != null)
-        {
-            usuario.Contraseña = Utilidades.EncriptarSHA256(usuario.Contraseña);
-        }
-
-        if (usuario.NuevoEmail != null) usuario.Email = usuario.NuevoEmail;
-
-        foreach (var prop in usuario.GetType().GetProperties())
-        {
-            var newValue = prop.GetValue(usuario);
-            if (newValue != null)
-            {
-                var rawProp = rawUsuario.GetType().GetProperty(prop.Name);
-                rawProp?.SetValue(rawUsuario, newValue);
-            }
-        }
-
-        var result = await _unitOfWork.UsuarioRepository.Edit(rawUsuario);
+        bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
         return result;
     }
 
@@ -407,7 +399,7 @@ public class UsuarioApplication(
 
         usuario.IdFaccion = editarFaccionUsuarioDTO.IdFaccion;
 
-        bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
     }
@@ -424,7 +416,7 @@ public class UsuarioApplication(
         
         usuario.Contraseña = passEnc;
 
-        bool actualizarUsuario = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        bool actualizarUsuario = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
         if (!actualizarUsuario) return false;
 
         //3. Se la enviamos por correo
@@ -499,7 +491,7 @@ public class UsuarioApplication(
         usuario.ProteccionDatos = updateProteccionDatosDTO.ProteccionDatos;
 
         //3. lo guardamos en la base de datos
-        bool result = await _unitOfWork.UsuarioRepository.Edit(usuario);
+        bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
     }

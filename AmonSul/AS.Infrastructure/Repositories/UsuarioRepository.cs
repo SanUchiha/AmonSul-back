@@ -47,7 +47,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
-    public async Task<bool> Edit(Usuario usuario)
+    public async Task<bool> EditAsync(Usuario usuario)
     {
         try
         {
@@ -358,4 +358,8 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
             throw new Exception("Ocurrió un problema al obtener los usuarios inscritos en el torneo.", ex);
         }
     }
+
+    public async Task<Usuario> GetByIdFast(int idUsuario) =>
+        await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario)
+        ?? throw new Exception("Usuario no encontrado");
 }

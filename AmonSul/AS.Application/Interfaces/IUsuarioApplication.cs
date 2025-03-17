@@ -7,7 +7,7 @@ namespace AS.Application.Interfaces;
 public interface IUsuarioApplication
 {
     Task<UsuarioDTO> GetById(int IdUsuario);
-    Task<bool> Edit(EditarUsuarioDTO usuario);
+    Task<bool> EditAsync(EditarUsuarioDTO usuario);
     Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO);
     Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
     Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO);

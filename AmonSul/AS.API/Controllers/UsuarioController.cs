@@ -226,7 +226,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            var response = await _usuarioApplication.Edit(request);
+            bool response = await _usuarioApplication.EditAsync(request);
 
             if (!response) return NotFound();
 
