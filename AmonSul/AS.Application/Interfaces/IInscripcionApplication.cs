@@ -25,4 +25,5 @@ public interface IInscripcionApplication
     Task<bool> DeleteEquipo(int idEquipo);
     Task<bool> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO);
     Task<bool> DeleteMiembroAsync(int idInscripcion);
+    Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo);
 }

@@ -97,7 +97,18 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpPut("Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
     {
-        var result = await _inscripcionApplication.CambiarEstadoPago(actualizarEstadoPago);
+        bool result = await _inscripcionApplication.CambiarEstadoPago(actualizarEstadoPago);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Created();
+    }
+
+    [HttpPut("Equipo/Estado-Pago")]
+    public async Task<ActionResult> CambiarEstadoPagoEquipo([FromBody] ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo)
+    {
+        bool result = await _inscripcionApplication.CambiarEstadoPagoEquipo(actualizarEstadoPagoEquipo);
         if (!result)
         {
             return BadRequest();

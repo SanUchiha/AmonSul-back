@@ -305,4 +305,42 @@ public class InscripcionApplication(
 
     public async Task<bool> DeleteMiembroAsync(int idInscripcion) => 
         await _unitOfWork.InscripcionRepository.DeleteMiembroAsync(idInscripcion);
+
+    public async Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo)
+    {
+        List<InscripcionTorneo> inscripciones = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(actualizarEstadoPagoEquipo.IdEquipo);
+
+        foreach (var item in inscripciones)
+        {
+            item.EsPago = actualizarEstadoPagoEquipo.EsPago;
+            await _unitOfWork.InscripcionRepository.Update(item);
+        }
+
+        TorneoUsuarioDto torneo = await _unitOfWork.TorneoRepository.GetNombreById(inscripciones[0].IdTorneo);
+        if (torneo == null) return false;
+
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(inscripciones[0].IdEquipo!.Value);
+        if (equipo == null) return false;
+
+        UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(equipo.IdCapitan);
+        if (usuario == null) return false;
+
+        EmailPagoDTO emailPagoDTO = new()
+        {
+            EmailTo = usuario.Email,
+            NombreTorneo = torneo.NombreTorneo,
+            EstadoPago = actualizarEstadoPagoEquipo.EsPago!
+        };
+
+        try
+        {
+            await _emailApplicacion.SendEmailModificacionPago(emailPagoDTO);
+        }
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
+
+        return true;
+    }
 }
