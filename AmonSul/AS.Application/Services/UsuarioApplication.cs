@@ -38,24 +38,19 @@ public class UsuarioApplication(
 
     public async Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO)
     {
-        //1. comprobar que el usuario existe
-        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(cambiarPassDTO.idUsuario);
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetUsuarioSoloById(cambiarPassDTO.idUsuario);
+
         if (usuario == null) return false;
 
-        //2. comprobar que la pass antigua es correcta
         string oldPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.OldPass!);
-        if (oldPassEnc != usuario.Contraseña)
-            return false;
+        if (oldPassEnc != usuario.Contraseña) return false;
 
-        //3. encriptar passs nueva
         string newPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.NewPass!);
 
-        //4. actualizar el usuario con la pass nueva
         usuario.Contraseña = newPassEnc;
         bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
-
     }
 
     public Task<bool> Delete(string email)

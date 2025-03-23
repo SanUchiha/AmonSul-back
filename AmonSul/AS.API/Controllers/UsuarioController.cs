@@ -43,18 +43,24 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("Cambiar-Pass")]
     public async Task<IActionResult> CambiarPass([FromBody] CambiarPassDTO cambiarPassDTO)
     {
+        if (cambiarPassDTO == null || 
+            string.IsNullOrWhiteSpace(cambiarPassDTO.OldPass) || 
+            string.IsNullOrWhiteSpace(cambiarPassDTO.NewPass))
+            return BadRequest(new { message = "Los datos proporcionados son inválidos." });
+
         try
         {
-            var response = await _usuarioApplication.CambiarPass(cambiarPassDTO);
+            bool response = await _usuarioApplication.CambiarPass(cambiarPassDTO);
 
-            if (response) return Ok(response);
-            return Unauthorized();
+            if (!response)
+                return BadRequest(new { message = "No se pudo cambiar la contraseña. Verifica los datos ingresados." });
+
+            return Ok(new { message = "Contraseña cambiada con éxito." });
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Ocurrió un error en el servidor.", detail = ex.Message });
         }
-
     }
 
     [HttpGet]

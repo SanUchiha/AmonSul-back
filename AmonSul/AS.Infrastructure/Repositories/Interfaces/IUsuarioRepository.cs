@@ -25,4 +25,5 @@ public interface IUsuarioRepository
     Task<List<GanadorNickDTO>> GetAllSoloNicks();
     Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
     Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo);
+    Task<Usuario> GetUsuarioSoloById(int idUsuario);
 }

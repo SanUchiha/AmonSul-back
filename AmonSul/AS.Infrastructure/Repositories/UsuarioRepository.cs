@@ -362,4 +362,18 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     public async Task<Usuario> GetByIdFast(int idUsuario) =>
         await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario)
         ?? throw new Exception("Usuario no encontrado");
+
+    public async Task<Usuario> GetUsuarioSoloById(int idUsuario)
+    {
+        try
+        {
+            Usuario? response = await _dbamonsulContext.Usuarios
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+            return response ?? throw new Exception("Usuario no encontrado");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+        }
+    }
 }
