@@ -3,6 +3,7 @@ using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Faccion;
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
@@ -278,7 +279,7 @@ public class UsuarioApplication(
         foreach (var partida in response.PartidasTorneo)
         {
             if (partida.GanadorPartidaTorneo == response.IdUsuario) contadorVictorias++;
-            else if (partida.GanadorPartidaTorneo == 0) contadorEmpates++;
+            else if (partida.GanadorPartidaTorneo == null) contadorEmpates++;
             else contadorDerrotas++;
         }
         response.PartidasGanadas = contadorVictorias;

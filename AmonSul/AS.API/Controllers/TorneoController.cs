@@ -1,5 +1,4 @@
 ﻿using AS.API.Filters;
-using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;

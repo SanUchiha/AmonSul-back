@@ -1,5 +1,4 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.DTOs.PartidaTorneo;
+﻿using AS.Application.DTOs.PartidaTorneo;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;

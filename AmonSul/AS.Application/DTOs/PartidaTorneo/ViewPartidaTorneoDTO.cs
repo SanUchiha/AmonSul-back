@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AS.Application.DTOs.PartidaAmistosa;
+namespace AS.Application.DTOs.PartidaTorneo;
 
 public class ViewPartidaTorneoDTO
 {
@@ -14,7 +14,7 @@ public class ViewPartidaTorneoDTO
     public DateOnly? FechaPartida { get; set; }
     public string? EscenarioPartida { get; set; }
     public int PuntosPartida { get; set; }
-    public int GanadorPartidaTorneo { get; set; }
+    public int? GanadorPartidaTorneo { get; set; }
     public string? GanadorPartidaNick { get; set; }
     public bool EsTorneo { get; set; }
     public string? EjercitoUsuario1 { get; set; }

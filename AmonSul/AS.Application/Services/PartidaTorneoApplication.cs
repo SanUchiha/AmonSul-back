@@ -1,5 +1,4 @@
 ﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -64,6 +63,9 @@ public class PartidaTorneoApplication(
 
         if (request.LiderMuertoUsuario2.HasValue)
             existingEntity.LiderMuertoUsuario2 = request.LiderMuertoUsuario2.Value;
+
+        if (request.FechaPartida is null)
+            existingEntity.FechaPartida = DateOnly.FromDateTime(DateTime.Now);
 
         // Guardar los cambios en la base de datos
         bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);

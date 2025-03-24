@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AutoMapper;
 
 namespace AS.Application.Mapper;

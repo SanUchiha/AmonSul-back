@@ -2,6 +2,7 @@
 using AS.Application.DTOs.Faccion;
 using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 
 namespace AS.Application.DTOs.Usuario;

@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.Elo;
 using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Elos;
 using AS.Domain.Models;

@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Faccion;
 using AS.Application.DTOs.PartidaAmistosa;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Usuario;
 using AS.Domain.Models;
 using AutoMapper;
