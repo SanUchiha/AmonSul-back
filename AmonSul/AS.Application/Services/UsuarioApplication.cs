@@ -218,6 +218,9 @@ public class UsuarioApplication(
         return _mapper.Map<List<UsuarioNickDTO>>(rawUsuario);
     }
 
+    public async Task<bool> GetProteccionDatos(int idUsuario) => 
+        await _unitOfWork.UsuarioRepository.GetProteccionDatos(idUsuario);
+
     public async Task<UsuarioViewDTO> GetUsuario(string email)
     {
         var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetUsuario(email);

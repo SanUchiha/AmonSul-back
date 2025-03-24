@@ -26,4 +26,5 @@ public interface IUsuarioRepository
     Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
     Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo);
     Task<Usuario> GetUsuarioSoloById(int idUsuario);
+    Task<bool> GetProteccionDatos(int idUsuario);
 }

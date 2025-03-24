@@ -376,4 +376,15 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
             throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
         }
     }
+
+    public async Task<bool> GetProteccionDatos(int idUsuario)
+    {
+        Usuario? usuario 
+            = await _dbamonsulContext.Usuarios
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario) 
+            ?? throw new Exception("Usuario no encontrado");
+        
+        if (usuario.ProteccionDatos == null) return false;
+        return true;
+    }
 }

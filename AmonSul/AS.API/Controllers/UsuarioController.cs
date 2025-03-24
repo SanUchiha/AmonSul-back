@@ -244,6 +244,12 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
         }
     }
 
+
+    [HttpGet]
+    [Route("Proteccion-Datos/{idUsuario}")]
+    public async Task<IActionResult> GetProteccionDatos(int idUsuario) =>
+        Ok(await _usuarioApplication.GetProteccionDatos(idUsuario));
+    
     [HttpPut]
     [Route("Proteccion-Datos")]
     public async Task<IActionResult> UpdateProteccionDatos([FromBody] UpdateProteccionDatosDTO request)
