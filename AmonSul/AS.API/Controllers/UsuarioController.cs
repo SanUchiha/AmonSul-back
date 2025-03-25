@@ -11,7 +11,6 @@ namespace AS.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-
 public class UsuarioController(IUsuarioApplication usuarioApplication) : ControllerBase
 {
     private readonly IUsuarioApplication _usuarioApplication = usuarioApplication;
@@ -161,7 +160,6 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
         try
         {
             UsuarioDataDTO response = await _usuarioApplication.GetUsuarioData(idUsuario);
-
             if (response is null) return NoContent();
 
             return Ok(response);

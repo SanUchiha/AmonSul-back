@@ -1,8 +1,5 @@
 ﻿using AS.Application.Interfaces;
-using AS.Domain.Models;
-using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
-using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
