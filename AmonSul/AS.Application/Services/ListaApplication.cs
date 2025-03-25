@@ -1,11 +1,13 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using System.Net.Mail;
 
 namespace AS.Application.Services;
 
@@ -55,6 +57,14 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
         if (!result) return false;
 
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(createListaTorneoDTO.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.EstadoLista = "ENTREGADA";
+        inscripcion.FechaEntregaLista = createListaTorneoDTO.FechaEntrega;
+
+        await _unitOfWork.InscripcionRepository.Update(inscripcion);
+
         string? emailOrganizador = createListaTorneoDTO.EmailOrganizador;
         if (emailOrganizador is null)
         {
@@ -75,10 +85,18 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
 
     public async Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO) 
     {
-        Lista result = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
-        if (result == null) return false;
+        Lista lista = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
+        if (lista == null) return false;
 
         if (updateListaTorneoDTO.IdOrganizador == 0) return true;
+
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(lista.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.EstadoLista = "ENTREGADA";
+        inscripcion.FechaEntregaLista = updateListaTorneoDTO.FechaEntrega;
+
+        await _unitOfWork.InscripcionRepository.Update(inscripcion);
 
         int idOrganizador = 
             await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(updateListaTorneoDTO.IdTorneo);
@@ -95,7 +113,6 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
 
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
         
-
         return true;
     }
 }
