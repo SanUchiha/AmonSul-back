@@ -1,9 +1,7 @@
 ﻿using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
-using AS.Application.Services;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
-using AS.Infrastructure.DTOs.Login;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,10 +32,10 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(lista);
     }
 
-    [HttpGet("inscripcion/{idInscripcion}")]
+    [HttpGet("Inscripcion/{idInscripcion}")]
     public async Task<ActionResult<Lista>> GetListaInscripcionById(int idInscripcion)
     {
-        var lista = await _listaApplication.GetListaInscripcionById(idInscripcion);
+        ListaViewDTO lista = await _listaApplication.GetListaInscripcionById(idInscripcion);
         if (lista == null)
         {
             return NotFound();
@@ -45,14 +43,14 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(lista);
     }
 
-    [HttpGet("torneo/{idTorneo}")]
+    [HttpGet("Torneo/{idTorneo}")]
     public async Task<ActionResult<IEnumerable<Lista>>> GetListasByTorneo(int idTorneo)
     {
         var listas = await _listaApplication.GetListasByTorneo(idTorneo);
         return Ok(listas);
     }
 
-    [HttpGet("user/{idUsuario}")]
+    [HttpGet("User/{idUsuario}")]
     public async Task<ActionResult<IEnumerable<Lista>>> GetListasByUser(int idUsuario)
     {
         var listas = await _listaApplication.GetListasByUser(idUsuario);
@@ -69,7 +67,6 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(result);
     }
 
-    //Actualiza una lista de un torneo    
     [HttpPut("{id}")]
     public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] UpdateListaDTO request)
     {
@@ -95,7 +92,6 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(deletedLista);
     }
 
-    
     [HttpGet]
     [Route("Lista-Torneo/{idTorneo}/{idUsuario}")]
     public async Task<ActionResult<bool>>GetListaTorneo(int idTorneo, int idUsuario)

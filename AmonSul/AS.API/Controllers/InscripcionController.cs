@@ -50,7 +50,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripciones);
     }
 
-    [HttpGet("byTorneo/{idTorneo}")]
+    [HttpGet("ByTorneo/{idTorneo}")]
     public async Task<ActionResult<List<InscripcionUsuarioIndividualDTO>>> GetInscripcionesByTorneo(int idTorneo) =>
         Ok(await _inscripcionApplication.GetInscripcionesByTorneo(idTorneo));
 
@@ -132,7 +132,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripcionEquipoDTO);
     }
 
-    [HttpGet("apuntado/{idUsuario}/{idTorneo}")]
+    [HttpGet("Apuntado/{idUsuario}/{idTorneo}")]
     public async Task<ActionResult<bool>> EstaApuntado(int idUsuario, int idTorneo)
     {
         bool esApuntado = await _inscripcionApplication.EstaApuntadoAsync(idUsuario, idTorneo);
@@ -144,7 +144,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     public async Task<IActionResult> RegisterMiembro([FromBody] CreateMiembroEquipoDTO createMiembroEquipoDTO) => 
         Ok(await _inscripcionApplication.RegisterMiembroAsync(createMiembroEquipoDTO));
 
-    [HttpDelete("miembro/{idInscripcion}")]
+    [HttpDelete("Miembro/{idInscripcion}")]
     public async Task<ActionResult<InscripcionTorneo>> DeleteMiembro(int idInscripcion) => 
         Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
 }
