@@ -12,7 +12,7 @@ public interface IEloApplication
     Task<bool> RegisterElo(CreateEloDTO requestElo);
     Task<bool> Delete(int idElo);
 
-    Task<ViewEloDTO> GetElo(string email);
+    Task<ViewEloDTO> GetEloByIdUsuarioAsync(int idUsuario);
     Task<List<ViewEloDTO>> GetAllElos();
     Task<int> GetLastElo(int idUsuario);
     Task<List<EloUsuarioDTO>> GetEloUsuarios();

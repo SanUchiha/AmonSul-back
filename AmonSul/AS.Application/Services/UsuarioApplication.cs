@@ -183,23 +183,19 @@ public class UsuarioApplication(
 
     public async Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email)
     {
-        var userMail = await GetByEmail(email);
+        ViewUsuarioPartidaDTO viewUsuarioPartidaDTO = await GetByEmail(email);
 
-        var result = _mapper.Map<ViewDetalleUsuarioDTO>(userMail);
+        ViewDetalleUsuarioDTO result = _mapper.Map<ViewDetalleUsuarioDTO>(viewUsuarioPartidaDTO);
 
         //elo
-        var elos = await _eloApplication.GetElo(email);
-        var clasificacionElo = await _eloApplication.GetClasificacion();
+        ViewEloDTO elos = await _eloApplication.GetEloByIdUsuarioAsync(viewUsuarioPartidaDTO.IdUsuario);
+        List<ClasificacionEloDTO> clasificacionElo = await _eloApplication.GetClasificacion();
         clasificacionElo = [.. clasificacionElo.OrderByDescending(x => x.Elo)];
         result.ClasificacionElo = clasificacionElo.FindIndex(x=>x.Nick == result.Nick) +1;
         result.Elos = elos.Elos;
-        //partidas
-        //var partidas = await _partidaAmistosaApplication.GetPartidaAmistosasByUsuarioValidadas(168);
-        //torneos
-        //result.Partidas = partidas;
         result.PuntuacionElo = elos.Elos[^1].PuntuacionElo;
 
-        var torneos = await _torneoApplication.GetTorneos();
+        List<TorneoDTO> torneos = await _torneoApplication.GetTorneos();
         
         return result;
     }

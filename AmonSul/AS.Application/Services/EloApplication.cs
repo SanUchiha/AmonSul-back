@@ -34,18 +34,16 @@ public class EloApplication(
     public async Task<bool> Edit(Elo elo) =>
         await _unitOfWork.EloRepository.Edit(elo);
 
-    public async Task<ViewEloDTO> GetElo(string email)
+    public async Task<ViewEloDTO> GetEloByIdUsuarioAsync(int idUsuario)
     {
-        // Conseguir el nick
-        var usuario = await _unitOfWork.UsuarioRepository.GetByEmail(email);
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetByIdFast(idUsuario);
 
-        //Conseguimos todos los elos del jugador
-        var elos = await GetElosByIdUser(usuario.IdUsuario);
-        var elosMapper = _mapper.Map<List<EloDTO>>(elos);
+        List<Elo> elos = await GetElosByIdUser(usuario.IdUsuario);
+        List<EloDTO> elosMapper = _mapper.Map<List<EloDTO>>(elos);
 
         ViewEloDTO view = new()
         {
-            Email = email,
+            Email = usuario.Email,
             Nick = usuario.Nick,
             IdUsuario = usuario.IdUsuario,
             Elos = elosMapper
@@ -57,44 +55,42 @@ public class EloApplication(
     public async Task<List<ViewEloDTO>> GetAllElos()
     {
         // Me quedo con todos los email en una lista
-        var usuarios = await _unitOfWork.UsuarioRepository.GetAll();
-
+        List<Usuario> usuarios = await _unitOfWork.UsuarioRepository.GetAll();
         if (usuarios == null) return [];
 
-        List<string> listaEmails = [];
+        List<int> listaIds = [];
 
         foreach (var usuario in usuarios)
         {
-            listaEmails.Add(usuario.Email);
+            listaIds.Add(usuario.IdUsuario);
         }
 
         List<ViewEloDTO> listaViewElos = [];
 
-        foreach (var item in listaEmails)
+        foreach (var item in listaIds)
         {
-            var view = await GetElo(item);
+            ViewEloDTO view = await GetEloByIdUsuarioAsync(item);
             listaViewElos.Add(view);
         }
 
         return listaViewElos;
-
     }
 
     public async Task<int> GetLastElo(int idUsuario)
     {
-        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
-
-        if (usuario.Email == null) throw new Exception("Usuario no encontrado");
-
-        ViewEloDTO userElo = await GetElo(usuario.Email);
+        Usuario usuario 
+            = await _unitOfWork.UsuarioRepository.GetById(idUsuario) 
+            ?? throw new Exception("Usuario no encontrado");
+        
+        ViewEloDTO userElo = await GetEloByIdUsuarioAsync(usuario.IdUsuario);
 
         if (userElo.Elos == null || userElo.Elos.Count == 0)
-        {
             return 800;
-        }
+
         EloDTO lastElo = userElo.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!;
 
-        return lastElo?.PuntuacionElo ?? throw new Exception("No se pudo encontrar el Elo más reciente");
+        return  lastElo?.PuntuacionElo 
+                ?? throw new Exception("No se pudo encontrar el Elo más reciente");
     }
 
     public async Task<List<EloUsuarioDTO>> GetEloUsuarios()
@@ -125,7 +121,7 @@ public class EloApplication(
             var scopedPartidaTorneoApplication = scope.ServiceProvider.GetRequiredService<IPartidaTorneoApplication>();
             var scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
-            ViewEloDTO view = await scopedEloApplication.GetElo(usuario.Email);
+            ViewEloDTO view = await scopedEloApplication.GetEloByIdUsuarioAsync(usuario.IdUsuario);
 
             List<ViewPartidaTorneoDTO> partidasTorneo =
                 await scopedPartidaTorneoApplication.GetPartidasTorneosByUsuario(view.IdUsuario);
@@ -181,7 +177,7 @@ public class EloApplication(
             IPartidaAmistosaApplication scopedPartidaAmistosaApplication = scope.ServiceProvider.GetRequiredService<IPartidaAmistosaApplication>();
             IEloApplication scopedEloApplication = scope.ServiceProvider.GetRequiredService<IEloApplication>();
 
-            ViewEloDTO view = await scopedEloApplication.GetElo(usuario.Email);
+            ViewEloDTO view = await scopedEloApplication.GetEloByIdUsuarioAsync(usuario.IdUsuario);
             ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 
             obj.IdFaccion = usuario.IdFaccion;

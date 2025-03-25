@@ -29,7 +29,6 @@ public class PartidaTorneoApplication(
         return response;
     }
         
-
     public async Task<bool> Delete(int idPartida) =>
         await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
 
@@ -96,16 +95,6 @@ public class PartidaTorneoApplication(
         return partidas;
     }
 
-    public Task<List<PartidaTorneo>> GetPartidasTorneoByUsuario(int idTorneo, int idUsuario)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<PartidaTorneo>> GetPartidasTorneos()
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<List<ViewPartidaTorneoDTO>> GetPartidasTorneosByUsuario(int idUsuario)
     {
         List<PartidaTorneo> partidasRaw = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneosByUsuario(idUsuario);
@@ -119,9 +108,9 @@ public class PartidaTorneoApplication(
 
             if (partida.GanadorPartidaTorneo != 0)
             {
-                if (partida.GanadorPartidaTorneo == partida.IdUsuario2)
-                    partida.GanadorPartidaNick = partida.NickUsuario2;
-                else partida.GanadorPartidaNick = partida.NickUsuario1;
+                if (partida.GanadorPartidaTorneo == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                else if(partida.GanadorPartidaTorneo == partida.IdUsuario1) partida.GanadorPartidaNick = partida.NickUsuario1;
+                else partida.GanadorPartidaNick = null;
             }
         }
         return response;

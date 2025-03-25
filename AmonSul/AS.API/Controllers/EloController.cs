@@ -13,10 +13,10 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     private readonly IEloApplication _eloApplication = EloApplication;
 
     [HttpGet]
-    [Route("usuario/{email}")]
-    public async Task<IActionResult> GetPartidasAmistosas(string email)
+    [Route("usuario/{idUsuario}")]
+    public async Task<IActionResult> GetPartidasAmistosas(int idUsuario)
     {
-        ViewEloDTO response = await _eloApplication.GetElo(email);
+        ViewEloDTO response = await _eloApplication.GetEloByIdUsuarioAsync(idUsuario);
         
         if(response == null) return NotFound();
 

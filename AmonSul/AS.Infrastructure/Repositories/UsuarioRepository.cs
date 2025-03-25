@@ -162,7 +162,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            var response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+            Usuario? response = await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
 
             if (response == null) return null!;
             return response;
