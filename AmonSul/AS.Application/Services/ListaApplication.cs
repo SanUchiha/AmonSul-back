@@ -88,8 +88,6 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         Lista lista = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
         if (lista == null) return false;
 
-        if (updateListaTorneoDTO.IdOrganizador == 0) return true;
-
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(lista.IdInscripcion);
         if (inscripcion == null) return false;
 
@@ -99,11 +97,11 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
 
         int idOrganizador = 
-            await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(updateListaTorneoDTO.IdTorneo);
+            await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
         UsuarioEmailDto organizador =
             await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
         UsuarioEmailDto usuario =
-            await _unitOfWork.UsuarioRepository.GetEmailNickById(updateListaTorneoDTO.IdUsuario);
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
 
         EmailContactoDTO emailContactoDTO = new()
         {
