@@ -117,11 +117,8 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     }
 
     [HttpPost("Equipo")]
-    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO)
-    {
-        bool result = await _inscripcionApplication.CreaInsciprcionEquipo(createEquipoDTO); 
-        return Ok(result);
-    }
+    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO) => 
+        Ok(await _inscripcionApplication.CreaInscripcionEquipo(createEquipoDTO));
 
     [HttpGet("Equipo/{idInscripcion}")]
     public async Task<ActionResult<List<InscripcionUsuarioEquipoDTO>>> GetInscripcionEquipo(int idInscripcion)

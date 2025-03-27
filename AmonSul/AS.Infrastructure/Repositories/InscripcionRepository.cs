@@ -235,17 +235,26 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                 .Where(it => it.IdUsuario == idUsuario && it.IdEquipo == null)
                 .ToListAsync();
 
-    public async Task<bool> Register(InscripcionTorneo inscripcionTorneo)
+    public async Task<ResultInscripcionTorneoDTO> Register(InscripcionTorneo inscripcionTorneo)
     {
         try
         {
             _dbamonsulContext.InscripcionTorneos.Add(inscripcionTorneo);
             await _dbamonsulContext.SaveChangesAsync();
-            return true;
+
+            return new ResultInscripcionTorneoDTO
+            {
+                Result = true,
+                IdInscripcion = inscripcionTorneo.IdInscripcion
+            };
         }
         catch (DbUpdateException ex)
         {
-            throw new Exception("Error al registrar la inscripción.", ex);
+            return new ResultInscripcionTorneoDTO
+            {
+                Result = false,
+                Mensaje = ex.ToString(),
+            };
         }
     }
 

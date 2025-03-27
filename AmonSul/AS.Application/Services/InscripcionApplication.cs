@@ -90,7 +90,7 @@ public class InscripcionApplication(
         return result;
     }
 
-    public async Task<bool> CreaInsciprcionEquipo(CreateEquipoDTO createEquipoDTO)
+    public async Task<bool> CreaInscripcionEquipo(CreateEquipoDTO createEquipoDTO)
     {
         Equipo equipo = new()
         {
@@ -138,9 +138,9 @@ public class InscripcionApplication(
         };
 
         InscripcionTorneo inscripcionCapitan = _mapper.Map<InscripcionTorneo>(crearInscripcionEquipoCapitanDTO);
-        bool result = await _unitOfWork.InscripcionRepository.Register(inscripcionCapitan);
+        ResultInscripcionTorneoDTO result = await _unitOfWork.InscripcionRepository.Register(inscripcionCapitan);
 
-        return result;
+        return result.Result;
     }
 
     public async Task<InscripcionTorneo> Delete(int id)
@@ -200,7 +200,7 @@ public class InscripcionApplication(
         UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(torneo.IdUsuario);
         if (organizador == null) return false;
 
-        bool registro = await _unitOfWork.InscripcionRepository.Register(
+        ResultInscripcionTorneoDTO registro = await _unitOfWork.InscripcionRepository.Register(
             _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
 
         EmailContactoDTO emailContactoDTO = new()
@@ -222,7 +222,7 @@ public class InscripcionApplication(
             Console.WriteLine(smtpEx.Message);
         }
 
-        return registro;
+        return registro.Result;
     }
 
     public async Task<List<InscripcionUsuarioEquipoDTO>> GetInscripcionEquipoByIdAsync(int idUser)
@@ -279,7 +279,7 @@ public class InscripcionApplication(
     public async Task<bool> DeleteEquipo(int idEquipo) => 
         await _unitOfWork.InscripcionRepository.DeleteEquipoAsync(idEquipo);
 
-    public async Task<bool> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO)
+    public async Task<ResultInscripcionTorneoDTO> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO)
     {
         EquipoUsuario equipoUsuario = new()
         {
@@ -287,7 +287,7 @@ public class InscripcionApplication(
             IdUsuario = createMiembroEquipoDTO.IdUsuario,
         };
         bool isAddEquipo =  await _unitOfWork.InscripcionRepository.AddUsuarioToEquipoAsync(equipoUsuario);
-        if (!isAddEquipo) return false;
+        if (!isAddEquipo) return new ResultInscripcionTorneoDTO { Result = false };
 
         CrearInscripcionEquipoDTO crearInscripcionEquipoDTO = new()
         {
@@ -297,10 +297,9 @@ public class InscripcionApplication(
         };
 
         InscripcionTorneo inscripcion = _mapper.Map<InscripcionTorneo>(crearInscripcionEquipoDTO);
-        bool isCreated = await _unitOfWork.InscripcionRepository.Register(inscripcion);
-        if (!isCreated) return false;
-
-        return true;
+        ResultInscripcionTorneoDTO result = await _unitOfWork.InscripcionRepository.Register(inscripcion);
+     
+        return result;
     }
 
     public async Task<bool> DeleteMiembroAsync(int idInscripcion) => 

@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Equipo;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -10,7 +11,7 @@ public interface IInscripcionRepository
     Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo);
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
-    Task<bool> Register(InscripcionTorneo inscripcionTorneo);
+    Task<ResultInscripcionTorneoDTO> Register(InscripcionTorneo inscripcionTorneo);
 
     Task<bool> CambiarEstadoPago(InscripcionTorneo actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(int idInscripcion, string estadoLista);

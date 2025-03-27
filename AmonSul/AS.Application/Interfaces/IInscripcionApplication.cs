@@ -17,13 +17,13 @@ public interface IInscripcionApplication
     Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);
 
-    Task<bool> CreaInsciprcionEquipo(CreateEquipoDTO createEquipoDTO);
+    Task<bool> CreaInscripcionEquipo(CreateEquipoDTO createEquipoDTO);
     Task<List<InscripcionUsuarioEquipoDTO>> GetInscripcionEquipoByIdAsync(int idUser);
     Task<InscripcionEquipoDTO> GetInscripcionEquipo(int idInscripcion);
     Task<List<EquipoDTO>> GetInscripcionesEquipoByTorneoAsync(int idTorneo);
     Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo);
     Task<bool> DeleteEquipo(int idEquipo);
-    Task<bool> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO);
+    Task<ResultInscripcionTorneoDTO> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO);
     Task<bool> DeleteMiembroAsync(int idInscripcion);
     Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo);
 }
