@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +16,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     private readonly IListaApplication _listaApplication = listaApplication;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Lista>>> GetListas()
+    public async Task<ActionResult<List<Lista>>> GetListas()
     {
         var listas = await _listaApplication.GetListas();
         return Ok(listas);
@@ -44,25 +45,24 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     }
 
     [HttpGet("Torneo/{idTorneo}")]
-    public async Task<ActionResult<IEnumerable<Lista>>> GetListasByTorneo(int idTorneo)
+    public async Task<ActionResult<List<Lista>>> GetListasByTorneo(int idTorneo)
     {
         var listas = await _listaApplication.GetListasByTorneo(idTorneo);
         return Ok(listas);
     }
 
     [HttpGet("User/{idUsuario}")]
-    public async Task<ActionResult<IEnumerable<Lista>>> GetListasByUser(int idUsuario)
+    public async Task<ActionResult<List<Lista>>> GetListasByUser(int idUsuario)
     {
         var listas = await _listaApplication.GetListasByUser(idUsuario);
         return Ok(listas);
     }
 
     [HttpPost]
-    public async Task<ActionResult<bool>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
+    public async Task<ActionResult<ResultRegisterListarDTO>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
     {
-        bool result = await _listaApplication.RegisterLista(lista);
-        if (!result)
-            return BadRequest("Unable to register the lista.");
+        ResultRegisterListarDTO result = await _listaApplication.RegisterLista(lista);
+        if (!result.Result) return BadRequest(result);
 
         return Ok(result);
     }
@@ -83,7 +83,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpDelete("{id}")]
     public async Task<ActionResult<Lista>> DeleteLista(int id)
     {
-        var deletedLista = await _listaApplication.Delete(id);
+        Lista deletedLista = await _listaApplication.Delete(id);
         if (deletedLista == null)
         {
             return NotFound();

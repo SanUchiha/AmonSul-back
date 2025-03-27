@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
@@ -48,17 +49,17 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         return lista.ListaData!;
     }
 
-    public async Task<bool> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
+    public async Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
     {
         Lista lista = _mapper.Map<Lista>(createListaTorneoDTO);
         lista.Bando = createListaTorneoDTO.Ejercito.Band;
         lista.Ejercito = createListaTorneoDTO.Ejercito.Name;
 
-        bool result = await _unitOfWork.ListaRepository.RegisterLista(lista);
-        if (!result) return false;
+        ResultRegisterListarDTO result = await _unitOfWork.ListaRepository.RegisterLista(lista);
+        if (!result.Result) return result;
 
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(createListaTorneoDTO.IdInscripcion);
-        if (inscripcion == null) return false;
+        if (inscripcion == null) return result;
 
         inscripcion.EstadoLista = "ENTREGADA";
         inscripcion.FechaEntregaLista = createListaTorneoDTO.FechaEntrega;

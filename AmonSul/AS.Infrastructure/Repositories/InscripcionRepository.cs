@@ -1,5 +1,6 @@
 ﻿using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;

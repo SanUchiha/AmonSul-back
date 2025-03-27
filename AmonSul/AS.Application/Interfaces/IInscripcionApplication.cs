@@ -1,6 +1,7 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;

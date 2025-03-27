@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Lista;
+using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using Azure.Core;
@@ -87,11 +88,26 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         return lista;
     }
 
-    public async Task<bool> RegisterLista(Lista lista)
+    public async Task<ResultRegisterListarDTO> RegisterLista(Lista lista)
     {
-        await _dbamonsulContext.Listas.AddAsync(lista);
-        await _dbamonsulContext.SaveChangesAsync();
-        return true;
+        try
+        {
+            await _dbamonsulContext.Listas.AddAsync(lista);
+            await _dbamonsulContext.SaveChangesAsync();
+            return new ResultRegisterListarDTO 
+            {
+                Result = true,
+                IdLista = lista.IdLista,
+            };
+        }
+        catch (Exception ex) 
+        {
+            return new ResultRegisterListarDTO
+            {
+                Result = false,
+                Mensaje = ex.Message
+            };
+        }
     }
 
     public async Task<Lista> UpdateLista(UpdateListaDTO updateListaDTO)
