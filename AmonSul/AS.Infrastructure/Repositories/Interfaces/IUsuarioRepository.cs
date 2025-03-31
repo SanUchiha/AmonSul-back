@@ -19,7 +19,7 @@ public interface IUsuarioRepository
 
     Task<UsuarioEmailDto> GetEmailNickById(int id);
     Task<List<string>> GetAllEmail();
-    Task<List<Usuario>> GetByIds(List<int> usuarioIds);
+    Task<List<Usuario>> GetUsuariosByIds(List<int> usuarioIds);
     Task<string> GetComunidadNameByIdUser(int idUser);
     Task<List<UsersElosDTO>> GetAllUserWithElo();
     Task<List<GanadorNickDTO>> GetAllSoloNicks();

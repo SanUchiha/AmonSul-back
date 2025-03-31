@@ -1,6 +1,8 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Statics;
@@ -132,7 +134,7 @@ public class PartidaTorneoApplication(
             inscripciones.Select(i => i.IdUsuario).Distinct().ToList();
 
         List<Usuario> usuarios = 
-            await _unitOfWork.UsuarioRepository.GetByIds(usuarioIds);
+            await _unitOfWork.UsuarioRepository.GetUsuariosByIds(usuarioIds);
 
         foreach (var usuario in usuarios)
         {
@@ -312,6 +314,14 @@ public class PartidaTorneoApplication(
             };
 
             emparejamientos.Add(nuevoEmparejamiento);
+
+            CrearInscripcionDTO inscripcionTorneo = new()
+            {
+                IdTorneo = torneo.IdTorneo,
+                IdUsuario = 568,
+            };
+            ResultInscripcionTorneoDTO registro = await _unitOfWork.InscripcionRepository.Register(
+            _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
         }
 
         // Crear las partidas
@@ -770,8 +780,10 @@ public class PartidaTorneoApplication(
 
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
-        existingEntity.EjercitoUsuario1 = inscripcion1.InscripcionTorneos.FirstOrDefault()!.Lista.FirstOrDefault()!.Ejercito;
-        existingEntity.EjercitoUsuario2 = inscripcion2.InscripcionTorneos.FirstOrDefault()!.Lista.FirstOrDefault()!.Ejercito;
+        existingEntity.EjercitoUsuario1 = 
+            inscripcion1.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
+        existingEntity.EjercitoUsuario2 = 
+            inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
 
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
     }

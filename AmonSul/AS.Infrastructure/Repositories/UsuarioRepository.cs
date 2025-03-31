@@ -201,20 +201,11 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
-    public async Task<List<Usuario>> GetByIds(List<int> usuarioIds)
+    public async Task<List<Usuario>> GetUsuariosByIds(List<int> usuarioIds)
     {
         try
         {
-            var response = await _dbamonsulContext.Usuarios
-                .Include(u => u.Elos)
-                .Include(u => u.IdFaccionNavigation)
-                .Include(u => u.InscripcionTorneos)
-                .Include(u => u.PartidaAmistosaGanadorPartidaNavigations)
-                .Include(u => u.PartidaAmistosaIdUsuario1Navigations)
-                .Include(u => u.PartidaAmistosaIdUsuario2Navigations)
-                .Include(u => u.PartidaTorneoIdUsuario1Navigations)
-                .Include(u => u.PartidaTorneoIdUsuario2Navigations)
-                .Include(u => u.Torneos)
+            List<Usuario> response = await _dbamonsulContext.Usuarios
                 .Where(u => usuarioIds.Contains(u.IdUsuario))
                 .ToListAsync();
 
