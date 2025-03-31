@@ -1,11 +1,9 @@
-﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.Inscripcion;
+﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
-using AS.Utils.Statics;
 using AutoMapper;
 
 namespace AS.Application.Services;
@@ -13,12 +11,10 @@ namespace AS.Application.Services;
 public class PartidaTorneoApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IEloApplication eloApplication,
     IEmailApplicacion emailApplicacion) : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
-    private readonly IEloApplication _eloApplication = eloApplication;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
 
     public async Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO)
@@ -119,9 +115,7 @@ public class PartidaTorneoApplication(
     }
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
-    {
-        await ActualizarEloAsync(generarRondaDTO);
-        
+    {        
         // Traer todas las inscripciones del torneo
         List<InscripcionTorneo> inscripciones = 
             await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(generarRondaDTO.IdTorneo);
@@ -692,76 +686,6 @@ public class PartidaTorneoApplication(
             }
 
             await _unitOfWork.PartidaTorneoRepository.Register(nuevaPartida);
-        }
-    }
-
-    private async Task ActualizarEloAsync(GenerarRondaDTO generarRondaDTO)
-    {
-        //Si es segunda ronda o mas actualizamos el elo de la ronda anterior
-        if (generarRondaDTO.IdRonda > 1)
-        {
-            // Nos traemos todas las partidas de la ronda
-            List<PartidaTorneo> partidas =
-                await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoByRonda(
-                    generarRondaDTO.IdTorneo,
-                    generarRondaDTO.IdRonda - 1);
-
-            //Si tiene mas de 7 partidas cuenta para el ELO
-            if (partidas.Count > 7)
-            {
-                //Actualizamos el elo de los jugadores
-                foreach (PartidaTorneo partida in partidas)
-                {
-                    //1. Actualizar el elo para los jugadores
-                    int eloJugador1 = await _eloApplication.GetLastElo((int)partida.IdUsuario1!);
-                    int eloJugador2 = await _eloApplication.GetLastElo((int)partida.IdUsuario2!);
-
-                    double scoreGanador = 1.0;
-                    double scorePerdedor = 0.0;
-                    double scoreEmpate = 0.5;
-                    int nuevoEloJugador1 = 800;
-                    int nuevoEloJugador2 = 800;
-
-                    //GanaJugador1
-                    if (partida.GanadorPartidaTorneo == partida.IdUsuario1)
-                    {
-                        nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreGanador);
-                        nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scorePerdedor);
-                    }
-                    //GanaJugador2
-                    if (partida.GanadorPartidaTorneo == partida.IdUsuario2)
-                    {
-                        nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scorePerdedor);
-                        nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreGanador);
-                    }
-                    //Empate
-                    if (partida.GanadorPartidaTorneo == null)
-                    {
-                        nuevoEloJugador1 = EloRating.CalculateNewRating(eloJugador1, eloJugador2, scoreEmpate);
-                        nuevoEloJugador2 = EloRating.CalculateNewRating(eloJugador2, eloJugador1, scoreEmpate);
-                    }
-
-                    //Elo jugador 1
-                    CreateEloDTO createElo1 = new()
-                    {
-                        IdUsuario = (int)partida.IdUsuario1,
-                        PuntuacionElo = nuevoEloJugador1
-                    };
-
-                    if(createElo1.IdUsuario != 568)
-                        await _eloApplication.RegisterElo(createElo1);
-
-                    //Elo jugador 2
-                    CreateEloDTO createElo2 = new()
-                    {
-                        IdUsuario = (int)partida.IdUsuario2,
-                        PuntuacionElo = nuevoEloJugador2
-                    };
-
-                    if (createElo2.IdUsuario != 568)
-                        await _eloApplication.RegisterElo(createElo2);
-                }
-            }
         }
     }
 
