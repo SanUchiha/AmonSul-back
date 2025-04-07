@@ -62,6 +62,18 @@ public class TorneoController(
     }
 
     [HttpGet]
+    [Route("Gestion/info-torneo-mas/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> GetInfoTorneoCreadoMas(int idTorneo)
+    {
+        TorneoGestionInfoMasDTO response = await _torneoApplication.GetInfoTorneoCreadoMasAsync(idTorneo);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
     [Route("Gestion/info-torneo-equipo/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoEquipoCreado(int idTorneo)

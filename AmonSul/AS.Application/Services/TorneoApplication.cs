@@ -310,4 +310,66 @@ public class TorneoApplication(
 
         return result;
     }
+
+    public async Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo)
+    {
+        List<InscripcionTorneo> inscripciones =
+           await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo);
+
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(idTorneo) ??
+            throw new Exception("Torneo no encontrado");
+
+        TorneoCreadoDTO torneoDTO = _mapper.Map<TorneoCreadoDTO>(torneo);
+
+        List<InscripcionTorneoCreadoMasDTO> inscripcionesDTO =
+            _mapper.Map<List<InscripcionTorneoCreadoMasDTO>>(inscripciones);
+
+        for (int i = 0; i < inscripciones.Count; i++)
+        {
+            inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
+            inscripcionesDTO[i].CountListasEntregadas = inscripciones[i].Lista.Count;
+
+            if (inscripciones[i].Lista.Count > 0)
+            {
+                inscripcionesDTO[i].FechaUltimaEntrega = 
+                    inscripciones[i].Lista
+                        .Where(l => l.FechaEntrega.HasValue)
+                        .Max(l => l.FechaEntrega);
+            }
+            else
+            {
+                inscripcionesDTO[i].FechaUltimaEntrega = null;
+            }
+
+            /*inscripcionesDTO[i].FechaEntrega = inscripciones[i].FechaEntregaLista;
+
+            if (inscripciones[i].Lista.Count > 0)
+            {
+                inscripcionesDTO[i].Bando = inscripciones[i].Lista.ToList()[0].Bando;
+                inscripcionesDTO[i].IdLista = inscripciones[i].Lista.ToList()[0].IdLista;
+                inscripcionesDTO[i].Ejercito = inscripciones[i].Lista.ToList()[0].Ejercito;
+                inscripcionesDTO[i].FechaEntrega = inscripciones[i].Lista.ToList()[0].FechaEntrega;
+                if (inscripciones[i].EstadoLista == "NO ENTREGADA")
+                {
+                    inscripcionesDTO[i].EstadoLista = "ENTREGADA";
+                    //TODO: actualizar inscipcion
+                    await _unitOfWork.InscripcionRepository.CambiarEstadoLista(
+                        inscripcionesDTO[i].IdInscripcion,
+                        "ENTREGADA");
+                }
+
+            }*/
+            //if (inscripciones[i].EsPago == "NO") inscripcionesDTO[i].EsPago = "NO";
+        }
+
+
+
+        TorneoGestionInfoMasDTO result = new()
+        {
+            Torneo = torneoDTO,
+            Inscripciones = inscripcionesDTO
+        };
+
+        return result;
+    }
 }

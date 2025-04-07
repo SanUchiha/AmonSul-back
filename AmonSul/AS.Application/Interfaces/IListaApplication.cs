@@ -16,4 +16,5 @@ public interface IListaApplication
     Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
     Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
     Task<string> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO);
+    Task<List<ListaViewDTO>> GetListasByInscripcionAsync(int idInscripcion);
 }

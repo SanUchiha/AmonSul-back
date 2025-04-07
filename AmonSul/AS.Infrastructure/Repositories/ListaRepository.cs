@@ -34,7 +34,7 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
 
     public async Task<Lista> GetListaInscripcionById(int idInscripcion)
     {
-        var lista = await _dbamonsulContext.Listas
+        Lista? lista = await _dbamonsulContext.Listas
             .Include(l => l.IdInscripcionNavigation)
             .FirstOrDefaultAsync(l => l.IdInscripcion == idInscripcion);
 
@@ -52,6 +52,16 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         if (lista == null) return null!;
 
         return lista;
+    }
+
+    public async Task<List<Lista>> GetListasByInscripcion(int idInscripcion)
+    {
+        List<Lista> result = await _dbamonsulContext.Listas
+            .Where(l => l.IdInscripcion.Equals(idInscripcion)).ToListAsync();
+
+        if (result.Count<=0) return [];
+
+        return result;
     }
 
     public async Task<List<Lista>> GetListasByTorneo(int idTorneo)
@@ -92,6 +102,7 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
     {
         try
         {
+            lista.EstadoLista = "ENTREGADA";
             await _dbamonsulContext.Listas.AddAsync(lista);
             await _dbamonsulContext.SaveChangesAsync();
             return new ResultRegisterListarDTO 
@@ -121,6 +132,7 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
             existingLista.ListaData = updateListaDTO.ListaData;
             existingLista.Bando = updateListaDTO.Ejercito.Band;
             existingLista.Ejercito = updateListaDTO.Ejercito.Name;
+            existingLista.EstadoLista = "ENTREGADA";
             _dbamonsulContext.Entry(existingLista).CurrentValues.SetValues(existingLista);
             await _dbamonsulContext.SaveChangesAsync();
         }

@@ -17,4 +17,5 @@ public interface ITorneoApplication
     Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request);
     Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request);
     Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo);
+    Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
 }

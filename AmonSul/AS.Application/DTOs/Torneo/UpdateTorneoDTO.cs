@@ -17,4 +17,5 @@ public class UpdateTorneoDTO
     public string? MetodosPago { get; set; }
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
+    public int ListasPorJugador { get; set; }
 }
