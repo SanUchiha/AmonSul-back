@@ -14,10 +14,7 @@ namespace AS.API.Controllers
         private readonly ILigaApplication _ligaApplication = ligaApplication;
 
         [HttpGet]
-        public async Task<List<Liga>>Get()
-        {
-            return await _ligaApplication.GetAllLigasAsync();
-        }
+        public async Task<List<Liga>> Get() => await _ligaApplication.GetAllLigasAsync();
 
         [HttpGet("{idLiga}")]
         public async Task<Liga?> Get(int idLiga)
@@ -45,8 +42,28 @@ namespace AS.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("no-liga-torneo/{idTorneo}")]
+        public async Task<IActionResult> GetLigasNoTorneo(int idTorneo)
+        {
+            List<Liga>? ligas =
+                await _ligaApplication.GetLigasNoTorneoAsync(idTorneo);
+
+            if (ligas is null)
+                return NotFound("No se encontraron ligas que no esten asociadas al torneo.");
+
+            return Ok(ligas);
+        }
+
+        [HttpGet("torneo/{idTorneo}")]
+        public async Task<IActionResult> getLigasAsocidasATorneo(int idTorneo) => 
+            Ok(await _ligaApplication.GetLigasAsocidasATorneoAsync(idTorneo));
+
         [HttpPost]
         public async Task<IActionResult> AddTorneoToLiga([FromBody] LigaTorneoDTO ligaTorneoDTO) =>
             Ok(await _ligaApplication.AddTorneoToLigaAsync(ligaTorneoDTO));
+
+        [HttpDelete("{idLiga}/torneo/{idTorneo}")]
+        public async Task<IActionResult> DeleteLigaTorneo(int idLiga, int idTorneo) =>
+            Ok(await _ligaApplication.DeleteLigaTorneoAsync(idLiga, idTorneo));
     }
 }
