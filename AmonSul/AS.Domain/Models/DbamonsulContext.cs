@@ -198,6 +198,11 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.Bando).HasColumnName("Bando")
                   .HasMaxLength(4);
             entity.Property(e => e.Ejercito).HasColumnName("Ejercito");
+            entity.Property(e => e.EstadoLista)
+               .HasColumnName("Estado_Lista")
+               .HasMaxLength(15)
+               .IsRequired()
+               .HasDefaultValue("NO ENTREGADA");
 
             entity.HasOne(d => d.IdInscripcionNavigation).WithMany(p => p.Lista)
                 .HasForeignKey(d => d.IdInscripcion)
@@ -392,6 +397,7 @@ public partial class DbamonsulContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("Tipo_Torneo");
+            entity.Property(e => e.ListasPorJugador).HasColumnName("Listas_Por_jugador");
 
             entity.HasOne(d => d.IdRangoTorneoNavigation).WithMany(p => p.Torneos)
                 .HasForeignKey(d => d.IdRangoTorneo)

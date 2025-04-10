@@ -29,12 +29,14 @@ public partial class Torneo
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
     public DateOnly? InicioInscripciones { get; set; }
-    public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
-    public virtual ICollection<Comentario> Comentarios { get; set; } = [];
+    public int ListasPorJugador { get; set; }
+
+    public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
+    public virtual List<Comentario> Comentarios { get; set; } = [];
     public virtual RangoTorneo? IdRangoTorneoNavigation { get; set; }
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
-    public virtual ICollection<InscripcionTorneo> InscripcionTorneos { get; set; } = [];
-    public virtual ICollection<PartidaTorneo> PartidaTorneos { get; set; } = [];
-    public virtual ICollection<Ronda> Ronda { get; set; } = [];
-    public virtual ICollection<LigaTorneo>? LigaTorneos { get; set; } = [];
+    public virtual List<InscripcionTorneo> InscripcionTorneos { get; set; } = [];
+    public virtual List<PartidaTorneo> PartidaTorneos { get; set; } = [];
+    public virtual List<Ronda> Ronda { get; set; } = [];
+    public virtual List<LigaTorneo>? LigaTorneos { get; set; } = [];
 }

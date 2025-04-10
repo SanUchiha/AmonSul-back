@@ -7,4 +7,5 @@ public class ListaViewDTO
     public DateOnly? FechaEntrega { get; set; }
     public string? Bando { get; set; }
     public string? Ejercito { get; set; }
+    public string? EstadoLista { get; set; }
 }

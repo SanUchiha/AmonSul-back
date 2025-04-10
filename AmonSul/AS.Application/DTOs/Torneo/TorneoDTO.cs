@@ -28,4 +28,5 @@ public class TorneoDTO
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
     public bool TieneBases { get; set; }
+    public int ListasPorJugador { get; set; }
 }

@@ -15,4 +15,5 @@ public interface IListaRepository
     Task<ResultRegisterListarDTO> RegisterLista(Lista lista);
     Task<Lista> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
     Task<Lista> GetListaTorneo(int idTorneo, int idUsuario);
+    Task<List<Lista>> GetListasByInscripcion(int idInscripcion);
 }

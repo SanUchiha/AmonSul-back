@@ -17,7 +17,7 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InscripcionTorneo>>> GetInscripciones()
     {
-        var inscripciones = await _inscripcionApplication.GetInscripciones();
+        List<InscripcionTorneo> inscripciones = await _inscripcionApplication.GetInscripciones();
         return Ok(inscripciones);
     }
 

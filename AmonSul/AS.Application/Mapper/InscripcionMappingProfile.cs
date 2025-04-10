@@ -34,5 +34,9 @@ public class InscripcionMappingProfile : Profile
             .ForMember(dest => dest.FechaEntregaLista, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.FechaEntrega))
             .ForMember(dest => dest.Ejercito, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.Ejercito))
             .ReverseMap();
+
+        CreateMap<InscripcionTorneo, InscripcionTorneoCreadoMasDTO>()
+            .ForMember(dest => dest.Lista, opt => opt.MapFrom(src => src.Lista))
+            .ReverseMap();
     }
 }

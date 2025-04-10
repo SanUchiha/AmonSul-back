@@ -44,6 +44,14 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(lista);
     }
 
+    [HttpGet("listas/{idInscripcion}")]
+    public async Task<ActionResult<Lista>> GetListasByInscripcion(int idInscripcion)
+    {
+        List<ListaViewDTO> listas = await _listaApplication.GetListasByInscripcionAsync(idInscripcion);
+
+        return listas == null ? (ActionResult<Lista>)NotFound() : (ActionResult<Lista>)Ok(listas);
+    }
+
     [HttpGet("Torneo/{idTorneo}")]
     public async Task<ActionResult<List<Lista>>> GetListasByTorneo(int idTorneo)
     {
@@ -70,8 +78,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpPut("{id}")]
     public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] UpdateListaDTO request)
     {
-        if (id != request.IdLista)
-            return BadRequest("ID mismatch.");
+        if (id != request.IdLista) return BadRequest("ID mismatch.");
 
         bool result = await _listaApplication.UpdateLista(request);
         if (!result)

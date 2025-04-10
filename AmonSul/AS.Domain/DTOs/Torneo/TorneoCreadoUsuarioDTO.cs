@@ -6,4 +6,5 @@ public class TorneoCreadoUsuarioDTO
     public int IdUsuario { get; set; }
     public string NombreTorneo { get; set; } = null!;
     public string TipoTorneo { get; set; } = null!;
+    public int ListasPorJugador { get; set; }
 }

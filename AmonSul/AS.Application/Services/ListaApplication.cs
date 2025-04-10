@@ -2,13 +2,11 @@
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Lista;
-using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using System.Net.Mail;
 
 namespace AS.Application.Services;
 
@@ -26,13 +24,20 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
 
     public async Task<ListaViewDTO> GetListaInscripcionById(int idInscripcion)
     {
-        var lista = await _unitOfWork.ListaRepository.GetListaInscripcionById(idInscripcion);
+        Lista lista = await _unitOfWork.ListaRepository.GetListaInscripcionById(idInscripcion);
 
         return _mapper.Map<ListaViewDTO>(lista);
     }
 
     public async Task<List<Lista>> GetListas() => 
         await _unitOfWork.ListaRepository.GetListas();
+
+    public async Task<List<ListaViewDTO>> GetListasByInscripcionAsync(int idInscripcion)
+    {
+        List<Lista> listas = await _unitOfWork.ListaRepository.GetListasByInscripcion(idInscripcion);
+
+        return _mapper.Map<List<ListaViewDTO>>(listas);
+    }
 
     public async Task<List<Lista>> GetListasByTorneo(int idTorneo) => 
         await _unitOfWork.ListaRepository.GetListasByTorneo(idTorneo);
@@ -97,7 +102,7 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
 
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
 
-        int idOrganizador = 
+        int idOrganizador =
             await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
         UsuarioEmailDto organizador =
             await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
@@ -111,7 +116,7 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         };
 
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
-        
+
         return true;
     }
 }

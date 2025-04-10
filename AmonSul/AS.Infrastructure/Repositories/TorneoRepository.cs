@@ -123,7 +123,8 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 IdTorneo = t.IdTorneo,
                 IdUsuario = t.IdUsuario,
                 NombreTorneo = t.NombreTorneo,
-                TipoTorneo = t.TipoTorneo
+                TipoTorneo = t.TipoTorneo,
+                ListasPorJugador = t.ListasPorJugador
             })
             .ToListAsync();
 
