@@ -87,6 +87,16 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(result);
     }
 
+    [HttpPut("estado")]
+    public async Task<ActionResult<bool>> UpdateEstadoLista([FromBody] UpdateEstadoListaDTO request)
+    {
+        bool result = await _listaApplication.UpdateEstadoLista(request);
+        if (!result)
+            return BadRequest("No se ha podido cambiar el estado de la lista");
+
+        return Ok(result);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<Lista>> DeleteLista(int id)
     {
@@ -101,7 +111,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
 
     [HttpGet]
     [Route("Lista-Torneo/{idTorneo}/{idUsuario}")]
-    public async Task<ActionResult<bool>>GetListaTorneo(int idTorneo, int idUsuario)
+    public async Task<ActionResult>GetListaTorneo(int idTorneo, int idUsuario)
     {
         ListaTorneoRequestDTO listaTorneoRequestDTO = new()
         {
@@ -109,11 +119,11 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
             IdUsuario = idUsuario
         };
 
-        string? listaData = await _listaApplication.GetListaTorneo(listaTorneoRequestDTO);
-        if (listaData is null)
+        ListaDTO lista = await _listaApplication.GetListaTorneo(listaTorneoRequestDTO);
+        if (lista is null)
         {
             return BadRequest("Unable to get the lista.");
         }
-        return Ok(listaData);
+        return Ok(lista);
     }
 }

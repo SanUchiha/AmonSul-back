@@ -7,6 +7,7 @@ using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using System.Net.Mail;
 
 namespace AS.Application.Services;
 
@@ -45,13 +46,14 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
     public async Task<List<Lista>> GetListasByUser(int idUsuario) =>      
         await _unitOfWork.ListaRepository.GetListasByUser(idUsuario);
 
-    public async Task<string> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO )
+    public async Task<ListaDTO> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO )
     {
         Lista lista = await _unitOfWork.ListaRepository.GetListaTorneo(listaTorneoRequestDTO.IdTorneo, listaTorneoRequestDTO.IdUsuario);
+        if (lista is null) return null!;
 
-        if (lista is null) return "";
+        ListaDTO listaDTO = _mapper.Map<ListaDTO>(lista);
         
-        return lista.ListaData!;
+        return listaDTO;
     }
 
     public async Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO) 
@@ -87,6 +89,34 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
 
         return result;
+    }
+
+    public async Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request)
+    {
+        bool result = await _unitOfWork.ListaRepository.UpdateEstadoLista(request);
+        if (!result) return false;
+
+        Torneo torneo =
+            await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        UsuarioEmailDto usuario =
+            await _unitOfWork.UsuarioRepository.GetEmailNickById(request.IdUsuario);
+
+        EmailListaDTO emailListaDTO = new()
+        {
+            EmailTo = usuario.Email,
+            NombreTorneo = torneo.NombreTorneo,
+            EstadoLista = request.Estado.ToUpper().Trim()
+        };
+        try
+        {
+            await _emailApplicacion.SendEmailModificacionLista(emailListaDTO);
+        }
+        catch (SmtpException smtpEx)
+        {
+            Console.WriteLine(smtpEx.Message);
+        }
+
+        return true;
     }
 
     public async Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO) 

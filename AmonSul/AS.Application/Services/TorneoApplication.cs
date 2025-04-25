@@ -1,5 +1,4 @@
 ﻿using AS.Application.DTOs.Inscripcion;
-using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Equipo;
@@ -361,9 +360,6 @@ public class TorneoApplication(
             }*/
             //if (inscripciones[i].EsPago == "NO") inscripcionesDTO[i].EsPago = "NO";
         }
-
-
-
         TorneoGestionInfoMasDTO result = new()
         {
             Torneo = torneoDTO,

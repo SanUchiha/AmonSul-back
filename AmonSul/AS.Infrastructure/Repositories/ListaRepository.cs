@@ -121,6 +121,20 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         }
     }
 
+    public async Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request)
+    {
+        Lista? existingLista = await _dbamonsulContext.Listas.FindAsync(request.IdLista);
+
+        if (existingLista != null)
+        {
+            existingLista.EstadoLista = request.Estado.ToUpper().Trim();
+            _dbamonsulContext.Entry(existingLista).CurrentValues.SetValues(existingLista);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
+        }
+        return false;
+    }
+
     public async Task<Lista> UpdateLista(UpdateListaDTO updateListaDTO)
     {
         updateListaDTO.FechaEntrega = DateOnly.FromDateTime(DateTime.Now);
