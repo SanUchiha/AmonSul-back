@@ -10,4 +10,5 @@ public class GenerarRondaDTO
     public bool RetosCheck { get; set; }
     public int IdRonda { get; set; }
     public int IdTorneo { get; set; }
+    public bool IsTorneoNarsil { get; set; }
 }

@@ -13,6 +13,7 @@ public interface IUnitOfWork: IDisposable
     IPartidaTorneoRepository PartidaTorneoRepository { get; }
     IGanadorRepository GanadorRepository { get; }
     ILigaRepository LigaRepository { get; }
+    IParticipacionTorneoRepository ParticipacionTorneoRepository { get; }
 
     void SaveChanges();
     Task SaveChangesAsync();

@@ -31,6 +31,8 @@ public partial class DbamonsulContext : DbContext
     public virtual DbSet<LigaTorneo> LigaTorneo { get; set; }
     public virtual DbSet<Equipo> Equipo { get; set; }
     public virtual DbSet<EquipoUsuario> EquipoUsuario { get; set; }
+    public virtual DbSet<ParticipacionTorneo> ParticipacionTorneos { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -566,6 +568,46 @@ public partial class DbamonsulContext : DbContext
                 .WithMany()
                 .HasForeignKey(eu => eu.IdUsuario)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        //Participacion Torneos
+        modelBuilder.Entity<ParticipacionTorneo>(entity =>
+        {
+            entity.ToTable("Participacion_Torneo");
+
+            entity.Property(e => e.IdParticipacionTorneo)
+                .HasColumnName("Id_Participation_Torneo")
+                .IsRequired();
+
+            entity.HasKey(e => e.IdParticipacionTorneo);
+
+            entity.Property(e => e.IdTorneo)
+                .HasColumnName("Id_Torneo")
+                .IsRequired();
+            entity.Property(e => e.IdUsuario)
+                .HasColumnName("Id_Usuario")
+                .IsRequired();
+            entity.Property(e => e.IdInscripcion)
+                .HasColumnName("Id_Inscripcion")
+                .IsRequired();
+            entity.Property(e => e.IdRonda)
+                .HasColumnName("Id_Ronda")
+                .IsRequired();
+            entity.Property(e => e.IdBando)
+                .HasColumnName("Id_Bando")
+                .IsRequired();
+
+            entity.HasOne(e => e.Torneo)
+              .WithMany()
+              .HasForeignKey(e => e.IdTorneo);
+
+            entity.HasOne(e => e.Usuario)
+                .WithMany()
+                .HasForeignKey(e => e.IdUsuario);
+
+            entity.HasOne(e => e.Inscripcion)
+                .WithMany()
+                .HasForeignKey(e => e.IdInscripcion);
         });
 
         OnModelCreatingPartial(modelBuilder);

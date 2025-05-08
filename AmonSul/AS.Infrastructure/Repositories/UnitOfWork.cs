@@ -18,6 +18,7 @@ public class UnitOfWork(DbamonsulContext context, Utilidades utilidades) : IUnit
     public IPartidaTorneoRepository PartidaTorneoRepository { get; private set; } = new PartidaTorneoRepository(context);
     public IGanadorRepository GanadorRepository { get; private set; } = new GanadorRepository(context);
     public ILigaRepository LigaRepository { get; private set; } = new LigaRepository(context);
+    public IParticipacionTorneoRepository ParticipacionTorneoRepository { get; private set; } = new ParticipacionTorneoRepository(context);
     public Utilidades _utilidades = utilidades;
 
     public void Dispose() => _context.Dispose();
