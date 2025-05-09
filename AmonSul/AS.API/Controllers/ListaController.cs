@@ -23,9 +23,9 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Lista>> GetListaById(int id)
+    public async Task<ActionResult<ListaDTO>> GetListaById(int id)
     {
-        var lista = await _listaApplication.GetListaById(id);
+        ListaDTO lista = await _listaApplication.GetListaById(id);
         if (lista == null)
         {
             return NotFound();

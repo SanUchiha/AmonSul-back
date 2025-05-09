@@ -11,7 +11,7 @@ public interface IListaApplication
     Task<List<Lista>> GetListasByUser(int idUsuario);
     Task<List<Lista>> GetListasByTorneo(int idTorneo);
     Task<ListaViewDTO> GetListaInscripcionById(int idInscripcion);
-    Task<Lista> GetListaById(int idLista);
+    Task<ListaDTO> GetListaById(int idLista);
     Task<Lista> Delete(int idLista);
     Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
     Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO);

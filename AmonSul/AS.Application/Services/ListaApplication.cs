@@ -20,8 +20,12 @@ public class ListaApplication(IUnitOfWork unitOfWork, IMapper mapper, IEmailAppl
     public async Task<Lista> Delete(int idLista) => 
         await _unitOfWork.ListaRepository.Delete(idLista);
 
-    public async Task<Lista> GetListaById(int idLista) => 
-        await _unitOfWork.ListaRepository.GetListaById(idLista);
+    public async Task<ListaDTO> GetListaById(int idLista)
+    {
+        Lista lista = await _unitOfWork.ListaRepository.GetListaById(idLista);
+
+        return _mapper.Map<ListaDTO>(lista);
+    }
 
     public async Task<ListaViewDTO> GetListaInscripcionById(int idInscripcion)
     {

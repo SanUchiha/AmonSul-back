@@ -16,4 +16,5 @@ public interface IPartidaTorneoApplication
     Task<bool> EdtarPairing(UpdatePairingTorneoDTO request);
 
     Task<bool> Delete(int idPartida);
+    Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
 }

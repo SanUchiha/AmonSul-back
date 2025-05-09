@@ -2,10 +2,10 @@
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
-using System;
 
 namespace AS.Application.Services;
 
@@ -74,15 +74,6 @@ public class PartidaTorneoApplication(
     public Task<PartidaTorneo> GetById(int idPartida)
     {
         throw new NotImplementedException();
-    }
-
-    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneo(int idTorneo)
-    {
-        List<PartidaTorneo> rawPartidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(idTorneo);
-
-        List<PartidaTorneoDTO> partidas = _mapper.Map<List<PartidaTorneoDTO>>(rawPartidas);
-
-        return partidas;
     }
 
     public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoByRonda(int idTorneo, int ronda)
@@ -1047,4 +1038,33 @@ public class PartidaTorneoApplication(
 
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
     }
+
+    public async Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo)
+    {
+        List<PartidaTorneo> rawPartidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(idTorneo);
+
+        List<PartidaTorneoMasDTO> partidas = _mapper.Map<List<PartidaTorneoMasDTO>>(rawPartidas);
+
+        //Conseguir las listas
+        foreach (var item in partidas)
+        {
+            List<Lista> listasJugador1 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(idTorneo, item.IdUsuario1);
+            List<Lista> listasJugador2 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(idTorneo, item.IdUsuario2);
+
+            item.ListasJugador1 = _mapper.Map<List<ListaDTO>>(listasJugador1);
+            item.ListasJugador2 = _mapper.Map<List<ListaDTO>>(listasJugador2);
+        }
+
+        return partidas;
+    }
+
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneo(int idTorneo)
+    {
+        List<PartidaTorneo> rawPartidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(idTorneo);
+
+        List<PartidaTorneoDTO> partidas = _mapper.Map<List<PartidaTorneoDTO>>(rawPartidas);
+
+        return partidas;
+    }
+
 }

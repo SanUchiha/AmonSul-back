@@ -96,6 +96,17 @@ public class TorneoController(
     }
 
     [HttpGet]
+    [Route("Gestion/Mas/Partidas/{idTorneo}")]
+    public async Task<IActionResult> GetPartidasTorneoMas(int idTorneo)
+    {
+        List<PartidaTorneoMasDTO> response = await _partidaTorneoApplication.GetPartidasMasTorneoAsync(idTorneo);
+
+        if (response == null) return NotFound();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
     [Route("Gestion/Partidas/{idTorneo}/{idRonda}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetPartidasRondaTorneo(int idTorneo, int idRonda)

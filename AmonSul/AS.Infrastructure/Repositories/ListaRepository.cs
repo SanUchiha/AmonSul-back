@@ -76,6 +76,15 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         return listas;
     }
 
+    public async Task<List<Lista>> GetListasByTorneoByUserAsync(int idTorneo, int? idUsuario)
+    {
+        return await _dbamonsulContext.Listas
+            .Where(l => l.IdInscripcionNavigation != null &&
+                        l.IdInscripcionNavigation.IdTorneo == idTorneo &&
+                        l.IdInscripcionNavigation.IdUsuario == idUsuario)
+            .ToListAsync();
+    }
+
     public async Task<List<Lista>> GetListasByUser(int idUsuario)
     {
         return await _dbamonsulContext.Listas
