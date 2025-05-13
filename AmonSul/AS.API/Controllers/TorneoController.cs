@@ -136,7 +136,6 @@ public class TorneoController(
 
     [HttpPatch]
     [Route("Gestion/subir-bases")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> UpdateBasesTorneo(
         [FromBody, Required] UpdateBasesDTO request) =>
             Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));

@@ -18,7 +18,7 @@ public class CrearTorneoDTO
     public string TipoTorneo { get; set; } = TorneoType.INDIVIDUAL;
     public bool EsLiga { get; set; } = true;
     public int? IdRangoTorneo { get; set; }
-    public int ListasPorJuagor { get; set; }
+    public int ListasPorJugador { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
