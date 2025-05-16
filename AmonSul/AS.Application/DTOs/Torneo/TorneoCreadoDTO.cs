@@ -8,7 +8,6 @@ public class TorneoCreadoDTO
     public int? LimiteParticipantes { get; set; }
     public int NumeroPartidas { get; set; }
     public int ListasPorJugador { get; set; }
-    public string EstadoTorneo { get; set; } = null!;
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
     public DateOnly? InicioInscripciones { get; set; }

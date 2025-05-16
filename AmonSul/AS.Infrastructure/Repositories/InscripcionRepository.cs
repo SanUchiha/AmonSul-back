@@ -167,7 +167,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                 IdEquipo = e.IdEquipo,
                 NombreEquipo = e.NombreEquipo,
                 IdCapitan = e.IdCapitan,
-                Inscripciones = e.Inscripciones.Select(i => new InscripcionTorneoDTO
+                Inscripciones = [.. e.Inscripciones.Select(i => new InscripcionTorneoDTO
                 {
                     IdInscripcion = i.IdInscripcion,
                     IdTorneo = i.IdTorneo,
@@ -178,9 +178,8 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     EsPago = i.EsPago,
                     Nick = i.Nick,
                     IdLista = i.Lista != null ? i.Lista.IdLista : 0,
-                    ListaData = i.Lista != null ? i.Lista.ListaData ?? null: null,
                     Ejercito = i.Lista != null ? i.Lista.Ejercito ?? null : null
-                }).ToList()
+                })]
             }).ToList());
 
     public async Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int idEquipo)
