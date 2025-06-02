@@ -69,7 +69,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            var response = await _dbamonsulContext.Usuarios
+            Usuario? response = await _dbamonsulContext.Usuarios
                 .Include(u => u.Elos)
                 .Include(u => u.IdFaccionNavigation)
                 .Include(u => u.InscripcionTorneos)

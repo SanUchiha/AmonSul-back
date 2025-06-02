@@ -34,14 +34,14 @@ public class PartidaAmistosaApplication(
 
     public async Task<ViewPartidaAmistosaDTO> GetById(int Id)
     {
-        var partida = await _unitOfWork.PartidaAmistosaRepository.GetById(Id);
+        PartidaAmistosa partida = await _unitOfWork.PartidaAmistosaRepository.GetById(Id);
 
         if (partida == null) return null!;
 
-        var detallePartida = _mapper.Map<ViewPartidaAmistosaDTO>(partida);
-        var usuario1 = await _unitOfWork.UsuarioRepository.GetById(detallePartida.IdUsuario1);
+        ViewPartidaAmistosaDTO detallePartida = _mapper.Map<ViewPartidaAmistosaDTO>(partida);
+        UsuarioEmailDto usuario1 = await _unitOfWork.UsuarioRepository.GetEmailNickById(detallePartida.IdUsuario1);
         detallePartida.NickUsuario1 = usuario1.Nick;
-        var usuario2 = await _unitOfWork.UsuarioRepository.GetById(detallePartida.IdUsuario2);
+        UsuarioEmailDto usuario2 = await _unitOfWork.UsuarioRepository.GetEmailNickById(detallePartida.IdUsuario2);
         detallePartida.NickUsuario2 = usuario2.Nick;
         
         if (detallePartida.GanadorPartida != 0)

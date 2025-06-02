@@ -25,7 +25,7 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
     {
         try
         {
-            var response = await _dbamonsulContext.PartidaAmistosas
+            PartidaAmistosa? response = await _dbamonsulContext.PartidaAmistosas
                 .AsNoTracking()
                 .Where(x => x.IdPartidaAmistosa== id)
                 .FirstOrDefaultAsync();

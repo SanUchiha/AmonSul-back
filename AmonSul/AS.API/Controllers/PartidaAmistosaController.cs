@@ -91,18 +91,11 @@ public class PartidaAmistosaController(IPartidaAmistosaApplication partidaAmisto
             "La partida ha sido creada con exito");
     }
 
-    /// <summary>
-    /// Valida una partida amistosa
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
     [HttpPut]
     [Route("Validar")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblem), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ValidarPartidaAmistosa([FromBody, Required] ValidarPartidaDTO request)
     {
-        var response = await _partidaAmistosaApplication.ValidarPartidaAmistosa(request);
+        bool response = await _partidaAmistosaApplication.ValidarPartidaAmistosa(request);
 
         if (response == false) return BadRequest("No se ha podido validar la partida");
 
