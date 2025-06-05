@@ -1,10 +1,9 @@
-﻿using AS.Domain.DTOs.Equipo;
+﻿using AS.Application.DTOs.Torneo;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
-using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace AS.Infrastructure.Repositories;
 
@@ -70,11 +69,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         {
             using var transaction = await _dbamonsulContext.Database.BeginTransactionAsync();
 
-            foreach (var inscripcion in equipo.Inscripciones)
+            foreach (var inscripcion in equipo.InscripcionTorneos)
             {
                 _dbamonsulContext.Listas.RemoveRange(inscripcion.Lista);
             }
-            _dbamonsulContext.InscripcionTorneos.RemoveRange(equipo.Inscripciones);
+            _dbamonsulContext.InscripcionTorneos.RemoveRange(equipo.InscripcionTorneos);
             _dbamonsulContext.EquipoUsuario.RemoveRange(equipo.Miembros);
             _dbamonsulContext.Equipo.Remove(equipo);
 
@@ -141,13 +140,13 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 
     public async Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int idTorneo) =>
         await _dbamonsulContext.Equipo
-            .Where(e => e.Inscripciones.Any(i => i.IdTorneo == idTorneo))
+            .Where(e => e.InscripcionTorneos.Any(i => i.IdTorneo == idTorneo))
             .Select(e => new
             {
                 e.IdEquipo,
                 e.NombreEquipo,
                 e.IdCapitan,
-                Inscripciones = e.Inscripciones.Where(i => i.IdTorneo == idTorneo)
+                Inscripciones = e.InscripcionTorneos.Where(i => i.IdTorneo == idTorneo)
                 .Select(i => new
                 {
                     i.IdInscripcion,
@@ -195,7 +194,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     public async Task<Equipo?> GetEquipoByIdAsync(int id) => 
         await _dbamonsulContext.Equipo
             .Include(e => e.Miembros)
-            .Include(e => e.Inscripciones)
+            .Include(e => e.InscripcionTorneos)
                     .ThenInclude(i => i.Lista)
             .FirstOrDefaultAsync(e => e.IdEquipo == id);
 
@@ -275,4 +274,15 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             throw new Exception("Ocurrió un problema al actualizar la inscripción.", ex);
         }
     }
+
+    public Task<List<InscripcionTorneoEmparejamientoDTO>> GetInscripcionesByEquipoIdAsync(int idEquipo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<int?> GetIdEquipoByIdUsuarioAndIdTorneoAsync(int idUsuario, int idTorneo) =>
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(it => it.IdUsuario == idUsuario && it.IdEquipo != null && it.IdTorneo == idTorneo)
+            .Select(it => it.IdEquipo!.Value)
+            .FirstAsync();
 }

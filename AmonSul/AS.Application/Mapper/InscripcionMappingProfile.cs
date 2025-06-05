@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.Torneo;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
 using AutoMapper;
@@ -23,6 +24,7 @@ public class InscripcionMappingProfile : Profile
             .ForMember(dest => dest.Torneo, opt => opt.MapFrom(src => src.IdTorneoNavigation))
             .ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionTorneoEquiposDTO>().ReverseMap();
+        CreateMap<InscripcionTorneoEmparejamientoDTO, InscripcionTorneo>().ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionTorneoCreadoDTO>().ReverseMap();
         CreateMap<InscripcionTorneo, InscripcionTorneoDTO>()
             .ForMember(dest => dest.Torneo, opt => opt.MapFrom(src => src.IdTorneoNavigation))

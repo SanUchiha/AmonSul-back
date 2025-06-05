@@ -74,6 +74,8 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                 .Where(p => p.IdTorneo == idTorneo)
                 .Include(p => p.IdUsuario1Navigation)
                 .Include(p => p.IdUsuario2Navigation)
+                .Include(p => p.IdEquipo1Navigation)
+                .Include(p => p.IdEquipo2Navigation)
                 .ToListAsync();
 
             if (partidas == null) return [];
@@ -228,5 +230,13 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         {
             throw new Exception("Ocurrio un problema en el servidor al buscar las partidas", ex);
         }
+    }
+
+    public async Task<bool> RegisterMany(List<PartidaTorneo> partidaTorneos)
+    {
+        await _dbamonsulContext.PartidaTorneos.AddRangeAsync(partidaTorneos);
+        await _dbamonsulContext.SaveChangesAsync();
+
+        return true;
     }
 }

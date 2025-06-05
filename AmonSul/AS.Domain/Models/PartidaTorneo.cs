@@ -25,4 +25,8 @@ public partial class PartidaTorneo
     public int? NumeroRonda  { get; set; }
     public bool? LiderMuertoUsuario1 { get; set; }
     public bool? LiderMuertoUsuario2 { get; set; }
+    public int? IdEquipo1 { get; set; }
+    public int? IdEquipo2 { get; set; }
+    public virtual Equipo? IdEquipo1Navigation { get; set; }
+    public virtual Equipo? IdEquipo2Navigation { get; set; }
 }

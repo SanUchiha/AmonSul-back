@@ -1,11 +1,14 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Application.DTOs.PartidaTorneo;
+using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
+using MoreLinq.Extensions;
 
 namespace AS.Application.Services;
 
@@ -1036,6 +1039,19 @@ public class PartidaTorneoApplication(
         existingEntity.EjercitoUsuario2 = 
             inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
 
+        // Cambiar el id del equipo
+        int? idEquipo1 = 
+            await _unitOfWork.InscripcionRepository.GetIdEquipoByIdUsuarioAndIdTorneoAsync(
+                inscripcion1.IdUsuario, 
+                existingEntity.IdTorneo);
+        int? idEquipo2 =
+            await _unitOfWork.InscripcionRepository.GetIdEquipoByIdUsuarioAndIdTorneoAsync(
+                inscripcion2.IdUsuario, 
+                existingEntity.IdTorneo);
+        
+        existingEntity.IdEquipo1 = idEquipo1;
+        existingEntity.IdEquipo2 = idEquipo2;
+
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
     }
 
@@ -1067,4 +1083,139 @@ public class PartidaTorneoApplication(
         return partidas;
     }
 
+    public async Task<bool> GenerateRoundEquipos(GenerarRondaEquiposDTO request)
+    {
+        // Si vienen los emparejamientos predefinidos
+        if (request.EmparejamientosEquipos?.Count != 0)
+        {
+            return await GenerarPartidasDesdeEmparejamientos(request.EmparejamientosEquipos!, request);
+        }
+        else
+        {
+            // Conseguir todos los equipos inscritos en el torneo.
+            List<EquipoDTO> equipos = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(request.IdTorneo);
+
+            //Mezclamos
+            equipos = [.. equipos.Shuffle()];
+
+            // Controlamos el bye
+
+            //if (request.NecesitaBye)
+            //{
+            //    var equipoBye
+            //    equipos.Add()
+            //}
+
+            // Creamos la lista de emparejamientos
+            List<EmparejamientoEquiposDTO> emparejamientos = [];
+
+            for (int i = 0; i < equipos.Count - 1; i += 2)
+            {
+                EquipoDTO equipo1 = equipos[i];
+                EquipoDTO equipo2 = equipos[i + 1];
+
+                List<InscripcionTorneo> inscripciones1 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(equipo1.IdEquipo);
+                List<InscripcionTorneo> inscripciones2 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(equipo2.IdEquipo);
+
+                emparejamientos.Add(new EmparejamientoEquiposDTO
+                {
+                    Equipo1 = new EquipoEmparejamientoDTO
+                    {
+                        IdEquipo = equipo1.IdEquipo,
+                        IdCapitan = equipo1.IdCapitan,
+                        NickCapitan = equipo1.NickCapitan,
+                        NombreEquipo = equipo1.NombreEquipo,
+                        Inscripciones = _mapper.Map<List<InscripcionTorneoEmparejamientoDTO>>(inscripciones1)
+                    },
+                    Equipo2 = new EquipoEmparejamientoDTO
+                    {
+                        IdEquipo = equipo2.IdEquipo,
+                        IdCapitan = equipo2.IdCapitan,
+                        NickCapitan = equipo2.NickCapitan,
+                        NombreEquipo = equipo2.NombreEquipo,
+                        Inscripciones = _mapper.Map<List<InscripcionTorneoEmparejamientoDTO>>(inscripciones2)
+                    }
+                });
+            }
+
+            if (request.NecesitaBye)
+            {
+                EquipoDTO equipo1 = equipos[^1];
+
+                List<InscripcionTorneo> inscripciones1 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(equipo1.IdEquipo);
+
+                emparejamientos.Add(new EmparejamientoEquiposDTO
+                {
+                    Equipo1 = new EquipoEmparejamientoDTO
+                    {
+                        IdEquipo = equipo1.IdEquipo,
+                        IdCapitan = equipo1.IdCapitan,
+                        NickCapitan = equipo1.NickCapitan,
+                        NombreEquipo = equipo1.NombreEquipo,
+                        Inscripciones = _mapper.Map<List<InscripcionTorneoEmparejamientoDTO>>(inscripciones1)
+                    },
+                    Equipo2 = new EquipoEmparejamientoDTO
+                    {
+                        IdEquipo = 117,
+                        IdCapitan = 568,
+                        NickCapitan = "Capitan BYE",
+                        NombreEquipo = "Equipo BYE",
+                        Inscripciones = []
+                    }
+                });
+            }
+
+            return await GenerarPartidasDesdeEmparejamientos(emparejamientos, request);
+        }
+    }
+
+    private async Task<bool> GenerarPartidasDesdeEmparejamientos(
+        List<EmparejamientoEquiposDTO> emparejamientos, 
+        GenerarRondaEquiposDTO request)
+    {
+        List<PartidaTorneo> partidas = [];
+
+        foreach (EmparejamientoEquiposDTO emparejamiento in emparejamientos)
+        {
+            List<InscripcionTorneoEmparejamientoDTO> inscripcionesEquipo1 = emparejamiento.Equipo1.Inscripciones;
+            List<InscripcionTorneoEmparejamientoDTO> inscripcionesEquipo2 = emparejamiento.Equipo2.Inscripciones;
+
+            int totalPartidas = inscripcionesEquipo1.Count;
+
+            for (int i = 0; i < totalPartidas; i++)
+            {
+                InscripcionTorneoEmparejamientoDTO jugador2 = new(){};
+                InscripcionTorneoEmparejamientoDTO jugador1 = inscripcionesEquipo1[i];
+                if (inscripcionesEquipo2.Count < 1)
+                {
+                    jugador2 = new()
+                    {
+                        IdUsuario = 568,
+                        Ejercito = null,
+                    };
+                }
+                else jugador2 = inscripcionesEquipo2[i];
+
+                partidas.Add(new PartidaTorneo
+                {
+                    IdTorneo = request.IdTorneo,
+                    IdUsuario1 = jugador1.IdUsuario,
+                    IdUsuario2 = jugador2.IdUsuario,
+                    EjercitoUsuario1 = jugador1.Ejercito,
+                    EjercitoUsuario2 = jugador2.Ejercito,
+                    NumeroRonda = request.IdRonda,
+                    IdEquipo1 = emparejamiento.Equipo1.IdEquipo,
+                    IdEquipo2 = emparejamiento.Equipo2.IdEquipo,
+                    PartidaValidadaUsuario1 = false,
+                    PartidaValidadaUsuario2 = false,
+                    
+                });
+            }
+        }
+
+        await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
+        return true;
+    }
 }
+
+

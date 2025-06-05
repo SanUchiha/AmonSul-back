@@ -8,5 +8,7 @@ public class Equipo
 
     public virtual Usuario Capitan { get; set; } = null!;
     public virtual List<EquipoUsuario> Miembros { get; set; } = [];
-    public virtual List<InscripcionTorneo> Inscripciones { get; set; } = [];
+    public virtual ICollection<InscripcionTorneo> InscripcionTorneos { get; set; } = [];
+    public virtual ICollection<PartidaTorneo> PartidaTorneoIdEquipo1Navigations { get; set; } = [];
+    public virtual ICollection<PartidaTorneo> PartidaTorneoIdEquipo2Navigations { get; set; } = [];
 }

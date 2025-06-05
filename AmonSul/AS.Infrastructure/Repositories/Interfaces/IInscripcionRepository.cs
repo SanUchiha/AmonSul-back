@@ -1,6 +1,6 @@
-﻿using AS.Domain.DTOs.Equipo;
+﻿using AS.Application.DTOs.Torneo;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
-using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -29,4 +29,6 @@ public interface IInscripcionRepository
     Task<bool> EstaApuntadoAsync(int idUsuario, int idTorneo);
     Task<bool> DeleteEquipoAsync(int idEquipo);
     Task<bool> DeleteMiembroAsync(int idInscripcion);
+    Task<List<InscripcionTorneoEmparejamientoDTO>> GetInscripcionesByEquipoIdAsync(int idEquipo);
+    Task<int?> GetIdEquipoByIdUsuarioAndIdTorneoAsync(int idUsuario, int idTorneo);
 }

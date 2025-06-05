@@ -20,4 +20,8 @@ public class PartidaTorneoDTO
     public bool? LiderMuertoUsuario2 { get; set; }
     public string? Nick1 { get; set; }
     public string? Nick2 { get; set; }
+    public int? IdEquipo1 { get; set; }
+    public int? IdEquipo2 { get; set; }
+    public string? NombreEquipo1 { get; set; }
+    public string? NombreEquipo2 { get; set; }
 }

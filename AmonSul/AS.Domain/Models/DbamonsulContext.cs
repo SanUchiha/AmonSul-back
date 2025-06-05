@@ -165,11 +165,13 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdTorneo).HasColumnName("ID_Torneo");
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
 
-            entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.InscripcionTorneos)
+            entity.HasOne(d => d.IdTorneoNavigation)
+                .WithMany(p => p.InscripcionTorneos)
                 .HasForeignKey(d => d.IdTorneo)
                 .HasConstraintName("FK_Inscripcion_Torneo_Torneo");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.InscripcionTorneos)
+            entity.HasOne(d => d.IdUsuarioNavigation)
+                .WithMany(p => p.InscripcionTorneos)
                 .HasForeignKey(d => d.IdUsuario)
                 .HasConstraintName("FK_Inscripcion_Torneo_Usuario");
 
@@ -178,9 +180,10 @@ public partial class DbamonsulContext : DbContext
                .HasForeignKey(e => e.IdInscripcion)
                .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(i => i.Equipo)
-                  .WithMany(e => e.Inscripciones)
-                  .HasForeignKey(i => i.IdEquipo);
+            entity.HasOne(i => i.IdEquipoNavigation)
+                .WithMany(e => e.InscripcionTorneos)
+                .HasForeignKey(i => i.IdEquipo)
+                .HasConstraintName("FK_Inscripcion_Equipo");
 
             entity.Property(e => e.IdEquipo).HasColumnName("Id_Equipo");
 
@@ -281,6 +284,8 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.NumeroRonda).HasColumnName("Numero_Ronda");
             entity.Property(e => e.LiderMuertoUsuario1).HasColumnName("Lider_Muerto_Usuario1");
             entity.Property(e => e.LiderMuertoUsuario2).HasColumnName("Lider_Muerto_Usuario2");
+            entity.Property(e => e.IdEquipo1).HasColumnName("Id_Equipo1");
+            entity.Property(e => e.IdEquipo2).HasColumnName("Id_Equipo2");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)
@@ -297,6 +302,14 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(d => d.GanadorPartidaTorneoNavigation).WithMany(p => p.PartidaTorneoGanadorPartidaNavigations)
                 .HasForeignKey(d => d.GanadorPartidaTorneo)
                 .HasConstraintName("FK_Partida_Torneo_Ganador");
+
+            entity.HasOne(pt => pt.IdEquipo1Navigation).WithMany(e => e.PartidaTorneoIdEquipo1Navigations)
+                .HasForeignKey(pt => pt.IdEquipo1).IsRequired(false).OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_PartidaTorneo_Equipo");
+
+            entity.HasOne(pt => pt.IdEquipo2Navigation).WithMany(e => e.PartidaTorneoIdEquipo2Navigations)
+               .HasForeignKey(pt => pt.IdEquipo2).IsRequired(false).OnDelete(DeleteBehavior.Restrict)
+               .HasConstraintName("FK_PartidaTorneo_Equipo2");
         });
 
         //Rango torneos

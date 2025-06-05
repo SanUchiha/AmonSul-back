@@ -15,6 +15,7 @@ public interface IPartidaTorneoRepository
 
     Task<bool> Edit(PartidaTorneo partidaTorneo);
     Task<bool> Register(PartidaTorneo partidaTorneo);
+    Task<bool> RegisterMany(List<PartidaTorneo> partidaTorneos);
     Task<bool> GenerateRound(List<PartidaTorneo> partidasRonda);
 
     Task<bool> Delete(int idPartida);

@@ -15,5 +15,5 @@ public partial class InscripcionTorneo
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }
     public virtual IList<Lista> Lista { get; set; } = [];
-    public virtual Equipo? Equipo { get; set; } = null!;
+    public virtual Equipo? IdEquipoNavigation { get; set; } = null!;
 }
