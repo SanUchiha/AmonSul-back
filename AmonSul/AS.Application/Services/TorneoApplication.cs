@@ -369,7 +369,7 @@ public class TorneoApplication(
         return result;
     }
 
-    public async Task<object?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request)
+    public async Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request)
     {
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
         if (torneo == null) return false;
