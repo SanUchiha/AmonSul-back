@@ -86,7 +86,7 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/info-torneo-equipo/{idTorneo}")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
+    //[ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoEquipoCreado(int idTorneo)
     {
         TorneoEquipoGestionInfoDTO torneo = await _torneoApplication.GetInfoTorneoEquipoCreado(idTorneo);
