@@ -253,7 +253,7 @@ public class TorneoApplication(
 
     public async Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request)
     {
-        var torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
         if (torneo == null) return false;
 
         if (string.IsNullOrWhiteSpace(request.BasesTorneo)) return false;
@@ -367,5 +367,17 @@ public class TorneoApplication(
         };
 
         return result;
+    }
+
+    public async Task<object?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request)
+    {
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        if (torneo == null) return false;
+
+        torneo.MostrarListas = request.MostrarListas;
+
+        bool torneoEditado = await _unitOfWork.TorneoRepository.Edit(torneo);
+
+        return torneoEditado;
     }
 }

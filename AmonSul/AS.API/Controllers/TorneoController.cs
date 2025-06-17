@@ -151,6 +151,12 @@ public class TorneoController(
         [FromBody, Required] UpdateBasesDTO request) =>
             Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
 
+    [HttpPatch]
+    [Route("Gestion/Hanlder-Listas")]
+    public async Task<IActionResult> HandlerMostrarListas(
+       [FromBody, Required] HandlerMostrarListasDTO request) =>
+           Ok(await _torneoApplication.HandlerMostrarListasAsync(request));
+
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]

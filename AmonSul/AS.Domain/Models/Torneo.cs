@@ -21,6 +21,7 @@ public partial class Torneo
     public bool EsLiga { get; set; }
     public int? IdRangoTorneo { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }
+    public bool MostrarListas { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
     public byte[]? BasesTorneo { get; set; }
