@@ -75,7 +75,9 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                 .Include(p => p.IdUsuario1Navigation)
                 .Include(p => p.IdUsuario2Navigation)
                 .Include(p => p.IdEquipo1Navigation)
+                    .ThenInclude(e => e!.InscripcionTorneos)
                 .Include(p => p.IdEquipo2Navigation)
+                    .ThenInclude(e => e!.InscripcionTorneos)
                 .ToListAsync();
 
             if (partidas == null) return [];

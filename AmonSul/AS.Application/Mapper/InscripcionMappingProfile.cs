@@ -35,10 +35,14 @@ public class InscripcionMappingProfile : Profile
             .ForMember(dest => dest.ListaData, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.ListaData))
             .ForMember(dest => dest.FechaEntregaLista, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.FechaEntrega))
             .ForMember(dest => dest.Ejercito, opt => opt.MapFrom(src => src.Lista.FirstOrDefault()!.Ejercito))
+            .ForMember(dest => dest.Nick, opt => opt.MapFrom(src => src.IdUsuarioNavigation!.Nick))
             .ReverseMap();
 
         CreateMap<InscripcionTorneo, InscripcionTorneoCreadoMasDTO>()
             .ForMember(dest => dest.Lista, opt => opt.MapFrom(src => src.Lista))
             .ReverseMap();
+
+        CreateMap<InscripcionTorneoEmparejamientoDTO, InscripcionTorneoDTO>().ReverseMap();
+        CreateMap<JugadoresEquipoParaCambioDTO, InscripcionEquipoDTO>().ReverseMap();
     }
 }

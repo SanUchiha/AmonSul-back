@@ -342,4 +342,31 @@ public class InscripcionApplication(
 
         return true;
     }
+
+    public async Task<List<JugadoresEquipoParaCambioDTO>> GetJugadoresEquipoParaCambioPairingAsync(int idEquipo1, int idEquipo2)
+    {
+        List<InscripcionTorneo> inscripciones1 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(idEquipo1);
+        List<InscripcionTorneo> inscripciones2 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(idEquipo2);
+
+        List<ComponentesEquipoDTO> componentes1 = _mapper.Map<List<ComponentesEquipoDTO>>(inscripciones1);
+        List<ComponentesEquipoDTO> componentes2 = _mapper.Map<List<ComponentesEquipoDTO>>(inscripciones2);
+
+        JugadoresEquipoParaCambioDTO equipo1 = new()
+        {
+            IdEquipo = idEquipo1,
+            ComponentesEquipoDTO = componentes1
+        };
+
+        JugadoresEquipoParaCambioDTO equipo2 = new()
+        {
+            IdEquipo = idEquipo2,
+            ComponentesEquipoDTO = componentes2
+        };
+
+        return
+        [
+            equipo1,
+            equipo2
+        ];
+    }
 }

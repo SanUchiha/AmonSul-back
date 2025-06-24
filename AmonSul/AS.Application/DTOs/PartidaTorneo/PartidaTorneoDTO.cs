@@ -24,4 +24,6 @@ public class PartidaTorneoDTO
     public int? IdEquipo2 { get; set; }
     public string? NombreEquipo1 { get; set; }
     public string? NombreEquipo2 { get; set; }
+    public int? IdCapitan1 { get; set; }
+    public int? IdCapitan2 { get; set; }
 }

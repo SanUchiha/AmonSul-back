@@ -129,6 +129,15 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Ok(inscripcionEquipoDTO);
     }
 
+    [HttpGet("Equipo/{idEquipo1}/{idEquipo2}")]
+    public async Task<IActionResult> GetJugadpresEquipoParaCambioPairing(int idEquipo1, int idEquipo2)
+    {
+        List<JugadoresEquipoParaCambioDTO> equipos =
+            await _inscripcionApplication.GetJugadoresEquipoParaCambioPairingAsync(idEquipo1, idEquipo2);
+
+        return Ok(equipos);
+    }
+
     [HttpGet("Apuntado/{idUsuario}/{idTorneo}")]
     public async Task<ActionResult<bool>> EstaApuntado(int idUsuario, int idTorneo)
     {

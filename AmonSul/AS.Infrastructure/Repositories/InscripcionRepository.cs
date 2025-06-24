@@ -183,8 +183,9 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 
     public async Task<List<InscripcionTorneo>> GetAllInscripcionesByEquipoAsync(int idEquipo)
     {
-        var insc = await _dbamonsulContext.InscripcionTorneos
+        List<InscripcionTorneo> insc = await _dbamonsulContext.InscripcionTorneos
             .Include(it => it.Lista)
+            .Include(it => it.IdUsuarioNavigation)
             .Where(it => it.IdEquipo == idEquipo)
             .ToListAsync();
 

@@ -1216,6 +1216,118 @@ public class PartidaTorneoApplication(
         await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
         return true;
     }
+
+    public async Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request)
+    {
+        List<EquipoDTO> clasificacion = [.. request.Clasificacion];
+
+        List<(int equipo1, int equipo2)> emparejamientos = [];
+        HashSet<int> emparejados = [];
+
+        if (request.NecesitaBye && clasificacion.Count % 2 != 0)
+        {
+            clasificacion.Add(new EquipoDTO
+            {
+                NombreEquipo = "Bye",
+                IdEquipo = 117,
+                IdCapitan = 568
+            });
+        }
+
+        Dictionary<int, EquipoDTO> equiposDict = clasificacion.ToDictionary(e => e.IdEquipo);
+
+        // 3. Emparejar equipos
+        for (int i = 0; i < clasificacion.Count; i++)
+        {
+            EquipoDTO equipo1 = clasificacion[i];
+            if (emparejados.Contains(equipo1.IdEquipo))
+                continue;
+
+            int j = i + 1;
+            while (j < clasificacion.Count)
+            {
+                EquipoDTO equipo2 = clasificacion[j];
+
+                if (emparejados.Contains(equipo2.IdEquipo))
+                {
+                    j++;
+                    continue;
+                }
+
+                // Si permite repetir rival → no comprobamos nada más
+                if (request.PermiteRepetirRival)
+                {
+                    emparejamientos.Add((equipo1.IdEquipo, equipo2.IdEquipo));
+                    emparejados.Add(equipo1.IdEquipo);
+                    emparejados.Add(equipo2.IdEquipo);
+                    break;
+                }
+
+                // Si **NO** permite repetir rival → comprobamos que no se hayan enfrentado ya
+                bool yaSeEnfrentaron = request.PairingRondaAnterior.Any(p =>
+                    (p.IdEquipo1 == equipo1.IdEquipo && p.IdEquipo2 == equipo2.IdEquipo) ||
+                    (p.IdEquipo1 == equipo2.IdEquipo && p.IdEquipo2 == equipo1.IdEquipo)
+                );
+
+                if (!yaSeEnfrentaron)
+                {
+                    emparejamientos.Add((equipo1.IdEquipo, equipo2.IdEquipo));
+                    emparejados.Add(equipo1.IdEquipo);
+                    emparejados.Add(equipo2.IdEquipo);
+                    break;
+                }
+
+                j++;
+            }
+        }
+
+        // Creamos las partidas.
+        return await GenerarPartidasDesdeEmparejamientosOtrasRondas(emparejamientos, request, equiposDict);
+    }
+
+    private async Task<bool> GenerarPartidasDesdeEmparejamientosOtrasRondas(
+        List<(int equipo1, int equipo2)> emparejamientos, 
+        GenerarOtraRondaEquiposRequestDTO request,
+        Dictionary<int, EquipoDTO> equiposDict)
+    {
+        List<PartidaTorneo> partidas = [];
+
+        foreach ((int equipo1, int equipo2) in emparejamientos)
+        {
+            List<InscripcionTorneoEmparejamientoDTO> inscripcionesEquipo1 = 
+                _mapper.Map<List<InscripcionTorneoEmparejamientoDTO>>(equiposDict[equipo1].Inscripciones);
+            List<InscripcionTorneoEmparejamientoDTO> inscripcionesEquipo2 = 
+                _mapper.Map<List<InscripcionTorneoEmparejamientoDTO>>(equiposDict[equipo2].Inscripciones);
+
+            int totalPartidas = inscripcionesEquipo1.Count;
+
+            for (int i = 0; i < totalPartidas; i++)
+            {
+                InscripcionTorneoEmparejamientoDTO jugador1 = inscripcionesEquipo1[i];
+                InscripcionTorneoEmparejamientoDTO jugador2 = (inscripcionesEquipo2.Count > i)
+                    ? inscripcionesEquipo2[i]
+                    : new InscripcionTorneoEmparejamientoDTO { IdUsuario = 568 };
+
+                partidas.Add(new PartidaTorneo
+                {
+                    IdTorneo = request.IdTorneo,
+                    IdUsuario1 = jugador1.IdUsuario,
+                    IdUsuario2 = jugador2.IdUsuario,
+                    EjercitoUsuario1 = jugador1.Ejercito,
+                    EjercitoUsuario2 = jugador2.Ejercito,
+                    NumeroRonda = request.IdRonda,
+                    IdEquipo1 = equipo1,
+                    IdEquipo2 = equipo2,
+                    PartidaValidadaUsuario1 = false,
+                    PartidaValidadaUsuario2 = false,
+
+                });
+            }
+        }
+
+        await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
+        return true;
+    }
 }
 
 

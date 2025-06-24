@@ -1,7 +1,6 @@
 ﻿using AS.Application.DTOs.Inscripcion;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
-using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;
@@ -27,4 +26,5 @@ public interface IInscripcionApplication
     Task<ResultInscripcionTorneoDTO> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO);
     Task<bool> DeleteMiembroAsync(int idInscripcion);
     Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo);
+    Task<List<JugadoresEquipoParaCambioDTO>> GetJugadoresEquipoParaCambioPairingAsync(int idEquipo1, int idEquipo2);
 }

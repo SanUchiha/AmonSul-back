@@ -19,4 +19,5 @@ public interface IPartidaTorneoApplication
     Task<bool> Delete(int idPartida);
     Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
     Task<bool> GenerateRoundEquipos(GenerarRondaEquiposDTO request);
+    Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request);
 }

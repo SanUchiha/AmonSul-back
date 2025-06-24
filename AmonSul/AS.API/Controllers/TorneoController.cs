@@ -48,6 +48,17 @@ public class TorneoController(
         return Created(string.Empty, "La ronda ha sido creada con éxito");
     }
 
+    [HttpPost]
+    [Route("Gestion/Generar-Otra-Ronda-Equipos")]
+    public async Task<IActionResult> GenerarOtraRondaEquipos([FromBody, Required] GenerarOtraRondaEquiposRequestDTO request)
+    {
+        bool response = await _partidaTorneoApplication.GenerarOtraRondaEquiposAsync(request);
+
+        if (response == false) return BadRequest("No se ha podido generar la ronda");
+
+        return Created(string.Empty, "La ronda ha sido creada con éxito");
+    }
+
     [HttpGet]
     [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
