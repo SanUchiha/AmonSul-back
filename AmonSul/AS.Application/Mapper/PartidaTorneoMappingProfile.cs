@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.PartidaTorneo;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AutoMapper;
 

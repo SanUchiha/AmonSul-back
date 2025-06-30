@@ -110,7 +110,7 @@ public class TorneoController(
     [Route("Gestion/Partidas/{idTorneo}")]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
-        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneo(idTorneo);
+        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoAsync(idTorneo);
 
         if (response == null) return NotFound();
 

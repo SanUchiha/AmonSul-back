@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using Azure.Core;
@@ -240,5 +241,41 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         await _dbamonsulContext.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
+    {
+        var partidas = await _dbamonsulContext.PartidaTorneos
+                .Where(p => p.IdTorneo == idTorneo)
+                .Select(p => new PartidaTorneoDTO
+                {
+                    IdPartidaTorneo = p.IdPartidaTorneo,
+                    IdTorneo = p.IdTorneo,
+                    IdUsuario1 = p.IdUsuario1,
+                    IdUsuario2 = p.IdUsuario2,
+                    ResultadoUsuario1 = p.ResultadoUsuario1,
+                    ResultadoUsuario2 = p.ResultadoUsuario2,
+                    FechaPartida = p.FechaPartida,
+                    EscenarioPartida = p.EscenarioPartida,
+                    GanadorPartidaTorneo = p.GanadorPartidaTorneo,
+                    PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
+                    PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
+                    EjercitoUsuario1 = p.EjercitoUsuario1,
+                    EjercitoUsuario2 = p.EjercitoUsuario2,
+                    NumeroRonda = p.NumeroRonda,
+                    LiderMuertoUsuario1 = p.LiderMuertoUsuario1,
+                    LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
+                    IdEquipo1 = p.IdEquipo1,
+                    IdEquipo2 = p.IdEquipo2,
+                    Nick1 = p.IdUsuario1Navigation!.Nick,
+                    Nick2 = p.IdUsuario2Navigation!.Nick,
+                    NombreEquipo1 = p.IdEquipo1Navigation!.NombreEquipo,
+                    NombreEquipo2 = p.IdEquipo2Navigation!.NombreEquipo,
+                    IdCapitan1 = p.IdEquipo1Navigation!.IdCapitan,
+                    IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan
+                })
+                .ToListAsync();
+
+        return partidas;
     }
 }

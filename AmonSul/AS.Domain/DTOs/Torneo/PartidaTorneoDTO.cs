@@ -1,4 +1,4 @@
-﻿namespace AS.Application.DTOs.PartidaTorneo;
+﻿namespace AS.Domain.DTOs.Torneo;
 
 public class PartidaTorneoDTO
 {

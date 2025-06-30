@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -20,4 +21,5 @@ public interface IPartidaTorneoRepository
 
     Task<bool> Delete(int idPartida);
     Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
+    Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
 }

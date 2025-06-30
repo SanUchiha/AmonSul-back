@@ -1,5 +1,6 @@
 ﻿using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 
 namespace AS.Application.Interfaces;
@@ -20,4 +21,5 @@ public interface IPartidaTorneoApplication
     Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
     Task<bool> GenerateRoundEquipos(GenerarRondaEquiposDTO request);
     Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request);
+    Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
 }

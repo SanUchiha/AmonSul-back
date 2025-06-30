@@ -5,6 +5,7 @@ using AS.Application.Interfaces;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.DTOs.Lista;
+using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -1327,6 +1328,12 @@ public class PartidaTorneoApplication(
 
         await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
         return true;
+    }
+
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
+    {
+        List<PartidaTorneoDTO> partidaTorneoDTOs = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
+        return partidaTorneoDTOs;
     }
 }
 

@@ -34,10 +34,9 @@ public class GanadorApplication(
         if (ganadores is null) return [];
 
         // Conseguir nombre de los torneos.
-        List<int> idsTorneos = ganadores
+        List<int> idsTorneos = [.. ganadores
             .Select(g => g.IdTorneo)
-            .Distinct()
-            .ToList();
+            .Distinct()];
 
         if (idsTorneos.Count <= 0) return [];
 
