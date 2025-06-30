@@ -1099,14 +1099,6 @@ public class PartidaTorneoApplication(
             //Mezclamos
             equipos = [.. equipos.Shuffle()];
 
-            // Controlamos el bye
-
-            //if (request.NecesitaBye)
-            //{
-            //    var equipoBye
-            //    equipos.Add()
-            //}
-
             // Creamos la lista de emparejamientos
             List<EmparejamientoEquiposDTO> emparejamientos = [];
 
@@ -1214,7 +1206,11 @@ public class PartidaTorneoApplication(
             }
         }
 
-        await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
+        foreach (var partida in partidas)
+        {
+            await _unitOfWork.PartidaTorneoRepository.Register(partida);
+        }
+
         return true;
     }
 
