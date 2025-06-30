@@ -1278,7 +1278,6 @@ public class PartidaTorneoApplication(
             }
         }
 
-        // Creamos las partidas.
         return await GenerarPartidasDesdeEmparejamientosOtrasRondas(emparejamientos, request, equiposDict);
     }
 
@@ -1322,7 +1321,10 @@ public class PartidaTorneoApplication(
             }
         }
 
-        await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
+        foreach (var partida in partidas)
+        {
+            await _unitOfWork.PartidaTorneoRepository.Register(partida);
+        }
         return true;
     }
 
