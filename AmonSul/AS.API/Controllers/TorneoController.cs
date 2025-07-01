@@ -168,6 +168,12 @@ public class TorneoController(
        [FromBody, Required] HandlerMostrarListasDTO request) =>
            Ok(await _torneoApplication.HandlerMostrarListasAsync(request));
 
+    [HttpPatch]
+    [Route("Gestion/Hanlder-Clasificacion")]
+    public async Task<IActionResult> HandlerMostrarClasificacion(
+       [FromBody, Required] HandlerMostrarClasificacionDTO request) =>
+           Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request));
+
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]

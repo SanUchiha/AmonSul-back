@@ -19,4 +19,5 @@ public interface ITorneoApplication
     Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo);
     Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
     Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request);
+    Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request);
 }

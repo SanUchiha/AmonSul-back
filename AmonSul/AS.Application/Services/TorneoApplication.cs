@@ -380,4 +380,16 @@ public class TorneoApplication(
 
         return torneoEditado;
     }
+
+    public async Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request)
+    {
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        if (torneo == null) return false;
+
+        torneo.MostrarClasificacion = request.MostrarClasificacion;
+
+        bool torneoEditado = await _unitOfWork.TorneoRepository.Edit(torneo);
+
+        return torneoEditado;
+    }
 }

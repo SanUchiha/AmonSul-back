@@ -13,4 +13,5 @@ public class TorneoCreadoDTO
     public DateOnly? InicioInscripciones { get; set; }
     public int? JugadoresXEquipo { get; set; }
     public bool MostrarListas { get; set; }
+    public bool MostrarClasificacion { get; set; }
 }
