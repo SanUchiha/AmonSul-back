@@ -154,25 +154,25 @@ public class TorneoController(
             Ok(await _torneoApplication.UpdateTorneoAsync(request));
 
     [HttpPatch]
-    [Route("Gestion/subir-bases")]
+    [Route("Gestion/subir-bases/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> UpdateBasesTorneo(
-        [FromBody, Required] UpdateBasesDTO request) =>
-            Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
+        [FromBody, Required] UpdateBasesDTO request, int idTorneo) =>
+            Ok(await _torneoApplication.UpdateBasesTorneoAsync(request, idTorneo));
 
     [HttpPatch]
-    [Route("Gestion/Hanlder-Listas")]
+    [Route("Gestion/Handler-Listas/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarListas(
-       [FromBody, Required] HandlerMostrarListasDTO request) =>
-           Ok(await _torneoApplication.HandlerMostrarListasAsync(request));
+       [FromBody, Required] HandlerMostrarListasDTO request, int idTorneo) =>
+           Ok(await _torneoApplication.HandlerMostrarListasAsync(request, idTorneo));
 
     [HttpPatch]
-    [Route("Gestion/Hanlder-Clasificacion")]
+    [Route("Gestion/Handler-Clasificacion/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarClasificacion(
-       [FromBody, Required] HandlerMostrarClasificacionDTO request) =>
-           Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request));
+       [FromBody, Required] HandlerMostrarClasificacionDTO request, int idTorneo) =>
+           Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request, idTorneo));
 
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]

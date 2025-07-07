@@ -251,9 +251,9 @@ public class TorneoApplication(
         return torneoEditado;
     }
 
-    public async Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request)
+    public async Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request, int idTorneo)
     {
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(idTorneo);
         if (torneo == null) return false;
 
         if (string.IsNullOrWhiteSpace(request.BasesTorneo)) return false;
@@ -369,9 +369,9 @@ public class TorneoApplication(
         return result;
     }
 
-    public async Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request)
+    public async Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request, int idTorneo)
     {
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(idTorneo);
         if (torneo == null) return false;
 
         torneo.MostrarListas = request.MostrarListas;
@@ -381,9 +381,9 @@ public class TorneoApplication(
         return torneoEditado;
     }
 
-    public async Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request)
+    public async Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request, int idTorneo)
     {
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(idTorneo);
         if (torneo == null) return false;
 
         torneo.MostrarClasificacion = request.MostrarClasificacion;

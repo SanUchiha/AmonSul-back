@@ -15,9 +15,9 @@ public interface ITorneoApplication
     Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario);
     Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo);
     Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request);
-    Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request);
+    Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request, int idTorneo);
     Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo);
     Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
-    Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request);
-    Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request);
+    Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request, int idTorneo);
+    Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request, int idTorneo);
 }
