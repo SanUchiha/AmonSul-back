@@ -73,7 +73,6 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/info-torneo/{idTorneo}")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
         TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
@@ -85,7 +84,6 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/info-torneo-mas/{idTorneo}")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoCreadoMas(int idTorneo)
     {
         TorneoGestionInfoMasDTO response = await _torneoApplication.GetInfoTorneoCreadoMasAsync(idTorneo);
@@ -97,7 +95,6 @@ public class TorneoController(
 
     [HttpGet]
     [Route("Gestion/info-torneo-equipo/{idTorneo}")]
-    //[ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoEquipoCreado(int idTorneo)
     {
         TorneoEquipoGestionInfoDTO torneo = await _torneoApplication.GetInfoTorneoEquipoCreado(idTorneo);
@@ -158,18 +155,21 @@ public class TorneoController(
 
     [HttpPatch]
     [Route("Gestion/subir-bases")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> UpdateBasesTorneo(
         [FromBody, Required] UpdateBasesDTO request) =>
             Ok(await _torneoApplication.UpdateBasesTorneoAsync(request));
 
     [HttpPatch]
     [Route("Gestion/Hanlder-Listas")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarListas(
        [FromBody, Required] HandlerMostrarListasDTO request) =>
            Ok(await _torneoApplication.HandlerMostrarListasAsync(request));
 
     [HttpPatch]
     [Route("Gestion/Hanlder-Clasificacion")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarClasificacion(
        [FromBody, Required] HandlerMostrarClasificacionDTO request) =>
            Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request));
