@@ -245,7 +245,7 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
 
     public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
     {
-        var partidas = await _dbamonsulContext.PartidaTorneos
+        List<PartidaTorneoDTO> partidas = await _dbamonsulContext.PartidaTorneos
                 .Where(p => p.IdTorneo == idTorneo)
                 .Select(p => new PartidaTorneoDTO
                 {
@@ -275,6 +275,21 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                     IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan
                 })
                 .ToListAsync();
+
+        return partidas;
+    }
+
+    public async Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(
+        int idEquipo1Old, 
+        int idEquipo2Old, 
+        int idTorneo, 
+        int numeroRonda)
+    {
+        List<PartidaTorneo> partidas = await _dbamonsulContext.PartidaTorneos
+            .Where(p => p.IdTorneo == idTorneo)
+            .Where(p => p.IdEquipo1 == idEquipo1Old && p.IdEquipo2 == idEquipo2Old)
+            .Where(p => p.NumeroRonda == numeroRonda)
+            .ToListAsync();
 
         return partidas;
     }

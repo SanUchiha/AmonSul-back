@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Torneo;
+﻿using AS.Application.DTOs.PartidaTorneo;
+using AS.Application.DTOs.Torneo;
 using AS.Domain.DTOs.Torneo;
 
 namespace AS.Application.Interfaces;
@@ -20,4 +21,5 @@ public interface ITorneoApplication
     Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
     Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request, int idTorneo);
     Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request, int idTorneo);
+    Task<List<EquipoDisponibleDTO>> GetEquiposDisponiblesAsync(int idTorneo);
 }

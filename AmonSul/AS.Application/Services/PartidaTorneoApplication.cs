@@ -1333,6 +1333,47 @@ public class PartidaTorneoApplication(
         List<PartidaTorneoDTO> partidaTorneoDTOs = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
         return partidaTorneoDTOs;
     }
+
+    public async Task<bool> ModificarPairingEquiposAsync(ModificarPairingTorneoEquiposDTO request, int idTorneo)
+    {
+        List<PartidaTorneo> partidas =
+            await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoEquiposParaModificarAsync(
+                request.IdEquipo1Old,
+                request.IdEquipo2Old,
+                idTorneo, 
+                request.NumeroRonda);
+
+
+        if (partidas == null || partidas.Count == 0) return false;
+
+        List<InscripcionTorneo> nuevoEquipo1 = 
+            await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(request.IdEquipo1);
+        List<InscripcionTorneo> nuevoEquipo2 = 
+            await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(request.IdEquipo2);
+
+        if (nuevoEquipo1.Count < partidas.Count || nuevoEquipo2.Count < partidas.Count)
+            throw new InvalidOperationException("No hay suficientes jugadores en los nuevos equipos para reasignar las partidas.");
+
+        for (int i = 0; i < partidas.Count; i++)
+        {
+            PartidaTorneo partida = partidas[i];
+
+            InscripcionTorneo jugadorNuevo1 = nuevoEquipo1[i];
+            InscripcionTorneo jugadorNuevo2 = nuevoEquipo2[i];
+
+            partida.IdUsuario1 = jugadorNuevo1.IdUsuario;
+            partida.IdUsuario2 = jugadorNuevo2.IdUsuario;
+            partida.GanadorPartidaTorneo = null;
+            partida.PartidaValidadaUsuario1 = null;
+            partida.PartidaValidadaUsuario2 = null;
+            partida.IdEquipo1 = request.IdEquipo1;
+            partida.IdEquipo2 = request.IdEquipo2;
+
+            await _unitOfWork.PartidaTorneoRepository.Edit(partida);
+        }
+
+        return true;
+    }
 }
 
 

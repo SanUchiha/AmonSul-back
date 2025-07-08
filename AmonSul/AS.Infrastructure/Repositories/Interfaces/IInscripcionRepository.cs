@@ -31,4 +31,5 @@ public interface IInscripcionRepository
     Task<bool> DeleteMiembroAsync(int idInscripcion);
     Task<List<InscripcionTorneoEmparejamientoDTO>> GetInscripcionesByEquipoIdAsync(int idEquipo);
     Task<int?> GetIdEquipoByIdUsuarioAndIdTorneoAsync(int idUsuario, int idTorneo);
+    Task<List<Equipo>> GetEquiposDisponiblesAsync(int idTorneo);
 }

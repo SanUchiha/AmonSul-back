@@ -59,6 +59,20 @@ public class TorneoController(
         return Created(string.Empty, "La ronda ha sido creada con éxito");
     }
 
+    [HttpPost]
+    [Route("Gestion/Equipos/Modificar-Pairing-Equipos/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> ModificarPairingEquipos(
+        [FromBody, Required] ModificarPairingTorneoEquiposDTO request, 
+        int idTorneo)
+    {
+        bool response = await _partidaTorneoApplication.ModificarPairingEquiposAsync(request, idTorneo);
+
+        if (response == false) return BadRequest("No se ha podido modificar el emparejamiento");
+
+        return Created(string.Empty, "La ronda ha sido creada con éxito");
+    }
+
     [HttpGet]
     [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
@@ -173,6 +187,17 @@ public class TorneoController(
     public async Task<IActionResult> HandlerMostrarClasificacion(
        [FromBody, Required] HandlerMostrarClasificacionDTO request, int idTorneo) =>
            Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request, idTorneo));
+
+    [HttpGet]
+    [Route("Gestion/Equipos/Equipos-disponibles/{idTorneo}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> GetEquiposDisponibles(int idTorneo) 
+    {
+        List<EquipoDisponibleDTO> equipos = await _torneoApplication.GetEquiposDisponiblesAsync(idTorneo);
+
+        return Ok(equipos);
+    }
+          
 
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]

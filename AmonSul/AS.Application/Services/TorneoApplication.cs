@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Equipo;
@@ -391,5 +392,12 @@ public class TorneoApplication(
         bool torneoEditado = await _unitOfWork.TorneoRepository.Edit(torneo);
 
         return torneoEditado;
+    }
+
+    public async Task<List<EquipoDisponibleDTO>> GetEquiposDisponiblesAsync(int idTorneo)
+    {
+        List<Equipo> equipos = await _unitOfWork.InscripcionRepository.GetEquiposDisponiblesAsync(idTorneo);  
+
+        return _mapper.Map<List<EquipoDisponibleDTO>>(equipos);
     }
 }

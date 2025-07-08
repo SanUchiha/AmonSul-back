@@ -286,4 +286,33 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .Where(it => it.IdUsuario == idUsuario && it.IdEquipo != null && it.IdTorneo == idTorneo)
             .Select(it => it.IdEquipo!.Value)
             .FirstAsync();
+
+    public async Task<List<Equipo>> GetEquiposDisponiblesAsync(int idTorneo)
+    {
+        List<InscripcionTorneo> inscripcionTorneos = await _dbamonsulContext.InscripcionTorneos
+            .Where(it => it.IdTorneo == idTorneo)
+            .Include(i=>i.IdEquipoNavigation)
+            .ToListAsync();
+
+        List<InscripcionTorneo> inscripcionesUnicas = [.. inscripcionTorneos
+            .GroupBy(i => i.IdEquipo)
+            .Select(g => g.First())];
+
+        if (inscripcionesUnicas.Count <= 0) return [];
+
+        List<Equipo> equipos = [];
+
+        foreach (var item in inscripcionesUnicas)
+        {
+            Equipo equipo = new()
+            {
+                IdEquipo = item.IdEquipoNavigation!.IdEquipo,
+                NombreEquipo = item.IdEquipoNavigation.NombreEquipo,
+            };
+
+            equipos.Add(equipo);
+        }
+
+        return equipos;
+    }
 }

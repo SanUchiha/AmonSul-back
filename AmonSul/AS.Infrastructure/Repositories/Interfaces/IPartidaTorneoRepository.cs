@@ -22,4 +22,5 @@ public interface IPartidaTorneoRepository
     Task<bool> Delete(int idPartida);
     Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
+    Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(int idEquipo1Old, int idEquipo2Old, int idTorneo, int numeroRonda);
 }

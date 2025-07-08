@@ -1,4 +1,6 @@
-﻿namespace AS.Infrastructure.Repositories.Interfaces;
+﻿using AS.Domain.Models;
+
+namespace AS.Infrastructure.Repositories.Interfaces;
 
 public interface IUnitOfWork: IDisposable
 {

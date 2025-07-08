@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Inscripcion;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
@@ -16,6 +17,7 @@ public class TorneoMappingProfile : Profile
         CreateMap<Torneo, TorneoViewDTO>().ReverseMap();
 
         CreateMap<InscripcionTorneoCreadoDTO, InscripcionTorneo>().ReverseMap();
+        CreateMap<Equipo, EquipoDisponibleDTO>().ReverseMap();
 
         CreateMap<CrearTorneoDTO, Torneo>()
             .ForMember(dest => dest.BasesTorneo, opt =>
