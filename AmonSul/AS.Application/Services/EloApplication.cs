@@ -78,19 +78,14 @@ public class EloApplication(
 
     public async Task<int> GetLastElo(int idUsuario)
     {
-        Usuario usuario 
-            = await _unitOfWork.UsuarioRepository.GetById(idUsuario) 
-            ?? throw new Exception("Usuario no encontrado");
-        
-        ViewEloDTO userElo = await GetEloByIdUsuarioAsync(usuario.IdUsuario);
+        ViewEloDTO userElo = await GetEloByIdUsuarioAsync(idUsuario);
 
         if (userElo.Elos == null || userElo.Elos.Count == 0)
             return 800;
 
         EloDTO lastElo = userElo.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()!;
 
-        return  lastElo?.PuntuacionElo 
-                ?? throw new Exception("No se pudo encontrar el Elo más reciente");
+        return lastElo?.PuntuacionElo ?? throw new Exception("No se pudo encontrar el Elo más reciente");
     }
 
     public async Task<List<EloUsuarioDTO>> GetEloUsuarios()

@@ -47,22 +47,13 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
     [HttpPost]
     public async Task<IActionResult> SaveResult([FromBody] GuardarResultadosDTO guardarResultadosDTO)
     {
-        if (guardarResultadosDTO.GanadoresDTO.Count == 0) return BadRequest();
+        if (guardarResultadosDTO.GanadoresDTO.Count <= 0) return BadRequest();
 
-        try
-        {
-            bool result = 
-                await _ganadorApplication.SaveResultTournamentAsync(guardarResultadosDTO);
-            if (!result)
-                return BadRequest("No se pudo registrar los resultados del torneo.");
+        bool result = await _ganadorApplication.SaveResultTournamentAsync(guardarResultadosDTO);
+        if (!result) return BadRequest("No se pudo registrar los resultados del torneo.");
 
-            return StatusCode(200);
+        return StatusCode(200);
 
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Ocurrió un problema al registrar los resultados: {ex.Message}");
-        }
     }
 
     [HttpDelete("{id}")]
