@@ -321,6 +321,17 @@ public class TorneoController(
     }
 
     [HttpGet]
+    [Route("Partidas/Usuario/{idUsuario}/Torneo/{idTorneo}")]
+    public async Task<IActionResult> GetPartidasUsuarioTorneo(int idUsuario, int idTorneo)
+    {
+        List<ViewPartidaTorneoDTO> response =
+            await _partidaTorneoApplication.GetPartidasTorneoByUsuarioAsync(idTorneo, idUsuario);;
+
+        return Ok(response);
+    }
+
+
+    [HttpGet]
     [Route("equipos/{idTorneo}")]
     public async Task<IActionResult> GetEquiposByTorneoAsync(int idTorneo)
     {

@@ -128,13 +128,16 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         }
     }
 
-    public async Task<List<PartidaTorneo>> GetPartidasTorneoByUsuario(int idTorneo, int idUsuario)
+    public async Task<List<PartidaTorneo>> GetPartidasTorneoByUsuarioAsync(int idTorneo, int idUsuario)
     {
         try
         {
             List<PartidaTorneo> partidas = await _dbamonsulContext.PartidaTorneos
+                .AsNoTracking()
                 .Where(p => (p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario) &&
                             (p.IdTorneo == idTorneo))
+                .Include(p => p.IdUsuario1Navigation)
+                .Include(p => p.IdUsuario2Navigation)
                 .ToListAsync();
 
             if (partidas == null) return [];

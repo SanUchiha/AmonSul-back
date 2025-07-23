@@ -1328,11 +1328,8 @@ public class PartidaTorneoApplication(
         return true;
     }
 
-    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
-    {
-        List<PartidaTorneoDTO> partidaTorneoDTOs = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
-        return partidaTorneoDTOs;
-    }
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo) =>
+        await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
 
     public async Task<bool> ModificarPairingEquiposAsync(ModificarPairingTorneoEquiposDTO request, int idTorneo)
     {
@@ -1374,6 +1371,25 @@ public class PartidaTorneoApplication(
 
         return true;
     }
+
+    public async Task<List<ViewPartidaTorneoDTO>> GetPartidasTorneoByUsuarioAsync(int idTorneo, int idUsuario)
+    {
+        List<PartidaTorneo> partidasRaw = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoByUsuarioAsync(idTorneo, idUsuario);
+
+        List<ViewPartidaTorneoDTO> response = _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasRaw);
+
+        foreach (var partida in response)
+        {
+            partida.NickUsuario1 = partida.IdUsuario1Navigation!.Nick;
+            partida.NickUsuario2 = partida.IdUsuario2Navigation!.Nick;
+
+            if (partida.GanadorPartidaTorneo != 0)
+            {
+                if (partida.GanadorPartidaTorneo == partida.IdUsuario2) partida.GanadorPartidaNick = partida.NickUsuario2;
+                else if (partida.GanadorPartidaTorneo == partida.IdUsuario1) partida.GanadorPartidaNick = partida.NickUsuario1;
+                else partida.GanadorPartidaNick = null;
+            }
+        }
+        return response;
+    }
 }
-
-

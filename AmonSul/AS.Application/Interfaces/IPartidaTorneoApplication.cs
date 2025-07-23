@@ -23,4 +23,5 @@ public interface IPartidaTorneoApplication
     Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request);
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
     Task<bool> ModificarPairingEquiposAsync(ModificarPairingTorneoEquiposDTO request, int idTorneo);
+    Task<List<ViewPartidaTorneoDTO>> GetPartidasTorneoByUsuarioAsync(int idTorneo, int idUsuario);
 }
