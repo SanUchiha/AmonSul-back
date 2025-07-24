@@ -94,6 +94,17 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         return Created();
     }
 
+    [HttpPut("Puntos-Extra")]
+    public async Task<ActionResult> UpdatePuntosExtra([FromBody] UpdatePuntosExtraDTO request)
+    {
+        bool result = await _inscripcionApplication.UpdatePuntosExtraAsync(request);
+        if (!result)
+        {
+            return BadRequest();
+        }
+        return Created();
+    }
+
     [HttpPut("Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
     {

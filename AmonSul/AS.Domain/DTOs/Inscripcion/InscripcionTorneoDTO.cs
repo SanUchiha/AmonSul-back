@@ -16,4 +16,5 @@ public class InscripcionTorneoDTO
     public int IdLista { get; set; }
     public string? Nick { get; set; }
     public TorneoViewDTO? Torneo { get; set; }
+    public int PuntosExtra { get; set; }
 }

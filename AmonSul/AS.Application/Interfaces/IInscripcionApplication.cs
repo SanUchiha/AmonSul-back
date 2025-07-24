@@ -27,4 +27,5 @@ public interface IInscripcionApplication
     Task<bool> DeleteMiembroAsync(int idInscripcion);
     Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo);
     Task<List<JugadoresEquipoParaCambioDTO>> GetJugadoresEquipoParaCambioPairingAsync(int idEquipo1, int idEquipo2);
+    Task<bool> UpdatePuntosExtraAsync(UpdatePuntosExtraDTO request);
 }

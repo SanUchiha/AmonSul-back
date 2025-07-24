@@ -140,7 +140,7 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Nombre_Faccion");
         });
 
-        //Inscripciones
+        //InscripcionTorneo
         modelBuilder.Entity<InscripcionTorneo>(entity =>
         {
             entity.HasKey(e => e.IdInscripcion).HasName("PK__Inscripc__B84666E0A08239E2");
@@ -164,6 +164,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.FechaInscripcion).HasColumnName("Fecha_Inscripcion");
             entity.Property(e => e.IdTorneo).HasColumnName("ID_Torneo");
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
+            entity.Property(e => e.PuntosExtra).HasColumnName("Puntos_Extra");
 
             entity.HasOne(d => d.IdTorneoNavigation)
                 .WithMany(p => p.InscripcionTorneos)

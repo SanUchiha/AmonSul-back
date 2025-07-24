@@ -8,6 +8,7 @@ public class InscripcionDTO
     public int IdTorneo { get; set; }
     public int IdUsuario { get; set; }
     public int? IdEquipo { get; set; }
+    public int PuntosExtra { get; set; }
 
     public List<ListaDTO> Lista { get; set; } = [];
 }

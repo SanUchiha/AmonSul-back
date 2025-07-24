@@ -16,4 +16,5 @@ public class InscripcionUsuarioIndividualDTO
     public DateOnly? FechaEntregaLista { get; set; }
     public string? EsPago { get; set; }
     public TorneoViewDTO? Torneo { get; set; }
+    public int PuntosExtra { get; set; }
 }

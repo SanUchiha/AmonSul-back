@@ -369,4 +369,15 @@ public class InscripcionApplication(
             equipo2
         ];
     }
+
+    public async Task<bool> UpdatePuntosExtraAsync(UpdatePuntosExtraDTO request)
+    {
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(request.IdInscripcion);
+        if (inscripcion == null) return false;
+
+        inscripcion.PuntosExtra = request.PuntosExtra;
+        await _unitOfWork.InscripcionRepository.Update(inscripcion);
+
+        return true;
+    }
 }
