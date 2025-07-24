@@ -160,8 +160,8 @@ public class PartidaAmistosaApplication(
     {
 
         PartidaAmistosa partidaAmistosa = _mapper.Map<PartidaAmistosa>(request);
-        partidaAmistosa.EjercitoUsuario1 = request.EjercitoUsuario1!.Name;
-        partidaAmistosa.EjercitoUsuario2 = request.EjercitoUsuario2!.Name;
+        partidaAmistosa.EjercitoUsuario1 = request.EjercitoUsuario1;
+        partidaAmistosa.EjercitoUsuario2 = request.EjercitoUsuario2;
 
         if (request.ResultadoUsuario1 == request.ResultadoUsuario2) 
             partidaAmistosa.GanadorPartida = 0;
