@@ -279,7 +279,18 @@ public class TorneoController(
     [Route("Editar-Pairing")]
     public async Task<IActionResult> EditarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
     {
-        bool response = await _partidaTorneoApplication.EdtarPairing(request);
+        bool response = await _partidaTorneoApplication.EdtarPairingAsync(request);
+
+        if (response == false) return BadRequest("No se ha podido editar la partida");
+
+        return Ok(response);
+    }
+
+    [HttpPut]
+    [Route("Editar-Pairing-Equipos")]
+    public async Task<IActionResult> EditarPairingEquipos([FromBody, Required] UpdatePairingTorneoDTO request)
+    {
+        bool response = await _partidaTorneoApplication.EdtarPairingEquiposAsync(request);
 
         if (response == false) return BadRequest("No se ha podido editar la partida");
 

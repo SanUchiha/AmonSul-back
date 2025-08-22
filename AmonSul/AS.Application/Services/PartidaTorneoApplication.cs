@@ -1020,7 +1020,7 @@ public class PartidaTorneoApplication(
             
     }
 
-    public async Task<bool> EdtarPairing(UpdatePairingTorneoDTO request)
+    public async Task<bool> EdtarPairingAsync(UpdatePairingTorneoDTO request)
     {
         PartidaTorneo existingEntity = 
             await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
@@ -1040,16 +1040,39 @@ public class PartidaTorneoApplication(
         existingEntity.EjercitoUsuario2 = 
             inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
 
+        return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
+    }
+
+    public async Task<bool> EdtarPairingEquiposAsync(UpdatePairingTorneoDTO request)
+    {
+        PartidaTorneo existingEntity =
+            await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
+        if (existingEntity == null) return false;
+
+        List<Usuario> inscripciones = await _unitOfWork.UsuarioRepository.GetUsuariosByTorneo(existingEntity.IdTorneo);
+
+        Usuario? inscripcion1 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario1);
+        Usuario? inscripcion2 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario2);
+
+        if (inscripcion1 is null || inscripcion2 is null) return false;
+
+        existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
+        existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
+        existingEntity.EjercitoUsuario1 =
+            inscripcion1.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
+        existingEntity.EjercitoUsuario2 =
+            inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
+
         // Cambiar el id del equipo
-        int? idEquipo1 = 
+        int? idEquipo1 =
             await _unitOfWork.InscripcionRepository.GetIdEquipoByIdUsuarioAndIdTorneoAsync(
-                inscripcion1.IdUsuario, 
+                inscripcion1.IdUsuario,
                 existingEntity.IdTorneo);
         int? idEquipo2 =
             await _unitOfWork.InscripcionRepository.GetIdEquipoByIdUsuarioAndIdTorneoAsync(
-                inscripcion2.IdUsuario, 
+                inscripcion2.IdUsuario,
                 existingEntity.IdTorneo);
-        
+
         existingEntity.IdEquipo1 = idEquipo1;
         existingEntity.IdEquipo2 = idEquipo2;
 

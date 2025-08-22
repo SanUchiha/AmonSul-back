@@ -15,7 +15,9 @@ public interface IPartidaTorneoApplication
     Task<bool> Edit(UpdatePartidaTorneoDTO request);
     Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO);
     Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO);
-    Task<bool> EdtarPairing(UpdatePairingTorneoDTO request);
+    Task<bool> EdtarPairingAsync(UpdatePairingTorneoDTO request);
+    Task<bool> EdtarPairingEquiposAsync(UpdatePairingTorneoDTO request);
+
 
     Task<bool> Delete(int idPartida);
     Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
