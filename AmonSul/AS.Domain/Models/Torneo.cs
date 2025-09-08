@@ -1,4 +1,5 @@
-﻿using AS.Domain.Types;
+﻿using AS.Domain.Types.Torneo;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AS.Domain.Models;
 
@@ -32,6 +33,7 @@ public partial class Torneo
     public TimeOnly? HoraFinTorneo { get; set; }
     public DateOnly? InicioInscripciones { get; set; }
     public int ListasPorJugador { get; set; }
+    public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
 
     public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual List<Comentario> Comentarios { get; set; } = [];

@@ -1,4 +1,6 @@
-﻿namespace AS.Application.DTOs.Torneo;
+﻿using AS.Domain.Types.Torneo;
+
+namespace AS.Application.DTOs.Torneo;
 
 public class TorneoDTO
 {
@@ -15,6 +17,7 @@ public class TorneoDTO
     public string EstadoTorneo { get; set; } = null!;
     public string LugarTorneo { get; set; } = null!;
     public string? TipoTorneo { get; set; }
+    public ClassificationType ClassificationType { get; set; }
     public bool EsPrivadoTorneo { get; set; }
     public bool EsLiga { get; set; }
     public int? IdRangoTorneo { get; set; }

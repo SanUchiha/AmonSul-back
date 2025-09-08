@@ -1,4 +1,4 @@
-﻿namespace AS.Domain.Types;
+﻿namespace AS.Domain.Types.Torneo;
 
 public static class TorneoType
 {

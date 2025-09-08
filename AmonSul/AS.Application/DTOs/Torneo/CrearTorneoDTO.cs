@@ -1,4 +1,4 @@
-﻿using AS.Domain.Types;
+﻿using AS.Domain.Types.Torneo;
 
 namespace AS.Application.DTOs.Torneo;
 
@@ -28,4 +28,5 @@ public class CrearTorneoDTO
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
     public DateOnly? InicioInscripciones { get; set; }
+    public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
 }

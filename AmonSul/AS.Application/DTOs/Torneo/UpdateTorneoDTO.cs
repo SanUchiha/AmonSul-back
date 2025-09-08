@@ -1,4 +1,6 @@
-﻿namespace AS.Application.DTOs.Torneo;
+﻿using AS.Domain.Types.Torneo;
+
+namespace AS.Application.DTOs.Torneo;
 
 public class UpdateTorneoDTO
 {
@@ -18,4 +20,5 @@ public class UpdateTorneoDTO
     public TimeOnly? HoraInicioTorneo { get; set; }
     public TimeOnly? HoraFinTorneo { get; set; }
     public int ListasPorJugador { get; set; }
+    public ClassificationType ClassificationType { get; set; }
 }

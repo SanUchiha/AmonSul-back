@@ -6,7 +6,7 @@ using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
-using AS.Domain.Types;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -195,8 +195,10 @@ public class TorneoApplication(
 
     public async Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request)
     {
-        var torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
         if (torneo == null) return false;
+
+        torneo.ClassificationType = request.ClassificationType;
 
         if (request.LimiteParticipantes.HasValue)
             torneo.LimiteParticipantes = request.LimiteParticipantes.Value;

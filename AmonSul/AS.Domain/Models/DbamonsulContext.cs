@@ -415,6 +415,7 @@ public partial class DbamonsulContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("Tipo_Torneo");
+            entity.Property(e => e.ClassificationType).HasColumnName("Tipo_Clasificacion");
             entity.Property(e => e.ListasPorJugador).HasColumnName("Listas_Por_jugador");
 
             entity.HasOne(d => d.IdRangoTorneoNavigation).WithMany(p => p.Torneos)
