@@ -1357,27 +1357,45 @@ public class PartidaTorneoApplication(
     public async Task<bool> ModificarPairingEquiposAsync(ModificarPairingTorneoEquiposDTO request, int idTorneo)
     {
         List<PartidaTorneo> partidas =
-            await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoEquiposParaModificarAsync(
+            await _unitOfWork.PartidaTorneoRepository
+            .GetPartidasTorneoEquiposParaModificarAsync(
                 request.IdEquipo1Old,
                 request.IdEquipo2Old,
-                idTorneo, 
+                idTorneo,
                 request.NumeroRonda);
 
 
-        if (partidas == null || partidas.Count == 0) return false;
+        if (partidas == null || partidas.Count == 0) 
+            return false;
 
-        List<InscripcionTorneo> nuevoEquipo1 = 
-            await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(request.IdEquipo1);
-        List<InscripcionTorneo> nuevoEquipo2 = 
-            await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(request.IdEquipo2);
+        List<InscripcionTorneo> nuevoEquipo1 =
+            await _unitOfWork.InscripcionRepository
+            .GetAllInscripcionesByEquipoAsync(request.IdEquipo1);
+        List<InscripcionTorneo> nuevoEquipo2;
 
-        if (nuevoEquipo1.Count < partidas.Count || nuevoEquipo2.Count < partidas.Count)
-            throw new InvalidOperationException("No hay suficientes jugadores en los nuevos equipos para reasignar las partidas.");
+        if (request.IdEquipo2 == 117)
+        {
+            // Equipo BYE
+            nuevoEquipo2 = [.. Enumerable.Range(0, partidas.Count)
+                .Select(i => new InscripcionTorneo
+                {
+                    IdInscripcion = i,
+                    IdUsuario = 568,
+                    IdTorneo = idTorneo,
+                    IdEquipo = 117,
+                    Lista = []
+                })];
+        }
+        else
+        {
+            nuevoEquipo2 = 
+                await _unitOfWork.InscripcionRepository
+                .GetAllInscripcionesByEquipoAsync(request.IdEquipo2);
+        }
 
         for (int i = 0; i < partidas.Count; i++)
         {
             PartidaTorneo partida = partidas[i];
-
             InscripcionTorneo jugadorNuevo1 = nuevoEquipo1[i];
             InscripcionTorneo jugadorNuevo2 = nuevoEquipo2[i];
 

@@ -70,7 +70,7 @@ public class TorneoController(
 
         if (response == false) return BadRequest("No se ha podido modificar el emparejamiento");
 
-        return Created(string.Empty, "La ronda ha sido creada con éxito");
+        return Created(string.Empty, "La ronda ha sido modificada con éxito");
     }
 
     [HttpGet]
