@@ -273,49 +273,44 @@ public class EloApplication(
         await _unitOfWork.EloRepository.CheckEloByUser(idUsuario);
 
     /// <summary>
-    /// Actualizar la tabla de caché de clasificación ELO de manera síncrona
+    /// Obtener la clasificación ELO desde la tabla de caché
     /// </summary>
-    public void UpdateClasificacionEloCacheAsync()
+    /// <returns>Lista de clasificación ELO desde caché</returns>
+    public async Task<List<ClasificacionEloDTO>> GetClasificacionEloCacheAsync()
     {
-        Task.Run(async () =>
+        try
         {
-            try
+            // Obtener datos del caché
+            List<ClasificacionEloCache> cacheData =
+                await _unitOfWork.ClasificacionEloCacheRepository.GetClasificacionCacheAsync();
+            
+            // Convertir entidades de caché a DTOs
+            List<ClasificacionEloDTO> result = [.. cacheData.Select(c => new ClasificacionEloDTO
             {
-                // Obtener la clasificación actual
-                List<ClasificacionEloDTO> clasificacion = await GetEloClasificacionAsync();
-                
-                // Convertir DTOs a entidades de caché
-                List<ClasificacionEloCache> cacheEntities = [.. clasificacion.Select(c => new ClasificacionEloCache
-                {
-                    IdUsuario = c.IdUsuario,
-                    Nick = c.Nick,
-                    IdFaccion = c.IdFaccion ?? 0, // Default 0 si no tiene facción
-                    Elo = c.Elo,
-                    Partidas = c.Partidas,
-                    Ganadas = c.Ganadas,
-                    Empatadas = c.Empatadas,
-                    Perdidas = c.Perdidas,
-                    NumeroPartidasJugadas = c.NumeroPartidasJugadas
-                })];
-
-                // Limpiar caché existente
-                await _unitOfWork.ClasificacionEloCacheRepository.ClearCacheAsync();
-                
-                // Insertar nuevos datos
-                await _unitOfWork.ClasificacionEloCacheRepository.InsertCacheBatchAsync(cacheEntities);
-            }
-            catch
-            {
-                // Log error si es necesario, pero no lanza excepción para no afectar el flujo principal
-            }
-        });
+                IdUsuario = c.IdUsuario,
+                Nick = c.Nick,
+                IdFaccion = c.IdFaccion == 0 ? null : c.IdFaccion, // Convertir 0 de vuelta a null
+                Elo = c.Elo,
+                Partidas = c.Partidas,
+                Ganadas = c.Ganadas,
+                Empatadas = c.Empatadas,
+                Perdidas = c.Perdidas,
+                NumeroPartidasJugadas = c.NumeroPartidasJugadas
+            })];
+            
+            return result;
+        }
+        catch
+        {
+            return [];
+        }
     }
-
+ 
     /// <summary>
     /// Actualizar la tabla de caché de clasificación ELO de manera síncrona con resultado
     /// </summary>
     /// <returns>True si se actualizó correctamente</returns>
-    public async Task<bool> UpdateClasificacionEloCacheSyncAsync()
+    public async Task<bool> UpdateClasificacionEloCacheAsync()
     {
         try
         {

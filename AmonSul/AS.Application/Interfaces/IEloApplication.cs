@@ -19,6 +19,6 @@ public interface IEloApplication
     Task<List<ClasificacionEloDTO>> GetClasificacionMensual();
     Task<int?> GetRanking(int idUsuario);
     Task <bool> CheckEloByUser(int idUsuario);
-    void UpdateClasificacionEloCacheAsync();
-    Task<bool> UpdateClasificacionEloCacheSyncAsync();
+    Task<bool> UpdateClasificacionEloCacheAsync();
+    Task<List<ClasificacionEloDTO>> GetClasificacionEloCacheAsync();
 }

@@ -2,6 +2,7 @@
 using AS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hangfire;
 
 namespace AS.API.Controllers;
 
@@ -45,6 +46,39 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet]
+    [Route("clasificacion-cache")]
+    public async Task<IActionResult> GetClasificacionCache()
+    {
+        try
+        {
+            List<ClasificacionEloDTO> response = 
+                await _eloApplication.GetClasificacionEloCacheAsync();
+
+            if (response == null || response.Count == 0) 
+            {
+                return Ok(new { 
+                    message = "No hay datos en caché disponibles",
+                    data = new List<ClasificacionEloDTO>(),
+                    cached = true,
+                    count = 0
+                });
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { 
+                    message = "Error al obtener la clasificación desde caché",
+                    error = ex.Message,
+                    cached = false,
+                    success = false
+                });
+        }
+    }
     
     [HttpGet]
     [Route("Ranking/{idUsuario}")]
@@ -83,54 +117,20 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     {
         try
         {
-            _eloApplication.UpdateClasificacionEloCacheAsync();
+            // Crear un job de Hangfire para actualizar el caché
+            var jobId = BackgroundJob.Enqueue(() => _eloApplication.UpdateClasificacionEloCacheAsync());
             
             return Ok(new { 
-                message = "Actualización del caché iniciada correctamente",
-                status = "processing"
+                message = "Actualización del caché programada correctamente",
+                status = "enqueued",
+                success = true
             });
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, 
                 new { 
-                    message = "Error al iniciar la actualización del caché",
-                    error = ex.Message 
-                });
-        }
-    }
-
-    [HttpPost]
-    [Route("actualizar-cache-sync")]
-    public async Task<IActionResult> ActualizarCacheSync()
-    {
-        try
-        {
-            bool result = await _eloApplication.UpdateClasificacionEloCacheSyncAsync();
-            
-            if (result)
-            {
-                return Ok(new { 
-                    message = "Caché actualizado correctamente",
-                    status = "completed",
-                    success = true
-                });
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { 
-                        message = "Error al actualizar el caché",
-                        status = "failed",
-                        success = false
-                    });
-            }
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { 
-                    message = "Error al actualizar el caché",
+                    message = "Error al programar la actualización del caché",
                     error = ex.Message,
                     status = "error",
                     success = false

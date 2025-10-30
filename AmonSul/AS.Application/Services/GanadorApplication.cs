@@ -7,6 +7,7 @@ using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Statics;
 using AutoMapper;
+using Hangfire;
 
 namespace AS.Application.Services;
 
@@ -75,14 +76,18 @@ public class GanadorApplication(
             await _unitOfWork.GanadorRepository.Register(ganador);
         }
 
-        await ActualizarEloAsync(guardarResultadosDTO.GenerarRondaDTO);
-
-        _eloApplication.UpdateClasificacionEloCacheAsync();
+        string eloJobId =
+            BackgroundJob.Enqueue(() =>
+                ActualizarEloAsync(guardarResultadosDTO.GenerarRondaDTO));
+        
+        BackgroundJob.ContinueJobWith(
+            eloJobId,
+            () => _eloApplication.UpdateClasificacionEloCacheAsync());
 
         return true;
     }
 
-    private async Task ActualizarEloAsync(GenerarRondaDTO request)
+    public async Task ActualizarEloAsync(GenerarRondaDTO request)
     {
         // Me traigo todas las partidas del torneo.
         List<PartidaTorneo> partidasTorneo = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(request.IdTorneo);
