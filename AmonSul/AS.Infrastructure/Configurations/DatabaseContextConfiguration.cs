@@ -9,12 +9,13 @@ public static class DataBaseContextConfigurations
 {
     public static IServiceCollection AddDatabaseContextConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
-        string? assembly = typeof(DbamonsulContext).Assembly.FullName;
+        // Configuramos las migraciones para que estén en AS.Infrastructure
+        string migrationsAssembly = typeof(DataBaseContextConfigurations).Assembly.FullName!;
 
         services.AddDbContext<DbamonsulContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("MyASPString"),
-                b => b.MigrationsAssembly(assembly)),
+                b => b.MigrationsAssembly(migrationsAssembly)),
                 ServiceLifetime.Scoped);
 
         return services;
