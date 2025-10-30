@@ -77,6 +77,8 @@ public class GanadorApplication(
 
         await ActualizarEloAsync(guardarResultadosDTO.GenerarRondaDTO);
 
+        _eloApplication.UpdateClasificacionEloCacheAsync();
+
         return true;
     }
 
@@ -132,7 +134,7 @@ public class GanadorApplication(
                 IdUsuario = (int)partida.IdUsuario2,
                 PuntuacionElo = nuevoEloJugador2
             };
-            if (createElo1.IdUsuario != 568)
+            if (createElo2.IdUsuario != 568)
                 await _eloApplication.RegisterElo(createElo2);
         }
     }

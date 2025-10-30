@@ -11,7 +11,6 @@ public interface IEloApplication
     Task<bool> Edit(Elo elo);
     Task<bool> RegisterElo(CreateEloDTO requestElo);
     Task<bool> Delete(int idElo);
-
     Task<ViewEloDTO> GetEloByIdUsuarioAsync(int idUsuario);
     Task<List<ViewEloDTO>> GetAllElos();
     Task<int> GetLastElo(int idUsuario);
@@ -20,4 +19,6 @@ public interface IEloApplication
     Task<List<ClasificacionEloDTO>> GetClasificacionMensual();
     Task<int?> GetRanking(int idUsuario);
     Task <bool> CheckEloByUser(int idUsuario);
+    void UpdateClasificacionEloCacheAsync();
+    Task<bool> UpdateClasificacionEloCacheSyncAsync();
 }

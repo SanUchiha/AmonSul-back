@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 [ApiController]
 public class EloController(IEloApplication EloApplication) : ControllerBase
 {
@@ -75,5 +75,66 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
         if (!response) return BadRequest("No se ha podido registrar el elo");
 
         return StatusCode(StatusCodes.Status201Created, "El elo ha sido registrado con éxito");
+    }
+
+    [HttpPost]
+    [Route("actualizar-cache")]
+    public IActionResult ActualizarCache()
+    {
+        try
+        {
+            _eloApplication.UpdateClasificacionEloCacheAsync();
+            
+            return Ok(new { 
+                message = "Actualización del caché iniciada correctamente",
+                status = "processing"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { 
+                    message = "Error al iniciar la actualización del caché",
+                    error = ex.Message 
+                });
+        }
+    }
+
+    [HttpPost]
+    [Route("actualizar-cache-sync")]
+    public async Task<IActionResult> ActualizarCacheSync()
+    {
+        try
+        {
+            bool result = await _eloApplication.UpdateClasificacionEloCacheSyncAsync();
+            
+            if (result)
+            {
+                return Ok(new { 
+                    message = "Caché actualizado correctamente",
+                    status = "completed",
+                    success = true
+                });
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { 
+                        message = "Error al actualizar el caché",
+                        status = "failed",
+                        success = false
+                    });
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { 
+                    message = "Error al actualizar el caché",
+                    error = ex.Message,
+                    status = "error",
+                    success = false
+                });
+        }
     }
 }
