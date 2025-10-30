@@ -7,7 +7,7 @@ using Hangfire;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class EloController(IEloApplication EloApplication) : ControllerBase
 {
