@@ -14,11 +14,6 @@ public class ClasificacionEloCacheConfiguration : IEntityTypeConfiguration<Clasi
 
         entity.Property(e => e.IdClasificacion).HasColumnName("ID_Clasificacion");
         entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
-        entity.Property(e => e.Email)
-            .HasMaxLength(100)
-            .IsUnicode(false)
-            .HasColumnName("Email")
-            .IsRequired();
         entity.Property(e => e.Nick)
             .HasMaxLength(50)
             .IsUnicode(false)
@@ -31,36 +26,9 @@ public class ClasificacionEloCacheConfiguration : IEntityTypeConfiguration<Clasi
         entity.Property(e => e.Empatadas).HasColumnName("Empatadas");
         entity.Property(e => e.Perdidas).HasColumnName("Perdidas");
         entity.Property(e => e.NumeroPartidasJugadas).HasColumnName("Numero_Partidas_Jugadas");
-        entity.Property(e => e.AnioClasificacion).HasColumnName("Anio_Clasificacion");
-        entity.Property(e => e.FechaActualizacion)
-            .HasColumnName("Fecha_Actualizacion")
-            .HasDefaultValueSql("GETDATE()");
-        entity.Property(e => e.Activo)
-            .HasColumnName("Activo")
-            .HasDefaultValue(true);
 
-        // Relaciones
-        entity.HasOne(d => d.Usuario)
-            .WithMany()
-            .HasForeignKey(d => d.IdUsuario)
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_ClasificacionEloCache_Usuario");
-
-        entity.HasOne(d => d.Faccion)
-            .WithMany()
-            .HasForeignKey(d => d.IdFaccion)
-            .OnDelete(DeleteBehavior.SetNull)
-            .HasConstraintName("FK_ClasificacionEloCache_Faccion");
-
-        // Índices
-        entity.HasIndex(e => new { e.IdUsuario, e.AnioClasificacion })
-            .IsUnique()
-            .HasDatabaseName("IX_ClasificacionEloCache_Usuario_Anio");
-
-        entity.HasIndex(e => e.AnioClasificacion)
-            .HasDatabaseName("IX_ClasificacionEloCache_Anio");
-
-        entity.HasIndex(e => e.FechaActualizacion)
-            .HasDatabaseName("IX_ClasificacionEloCache_FechaActualizacion");
+        // Índices para rendimiento en consultas de lectura
+        entity.HasIndex(e => e.Elo)
+            .HasDatabaseName("IX_ClasificacionEloCache_Elo");
     }
 }
