@@ -99,11 +99,13 @@ public class EloApplication(
         return lista;
     }
 
-    public async Task<List<ClasificacionEloDTO>> GetClasificacion()
+    public async Task<List<ClasificacionEloDTO>> GetEloClasificacionAsync()
     {
         // Obtener todos los usuarios
         List<Usuario> listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
         if (listaUsuarios == null) return [];
+
+        int currentYear = DateTime.UtcNow.Year;
 
         // Crear una lista de tareas para obtener la información de clasificación de cada usuario
         IEnumerable<Task<ClasificacionEloDTO>> tasks =
@@ -126,8 +128,8 @@ public class EloApplication(
 
             List<MatchDTO> partidas = [.. partidasTorneoMapped];
 
-            partidas = partidas.Where(p => 
-                p.FechaPartida!.Value.Year == DateOnly.FromDateTime(DateTime.UtcNow).Year).ToList();
+            partidas = [.. partidas.Where(p => 
+                p.FechaPartida is DateOnly fecha && fecha.Year == currentYear)];
 
             ClasificacionEloDTO obj = scopedMapper.Map<ClasificacionEloDTO>(view);
 

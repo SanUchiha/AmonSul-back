@@ -39,7 +39,7 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     public async Task<IActionResult> GetClasificacion()
     {
         List<ClasificacionEloDTO> response = 
-            await _eloApplication.GetClasificacion();
+            await _eloApplication.GetEloClasificacionAsync();
 
         if (response == null) return NotFound();
 

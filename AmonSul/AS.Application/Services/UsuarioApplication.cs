@@ -161,7 +161,7 @@ public class UsuarioApplication(
         obj.PuntuacionElo = lastElo;
 
         //obj.ClasificacionElo
-        List<ClasificacionEloDTO> cla = await _eloApplication.GetClasificacion();
+        List<ClasificacionEloDTO> cla = await _eloApplication.GetEloClasificacionAsync();
         cla = [.. cla.OrderByDescending(item => item.Elo)];
 
         obj.ClasificacionElo = cla.FindIndex(item => item.Nick == obj.Nick)+1;
@@ -189,7 +189,7 @@ public class UsuarioApplication(
 
         //elo
         ViewEloDTO elos = await _eloApplication.GetEloByIdUsuarioAsync(viewUsuarioPartidaDTO.IdUsuario);
-        List<ClasificacionEloDTO> clasificacionElo = await _eloApplication.GetClasificacion();
+        List<ClasificacionEloDTO> clasificacionElo = await _eloApplication.GetEloClasificacionAsync();
         clasificacionElo = [.. clasificacionElo.OrderByDescending(x => x.Elo)];
         result.ClasificacionElo = clasificacionElo.FindIndex(x=>x.Nick == result.Nick) +1;
         result.Elos = elos.Elos;
@@ -500,9 +500,9 @@ public class UsuarioApplication(
 
             return _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasTorneoRaw);
         }
-        catch(Exception ex)
+        catch (Exception)
         {
-            throw ex;
+            throw;
         }
 
     }

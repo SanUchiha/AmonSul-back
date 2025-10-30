@@ -16,7 +16,7 @@ public interface IEloApplication
     Task<List<ViewEloDTO>> GetAllElos();
     Task<int> GetLastElo(int idUsuario);
     Task<List<EloUsuarioDTO>> GetEloUsuarios();
-    Task<List<ClasificacionEloDTO>> GetClasificacion();
+    Task<List<ClasificacionEloDTO>> GetEloClasificacionAsync();
     Task<List<ClasificacionEloDTO>> GetClasificacionMensual();
     Task<int?> GetRanking(int idUsuario);
     Task <bool> CheckEloByUser(int idUsuario);
