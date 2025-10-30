@@ -224,7 +224,7 @@ public class UsuarioApplication(
         return _mapper.Map<UsuarioViewDTO>(usuarioEncontrado);
     }
 
-    public async Task<UsuarioDataDTO> GetUsuarioData(int idUsuario)
+    public async Task<UsuarioDataDTO> GetUsuarioDataAsync(int idUsuario)
     {
         Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
         if (usuario == null) return null!;
@@ -236,7 +236,7 @@ public class UsuarioApplication(
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
         response.InscripcionesIndividualTorneo =
             _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(usuario.InscripcionTorneos);
-        foreach (var item in response.InscripcionesIndividualTorneo)
+        foreach (InscripcionUsuarioIndividualDTO item in response.InscripcionesIndividualTorneo)
         {
             Torneo torneoAux =
                 await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);

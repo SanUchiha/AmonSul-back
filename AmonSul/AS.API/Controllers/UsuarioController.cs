@@ -159,7 +159,7 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     {
         try
         {
-            UsuarioDataDTO response = await _usuarioApplication.GetUsuarioData(idUsuario);
+            UsuarioDataDTO response = await _usuarioApplication.GetUsuarioDataAsync(idUsuario);
             if (response is null) return NoContent();
 
             return Ok(response);

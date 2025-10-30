@@ -69,7 +69,9 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
-            Usuario? response = await _dbamonsulContext.Usuarios
+            IQueryable<Usuario> query = _dbamonsulContext.Usuarios
+                .AsNoTracking()              // lectura: menos overhead si no se va a modificar la entidad
+                .Where(u => u.IdUsuario == idUsuario)
                 .Include(u => u.Elos)
                 .Include(u => u.IdFaccionNavigation)
                 .Include(u => u.InscripcionTorneos)
@@ -79,7 +81,9 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
                 .Include(u => u.PartidaTorneoIdUsuario1Navigations)
                 .Include(u => u.PartidaTorneoIdUsuario2Navigations)
                 .Include(u => u.Torneos)
-                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+                .AsSplitQuery();
+
+            Usuario? response = await query.FirstOrDefaultAsync();
             return response ?? throw new Exception("Usuario no encontrado");
         }
         catch (Exception ex)

@@ -16,16 +16,12 @@ public interface IUsuarioApplication
     Task<UsuarioDTO> GetByNick(string nick);
     Task<List<ViewUsuarioPartidaDTO>> GetAll();
     Task<List<UsuarioDTO>> GetUsuarios();
-
     Task<List<UsuarioNickDTO>> GetNicks();
-
     Task<bool> Delete(string email);
     Task<UsuarioViewDTO> GetUsuario(string email);
     Task<string> GetNickById(int idUsuario);
     Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email);
-
-    Task<UsuarioDataDTO> GetUsuarioData(int idUsuario);
-
+    Task<UsuarioDataDTO> GetUsuarioDataAsync(int idUsuario);
     Task<bool> UpdateProteccionDatos(UpdateProteccionDatosDTO updateProteccionDatosDTO);
     Task<List<UsuarioSinEquipoDTO>> GetUsuariosNoInscritosTorneoAsync(int idTorneo);
     Task<List<UsuarioInscripcionTorneoDTO>> GetUsuariosByTorneo(int idTorneo);

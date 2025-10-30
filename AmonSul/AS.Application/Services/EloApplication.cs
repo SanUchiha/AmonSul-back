@@ -258,12 +258,6 @@ public class EloApplication(
             ranking.Add(rankingIndividual);
         }
 
-        foreach (var item in ranking)
-        {
-            Console.WriteLine("Id: {0}, puntos: {1}, ranking: {2}",
-               item.IdUsuario, item.Elo, item.Ranking);
-        }
-
         RankingEloDTO? posicionRanking = ranking.FirstOrDefault(x => x.IdUsuario == idUsuario);
 
         if (posicionRanking != null) return posicionRanking.Ranking;
