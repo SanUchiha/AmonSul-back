@@ -1,8 +1,8 @@
 ﻿using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
-using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;

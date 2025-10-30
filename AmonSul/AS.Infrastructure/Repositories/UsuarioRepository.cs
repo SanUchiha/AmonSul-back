@@ -3,6 +3,7 @@ using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
 using AS.Domain.Models;
+using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

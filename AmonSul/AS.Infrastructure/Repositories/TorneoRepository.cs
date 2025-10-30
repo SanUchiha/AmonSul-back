@@ -1,6 +1,7 @@
 ﻿using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Infrastructure.Data;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
