@@ -1022,18 +1022,18 @@ public class PartidaTorneoApplication(
             
     }
 
-    public async Task<bool> EdtarPairingAsync(UpdatePairingTorneoDTO request)
+    public async Task<PartidaTorneoDTO?> EdtarPairingAsync(UpdatePairingTorneoDTO request)
     {
         PartidaTorneo existingEntity = 
             await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
-        if (existingEntity == null) return false;
+        if (existingEntity == null) return null;
 
         List<Usuario> inscripciones = await _unitOfWork.UsuarioRepository.GetUsuariosByTorneo(existingEntity.IdTorneo);
 
         Usuario? inscripcion1 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario1);
         Usuario? inscripcion2 = inscripciones.FirstOrDefault(x => x.IdUsuario == request.IdUsuario2);
 
-        if (inscripcion1 is null || inscripcion2 is null) return false;
+        if (inscripcion1 is null || inscripcion2 is null) return null;
 
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
@@ -1042,7 +1042,15 @@ public class PartidaTorneoApplication(
         existingEntity.EjercitoUsuario2 = 
             inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito ?? "N/A";
 
-        return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity); ;
+        bool response = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+
+        if (response == false) return null;
+
+        PartidaTorneoDTO partidaTorneoDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
+        partidaTorneoDTO.Nick1 = inscripcion1.Nick;
+        partidaTorneoDTO.Nick2 = inscripcion2.Nick; 
+
+        return partidaTorneoDTO;
     }
 
     public async Task<bool> EdtarPairingEquiposAsync(UpdatePairingTorneoDTO request)

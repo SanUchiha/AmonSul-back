@@ -279,9 +279,9 @@ public class TorneoController(
     [Route("Editar-Pairing")]
     public async Task<IActionResult> EditarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
     {
-        bool response = await _partidaTorneoApplication.EdtarPairingAsync(request);
+        PartidaTorneoDTO? response = await _partidaTorneoApplication.EdtarPairingAsync(request);
 
-        if (response == false) return BadRequest("No se ha podido editar la partida");
+        if (response is null) return BadRequest("No se ha podido editar la partida");
 
         return Ok(response);
     }
