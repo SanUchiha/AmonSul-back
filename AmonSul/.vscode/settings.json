@@ -16,4 +16,8 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     }
+    ,
+    "[csharp]": {
+        "editor.defaultFormatter": "csharpier.csharpier-vscode"
+    }
 }

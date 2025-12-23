@@ -6,8 +6,13 @@ using AS.Infrastructure.DTOs;
 namespace AS.Infrastructure.Repositories.Interfaces;
 
 public interface ITorneoRepository
+
 {
     Task<List<Torneo>> GetTorneos();
+    Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy);
+    Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy);
+    Task<List<Torneo>> GetTorneosProximosAsync(DateOnly fechaHoy, int pageNumber, int pageSize);
+    Task<List<Torneo>> GetTorneosPasadosAsync(DateOnly fechaHoy, int pageNumber, int pageSize);
     Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int idUsuario);
     Task<Torneo> GetById(int Id);
     Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo);
