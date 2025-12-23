@@ -35,11 +35,11 @@ public class PartidaTorneoApplication(
     public async Task<bool> Delete(int idPartida) =>
         await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
 
-    public async Task<bool> Edit(UpdatePartidaTorneoDTO request)
+    public async Task<PartidaTorneoDTO?> EditAsync(UpdatePartidaTorneoDTO request)
     {
         // Obtener la entidad existente
         PartidaTorneo existingEntity = await _unitOfWork.PartidaTorneoRepository.GetById(request.IdPartidaTorneo);
-        if (existingEntity == null) return false;
+        if (existingEntity == null) return null;
 
         // Actualizar las propiedades que no son nulas
         if (request.ResultadoUsuario1.HasValue)
@@ -72,7 +72,9 @@ public class PartidaTorneoApplication(
         // Guardar los cambios en la base de datos
         bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
 
-        return result;
+        if (!result) return null;
+        PartidaTorneoDTO resultDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
+        return resultDTO;
     }
 
     public Task<PartidaTorneo> GetById(int idPartida)
