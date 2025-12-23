@@ -24,14 +24,60 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
+    public async Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy)
+    {
+        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo >= fechaHoy);
+    }
+
+    public async Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy)
+    {
+        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo < fechaHoy);
+    }
+
+    public async Task<List<Torneo>> GetTorneosProximosAsync(
+        DateOnly fechaHoy,
+        int pageNumber,
+        int pageSize
+    )
+    {
+        return await _dbamonsulContext
+            .Torneos.Where(t => t.FechaInicioTorneo >= fechaHoy)
+            .OrderBy(t => t.FechaInicioTorneo)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Torneo>> GetTorneosPasadosAsync(
+        DateOnly fechaHoy,
+        int pageNumber,
+        int pageSize
+    )
+    {
+        return await _dbamonsulContext
+            .Torneos.Where(t => t.FechaInicioTorneo < fechaHoy)
+            .OrderByDescending(t => t.FechaInicioTorneo)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Torneo>> SearchTorneosByNameAsync(string nombre)
+    {
+        return await _dbamonsulContext
+            .Torneos.Where(t => EF.Functions.Like(t.NombreTorneo, $"%{nombre}%"))
+            .OrderBy(t => t.FechaInicioTorneo)
+            .ToListAsync();
+    }
+
     public async Task<Torneo> GetById(int Id)
     {
         try
         {
-            Torneo? response = await _dbamonsulContext.Torneos
-                              .AsNoTracking()
-                              .FirstOrDefaultAsync(t => t.IdTorneo == Id);
-         
+            Torneo? response = await _dbamonsulContext
+                .Torneos.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.IdTorneo == Id);
+
             return response!;
         }
         catch (Exception ex)
@@ -41,24 +87,24 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     }
 
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
-        await _dbamonsulContext.Torneos
-           .Where(u => u.IdTorneo == IdTorneo)
-           .Select(u => u.IdUsuario)
-           .FirstOrDefaultAsync();
+        await _dbamonsulContext
+            .Torneos.Where(u => u.IdTorneo == IdTorneo)
+            .Select(u => u.IdUsuario)
+            .FirstOrDefaultAsync();
 
     public async Task<TorneoUsuarioDto> GetNombreById(int idTorneo)
     {
         try
         {
-            TorneoUsuarioDto? response = await _dbamonsulContext.Torneos
-                              .AsNoTracking()
-                              .Where(t => t.IdTorneo == idTorneo)
-                              .Select(t => new TorneoUsuarioDto
-                              {
-                                  NombreTorneo = t.NombreTorneo,
-                                  IdUsuario = t.IdUsuario
-                              })
-                              .FirstOrDefaultAsync();
+            TorneoUsuarioDto? response = await _dbamonsulContext
+                .Torneos.AsNoTracking()
+                .Where(t => t.IdTorneo == idTorneo)
+                .Select(t => new TorneoUsuarioDto
+                {
+                    NombreTorneo = t.NombreTorneo,
+                    IdUsuario = t.IdUsuario,
+                })
+                .FirstOrDefaultAsync();
 
             return response ?? throw new Exception("Torneo no encontrado");
         }
@@ -75,11 +121,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             await _dbamonsulContext.Torneos.AddAsync(torneo);
             await _dbamonsulContext.SaveChangesAsync();
 
-            return new ResultTorneoCreadoDTO
-            {
-                IdTorneo = torneo.IdTorneo,
-                HasCreated = true
-            };
+            return new ResultTorneoCreadoDTO { IdTorneo = torneo.IdTorneo, HasCreated = true };
         }
         catch (Exception ex)
         {
@@ -87,13 +129,13 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
-
     public async Task<bool> Edit(Torneo torneo)
     {
         try
         {
             var isUpdate = _dbamonsulContext.Torneos.Update(torneo);
-            if (isUpdate == null) return false;
+            if (isUpdate == null)
+                return false;
             await _dbamonsulContext.SaveChangesAsync();
 
             return true;
@@ -108,7 +150,8 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     {
         Torneo? torneo = await _dbamonsulContext.Torneos.FindAsync(id);
 
-        if (torneo == null) return false;
+        if (torneo == null)
+            return false;
 
         _dbamonsulContext.Torneos.Remove(torneo);
         await _dbamonsulContext.SaveChangesAsync();
@@ -117,15 +160,15 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     }
 
     public async Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int idUsuario) =>
-        await _dbamonsulContext.Torneos
-            .Where(t => t.IdUsuario == idUsuario)
+        await _dbamonsulContext
+            .Torneos.Where(t => t.IdUsuario == idUsuario)
             .Select(t => new TorneoCreadoUsuarioDTO
             {
                 IdTorneo = t.IdTorneo,
                 IdUsuario = t.IdUsuario,
                 NombreTorneo = t.NombreTorneo,
                 TipoTorneo = t.TipoTorneo,
-                ListasPorJugador = t.ListasPorJugador
+                ListasPorJugador = t.ListasPorJugador,
             })
             .ToListAsync();
 
@@ -133,11 +176,11 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     {
         try
         {
-            List<GanadorTorneoDTO> response = await _dbamonsulContext.Torneos
-                .Select(t => new GanadorTorneoDTO
+            List<GanadorTorneoDTO> response = await _dbamonsulContext
+                .Torneos.Select(t => new GanadorTorneoDTO
                 {
                     IdTorneo = t.IdTorneo,
-                    TournamentName = t.NombreTorneo
+                    TournamentName = t.NombreTorneo,
                 })
                 .ToListAsync();
 
@@ -149,4 +192,3 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 }
-

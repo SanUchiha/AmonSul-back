@@ -7,6 +7,10 @@ namespace AS.Application.Interfaces;
 public interface ITorneoApplication
 {
     Task<List<TorneoDTO>> GetTorneos();
+    Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosProximosAsync(TorneoPaginationDTO pagination);
+    Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosPasadosAsync(TorneoPaginationDTO pagination);
+    Task<List<TorneoDTO>> SearchTorneosByNameAsync(string nombre);
+
     Task<TorneoDTO> GetById(int Id);
     Task<bool> Register(CrearTorneoDTO torneoDTO);
     Task<bool> Delete(int id);
@@ -20,6 +24,9 @@ public interface ITorneoApplication
     Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo);
     Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
     Task<bool?> HandlerMostrarListasAsync(HandlerMostrarListasDTO request, int idTorneo);
-    Task<bool?> HandlerMostrarClasificacionAsync(HandlerMostrarClasificacionDTO request, int idTorneo);
+    Task<bool?> HandlerMostrarClasificacionAsync(
+        HandlerMostrarClasificacionDTO request,
+        int idTorneo
+    );
     Task<List<EquipoDisponibleDTO>> GetEquiposDisponiblesAsync(int idTorneo);
 }

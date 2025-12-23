@@ -1,4 +1,5 @@
-﻿using AS.API.Filters;
+﻿using System.ComponentModel.DataAnnotations;
+using AS.API.Filters;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
@@ -6,7 +7,6 @@ using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace AS.API.Controllers;
 
@@ -17,7 +17,8 @@ public class TorneoController(
     ITorneoApplication torneoApplication,
     IPartidaTorneoApplication partidaTorneoApplication,
     IGanadorApplication ganadorApplication,
-    IInscripcionApplication inscripcionApplication) : ControllerBase
+    IInscripcionApplication inscripcionApplication
+) : ControllerBase
 {
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
     private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
@@ -32,29 +33,36 @@ public class TorneoController(
     {
         bool response = await _partidaTorneoApplication.GenerateRound(request);
 
-        if (response == false) return BadRequest("No se ha podido generar la ronda");
+        if (response == false)
+            return BadRequest("No se ha podido generar la ronda");
 
         return Created(string.Empty, "La ronda ha sido creada con éxito");
     }
 
     [HttpPost]
     [Route("Gestion/Generar-Ronda-Equipos")]
-    public async Task<IActionResult> GenerarRondaEquipos([FromBody, Required] GenerarRondaEquiposDTO request)
+    public async Task<IActionResult> GenerarRondaEquipos(
+        [FromBody, Required] GenerarRondaEquiposDTO request
+    )
     {
         bool response = await _partidaTorneoApplication.GenerateRoundEquipos(request);
 
-        if (response == false) return BadRequest("No se ha podido generar la ronda");
+        if (response == false)
+            return BadRequest("No se ha podido generar la ronda");
 
         return Created(string.Empty, "La ronda ha sido creada con éxito");
     }
 
     [HttpPost]
     [Route("Gestion/Generar-Otra-Ronda-Equipos")]
-    public async Task<IActionResult> GenerarOtraRondaEquipos([FromBody, Required] GenerarOtraRondaEquiposRequestDTO request)
+    public async Task<IActionResult> GenerarOtraRondaEquipos(
+        [FromBody, Required] GenerarOtraRondaEquiposRequestDTO request
+    )
     {
         bool response = await _partidaTorneoApplication.GenerarOtraRondaEquiposAsync(request);
 
-        if (response == false) return BadRequest("No se ha podido generar la ronda");
+        if (response == false)
+            return BadRequest("No se ha podido generar la ronda");
 
         return Created(string.Empty, "La ronda ha sido creada con éxito");
     }
@@ -63,12 +71,17 @@ public class TorneoController(
     [Route("Gestion/Equipos/Modificar-Pairing-Equipos/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> ModificarPairingEquipos(
-        [FromBody, Required] ModificarPairingTorneoEquiposDTO request, 
-        int idTorneo)
+        [FromBody, Required] ModificarPairingTorneoEquiposDTO request,
+        int idTorneo
+    )
     {
-        bool response = await _partidaTorneoApplication.ModificarPairingEquiposAsync(request, idTorneo);
+        bool response = await _partidaTorneoApplication.ModificarPairingEquiposAsync(
+            request,
+            idTorneo
+        );
 
-        if (response == false) return BadRequest("No se ha podido modificar el emparejamiento");
+        if (response == false)
+            return BadRequest("No se ha podido modificar el emparejamiento");
 
         return Created(string.Empty, "La ronda ha sido modificada con éxito");
     }
@@ -77,10 +90,12 @@ public class TorneoController(
     [Route("Gestion/Creados/{idUsuario}")]
     public async Task<IActionResult> GetTorneosCreadosUsuario(int idUsuario)
     {
-        List<TorneoCreadoUsuarioDTO> response =
-            await _torneoApplication.GetTorneosCreadosUsuario(idUsuario);
+        List<TorneoCreadoUsuarioDTO> response = await _torneoApplication.GetTorneosCreadosUsuario(
+            idUsuario
+        );
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -91,7 +106,8 @@ public class TorneoController(
     {
         TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -100,9 +116,12 @@ public class TorneoController(
     [Route("Gestion/info-torneo-mas/{idTorneo}")]
     public async Task<IActionResult> GetInfoTorneoCreadoMas(int idTorneo)
     {
-        TorneoGestionInfoMasDTO response = await _torneoApplication.GetInfoTorneoCreadoMasAsync(idTorneo);
+        TorneoGestionInfoMasDTO response = await _torneoApplication.GetInfoTorneoCreadoMasAsync(
+            idTorneo
+        );
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -111,8 +130,11 @@ public class TorneoController(
     [Route("Gestion/info-torneo-equipo/{idTorneo}")]
     public async Task<IActionResult> GetInfoTorneoEquipoCreado(int idTorneo)
     {
-        TorneoEquipoGestionInfoDTO torneo = await _torneoApplication.GetInfoTorneoEquipoCreado(idTorneo);
-        if (torneo == null) return NotFound();
+        TorneoEquipoGestionInfoDTO torneo = await _torneoApplication.GetInfoTorneoEquipoCreado(
+            idTorneo
+        );
+        if (torneo == null)
+            return NotFound();
 
         return Ok(torneo);
     }
@@ -121,9 +143,12 @@ public class TorneoController(
     [Route("Gestion/Partidas/{idTorneo}")]
     public async Task<IActionResult> GetPartidasTorneo(int idTorneo)
     {
-        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoAsync(idTorneo);
+        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoAsync(
+            idTorneo
+        );
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -132,9 +157,11 @@ public class TorneoController(
     [Route("Gestion/Mas/Partidas/{idTorneo}")]
     public async Task<IActionResult> GetPartidasTorneoMas(int idTorneo)
     {
-        List<PartidaTorneoMasDTO> response = await _partidaTorneoApplication.GetPartidasMasTorneoAsync(idTorneo);
+        List<PartidaTorneoMasDTO> response =
+            await _partidaTorneoApplication.GetPartidasMasTorneoAsync(idTorneo);
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -144,9 +171,13 @@ public class TorneoController(
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetPartidasRondaTorneo(int idTorneo, int idRonda)
     {
-        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoByRonda(idTorneo, idRonda);
+        List<PartidaTorneoDTO> response = await _partidaTorneoApplication.GetPartidasTorneoByRonda(
+            idTorneo,
+            idRonda
+        );
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -163,41 +194,44 @@ public class TorneoController(
 
     [HttpPatch]
     [Route("Gestion/editar")]
-    public async Task<IActionResult> UpdateTorneo(
-        [FromBody, Required] UpdateTorneoDTO request) =>
-            Ok(await _torneoApplication.UpdateTorneoAsync(request));
+    public async Task<IActionResult> UpdateTorneo([FromBody, Required] UpdateTorneoDTO request) =>
+        Ok(await _torneoApplication.UpdateTorneoAsync(request));
 
     [HttpPatch]
     [Route("Gestion/subir-bases/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> UpdateBasesTorneo(
-        [FromBody, Required] UpdateBasesDTO request, int idTorneo) =>
-            Ok(await _torneoApplication.UpdateBasesTorneoAsync(request, idTorneo));
+        [FromBody, Required] UpdateBasesDTO request,
+        int idTorneo
+    ) => Ok(await _torneoApplication.UpdateBasesTorneoAsync(request, idTorneo));
 
     [HttpPatch]
     [Route("Gestion/Handler-Listas/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarListas(
-       [FromBody, Required] HandlerMostrarListasDTO request, int idTorneo) =>
-           Ok(await _torneoApplication.HandlerMostrarListasAsync(request, idTorneo));
+        [FromBody, Required] HandlerMostrarListasDTO request,
+        int idTorneo
+    ) => Ok(await _torneoApplication.HandlerMostrarListasAsync(request, idTorneo));
 
     [HttpPatch]
     [Route("Gestion/Handler-Clasificacion/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> HandlerMostrarClasificacion(
-       [FromBody, Required] HandlerMostrarClasificacionDTO request, int idTorneo) =>
-           Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request, idTorneo));
+        [FromBody, Required] HandlerMostrarClasificacionDTO request,
+        int idTorneo
+    ) => Ok(await _torneoApplication.HandlerMostrarClasificacionAsync(request, idTorneo));
 
     [HttpGet]
     [Route("Gestion/Equipos/Equipos-disponibles/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
-    public async Task<IActionResult> GetEquiposDisponibles(int idTorneo) 
+    public async Task<IActionResult> GetEquiposDisponibles(int idTorneo)
     {
-        List<EquipoDisponibleDTO> equipos = await _torneoApplication.GetEquiposDisponiblesAsync(idTorneo);
+        List<EquipoDisponibleDTO> equipos = await _torneoApplication.GetEquiposDisponiblesAsync(
+            idTorneo
+        );
 
         return Ok(equipos);
     }
-          
 
     [HttpDelete]
     [Route("Gestion/{idTorneo}")]
@@ -217,19 +251,45 @@ public class TorneoController(
     {
         List<TorneoDTO> response = await _torneoApplication.GetTorneos();
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
 
     [HttpGet]
-    [Route("id/{idtorneo}")]
-    public async Task<IActionResult> GetTorneo(int idtorneo)
+    [Route("proximos")]
+    public async Task<IActionResult> GetTorneosProximos(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
     {
-        TorneoDTO response = await _torneoApplication.GetById(idtorneo);
+        TorneoPaginationDTO pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
+        TorneoPagedResultDTO<TorneoDTO> response = await _torneoApplication.GetTorneosProximosAsync(
+            pagination
+        );
+        return Ok(response);
+    }
 
-        if (response == null) return NotFound();
+    [HttpGet]
+    [Route("pasados")]
+    public async Task<IActionResult> GetTorneosPasados(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        TorneoPaginationDTO pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
+        TorneoPagedResultDTO<TorneoDTO> response = await _torneoApplication.GetTorneosPasadosAsync(
+            pagination
+        );
+        return Ok(response);
+    }
 
+    [HttpGet]
+    [Route("buscar")]
+    public async Task<IActionResult> BuscarTorneosPorNombre([FromQuery] [Required] string nombre)
+    {
+        List<TorneoDTO> response = await _torneoApplication.SearchTorneosByNameAsync(nombre);
         return Ok(response);
     }
 
@@ -239,7 +299,8 @@ public class TorneoController(
     {
         bool response = await _torneoApplication.Register(request);
 
-        if (response == false) return BadRequest("No se ha podido crear el torneo");
+        if (response == false)
+            return BadRequest("No se ha podido crear el torneo");
 
         return Created(string.Empty, "El torneo ha sido creada con éxito");
     }
@@ -266,33 +327,42 @@ public class TorneoController(
 
     [HttpPut]
     [Route("Editar-Partida")]
-    public async Task<IActionResult> EdtarPartida([FromBody, Required] UpdatePartidaTorneoDTO request)
+    public async Task<IActionResult> EdtarPartida(
+        [FromBody, Required] UpdatePartidaTorneoDTO request
+    )
     {
         PartidaTorneoDTO? response = await _partidaTorneoApplication.EditAsync(request);
 
-        if (response is null) return BadRequest("No se ha podido editar la partida");
+        if (response is null)
+            return BadRequest("No se ha podido editar la partida");
 
         return Ok(response);
     }
 
     [HttpPut]
     [Route("Editar-Pairing")]
-    public async Task<IActionResult> EditarPairing([FromBody, Required] UpdatePairingTorneoDTO request)
+    public async Task<IActionResult> EditarPairing(
+        [FromBody, Required] UpdatePairingTorneoDTO request
+    )
     {
         PartidaTorneoDTO? response = await _partidaTorneoApplication.EdtarPairingAsync(request);
 
-        if (response is null) return BadRequest("No se ha podido editar la partida");
+        if (response is null)
+            return BadRequest("No se ha podido editar la partida");
 
         return Ok(response);
     }
 
     [HttpPut]
     [Route("Editar-Pairing-Equipos")]
-    public async Task<IActionResult> EditarPairingEquipos([FromBody, Required] UpdatePairingTorneoDTO request)
+    public async Task<IActionResult> EditarPairingEquipos(
+        [FromBody, Required] UpdatePairingTorneoDTO request
+    )
     {
         bool response = await _partidaTorneoApplication.EdtarPairingEquiposAsync(request);
 
-        if (response == false) return BadRequest("No se ha podido editar la partida");
+        if (response == false)
+            return BadRequest("No se ha podido editar la partida");
 
         return Ok(response);
     }
@@ -303,7 +373,8 @@ public class TorneoController(
     {
         bool response = await _partidaTorneoApplication.Register(request);
 
-        if (response == false) return BadRequest("No se ha podido agregar la partida");
+        if (response == false)
+            return BadRequest("No se ha podido agregar la partida");
 
         return Ok(response);
     }
@@ -314,7 +385,8 @@ public class TorneoController(
     {
         bool response = await _partidaTorneoApplication.Delete(idPartida);
 
-        if (response == false) return BadRequest("No se ha podido eliminar la partida");
+        if (response == false)
+            return BadRequest("No se ha podido eliminar la partida");
 
         return Ok(response);
     }
@@ -326,7 +398,8 @@ public class TorneoController(
         List<ViewPartidaTorneoDTO> response =
             await _partidaTorneoApplication.GetPartidasTorneosByUsuario(idUsuario);
 
-        if (response == null) return NotFound();
+        if (response == null)
+            return NotFound();
 
         return Ok(response);
     }
@@ -336,19 +409,22 @@ public class TorneoController(
     public async Task<IActionResult> GetPartidasUsuarioTorneo(int idUsuario, int idTorneo)
     {
         List<ViewPartidaTorneoDTO> response =
-            await _partidaTorneoApplication.GetPartidasTorneoByUsuarioAsync(idTorneo, idUsuario);;
+            await _partidaTorneoApplication.GetPartidasTorneoByUsuarioAsync(idTorneo, idUsuario);
+        ;
 
         return Ok(response);
     }
-
 
     [HttpGet]
     [Route("equipos/{idTorneo}")]
     public async Task<IActionResult> GetEquiposByTorneoAsync(int idTorneo)
     {
-        List<EquipoDTO> equipos = await _inscripcionApplication.GetInscripcionesEquipoByTorneoAsync(idTorneo);
+        List<EquipoDTO> equipos = await _inscripcionApplication.GetInscripcionesEquipoByTorneoAsync(
+            idTorneo
+        );
 
-        if (equipos == null) return NotFound();
+        if (equipos == null)
+            return NotFound();
 
         return Ok(equipos);
     }
