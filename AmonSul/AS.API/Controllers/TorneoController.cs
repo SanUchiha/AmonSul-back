@@ -293,6 +293,16 @@ public class TorneoController(
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("id/{idtorneo}")]
+    public async Task<IActionResult> GetTorneo(int idtorneo)
+    {
+        TorneoDTO response = await _torneoApplication.GetById(idtorneo);
+
+        if (response is null) return NotFound();
+        return Ok(response);
+    }
+
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
