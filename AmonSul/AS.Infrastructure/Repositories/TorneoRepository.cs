@@ -9,15 +9,6 @@ using Microsoft.EntityFrameworkCore;
 namespace AS.Infrastructure.Repositories;
 
 public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoRepository
-    public async Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy)
-    {
-        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo >= fechaHoy);
-    }
-
-    public async Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy)
-    {
-        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo < fechaHoy);
-    }
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
@@ -31,6 +22,16 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         {
             throw new Exception("Ocurrio un problema en el servidor.", ex);
         }
+    }
+
+    public async Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy)
+    {
+        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo >= fechaHoy);
+    }
+
+    public async Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy)
+    {
+        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo < fechaHoy);
     }
 
     public async Task<List<Torneo>> GetTorneosProximosAsync(
