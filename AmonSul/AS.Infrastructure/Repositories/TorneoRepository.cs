@@ -62,6 +62,14 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             .ToListAsync();
     }
 
+    public async Task<List<Torneo>> SearchTorneosByNameAsync(string nombre)
+    {
+        return await _dbamonsulContext
+            .Torneos.Where(t => EF.Functions.Like(t.NombreTorneo, $"%{nombre}%"))
+            .OrderBy(t => t.FechaInicioTorneo)
+            .ToListAsync();
+    }
+
     public async Task<Torneo> GetById(int Id)
     {
         try

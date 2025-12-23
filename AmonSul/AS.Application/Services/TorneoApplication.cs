@@ -70,6 +70,12 @@ public class TorneoApplication(
         };
     }
 
+    public async Task<List<TorneoDTO>> SearchTorneosByNameAsync(string nombre)
+    {
+        var torneos = await _unitOfWork.TorneoRepository.SearchTorneosByNameAsync(nombre);
+        return _mapper.Map<List<TorneoDTO>>(torneos);
+    }
+
     public async Task<TorneoDTO> GetById(int id)
     {
         var response = await _unitOfWork.TorneoRepository.GetById(id);

@@ -285,6 +285,14 @@ public class TorneoController(
         return Ok(response);
     }
 
+    [HttpGet]
+    [Route("buscar")]
+    public async Task<IActionResult> BuscarTorneosPorNombre([FromQuery] [Required] string nombre)
+    {
+        List<TorneoDTO> response = await _torneoApplication.SearchTorneosByNameAsync(nombre);
+        return Ok(response);
+    }
+
     [HttpPost]
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
