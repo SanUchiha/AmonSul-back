@@ -85,13 +85,15 @@ public class PartidaTorneoApplication(
         if (request.EjercitoUsuario2 is not null)
             existingEntity.EjercitoUsuario2 = request.EjercitoUsuario2;
 
-
         // Guardar los cambios en la base de datos
         bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
 
         if (!result)
             return null;
         PartidaTorneoDTO resultDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
+        resultDTO.Nick1 = request.Nick1;
+        resultDTO.Nick2 = request.Nick2;
+
         return resultDTO;
     }
 
@@ -1180,10 +1182,19 @@ public class PartidaTorneoApplication(
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
         existingEntity.EjercitoUsuario1 =
             inscripcion1.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito
-            ?? "N/A";
+            ?? null;
         existingEntity.EjercitoUsuario2 =
             inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito
-            ?? "N/A";
+            ?? null;
+
+        existingEntity.ResultadoUsuario1 = null;
+        existingEntity.ResultadoUsuario2 = null;
+        existingEntity.GanadorPartidaTorneo = null;
+        existingEntity.PartidaValidadaUsuario1 = false;
+        existingEntity.PartidaValidadaUsuario2 = false;
+        existingEntity.LiderMuertoUsuario1 = null;
+        existingEntity.LiderMuertoUsuario2 = null;
+        
 
         bool response = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
 
@@ -1242,9 +1253,11 @@ public class PartidaTorneoApplication(
 
         existingEntity.IdEquipo1 = idEquipo1;
         existingEntity.IdEquipo2 = idEquipo2;
-
+        existingEntity.ResultadoUsuario1 = null;
+        existingEntity.ResultadoUsuario2 = null;
+        existingEntity.GanadorPartidaTorneo = null;
+        
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
-        ;
     }
 
     public async Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo)

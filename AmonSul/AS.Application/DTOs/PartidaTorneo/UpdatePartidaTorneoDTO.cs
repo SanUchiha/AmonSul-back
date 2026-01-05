@@ -14,4 +14,6 @@ public class UpdatePartidaTorneoDTO
     public DateOnly? FechaPartida { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public string? EjercitoUsuario1 { get; set; }
     public string? EjercitoUsuario2 { get; set; }
+    public string? Nick1 { get; set; }
+    public string? Nick2 { get; set; }
 }
