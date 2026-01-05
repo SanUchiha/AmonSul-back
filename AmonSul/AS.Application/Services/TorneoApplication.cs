@@ -287,6 +287,9 @@ public class TorneoApplication(
         if (request.HoraFinTorneo.HasValue)
             torneo.HoraFinTorneo = request.HoraFinTorneo.Value;
 
+        if (!string.IsNullOrWhiteSpace(request.TipoTorneo))
+            torneo.TipoTorneo = request.TipoTorneo;
+
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";

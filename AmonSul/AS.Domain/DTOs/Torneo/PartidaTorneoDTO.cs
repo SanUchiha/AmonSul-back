@@ -1,4 +1,6 @@
-﻿namespace AS.Domain.DTOs.Torneo;
+﻿using AS.Domain.DTOs.Lista;
+
+namespace AS.Domain.DTOs.Torneo;
 
 public class PartidaTorneoDTO
 {
@@ -26,4 +28,7 @@ public class PartidaTorneoDTO
     public string? NombreEquipo2 { get; set; }
     public int? IdCapitan1 { get; set; }
     public int? IdCapitan2 { get; set; }
+    public ListaDTO? ListaJugador1 { get; set; }
+    public ListaDTO? ListaJugador2 { get; set; }
+    public int? NumeroMesa { get; set; }
 }

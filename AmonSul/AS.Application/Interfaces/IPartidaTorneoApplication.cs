@@ -7,6 +7,10 @@ namespace AS.Application.Interfaces;
 
 public interface IPartidaTorneoApplication
 {
+    Task<EstaJugandoDTO> GetPartidasTorneoPorFechaYUsuarioAsync(
+        DateTime fecha,
+        int idUsuario
+    );
     Task<PartidaTorneo> GetById(int idPartida); // Partida por id de partida
     Task<List<PartidaTorneoDTO>> GetPartidasTorneo(int idTorneo); // Todas las partidas de un torneo
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoByRonda(int idTorneo, int ronda); // Todas las partidas de una ronda de un torneo
@@ -17,7 +21,6 @@ public interface IPartidaTorneoApplication
     Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO);
     Task<PartidaTorneoDTO?> EdtarPairingAsync(UpdatePairingTorneoDTO request);
     Task<bool> EdtarPairingEquiposAsync(UpdatePairingTorneoDTO request);
-
 
     Task<bool> Delete(int idPartida);
     Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
