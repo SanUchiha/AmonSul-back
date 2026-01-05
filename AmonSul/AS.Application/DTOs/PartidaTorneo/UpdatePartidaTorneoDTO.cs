@@ -12,4 +12,6 @@ public class UpdatePartidaTorneoDTO
     public bool? LiderMuertoUsuario1 { get; set; }
     public bool? LiderMuertoUsuario2 { get; set; }
     public DateOnly? FechaPartida { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    public string? EjercitoUsuario1 { get; set; }
+    public string? EjercitoUsuario2 { get; set; }
 }

@@ -299,7 +299,8 @@ public class TorneoController(
     {
         TorneoDTO response = await _torneoApplication.GetById(idtorneo);
 
-        if (response is null) return NotFound();
+        if (response is null)
+            return NotFound();
         return Ok(response);
     }
 
@@ -379,7 +380,8 @@ public class TorneoController(
 
     [HttpPost]
     [Route("Agregar-Pairing")]
-    public async Task<IActionResult> AddPairing([FromBody, Required] AddPairingTorneoDTO request)
+    public async Task<IActionResult> AddPairing(
+        [FromBody, Required] AddPairingTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.Register(request);
 
@@ -437,5 +439,17 @@ public class TorneoController(
             return NotFound();
 
         return Ok(equipos);
+    }
+
+    [HttpGet]
+    [Route("estoy-jugando/{idUsuario}")]
+    public async Task<IActionResult> EstoyJugandoHoy(int idUsuario)
+    {
+        DateTime hoy = DateTime.UtcNow.Date;
+
+        EstaJugandoDTO estaJugando =
+            await _partidaTorneoApplication.GetPartidasTorneoPorFechaYUsuarioAsync(hoy, idUsuario);
+        
+        return Ok(estaJugando);
     }
 }

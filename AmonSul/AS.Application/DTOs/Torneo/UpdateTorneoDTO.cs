@@ -21,4 +21,5 @@ public class UpdateTorneoDTO
     public TimeOnly? HoraFinTorneo { get; set; }
     public int ListasPorJugador { get; set; }
     public ClassificationType ClassificationType { get; set; }
+    public required string TipoTorneo { get; set; }
 }
