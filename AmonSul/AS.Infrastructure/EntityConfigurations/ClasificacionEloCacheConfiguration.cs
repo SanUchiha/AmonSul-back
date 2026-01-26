@@ -21,11 +21,6 @@ public class ClasificacionEloCacheConfiguration : IEntityTypeConfiguration<Clasi
             .IsRequired();
         entity.Property(e => e.IdFaccion).HasColumnName("ID_Faccion");
         entity.Property(e => e.Elo).HasColumnName("Elo");
-        entity.Property(e => e.Partidas).HasColumnName("Partidas");
-        entity.Property(e => e.Ganadas).HasColumnName("Ganadas");
-        entity.Property(e => e.Empatadas).HasColumnName("Empatadas");
-        entity.Property(e => e.Perdidas).HasColumnName("Perdidas");
-        entity.Property(e => e.NumeroPartidasJugadas).HasColumnName("Numero_Partidas_Jugadas");
 
         // Índices para rendimiento en consultas de lectura
         entity.HasIndex(e => e.Elo)
