@@ -26,7 +26,9 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
     {
         try
         {
-            var response = await _dbamonsulContext.Elos.Where(e => e.IdUsuario == idUsuario).ToListAsync();
+            var response = await _dbamonsulContext
+                .Elos.Where(e => e.IdUsuario == idUsuario)
+                .ToListAsync();
             return response;
         }
         catch (Exception ex)
@@ -42,7 +44,8 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
             var response = await _dbamonsulContext.Elos.AddAsync(elo);
             await _dbamonsulContext.SaveChangesAsync();
 
-            if (response == null) return false;
+            if (response == null)
+                return false;
             return true;
         }
         catch (Exception ex)
@@ -65,29 +68,35 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
     {
         try
         {
-            var response = await _dbamonsulContext.Elos.Where(e => e.IdElo == idElo).FirstOrDefaultAsync();
+            var response = await _dbamonsulContext
+                .Elos.Where(e => e.IdElo == idElo)
+                .FirstOrDefaultAsync();
 
-            if (response == null) return null!;
+            if (response == null)
+                return null!;
             return response;
         }
         catch (Exception ex)
         {
-            throw new Exception("Ocurrio un problema en el servidor al conseguir el Elo por el Id.", ex);
+            throw new Exception(
+                "Ocurrio un problema en el servidor al conseguir el Elo por el Id.",
+                ex
+            );
         }
     }
 
     public async Task<bool> CheckEloByUser(int idUsuario)
     {
-        bool response = 
-            await _dbamonsulContext.Elos.AnyAsync(x => x.IdUsuario == idUsuario);
+        bool response = await _dbamonsulContext.Elos.AnyAsync(x => x.IdUsuario == idUsuario);
 
-        if (response) return true;
+        if (response)
+            return true;
 
         Elo elo = new()
         {
             IdUsuario = idUsuario,
             FechaElo = DateTime.Now,
-            PuntuacionElo = 800
+            PuntuacionElo = 800,
         };
 
         await _dbamonsulContext.Elos.AddAsync(elo);
@@ -95,5 +104,16 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
 
         return true;
     }
+
+    public async Task<List<Usuario>> GetUsuariosWithElos()
+    {
+        try
+        {
+            return await _dbamonsulContext.Usuarios.Include(u => u.Elos).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los usuarios con sus elos.", ex);
+        }
+    }
 }
-    
