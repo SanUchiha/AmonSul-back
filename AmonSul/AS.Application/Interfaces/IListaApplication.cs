@@ -18,4 +18,6 @@ public interface IListaApplication
     Task<ListaDTO> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO);
     Task<List<ListaViewDTO>> GetListasByInscripcionAsync(int idInscripcion);
     Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request);
+
+    Task<(byte[] FileBytes, string FileName)> GetListasPdfByTorneo(int idTorneo);
 }
