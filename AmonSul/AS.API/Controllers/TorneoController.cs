@@ -338,7 +338,7 @@ public class TorneoController(
 
     [HttpPut]
     [Route("Editar-Partida")]
-    public async Task<IActionResult> EdtarPartida(
+    public async Task<IActionResult> EditarPartida(
         [FromBody, Required] UpdatePartidaTorneoDTO request
     )
     {
