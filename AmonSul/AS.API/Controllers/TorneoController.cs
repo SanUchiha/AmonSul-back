@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 [ApiController]
 public class TorneoController(
     ITorneoApplication torneoApplication,
