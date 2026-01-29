@@ -17,13 +17,23 @@ public class TorneoController(
     ITorneoApplication torneoApplication,
     IPartidaTorneoApplication partidaTorneoApplication,
     IGanadorApplication ganadorApplication,
-    IInscripcionApplication inscripcionApplication
+    IInscripcionApplication inscripcionApplication,
+    IListaApplication listaApplication
 ) : ControllerBase
 {
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
     private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
     private readonly IPartidaTorneoApplication _partidaTorneoApplication = partidaTorneoApplication;
     private readonly IGanadorApplication _ganadorApplication = ganadorApplication;
+    private readonly IListaApplication _listaApplication = listaApplication;
+
+    [HttpGet]
+    [Route("Gestion/Listas-Pdf/{idTorneo}")]
+    public async Task<IActionResult> GetListasPdfByTorneo(int idTorneo)
+    {
+        (byte[]? fileBytes, string? fileName) = await _listaApplication.GetListasPdfByTorneo(idTorneo);
+        return File(fileBytes, "application/pdf", fileName);
+    }
 
     #region Gestion torneo
 
@@ -380,8 +390,7 @@ public class TorneoController(
 
     [HttpPost]
     [Route("Agregar-Pairing")]
-    public async Task<IActionResult> AddPairing(
-        [FromBody, Required] AddPairingTorneoDTO request)
+    public async Task<IActionResult> AddPairing([FromBody, Required] AddPairingTorneoDTO request)
     {
         bool response = await _partidaTorneoApplication.Register(request);
 
@@ -449,7 +458,7 @@ public class TorneoController(
 
         EstaJugandoDTO estaJugando =
             await _partidaTorneoApplication.GetPartidasTorneoPorFechaYUsuarioAsync(hoy, idUsuario);
-        
+
         return Ok(estaJugando);
     }
 }

@@ -5,6 +5,7 @@ using Hangfire;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
+using AS.Utils.Constantes;
 
 namespace AS.Application.Services;
 
@@ -188,7 +189,7 @@ public class EmailApplication(
             EnviarCorreoAsync(
                 items, 
                 templateBody,
-                Utils.Constantes.ConstEmailMessage.MESSAGE_NUEVO_TORNEO_ASUNTO));
+                ConstEmailMessage.MESSAGE_NUEVO_TORNEO_ASUNTO));
         }
     }
 
@@ -216,7 +217,7 @@ public class EmailApplication(
             EnviarCorreoAsync(
                 items, 
                 templateBody, 
-                Utils.Constantes.ConstEmailMessage.MESSAGE_NUEVA_RONDA_ASUNTO));
+                ConstEmailMessage.MESSAGE_NUEVA_RONDA_ASUNTO));
         }
     }
 
@@ -359,7 +360,7 @@ public class EmailApplication(
 
     public void SendEmailNuevaPartida(List<string> destinatarios)
     {
-        string templateBody = Utils.Constantes.ConstEmailMessage.MESSAGE_CREACION_PARTIDA_BODY;
+        string templateBody = ConstEmailMessage.MESSAGE_CREACION_PARTIDA_BODY;
 
         List<List<string>> destinatarioGroups = destinatarios
           .Select((item, index) => new { item, index })
@@ -373,7 +374,7 @@ public class EmailApplication(
             EnviarCorreoAsync(
                 items, 
                 templateBody,
-                Utils.Constantes.ConstEmailMessage.MESSAGE_CREACION_PARTIDA_ASUNTO));
+                ConstEmailMessage.MESSAGE_CREACION_PARTIDA_ASUNTO));
         }
     }
 
@@ -492,7 +493,7 @@ public class EmailApplication(
 
     public void SendEmailNuevoUsuario(List<string> destinatarios)
     {
-        string templateBody = Utils.Constantes.ConstEmailMessage.MESSAGE_BIENVENIDA_BODY;
+        string templateBody = ConstEmailMessage.MESSAGE_BIENVENIDA_BODY;
 
         destinatarios.Add(_emailSettings.From);
 
@@ -508,7 +509,7 @@ public class EmailApplication(
             EnviarCorreoAsync(
                 items, 
                 templateBody,
-                Utils.Constantes.ConstEmailMessage.MESSAGE_BIENVENIDA_ASUNTO));
+                ConstEmailMessage.MESSAGE_BIENVENIDA_ASUNTO));
         }
     }
 }
