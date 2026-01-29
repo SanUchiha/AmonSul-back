@@ -66,12 +66,13 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
 
     public async Task<List<Lista>> GetListasByTorneo(int idTorneo)
     {
-        var listas = await _dbamonsulContext.Listas
+        List<Lista> listas = await _dbamonsulContext.Listas
             .Include(l => l.IdInscripcionNavigation)
-            .Where(l => l.IdInscripcionNavigation!.IdTorneo == idTorneo)
+                .ThenInclude(i => i!.IdUsuarioNavigation)
+            .Where(l => l.IdInscripcionNavigation != null && l.IdInscripcionNavigation.IdTorneo == idTorneo)
             .ToListAsync();
 
-        if (listas == null) return null!;
+        if(listas == null || listas.Count == 0) return [];
 
         return listas;
     }
