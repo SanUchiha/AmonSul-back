@@ -1,4 +1,5 @@
-﻿using System.Net.Mail;
+﻿using System.IO.Compression;
+using System.Net.Mail;
 using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
@@ -191,8 +192,83 @@ public class ListaApplication(
 
         string torneoNombre = torneo.NombreTorneo;
 
-        byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas, torneoNombre);
-        string fileName = $"Listas_{torneoNombre}.pdf";
-        return (pdfBytes, fileName);
+        const int listasPorPdf = 10;
+        int totalPdfs = (int)Math.Ceiling(listas.Count / (double)listasPorPdf);
+
+        // Si hay 10 o menos listas, devolver un solo PDF
+        if (totalPdfs == 1)
+        {
+            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas, torneoNombre);
+            string fileName = $"Listas_{torneoNombre}.pdf";
+            return (pdfBytes, fileName);
+        }
+
+        // Generar múltiples PDFs en un ZIP
+        using var memoryStream = new MemoryStream();
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+        {
+            for (int i = 0; i < totalPdfs; i++)
+            {
+                var listasSubset = listas.Skip(i * listasPorPdf).Take(listasPorPdf).ToList();
+                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset, torneoNombre);
+                
+                var entry = archive.CreateEntry($"Listas_{torneoNombre}_Parte{i + 1}de{totalPdfs}.pdf");
+                using var entryStream = entry.Open();
+                await entryStream.WriteAsync(pdfBytes);
+            }
+        }
+
+        string zipFileName = $"Listas_{torneoNombre}.zip";
+        return (memoryStream.ToArray(), zipFileName);
+    }
+
+    public async Task<(Stream Stream, string FileName)> GetListasPdfStreamByTorneo(int idTorneo)
+    {
+        List<Lista> listas = await GetListasByTorneo(idTorneo);
+
+        Torneo torneo = 
+            await _unitOfWork.TorneoRepository.GetById(idTorneo) 
+            ?? throw new Exception("Torneo no encontrado");
+
+        string torneoNombre = torneo.NombreTorneo;
+
+        const int listasPorPdf = 40;
+        int totalPdfs = (int)Math.Ceiling(listas.Count / (double)listasPorPdf);
+
+        // Si hay 40 o menos listas, devolver un solo PDF
+        if (totalPdfs == 1)
+        {
+            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas, torneoNombre);
+            var stream = new MemoryStream(pdfBytes);
+            string fileName = $"Listas_{torneoNombre}.pdf";
+            return (stream, fileName);
+        }
+
+        // Generar múltiples PDFs en un ZIP con streaming
+        var memoryStream = new MemoryStream();
+        
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            for (int i = 0; i < totalPdfs; i++)
+            {
+                var listasSubset = listas.Skip(i * listasPorPdf).Take(listasPorPdf).ToList();
+                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset, torneoNombre);
+                
+                var entry = archive.CreateEntry($"Listas_{torneoNombre}_Parte{i + 1}de{totalPdfs}.pdf");
+                using var entryStream = entry.Open();
+                await entryStream.WriteAsync(pdfBytes);
+            }
+        }
+
+        memoryStream.Position = 0;
+        string zipFileName = $"Listas_{torneoNombre}.zip";
+        return (memoryStream, zipFileName);
+    }
+
+    public async Task<List<ListaCompletaDTO>> GetListasCompletasByTorneo(int idTorneo)
+    {
+        List<Lista> listas = await _unitOfWork.ListaRepository.GetListasByTorneo(idTorneo);
+        
+        return _mapper.Map<List<ListaCompletaDTO>>(listas);
     }
 }

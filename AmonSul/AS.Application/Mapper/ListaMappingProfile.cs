@@ -12,5 +12,10 @@ public class ListaMappingProfile : Profile
         CreateMap<CreateListaTorneoDTO, Lista>().ReverseMap();
         CreateMap<ListaViewDTO, Lista>().ReverseMap();
         CreateMap<ListaDTO, Lista>().ReverseMap();
+        CreateMap<Lista, ListaCompletaDTO>()
+            .ForMember(dest => dest.Nick,
+                opt => opt.MapFrom(src => src.IdInscripcionNavigation != null && src.IdInscripcionNavigation.IdUsuarioNavigation != null
+                    ? src.IdInscripcionNavigation.IdUsuarioNavigation.Nick
+                    : string.Empty));
     }
 }

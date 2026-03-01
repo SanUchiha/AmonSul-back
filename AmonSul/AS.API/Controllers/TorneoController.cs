@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AS.API.Filters;
+﻿using AS.API.Filters;
+using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
@@ -7,6 +7,7 @@ using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace AS.API.Controllers;
 
@@ -31,8 +32,11 @@ public class TorneoController(
     [Route("Gestion/Listas-Pdf/{idTorneo}")]
     public async Task<IActionResult> GetListasPdfByTorneo(int idTorneo)
     {
-        (byte[]? fileBytes, string? fileName) = await _listaApplication.GetListasPdfByTorneo(idTorneo);
-        return File(fileBytes, "application/pdf", fileName);
+        var (stream, fileName) = await _listaApplication.GetListasPdfStreamByTorneo(idTorneo);
+        
+        string contentType = fileName.EndsWith(".zip") ? "application/zip" : "application/pdf";
+        
+        return File(stream, contentType, fileName);
     }
 
     #region Gestion torneo
@@ -460,5 +464,18 @@ public class TorneoController(
             await _partidaTorneoApplication.GetPartidasTorneoPorFechaYUsuarioAsync(hoy, idUsuario);
 
         return Ok(estaJugando);
+    }
+
+    [HttpGet]
+    [Route("Gestion/Listas/{idTorneo}")]
+    public async Task<IActionResult> GetListasByTorneo(int idTorneo)
+    {
+        List<ListaCompletaDTO> listas = 
+            await _listaApplication.GetListasCompletasByTorneo(idTorneo);
+        
+        if (listas == null || listas.Count == 0)
+            return NotFound("No se encontraron listas para este torneo");
+        
+        return Ok(listas);
     }
 }
