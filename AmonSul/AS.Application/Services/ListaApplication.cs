@@ -268,6 +268,21 @@ public class ListaApplication(
     public async Task<List<ListaCompletaDTO>> GetListasCompletasByTorneo(int idTorneo)
     {
         List<Lista> listas = await _unitOfWork.ListaRepository.GetListasByTorneo(idTorneo);
+
+        bool isTeams = false;
+        if (listas.Count != 0)
+        {
+            if (listas[0].IdInscripcionNavigation?.IdEquipo is not null)
+                isTeams = true;
+
+            if (isTeams)
+                listas = [.. listas
+                    .OrderBy(l => l.IdInscripcionNavigation?.IdEquipo)
+                    .ThenBy(l => l.IdInscripcionNavigation?.IdUsuarioNavigation?.Nick)];
+            else
+                listas = [.. listas
+                    .OrderBy(l => l.IdInscripcionNavigation?.IdUsuarioNavigation?.Nick)];
+        }
         
         return _mapper.Map<List<ListaCompletaDTO>>(listas);
     }
