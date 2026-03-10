@@ -173,9 +173,8 @@ public class EmailApplication(
         List<string> emailsExcluidos = _emailSettings.EmailsExcluidos;
 
         if(emailsExcluidos.Count > 0)
-            destinatarios = destinatarios
-                .Where(email => !emailsExcluidos.Contains(email))
-                .ToList();
+            destinatarios = 
+                [.. destinatarios.Where(email => !emailsExcluidos.Contains(email))];
 
         List<List<string>> destinatarioGroups = destinatarios
           .Select((item, index) => new { item, index })
