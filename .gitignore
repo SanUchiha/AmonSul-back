@@ -49,3 +49,6 @@ AmonSul/.vs/AmonSul/CopilotIndices
 AmonSul/AS.Utils/bin/Release/net8.0
 AmonSul/.vs/AmonSul/copilot-chat/f5a0a7de/sessions
 AmonSul/AS.API/.config/dotnet-tools.json
+*.suo
+AmonSul/.vs/AmonSul/v18
+AmonSul/.vs/CopilotSnapshots

@@ -176,11 +176,11 @@ public class EmailApplication(
             destinatarios = 
                 [.. destinatarios.Where(email => !emailsExcluidos.Contains(email))];
 
-        List<List<string>> destinatarioGroups = destinatarios
-          .Select((item, index) => new { item, index })
-          .GroupBy(x => x.index / 5)
-          .Select(g => g.Select(x => x.item).ToList())
-          .ToList();
+        List<List<string>> destinatarioGroups = 
+            [.. destinatarios
+              .Select((item, index) => new { item, index })
+              .GroupBy(x => x.index / 5)
+              .Select(g => g.Select(x => x.item).ToList())];
 
         foreach (List<string> items in destinatarioGroups)
         {
@@ -204,11 +204,11 @@ public class EmailApplication(
         </body>
         </html>";
 
-        List<List<string>> destinatarioGroups = destinatarios
-          .Select((item, index) => new { item, index })
-          .GroupBy(x => x.index / 5)
-          .Select(g => g.Select(x => x.item).ToList())
-          .ToList();
+        List<List<string>> destinatarioGroups = 
+            [.. destinatarios
+              .Select((item, index) => new { item, index })
+              .GroupBy(x => x.index / 5)
+              .Select(g => g.Select(x => x.item).ToList())];
 
         foreach (List<string> items in destinatarioGroups)
         {
@@ -220,7 +220,10 @@ public class EmailApplication(
         }
     }
 
-    public async Task EnviarCorreoAsync(List<string> destinatarios, string templateBody, string asunto)
+    public async Task EnviarCorreoAsync(
+        List<string> destinatarios, 
+        string templateBody, 
+        string asunto)
     {
         using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
         {
@@ -236,9 +239,12 @@ public class EmailApplication(
             Body = templateBody,
             IsBodyHtml = true,
         };
+        
+        mailMessage.To.Add(_emailSettings.From);
+        
         foreach (var item in destinatarios)
         {
-            mailMessage.To.Add(item);
+            mailMessage.Bcc.Add(item);
         }
 
         try
@@ -361,11 +367,11 @@ public class EmailApplication(
     {
         string templateBody = ConstEmailMessage.MESSAGE_CREACION_PARTIDA_BODY;
 
-        List<List<string>> destinatarioGroups = destinatarios
-          .Select((item, index) => new { item, index })
-          .GroupBy(x => x.index / 5)
-          .Select(g => g.Select(x => x.item).ToList())
-          .ToList();
+        List<List<string>> destinatarioGroups =
+            [.. destinatarios
+              .Select((item, index) => new { item, index })
+              .GroupBy(x => x.index / 5)
+              .Select(g => g.Select(x => x.item).ToList())];
 
         foreach (List<string> items in destinatarioGroups)
         {
@@ -494,13 +500,11 @@ public class EmailApplication(
     {
         string templateBody = ConstEmailMessage.MESSAGE_BIENVENIDA_BODY;
 
-        destinatarios.Add(_emailSettings.From);
-
-        List<List<string>> destinatarioGroups = destinatarios
-          .Select((item, index) => new { item, index })
-          .GroupBy(x => x.index / 5)
-          .Select(g => g.Select(x => x.item).ToList())
-          .ToList();
+        List<List<string>> destinatarioGroups = 
+            [.. destinatarios
+              .Select((item, index) => new { item, index })
+              .GroupBy(x => x.index / 5)
+              .Select(g => g.Select(x => x.item).ToList())];
 
         foreach (List<string> items in destinatarioGroups)
         {
