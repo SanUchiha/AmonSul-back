@@ -6,7 +6,8 @@ namespace AS.Application.Utils;
 
 public static class PdfListaGenerator
 {
-    public static byte[] GenerateListasPdf(List<Lista> listas, string torneoNombre)
+    public static byte[] GenerateListasPdf(
+        List<Lista> listas)
     {
         using var document = new PdfDocument();
 
@@ -29,7 +30,7 @@ public static class PdfListaGenerator
             double y = yTitle + titleSize.Height + 6.0; // pequeño espacio entre título e imagen
 
             // Si no hay imagen, dejamos la página con solo el título
-            if (string.IsNullOrWhiteSpace(lista.ListaData))
+            if (string.IsNullOrWhiteSpace(lista?.ListaData))
                 continue;
 
             try
@@ -37,7 +38,7 @@ public static class PdfListaGenerator
                 var base64 = lista.ListaData;
                 var commaIndex = base64.IndexOf(',');
                 if (commaIndex >= 0)
-                    base64 = base64.Substring(commaIndex + 1);
+                    base64 = base64[(commaIndex + 1)..];
 
                 var imageBytes = Convert.FromBase64String(base64);
 

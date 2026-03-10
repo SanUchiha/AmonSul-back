@@ -198,7 +198,7 @@ public class ListaApplication(
         // Si hay 10 o menos listas, devolver un solo PDF
         if (totalPdfs == 1)
         {
-            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas, torneoNombre);
+            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas);
             string fileName = $"Listas_{torneoNombre}.pdf";
             return (pdfBytes, fileName);
         }
@@ -210,7 +210,7 @@ public class ListaApplication(
             for (int i = 0; i < totalPdfs; i++)
             {
                 var listasSubset = listas.Skip(i * listasPorPdf).Take(listasPorPdf).ToList();
-                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset, torneoNombre);
+                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset);
                 
                 var entry = archive.CreateEntry($"Listas_{torneoNombre}_Parte{i + 1}de{totalPdfs}.pdf");
                 using var entryStream = entry.Open();
@@ -238,7 +238,7 @@ public class ListaApplication(
         // Si hay 40 o menos listas, devolver un solo PDF
         if (totalPdfs == 1)
         {
-            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas, torneoNombre);
+            byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listas);
             var stream = new MemoryStream(pdfBytes);
             string fileName = $"Listas_{torneoNombre}.pdf";
             return (stream, fileName);
@@ -252,7 +252,7 @@ public class ListaApplication(
             for (int i = 0; i < totalPdfs; i++)
             {
                 var listasSubset = listas.Skip(i * listasPorPdf).Take(listasPorPdf).ToList();
-                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset, torneoNombre);
+                byte[] pdfBytes = Utils.PdfListaGenerator.GenerateListasPdf(listasSubset);
                 
                 var entry = archive.CreateEntry($"Listas_{torneoNombre}_Parte{i + 1}de{totalPdfs}.pdf");
                 using var entryStream = entry.Open();
