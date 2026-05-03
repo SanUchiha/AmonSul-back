@@ -1,6 +1,7 @@
 using AS.API.Configurations;
 using AS.API.Filters;
 using AS.Application.Extensions;
+using AS.Application.Interfaces;
 using AS.Infrastructure.Extensions;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
@@ -29,5 +30,15 @@ app.MapControllers();
 app.UseHangfireDashboard();
 
 BackgroundJob.Enqueue(() => Console.WriteLine("Amon sûl configurada correctamente."));
+
+RecurringJob.AddOrUpdate<IEloApplication>(
+    "actualizar-cache-clasificacion-elo",
+    job => job.UpdateClasificacionEloCacheAsync(),
+    "0 23 * * 0",
+    new RecurringJobOptions 
+    { 
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time") 
+    }
+);
 
 app.Run();

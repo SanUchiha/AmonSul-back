@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.Models;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -115,5 +116,22 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
         {
             throw new Exception("Ocurrió un problema al obtener los usuarios con sus elos.", ex);
         }
+    }
+
+    public async Task<List<ClasificacionEloDataDTO>> GetClasificacionEloAsync()
+    {
+        return await _dbamonsulContext.Usuarios
+            .Where(u => u.IdUsuario != 568)
+            .Select(u => new ClasificacionEloDataDTO
+            {
+                IdUsuario = u.IdUsuario,
+                Nick = u.Nick,
+                IdFaccion = u.IdFaccion,
+                Elo = u.Elos
+                    .OrderByDescending(e => e.FechaElo)
+                    .Select(e => e.PuntuacionElo)
+                    .FirstOrDefault() ?? 800,
+            })
+            .ToListAsync();
     }
 }
