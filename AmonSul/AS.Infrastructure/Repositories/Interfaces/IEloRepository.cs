@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -12,5 +13,5 @@ public interface IEloRepository
     Task<bool> Delete(int idElo);
     Task<bool> CheckEloByUser(int idUsuario);
     Task<List<Usuario>> GetUsuariosWithElos();
-
+    Task<List<ClasificacionEloDataDTO>> GetClasificacionEloAsync();
 }

@@ -45,7 +45,8 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveResult([FromBody] GuardarResultadosDTO guardarResultadosDTO)
+    public async Task<IActionResult> SaveResult(
+        [FromBody] GuardarResultadosDTO guardarResultadosDTO)
     {
         if (guardarResultadosDTO.GanadoresDTO.Count <= 0) return BadRequest();
 

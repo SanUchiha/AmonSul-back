@@ -1,4 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
+using AS.Application.DTOs.Elo;
 using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.PartidaTorneo;
@@ -102,24 +103,17 @@ public class EloApplication(
 
     public async Task<List<ClasificacionEloDTO>> GetEloClasificacionAsync()
     {
-        List<Usuario> usuarios = await _unitOfWork.EloRepository.GetUsuariosWithElos();
-        if (usuarios is null)
-            return [];
+        List<ClasificacionEloDataDTO>? data = 
+            await _unitOfWork.EloRepository.GetClasificacionEloAsync();
+        if (data is null) return [];
 
-        List<ClasificacionEloDTO> clasificacion = [];
-        foreach (var usuario in usuarios)
+        return [.. data.Select(d => new ClasificacionEloDTO
         {
-            ClasificacionEloDTO obj = _mapper.Map<ClasificacionEloDTO>(usuario);
-            obj.IdFaccion = usuario.IdFaccion;
-            obj.Elo =
-                usuario.Elos.OrderByDescending(e => e.FechaElo).FirstOrDefault()?.PuntuacionElo
-                ?? 800;
-            obj.Nick = usuario.Nick;
-            obj.IdUsuario = usuario.IdUsuario;
-            if (obj.IdUsuario != 568)
-                clasificacion.Add(obj);
-        }
-        return clasificacion;
+            IdUsuario = d.IdUsuario,
+            Nick = d.Nick,
+            IdFaccion = d.IdFaccion,
+            Elo = d.Elo,
+        })];
     }
 
     public async Task<List<ClasificacionEloDTO>> GetClasificacionMensual()
@@ -285,7 +279,8 @@ public class EloApplication(
     /// Actualizar la tabla de caché de clasificación ELO de manera síncrona con resultado
     /// </summary>
     /// <returns>True si se actualizó correctamente</returns>
-    public async Task<bool> UpdateClasificacionEloCacheAsync()
+    public async Task<bool> UpdateClasificacionEloCacheAsync
+        ()
     {
         try
         {
