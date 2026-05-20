@@ -1,0 +1,5 @@
+# Ignore appsettings files
+appsettings.json
+appsettings.*.json
+AS.API/appsettings.json
+AS.API/appsettings.*.json
