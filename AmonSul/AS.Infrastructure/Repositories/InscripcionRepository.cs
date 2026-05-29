@@ -55,6 +55,10 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                                                  .Include(i => i.Lista)
                                                  .FirstOrDefaultAsync(i => i.IdInscripcion == idInscripcion);
         if (inscripcion == null) return null!;
+        // Eliminar participaciones relacionadas para evitar violación de FK
+        var participaciones = _dbamonsulContext.ParticipacionTorneos
+            .Where(p => p.IdInscripcion == inscripcion.IdInscripcion);
+        _dbamonsulContext.ParticipacionTorneos.RemoveRange(participaciones);
 
         _dbamonsulContext.InscripcionTorneos.Remove(inscripcion);
         await _dbamonsulContext.SaveChangesAsync();
@@ -72,6 +76,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
 
             foreach (var inscripcion in equipo.InscripcionTorneos)
             {
+                // Eliminar participaciones relacionadas con esta inscripción
+                var participaciones = _dbamonsulContext.ParticipacionTorneos
+                    .Where(p => p.IdInscripcion == inscripcion.IdInscripcion);
+                _dbamonsulContext.ParticipacionTorneos.RemoveRange(participaciones);
+
                 _dbamonsulContext.Listas.RemoveRange(inscripcion.Lista);
             }
             _dbamonsulContext.InscripcionTorneos.RemoveRange(equipo.InscripcionTorneos);
@@ -107,6 +116,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             using var transaction = await _dbamonsulContext.Database.BeginTransactionAsync();
 
             _dbamonsulContext.Listas.RemoveRange(inscripcion.Lista);            
+            // Eliminar participaciones relacionadas con esta inscripción
+            var participaciones = _dbamonsulContext.ParticipacionTorneos
+                .Where(p => p.IdInscripcion == inscripcion.IdInscripcion);
+            _dbamonsulContext.ParticipacionTorneos.RemoveRange(participaciones);
+
             _dbamonsulContext.InscripcionTorneos.Remove(inscripcion);
             _dbamonsulContext.EquipoUsuario.Remove(miembro);
 
