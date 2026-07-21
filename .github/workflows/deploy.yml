@@ -26,13 +26,18 @@ jobs:
         run: dotnet publish AmonSul/AS.API/AS.API.csproj -c Release -o publish
 
       - name: Deploy via MSDeploy
+        env:
+          MSDEPLOY_PASSWORD: ${{ secrets.MSDEPLOY_PASSWORD }}
         run: |
           $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
-          & $msdeploy `
-            -verb:sync `
-            -source:contentPath="$(Resolve-Path publish)" `
-            -dest:contentPath="sanuchiha-001-site1",computerName="https://win6218.site4now.net:8172/MsDeploy.axd?site=sanuchiha-001-site1",userName="sanuchiha-001",password="${{ secrets.MSDEPLOY_PASSWORD }}",authType="Basic" `
-            -enableRule:AppOffline `
-            -retryAttempts:3 `
-            -retryInterval:2000
+          $publishPath = (Resolve-Path publish).Path
+          $msdeployArgs = @(
+            "-verb:sync",
+            "-source:contentPath=$publishPath",
+            "-dest:contentPath=sanuchiha-001-site1,computerName=https://win6218.site4now.net:8172/MsDeploy.axd?site=sanuchiha-001-site1,userName=sanuchiha-001,password=$env:MSDEPLOY_PASSWORD,authType=Basic",
+            "-enableRule:AppOffline",
+            "-retryAttempts:3",
+            "-retryInterval:2000"
+          )
+          & $msdeploy @msdeployArgs
         shell: pwsh
