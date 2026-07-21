@@ -35,6 +35,7 @@ jobs:
             "-verb:sync",
             "-source:contentPath=$publishPath",
             "-dest:contentPath=sanuchiha-001-site1,computerName=https://win6218.site4now.net:8172/MsDeploy.axd?site=sanuchiha-001-site1,userName=sanuchiha-001,password=$env:MSDEPLOY_PASSWORD,authType=Basic",
+            "-enableRule:DoNotDeleteRule",
             "-enableRule:AppOffline",
             "-retryAttempts:3",
             "-retryInterval:2000"
