@@ -1,0 +1,38 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore AmonSul/AS.API/AS.API.csproj
+
+      - name: Publish
+        run: dotnet publish AmonSul/AS.API/AS.API.csproj -c Release -o publish
+
+      - name: Deploy via MSDeploy
+        run: |
+          $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          & $msdeploy `
+            -verb:sync `
+            -source:contentPath="$(Resolve-Path publish)" `
+            -dest:contentPath="sanuchiha-001-site1",computerName="https://win6218.site4now.net:8172/MsDeploy.axd?site=sanuchiha-001-site1",userName="sanuchiha-001",password="${{ secrets.MSDEPLOY_PASSWORD }}",authType="Basic" `
+            -enableRule:AppOffline `
+            -retryAttempts:3 `
+            -retryInterval:2000
+        shell: pwsh
