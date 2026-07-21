@@ -1,4 +1,11 @@
-﻿AmonSul/.vs/AmonSul/FileContentIndex
+﻿# macOS
+.DS_Store
+**/.DS_Store
+
+# Microsoft Developer Tools
+**/Library/Application Support/Microsoft/DeveloperTools/
+
+AmonSul/.vs/AmonSul/FileContentIndex
 *.v2
 AmonSul/.vs/AmonSul/v17
 AmonSul/AS.API/obj/Debug/net8.0/ref

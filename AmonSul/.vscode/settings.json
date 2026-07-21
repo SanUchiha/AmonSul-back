@@ -2,8 +2,6 @@
     "dotnet.defaultSolution": "AmonSul.sln",
     "omnisharp.enableRoslynAnalyzers": true,
     "omnisharp.enableEditorConfigSupport": true,
-    "omnisharp.enableImportCompletion": true,
-    "omnisharp.organizeImportsOnFormat": true,
     "files.exclude": {
         "**/bin": true,
         "**/obj": true
@@ -19,5 +17,7 @@
     ,
     "[csharp]": {
         "editor.defaultFormatter": "csharpier.csharpier-vscode"
-    }
+    },
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "dotnet.formatting.organizeImportsOnFormat": true
 }
