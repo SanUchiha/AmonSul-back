@@ -22,6 +22,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore AmonSul/AS.API/AS.API.csproj
 
+      - name: Create appsettings.json
+        run: |
+          echo '${{ secrets.APPSETTINGS_JSON }}' > AmonSul/AS.API/appsettings.json
+        shell: pwsh
+
       - name: Publish
         run: dotnet publish AmonSul/AS.API/AS.API.csproj -c Release -o publish
 
