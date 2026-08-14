@@ -1,5 +1,7 @@
 ﻿using System.IO.Compression;
+using System.Net.Http.Headers;
 using System.Net.Mail;
+using System.Text.Json;
 using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
@@ -15,12 +17,14 @@ namespace AS.Application.Services;
 public class ListaApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IEmailApplicacion emailApplicacion
+    IEmailApplicacion emailApplicacion,
+    IHttpClientFactory httpClientFactory
 ) : IListaApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public async Task<Lista> Delete(int idLista) =>
         await _unitOfWork.ListaRepository.Delete(idLista);
@@ -285,5 +289,87 @@ public class ListaApplication(
         }
         
         return _mapper.Map<List<ListaCompletaDTO>>(listas);
+    }
+
+    public async Task<MigracionCloudinaryResultDTO> MigrarListasACloudinaryAsync()
+    {
+        const string cloudinaryUrl = "https://api.cloudinary.com/v1_1/agyewc29/image/upload";
+        const string uploadPreset = "amonsul_listas";
+        const int batchSize = 50;
+
+        var resultado = new MigracionCloudinaryResultDTO();
+        int lastIdLista = 0;
+
+        while (true)
+        {
+            List<Lista> listas = await _unitOfWork.ListaRepository.GetListasBase64BatchAsync(lastIdLista, batchSize);
+            if (listas.Count == 0) break;
+
+            foreach (Lista lista in listas)
+            {
+                resultado.TotalProcesados++;
+                try
+                {
+                    string base64Data = lista.ListaData!;
+                    int commaIndex = base64Data.IndexOf(',');
+                    if (commaIndex >= 0)
+                        base64Data = base64Data[(commaIndex + 1)..];
+
+                    byte[] imageBytes = Convert.FromBase64String(base64Data);
+
+                    using HttpClient httpClient = _httpClientFactory.CreateClient();
+                    using var formData = new MultipartFormDataContent();
+                    var imageContent = new ByteArrayContent(imageBytes);
+                    imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                    formData.Add(imageContent, "file", $"lista_{lista.IdLista}.jpg");
+                    formData.Add(new StringContent(uploadPreset), "upload_preset");
+
+                    HttpResponseMessage response = await httpClient.PostAsync(cloudinaryUrl, formData);
+                    string responseBody = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        resultado.Fallidos++;
+                        resultado.Errores.Add(new MigracionCloudinaryErrorDTO
+                        {
+                            IdLista = lista.IdLista,
+                            Mensaje = $"HTTP {(int)response.StatusCode}: {responseBody}"
+                        });
+                        continue;
+                    }
+
+                    using JsonDocument doc = JsonDocument.Parse(responseBody);
+                    if (!doc.RootElement.TryGetProperty("secure_url", out JsonElement secureUrlElement))
+                    {
+                        resultado.Fallidos++;
+                        resultado.Errores.Add(new MigracionCloudinaryErrorDTO
+                        {
+                            IdLista = lista.IdLista,
+                            Mensaje = "No se encontró 'secure_url' en la respuesta de Cloudinary"
+                        });
+                        continue;
+                    }
+
+                    string secureUrl = secureUrlElement.GetString()!;
+                    await _unitOfWork.ListaRepository.UpdateListaDataAsync(lista.IdLista, secureUrl);
+                    resultado.Exitosos++;
+                }
+                catch (Exception ex)
+                {
+                    resultado.Fallidos++;
+                    resultado.Errores.Add(new MigracionCloudinaryErrorDTO
+                    {
+                        IdLista = lista.IdLista,
+                        Mensaje = ex.Message
+                    });
+                }
+
+                lastIdLista = lista.IdLista;
+            }
+
+            if (listas.Count < batchSize) break;
+        }
+
+        return resultado;
     }
 }

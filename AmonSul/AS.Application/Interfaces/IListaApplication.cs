@@ -22,4 +22,5 @@ public interface IListaApplication
     Task<(byte[] FileBytes, string FileName)> GetListasPdfByTorneo(int idTorneo);
     Task<(Stream Stream, string FileName)> GetListasPdfStreamByTorneo(int idTorneo);
     Task<List<ListaCompletaDTO>> GetListasCompletasByTorneo(int idTorneo);
+    Task<MigracionCloudinaryResultDTO> MigrarListasACloudinaryAsync();
 }

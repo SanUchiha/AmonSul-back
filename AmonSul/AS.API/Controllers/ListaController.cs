@@ -109,6 +109,13 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(deletedLista);
     }
 
+    [HttpPost("migrar-cloudinary")]
+    public async Task<ActionResult<MigracionCloudinaryResultDTO>> MigrarListasACloudinary()
+    {
+        MigracionCloudinaryResultDTO result = await _listaApplication.MigrarListasACloudinaryAsync();
+        return Ok(result);
+    }
+
     [HttpGet]
     [Route("Lista-Torneo/{idTorneo}/{idUsuario}")]
     public async Task<ActionResult>GetListaTorneo(int idTorneo, int idUsuario)
