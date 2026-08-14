@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "AS.API (Debug)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/AmonSul/AS.API/AS.API.csproj",
+            "launchSettingsProfile": "https",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7101"
+            }
+        }
+    ]
+}

@@ -34,6 +34,7 @@ public partial class Torneo
     public DateOnly? InicioInscripciones { get; set; }
     public int ListasPorJugador { get; set; }
     public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
+    public string? Contacto { get; set; }
 
     public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual List<Comentario> Comentarios { get; set; } = [];
