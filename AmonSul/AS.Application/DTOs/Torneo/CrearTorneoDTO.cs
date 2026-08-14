@@ -29,4 +29,5 @@ public class CrearTorneoDTO
     public TimeOnly? HoraFinTorneo { get; set; }
     public DateOnly? InicioInscripciones { get; set; }
     public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
+    public string? Contacto { get; set; }
 }
