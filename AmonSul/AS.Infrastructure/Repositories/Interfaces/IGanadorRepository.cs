@@ -10,4 +10,5 @@ public interface IGanadorRepository
     Task<bool> Register(Ganador usuario);
     Task<bool> Delete(int id);
     Task<bool> ExistsByTorneoAsync(int idTorneo);
+    Task<List<Ganador>> GetByTorneoAsync(int idTorneo);
 }

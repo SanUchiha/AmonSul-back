@@ -191,4 +191,13 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             throw new Exception("Ocurrio un problema en el servidor al conseguir los torneos.", ex);
         }
     }
+
+    public async Task<Torneo> GetWithRondasAsync(int idTorneo)
+    {
+        return await _dbamonsulContext.Torneos
+            .Include(t => t.Ronda)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.IdTorneo == idTorneo)
+            ?? throw new KeyNotFoundException($"Torneo con ID {idTorneo} no encontrado.");
+    }
 }

@@ -34,4 +34,5 @@ public interface IPartidaTorneoRepository
         int? idEquipo,
         DateTime fecha
         );
+    Task<HashSet<int>> GetNumerosRondasConPartidasAsync(int idTorneo);
 }
