@@ -145,6 +145,27 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
         return false;
     }
 
+    public async Task<List<Lista>> GetListasBase64BatchAsync(int lastIdLista, int take)
+    {
+        return await _dbamonsulContext.Listas
+            .Where(l => l.IdLista > lastIdLista &&
+                        l.ListaData != null &&
+                        l.ListaData.StartsWith("data:image"))
+            .OrderBy(l => l.IdLista)
+            .Take(take)
+            .ToListAsync();
+    }
+
+    public async Task UpdateListaDataAsync(int idLista, string listaData)
+    {
+        Lista? lista = await _dbamonsulContext.Listas.FindAsync(idLista);
+        if (lista != null)
+        {
+            lista.ListaData = listaData;
+            await _dbamonsulContext.SaveChangesAsync();
+        }
+    }
+
     public async Task<Lista> UpdateLista(UpdateListaDTO updateListaDTO)
     {
         updateListaDTO.FechaEntrega = DateOnly.FromDateTime(DateTime.Now);

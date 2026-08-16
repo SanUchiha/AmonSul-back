@@ -10,6 +10,7 @@ public static class ServicesConfiguration
     public static IServiceCollection AddInjectionApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(configuration);
+        services.AddHttpClient();
 
         services.AddScoped<IUsuarioApplication, UsuarioApplication>();
         services.AddScoped<ILoginApplication, LoginApplication>();
