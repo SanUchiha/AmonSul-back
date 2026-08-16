@@ -109,6 +109,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         return Ok(deletedLista);
     }
 
+    [AllowAnonymous]
     [HttpPost("migrar-cloudinary")]
     public async Task<ActionResult<MigracionCloudinaryResultDTO>> MigrarListasACloudinary()
     {
