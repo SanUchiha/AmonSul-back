@@ -59,6 +59,12 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
     public async Task<bool> ExistsByTorneoAsync(int idTorneo) => 
         await _dbamonsulContext.Ganador.AnyAsync(x => x.IdTorneo == idTorneo);
 
+    public async Task<List<Ganador>> GetByTorneoAsync(int idTorneo) =>
+        await _dbamonsulContext.Ganador
+            .Where(g => g.IdTorneo == idTorneo)
+            .OrderBy(g => g.Resultado)
+            .ToListAsync();
+
     public async Task<Ganador> GetById(int id)
     {
         try

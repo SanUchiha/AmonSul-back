@@ -29,4 +29,5 @@ public interface ITorneoApplication
         int idTorneo
     );
     Task<List<EquipoDisponibleDTO>> GetEquiposDisponiblesAsync(int idTorneo);
+    Task<ResumenTorneoDTO> GetResumenTorneoAsync(int idTorneo);
 }

@@ -23,4 +23,5 @@ public interface ITorneoRepository
     Task<TorneoUsuarioDto> GetNombreById(int idTorneo);
     Task<List<GanadorTorneoDTO>> GetAllSoloNames();
     Task<List<Torneo>> SearchTorneosByNameAsync(string nombre);
+    Task<Torneo> GetWithRondasAsync(int idTorneo);
 }
