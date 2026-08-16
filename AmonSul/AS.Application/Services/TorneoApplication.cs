@@ -290,6 +290,9 @@ public class TorneoApplication(
         if (!string.IsNullOrWhiteSpace(request.TipoTorneo))
             torneo.TipoTorneo = request.TipoTorneo;
 
+        if (!string.IsNullOrWhiteSpace(request.Contacto))
+            torneo.Contacto = request.Contacto;
+
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
