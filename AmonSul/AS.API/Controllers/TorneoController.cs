@@ -483,7 +483,8 @@ public class TorneoController(
     [Route("resumen/{idTorneo}")]
     public async Task<IActionResult> GetResumenTorneo(int idTorneo)
     {
-        ResumenTorneoDTO response = await _torneoApplication.GetResumenTorneoAsync(idTorneo);
+        ResumenTorneoDTO response = 
+            await _torneoApplication.GetResumenTorneoAsync(idTorneo);
 
         if (response is null)
             return NotFound();

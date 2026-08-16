@@ -356,4 +356,11 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             )
             .ToListAsync();
     }
+
+    public async Task<HashSet<int>> GetNumerosRondasConPartidasAsync(int idTorneo) =>
+        [.. (await _dbamonsulContext.PartidaTorneos
+            .Where(p => p.IdTorneo == idTorneo && p.NumeroRonda != null)
+            .Select(p => p.NumeroRonda!.Value)
+            .Distinct()
+            .ToListAsync())];
 }

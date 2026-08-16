@@ -472,37 +472,28 @@ public class TorneoApplication(
 
     public async Task<ResumenTorneoDTO> GetResumenTorneoAsync(int idTorneo)
     {
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetWithRondasAsync(idTorneo);
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(idTorneo);
 
         bool esEquipo = torneo.TipoTorneo != TorneoType.INDIVIDUAL;
 
+        HashSet<int> rondasConPartidas =
+            await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo);
+
         List<bool> rondas = [];
         for (int i = 1; i <= torneo.NumeroPartidas; i++)
-            rondas.Add(torneo.Ronda.Any(r => r.NumeroRonda == i));
+            rondas.Add(rondasConPartidas.Contains(i));
 
-        List<Ganador> ganadores = await _unitOfWork.GanadorRepository.GetByTorneoAsync(idTorneo);
+        List<Ganador> ganadores = 
+            await _unitOfWork.GanadorRepository.GetByTorneoAsync(idTorneo);
 
         List<string> ganadoresNombres = [];
         foreach (Ganador ganador in ganadores.Take(3))
         {
-            if (esEquipo)
-            {
-                int? idEquipo = await _unitOfWork.InscripcionRepository
-                    .GetIdEquipoByIdUsuarioAndIdTorneoAsync(ganador.IdUsuario, idTorneo);
-
-                if (idEquipo.HasValue)
-                {
-                    Equipo? equipo = await _unitOfWork.InscripcionRepository
-                        .GetEquipoByIdAsync(idEquipo.Value);
-                    ganadoresNombres.Add(equipo?.NombreEquipo ?? string.Empty);
-                }
-            }
-            else
-            {
-                Usuario usuario = await _unitOfWork.UsuarioRepository
-                    .GetUsuarioSoloById(ganador.IdUsuario);
-                ganadoresNombres.Add(usuario?.Nick ?? string.Empty);
-            }
+            
+            Usuario usuario = await _unitOfWork.UsuarioRepository
+                .GetUsuarioSoloById(ganador.IdUsuario);
+            ganadoresNombres.Add(usuario?.Nick ?? string.Empty);
+            
         }
 
         return new ResumenTorneoDTO
