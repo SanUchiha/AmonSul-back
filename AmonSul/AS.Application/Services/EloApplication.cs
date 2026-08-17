@@ -1,8 +1,5 @@
 ﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.Partida;
 using AS.Application.DTOs.PartidaAmistosa;
-using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Elos;
 using AS.Domain.Models;
@@ -103,7 +100,7 @@ public class EloApplication(
 
     public async Task<List<ClasificacionEloDTO>> GetEloClasificacionAsync()
     {
-        List<ClasificacionEloDataDTO>? data = 
+        List<ClasificacionEloDataDTO>? data =
             await _unitOfWork.EloRepository.GetClasificacionEloAsync();
         if (data is null) return [];
 

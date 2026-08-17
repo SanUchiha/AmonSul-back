@@ -1,12 +1,9 @@
-﻿using AS.Application.DTOs.Elo;
-using AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
-using AS.Utils.Statics;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
 
 namespace AS.Application.Services;
 

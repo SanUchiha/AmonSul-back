@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Text.Json;
 using AS.Application.DTOs.Email;
@@ -310,25 +309,20 @@ public class ListaApplication(
                 resultado.TotalProcesados++;
                 try
                 {
-                    string base64Data = lista.ListaData!;
-                    int commaIndex = base64Data.IndexOf(',');
-                    if (commaIndex >= 0)
-                        base64Data = base64Data[(commaIndex + 1)..];
-
-                    byte[] imageBytes = Convert.FromBase64String(base64Data);
-
                     using HttpClient httpClient = _httpClientFactory.CreateClient();
-                    using var formData = new MultipartFormDataContent();
-                    var imageContent = new ByteArrayContent(imageBytes);
-                    imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-                    formData.Add(imageContent, "file", $"lista_{lista.IdLista}.jpg");
-                    formData.Add(new StringContent(uploadPreset), "upload_preset");
+                    var formFields = new List<KeyValuePair<string, string>>
+                    {
+                        new("file", lista.ListaData!),
+                        new("upload_preset", uploadPreset),
+                    };
+                    using var formData = new FormUrlEncodedContent(formFields);
 
                     HttpResponseMessage response = await httpClient.PostAsync(cloudinaryUrl, formData);
                     string responseBody = await response.Content.ReadAsStringAsync();
 
                     if (!response.IsSuccessStatusCode)
                     {
+                        Console.WriteLine($"[Cloudinary] idLista={lista.IdLista} → {(int)response.StatusCode}: {responseBody}");
                         resultado.Fallidos++;
                         resultado.Errores.Add(new MigracionCloudinaryErrorDTO
                         {
