@@ -22,6 +22,7 @@ public interface IPartidaTorneoRepository
     Task<bool> GenerateRound(List<PartidaTorneo> partidasRonda);
 
     Task<bool> Delete(int idPartida);
+    Task<bool> DeleteRonda(int idTorneo, int idRonda);
     Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
     Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(

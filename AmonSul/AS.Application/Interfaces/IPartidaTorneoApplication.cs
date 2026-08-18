@@ -23,6 +23,7 @@ public interface IPartidaTorneoApplication
     Task<bool> EdtarPairingEquiposAsync(UpdatePairingTorneoDTO request);
 
     Task<bool> Delete(int idPartida);
+    Task<(bool success, string? errorMessage)> DeleteRonda(int idTorneo, int idRonda);
     Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo);
     Task<bool> GenerateRoundEquipos(GenerarRondaEquiposDTO request);
     Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request);
