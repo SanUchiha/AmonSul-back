@@ -42,6 +42,22 @@ public class PartidaTorneoApplication(
     public async Task<bool> Delete(int idPartida) =>
         await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
 
+    public async Task<(bool success, string? errorMessage)> DeleteRonda(int idTorneo, int idRonda)
+    {
+        HashSet<int> rondasExistentes =
+            await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo);
+
+        if (!rondasExistentes.Contains(idRonda))
+            return (false, $"La ronda {idRonda} no existe en el torneo.");
+
+        int maxRonda = rondasExistentes.Max();
+        if (idRonda != maxRonda)
+            return (false, $"Solo se puede eliminar la última ronda. La ronda {idRonda} no es la última (ronda actual: {maxRonda}).");
+
+        bool result = await _unitOfWork.PartidaTorneoRepository.DeleteRonda(idTorneo, idRonda);
+        return (result, null);
+    }
+
     public async Task<PartidaTorneoDTO?> EditAsync(UpdatePartidaTorneoDTO request)
     {
         // Obtener la entidad existente

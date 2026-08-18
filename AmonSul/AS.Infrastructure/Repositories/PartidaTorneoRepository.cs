@@ -363,4 +363,26 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             .Select(p => p.NumeroRonda!.Value)
             .Distinct()
             .ToListAsync())];
+
+    public async Task<bool> DeleteRonda(int idTorneo, int idRonda)
+    {
+        try
+        {
+            List<PartidaTorneo> partidas = await _dbamonsulContext.PartidaTorneos
+                .Where(p => p.IdTorneo == idTorneo && p.NumeroRonda == idRonda)
+                .ToListAsync();
+
+            if (partidas.Count == 0)
+                return false;
+
+            _dbamonsulContext.PartidaTorneos.RemoveRange(partidas);
+            await _dbamonsulContext.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema en el servidor al eliminar la ronda.", ex);
+        }
+    }
 }

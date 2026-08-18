@@ -257,6 +257,19 @@ public class TorneoController(
         return Ok(response);
     }
 
+    [HttpDelete]
+    [Route("Gestion/{idTorneo}/Ronda/{idRonda}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> DeleteRonda(int idTorneo, int idRonda)
+    {
+        var (success, errorMessage) = await _partidaTorneoApplication.DeleteRonda(idTorneo, idRonda);
+
+        if (!success)
+            return BadRequest(errorMessage);
+
+        return Ok($"La ronda {idRonda} del torneo ha sido eliminada con éxito");
+    }
+
     #endregion
 
     [HttpGet]
