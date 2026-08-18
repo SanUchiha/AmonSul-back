@@ -56,5 +56,11 @@ public class LigaRepository(DbamonsulContext dbamonsulContext) : ILigaRepository
                 .Include(lt => lt.Torneo)
                 .Where(t => t.IdLiga == idLiga)
                 .ToListAsync();
+
+    public async Task<Liga?> GetLigaAmonSulUltimoAnioAsync() =>
+        await _dbamonsulContext.Liga
+            .Where(l => l.NombreLiga.StartsWith("Amon S"))
+            .OrderByDescending(l => l.NombreLiga)
+            .FirstOrDefaultAsync();
 }
 
