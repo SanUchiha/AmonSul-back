@@ -12,4 +12,5 @@ public interface ILigaApplication
     Task<List<Liga>?> GetLigasNoTorneoAsync(int idTorneo);
     Task<List<Liga>?> GetLigasAsocidasATorneoAsync(int idTorneo);
     Task<bool> DeleteLigaTorneoAsync(int idLiga, int idTorneo);
+    Task CrearLigaAmonSulAnualAsync();
 }

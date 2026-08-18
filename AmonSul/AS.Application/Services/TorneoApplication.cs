@@ -135,7 +135,10 @@ public class TorneoApplication(
                 );
         }
 
-        LigaTorneo ligaTorneo = new() { IdLiga = 2, IdTorneo = torneoCreado.IdTorneo };
+        Liga? ligaAmonSul = await _unitOfWork.LigaRepository.GetLigaAmonSulUltimoAnioAsync();
+        int idLiga = ligaAmonSul?.IdLiga ?? 2;
+
+        LigaTorneo ligaTorneo = new() { IdLiga = idLiga, IdTorneo = torneoCreado.IdTorneo };
 
         if (torneoCreado.HasCreated)
             await _unitOfWork.LigaRepository.AddTorneoToLigaAsync(ligaTorneo);

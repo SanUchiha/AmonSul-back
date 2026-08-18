@@ -29,7 +29,17 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseHangfireDashboard();
 
-BackgroundJob.Enqueue(() => Console.WriteLine("Amon sûl configurada correctamente."));
+BackgroundJob.Enqueue(() => Console.WriteLine("Amon sï¿½l configurada correctamente."));
+
+RecurringJob.AddOrUpdate<ILigaApplication>(
+    "crear-liga-amon-sul-anual",
+    job => job.CrearLigaAmonSulAnualAsync(),
+    "0 0 1 1 *",
+    new RecurringJobOptions
+    {
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time")
+    }
+);
 
 RecurringJob.AddOrUpdate<IEloApplication>(
     "actualizar-cache-clasificacion-elo",
