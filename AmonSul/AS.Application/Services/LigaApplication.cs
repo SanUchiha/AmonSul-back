@@ -33,4 +33,11 @@ public class LigaApplication(IUnitOfWork unitOfWork, IMapper mapper) : ILigaAppl
 
     public async Task<List<LigaTorneo>?> GetTorneosByIdLigaAsync(int idLiga) =>
         await _unitOfWork.LigaRepository.GetTorneosByIdLigaAsync(idLiga);
+
+    public async Task CrearLigaAmonSulAnualAsync()
+    {
+        int anio = DateTime.Now.Year;
+        Liga liga = new() { NombreLiga = $"Amon S\u00FBl {anio}" };
+        await _unitOfWork.LigaRepository.CrearLigaAsync(liga);
+    }
 }

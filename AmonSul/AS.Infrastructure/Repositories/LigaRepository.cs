@@ -62,5 +62,18 @@ public class LigaRepository(DbamonsulContext dbamonsulContext) : ILigaRepository
             .Where(l => l.NombreLiga.StartsWith("Amon S"))
             .OrderByDescending(l => l.NombreLiga)
             .FirstOrDefaultAsync();
+
+    public async Task<bool> CrearLigaAsync(Liga liga)
+    {
+        bool yaExiste = await _dbamonsulContext.Liga
+            .AnyAsync(l => l.NombreLiga == liga.NombreLiga);
+
+        if (yaExiste)
+            return false;
+
+        await _dbamonsulContext.Liga.AddAsync(liga);
+        await _dbamonsulContext.SaveChangesAsync();
+        return true;
+    }
 }
 
