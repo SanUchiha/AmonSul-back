@@ -355,4 +355,22 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
             return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
         }
     }
+
+    [HttpGet]
+    [Route("IdNick")]
+    public async Task<IActionResult> GetAllIdNick()
+    {
+        try
+        {
+            var response = await _usuarioApplication.GetAllIdNickAsync();
+
+            if (response is null || response.Count == 0) return NoContent();
+
+            return Ok(response);
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
 }

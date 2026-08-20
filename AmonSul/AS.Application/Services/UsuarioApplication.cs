@@ -218,6 +218,12 @@ public class UsuarioApplication(
     public async Task<bool> GetProteccionDatos(int idUsuario) => 
         await _unitOfWork.UsuarioRepository.GetProteccionDatos(idUsuario);
 
+    public async Task<List<UsuarioIdNickDTO>> GetAllIdNickAsync()
+    {
+        var soloNicks = await _unitOfWork.UsuarioRepository.GetAllSoloNicks();
+        return soloNicks.Select(u => new UsuarioIdNickDTO { IdUsuario = u.IdUsuario, Nick = u.Nick }).ToList();
+    }
+
     public async Task<UsuarioViewDTO> GetUsuario(string email)
     {
         var usuarioEncontrado = await _unitOfWork.UsuarioRepository.GetUsuario(email);
