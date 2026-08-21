@@ -18,8 +18,8 @@ public class EstadisticasController(IEstadisticasApplication estadisticasApplica
     [HttpGet("ejercito/top-bandos")]
     public async Task<ActionResult<TopBandosResponseDTO>> GetTopEjercitosPorBando([FromQuery] int top = 3)
     {
-        if (top < 1 || top > 20)
-            return BadRequest("El parámetro 'top' debe estar entre 1 y 20.");
+        if (top < 1 || top > 999)
+            return BadRequest("El parámetro 'top' debe estar entre 1 y 999.");
 
         var result = await _estadisticasApplication.GetTopEjercitosPorBandoAsync(top);
         return Ok(result);
