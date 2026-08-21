@@ -23,6 +23,7 @@ public static class ServicesConfiguration
         services.AddScoped<IPartidaTorneoApplication, PartidaTorneoApplication>();
         services.AddScoped<IGanadorApplication, GanadorApplication>();
         services.AddScoped<ILigaApplication, LigaApplication>();
+        services.AddScoped<IEstadisticasApplication, EstadisticasApplication>();
 
         return services;
     }
