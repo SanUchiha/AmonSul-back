@@ -113,11 +113,14 @@ SELECT
     t.ID_Torneo,
     t.R AS FilasEsperadas,
     COUNT(b.GInicio) AS BloquesEncontrados,
-    CASE COUNT(b.GInicio)
-        WHEN 1 THEN 'OK'
-        WHEN 0 THEN 'Sin bloque'
-        ELSE 'Varios bloques'
-    END AS Estado,
+    -- varchar(50): luego puede pasar a 'Conflicto con otro torneo', más largo que estos textos
+    CAST(
+        CASE COUNT(b.GInicio)
+            WHEN 1 THEN 'OK'
+            WHEN 0 THEN 'Sin bloque'
+            ELSE 'Varios bloques'
+        END AS varchar(50)
+    ) AS Estado,
     MIN(b.GInicio) AS GInicio
 INTO #Resumen
 FROM #Tamano t
