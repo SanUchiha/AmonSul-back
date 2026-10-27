@@ -15,6 +15,7 @@ public interface ITorneoRepository
     Task<List<Torneo>> GetTorneosPasadosAsync(DateOnly fechaHoy, int pageNumber, int pageSize);
     Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int idUsuario);
     Task<Torneo> GetById(int Id);
+    Task<List<Torneo>> GetNombresByIds(List<int> idsTorneo);
     Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo);
     Task<bool> Edit(Torneo torneo);
     Task<ResultTorneoCreadoDTO> Register(Torneo torneo);

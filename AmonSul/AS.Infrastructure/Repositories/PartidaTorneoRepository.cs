@@ -129,11 +129,50 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
     {
         try
         {
+            // Proyección en lugar de Include: de usuarios y torneo solo se usan nick y nombre,
+            // y el Include traía en cada partida la Imagen de los jugadores y las bases (PDF) y cartel del torneo
             List<PartidaTorneo> partidas = await _dbamonsulContext
-                .PartidaTorneos.Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
-                .Include(p => p.IdUsuario1Navigation)
-                .Include(p => p.IdUsuario2Navigation)
-                .Include(p => p.IdTorneoNavigation)
+                .PartidaTorneos.AsNoTracking()
+                .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                .Select(p => new PartidaTorneo
+                {
+                    IdPartidaTorneo = p.IdPartidaTorneo,
+                    IdTorneo = p.IdTorneo,
+                    IdUsuario1 = p.IdUsuario1,
+                    IdUsuario2 = p.IdUsuario2,
+                    ResultadoUsuario1 = p.ResultadoUsuario1,
+                    ResultadoUsuario2 = p.ResultadoUsuario2,
+                    FechaPartida = p.FechaPartida,
+                    EsMatchedPlayPartida = p.EsMatchedPlayPartida,
+                    EscenarioPartida = p.EscenarioPartida,
+                    PuntosPartida = p.PuntosPartida,
+                    GanadorPartidaTorneo = p.GanadorPartidaTorneo,
+                    EsElo = p.EsElo,
+                    PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
+                    PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
+                    EjercitoUsuario1 = p.EjercitoUsuario1,
+                    EjercitoUsuario2 = p.EjercitoUsuario2,
+                    NumeroRonda = p.NumeroRonda,
+                    LiderMuertoUsuario1 = p.LiderMuertoUsuario1,
+                    LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
+                    IdEquipo1 = p.IdEquipo1,
+                    IdEquipo2 = p.IdEquipo2,
+                    IdUsuario1Navigation = new Usuario
+                    {
+                        IdUsuario = p.IdUsuario1Navigation!.IdUsuario,
+                        Nick = p.IdUsuario1Navigation.Nick,
+                    },
+                    IdUsuario2Navigation = new Usuario
+                    {
+                        IdUsuario = p.IdUsuario2Navigation!.IdUsuario,
+                        Nick = p.IdUsuario2Navigation.Nick,
+                    },
+                    IdTorneoNavigation = new Torneo
+                    {
+                        IdTorneo = p.IdTorneoNavigation!.IdTorneo,
+                        NombreTorneo = p.IdTorneoNavigation.NombreTorneo,
+                    },
+                })
                 .ToListAsync();
 
             if (partidas == null)

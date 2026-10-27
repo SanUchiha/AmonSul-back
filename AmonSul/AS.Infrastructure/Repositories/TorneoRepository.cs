@@ -86,6 +86,21 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
+    /// <summary>
+    /// Id, nombre y organizador de varios torneos en una sola consulta, sin bases ni cartel
+    /// </summary>
+    public async Task<List<Torneo>> GetNombresByIds(List<int> idsTorneo) =>
+        await _dbamonsulContext
+            .Torneos.AsNoTracking()
+            .Where(t => idsTorneo.Contains(t.IdTorneo))
+            .Select(t => new Torneo
+            {
+                IdTorneo = t.IdTorneo,
+                NombreTorneo = t.NombreTorneo,
+                IdUsuario = t.IdUsuario,
+            })
+            .ToListAsync();
+
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
         await _dbamonsulContext
             .Torneos.Where(u => u.IdTorneo == IdTorneo)

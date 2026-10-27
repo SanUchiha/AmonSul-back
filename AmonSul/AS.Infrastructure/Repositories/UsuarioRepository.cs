@@ -93,6 +93,31 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
+    /// <summary>
+    /// Usuario con solo lo que necesita el detalle de jugador (elos, facción e inscripciones),
+    /// sin las partidas ni los torneos organizados con sus bases y cartel
+    /// </summary>
+    public async Task<Usuario> GetByIdDetalle(int idUsuario)
+    {
+        try
+        {
+            Usuario? response = await _dbamonsulContext.Usuarios
+                .AsNoTracking()
+                .Where(u => u.IdUsuario == idUsuario)
+                .Include(u => u.Elos)
+                .Include(u => u.IdFaccionNavigation)
+                .Include(u => u.InscripcionTorneos)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync();
+
+            return response ?? throw new Exception("Usuario no encontrado");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener el usuario por ID.", ex);
+        }
+    }
+
     public async Task<UsuarioEmailDto> GetEmailNickById(int idUsuario)
     {
         try

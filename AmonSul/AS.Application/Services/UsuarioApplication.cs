@@ -232,11 +232,24 @@ public class UsuarioApplication(
 
     public async Task<UsuarioDataDTO> GetUsuarioDataAsync(int idUsuario)
     {
-        Usuario usuario = await _unitOfWork.UsuarioRepository.GetById(idUsuario);
+        Usuario usuario = await _unitOfWork.UsuarioRepository.GetByIdDetalle(idUsuario);
         if (usuario == null) return null!;
 
         UsuarioDataDTO response = _mapper.Map<UsuarioDataDTO>(usuario);
         if (response == null) return null!;
+
+        List<Ganador> listaResultadosRaw = await _unitOfWork.GanadorRepository.GetAllByUsuario(idUsuario);
+
+        // Nombres y organizadores de todos los torneos en una sola consulta
+        List<int> idsTorneo =
+        [
+            .. usuario.InscripcionTorneos.Select(i => i.IdTorneo)
+                .Concat(listaResultadosRaw.Select(g => g.IdTorneo))
+                .Distinct(),
+        ];
+        Dictionary<int, Torneo> torneos =
+            (await _unitOfWork.TorneoRepository.GetNombresByIds(idsTorneo))
+                .ToDictionary(t => t.IdTorneo);
 
         response.Faccion =
             _mapper.Map<FaccionDTO>(usuario.IdFaccionNavigation);
@@ -244,8 +257,7 @@ public class UsuarioApplication(
             _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(usuario.InscripcionTorneos);
         foreach (InscripcionUsuarioIndividualDTO item in response.InscripcionesIndividualTorneo)
         {
-            Torneo torneoAux =
-                await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);
+            if (!torneos.TryGetValue(item.IdTorneo, out Torneo? torneoAux)) continue;
             item.NombreTorneo =  torneoAux.NombreTorneo;
             item.IdOrganizador = torneoAux.IdUsuario;
         }
@@ -288,14 +300,12 @@ public class UsuarioApplication(
         response.PartidasEmpatadas = contadorEmpates;
         response.PartidasPerdidas = contadorDerrotas;
 
-        List<Ganador> listaResultadosRaw = await _unitOfWork.GanadorRepository.GetAllByUsuario(idUsuario);
-
         List<ClasificacionTorneosDTO> clasificacionTorneos = [];
         if(listaResultadosRaw.Count > 0)
         {
             foreach (var item in listaResultadosRaw)
             {
-                Torneo torneo = await _unitOfWork.TorneoRepository.GetById(item.IdTorneo);
+                if (!torneos.TryGetValue(item.IdTorneo, out Torneo? torneo)) continue;
                 ClasificacionTorneosDTO c = new()
                 {
                     Resultado = item.Resultado,

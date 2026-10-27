@@ -134,10 +134,44 @@ public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPar
     {
         try
         {
+            // Proyección en lugar de Include: de los usuarios solo se usa el nick,
+            // y el Include traía la Imagen (base64) de los dos jugadores en cada partida
             List<PartidaAmistosa> partidas = await _dbamonsulContext.PartidaAmistosas
+                .AsNoTracking()
                 .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
-                .Include(p => p.IdUsuario1Navigation)  
-                .Include(p => p.IdUsuario2Navigation) 
+                .Select(p => new PartidaAmistosa
+                {
+                    IdPartidaAmistosa = p.IdPartidaAmistosa,
+                    IdUsuario1 = p.IdUsuario1,
+                    IdUsuario2 = p.IdUsuario2,
+                    ResultadoUsuario1 = p.ResultadoUsuario1,
+                    ResultadoUsuario2 = p.ResultadoUsuario2,
+                    FechaPartida = p.FechaPartida,
+                    EsMatchedPlayPartida = p.EsMatchedPlayPartida,
+                    EscenarioPartida = p.EscenarioPartida,
+                    PuntosPartida = p.PuntosPartida,
+                    GanadorPartida = p.GanadorPartida,
+                    EsElo = p.EsElo,
+                    PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
+                    PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
+                    EsTorneo = p.EsTorneo,
+                    EjercitoUsuario1 = p.EjercitoUsuario1,
+                    EjercitoUsuario2 = p.EjercitoUsuario2,
+                    IdUsuario1Navigation = p.IdUsuario1Navigation == null
+                        ? null
+                        : new Usuario
+                        {
+                            IdUsuario = p.IdUsuario1Navigation.IdUsuario,
+                            Nick = p.IdUsuario1Navigation.Nick,
+                        },
+                    IdUsuario2Navigation = p.IdUsuario2Navigation == null
+                        ? null
+                        : new Usuario
+                        {
+                            IdUsuario = p.IdUsuario2Navigation.IdUsuario,
+                            Nick = p.IdUsuario2Navigation.Nick,
+                        },
+                })
                 .ToListAsync();
 
             if (partidas == null) return [];

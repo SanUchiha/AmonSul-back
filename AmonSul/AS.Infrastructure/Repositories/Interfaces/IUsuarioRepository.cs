@@ -8,6 +8,7 @@ namespace AS.Infrastructure.Repositories.Interfaces;
 public interface IUsuarioRepository
 {
     Task<Usuario> GetById(int id);
+    Task<Usuario> GetByIdDetalle(int idUsuario);
     Task<Usuario> GetByIdFast(int id);
     Task<Usuario> GetByEmail(string email);
     Task<Usuario> GetByNick(string nick);
