@@ -30,6 +30,8 @@ public class UsuarioMappingProfile : Profile
         CreateMap<Faccion, FaccionDTO>().ReverseMap(); // Mapeo entre Faccion y FaccionDTO
         CreateMap<PartidaTorneo, ViewPartidaTorneoDTO>()
             .ForMember(dest => dest.NombreTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.NombreTorneo))
+            .ForMember(dest => dest.PuntosTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.PuntosTorneo))
+            .ForMember(dest => dest.MostrarListas, opt => opt.MapFrom(src => src.IdTorneoNavigation!.MostrarListas))
             .ReverseMap(); 
         
     }

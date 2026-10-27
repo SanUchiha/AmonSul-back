@@ -21,6 +21,11 @@ public class ViewPartidaTorneoDTO
     public string? EjercitoUsuario1 { get; set; }
     public string? EjercitoUsuario2 { get; set; }
     public string? NombreTorneo { get; set; }
+    public int? NumeroRonda { get; set; }
+    // Puntos del torneo: las partidas de torneo recientes no guardan PuntosPartida
+    public int? PuntosTorneo { get; set; }
+    // Si el organizador oculta las listas, el front no deja abrirlas desde la partida
+    public bool? MostrarListas { get; set; }
     [JsonIgnore]
     public Domain.Models.Usuario? IdUsuario1Navigation { get; set; }
     [JsonIgnore]

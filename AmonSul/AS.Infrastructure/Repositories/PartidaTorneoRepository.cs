@@ -171,6 +171,8 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                     {
                         IdTorneo = p.IdTorneoNavigation!.IdTorneo,
                         NombreTorneo = p.IdTorneoNavigation.NombreTorneo,
+                        PuntosTorneo = p.IdTorneoNavigation.PuntosTorneo,
+                        MostrarListas = p.IdTorneoNavigation.MostrarListas,
                     },
                 })
                 .ToListAsync();
