@@ -129,7 +129,8 @@ public class GanadorApplication(
             CreateEloDTO createElo1 = new()
             {
                 IdUsuario = (int)partida.IdUsuario1,
-                PuntuacionElo = nuevoEloJugador1
+                PuntuacionElo = nuevoEloJugador1,
+                IdPartidaTorneo = partida.IdPartidaTorneo,
             };
             if (createElo1.IdUsuario != 568)
                 await _eloApplication.RegisterElo(createElo1);
@@ -137,7 +138,8 @@ public class GanadorApplication(
             CreateEloDTO createElo2 = new()
             {
                 IdUsuario = (int)partida.IdUsuario2,
-                PuntuacionElo = nuevoEloJugador2
+                PuntuacionElo = nuevoEloJugador2,
+                IdPartidaTorneo = partida.IdPartidaTorneo,
             };
             if (createElo2.IdUsuario != 568)
                 await _eloApplication.RegisterElo(createElo2);

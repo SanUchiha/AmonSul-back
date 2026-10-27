@@ -2,6 +2,7 @@
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.DTOs.Lista;
@@ -150,6 +151,28 @@ public class PartidaTorneoApplication(
                     partida.GanadorPartidaNick = null;
             }
         }
+
+        // ELO ganado o perdido en cada partida, si quedó registrado con su IdPartidaTorneo
+        List<EloVariacionPartidaDTO> variaciones =
+            await _unitOfWork.EloRepository.GetVariacionesByPartidas(
+                [.. response.Select(p => p.IdPartidaTorneo)]
+            );
+        Dictionary<(int, int), int> variacionPorPartidaYUsuario = variaciones
+            .GroupBy(v => (v.IdPartidaTorneo, v.IdUsuario))
+            .ToDictionary(g => g.Key, g => g.Sum(v => v.Variacion));
+
+        foreach (var partida in response)
+        {
+            partida.EloVariacionUsuario1 = variacionPorPartidaYUsuario.TryGetValue(
+                (partida.IdPartidaTorneo, partida.IdUsuario1), out int variacion1)
+                ? variacion1
+                : null;
+            partida.EloVariacionUsuario2 = variacionPorPartidaYUsuario.TryGetValue(
+                (partida.IdPartidaTorneo, partida.IdUsuario2), out int variacion2)
+                ? variacion2
+                : null;
+        }
+
         return response;
     }
 

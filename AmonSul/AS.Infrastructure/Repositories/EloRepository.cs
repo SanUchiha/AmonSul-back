@@ -118,6 +118,34 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
         }
     }
 
+    /// <summary>
+    /// Variación de ELO de cada jugador en las partidas dadas: su ELO tras la partida
+    /// menos el anterior (fila previa por IdElo, o 800 si no tenía, como GetLastElo)
+    /// </summary>
+    public async Task<List<EloVariacionPartidaDTO>> GetVariacionesByPartidas(List<int> idsPartidaTorneo) =>
+        await _dbamonsulContext.Elos
+            .AsNoTracking()
+            .Where(e =>
+                e.IdPartidaTorneo != null
+                && idsPartidaTorneo.Contains(e.IdPartidaTorneo.Value)
+                && e.IdUsuario != null
+                && e.PuntuacionElo != null
+            )
+            .Select(e => new EloVariacionPartidaDTO
+            {
+                IdPartidaTorneo = e.IdPartidaTorneo!.Value,
+                IdUsuario = e.IdUsuario!.Value,
+                Variacion = e.PuntuacionElo!.Value
+                    - (
+                        _dbamonsulContext.Elos
+                            .Where(p => p.IdUsuario == e.IdUsuario && p.IdElo < e.IdElo)
+                            .OrderByDescending(p => p.IdElo)
+                            .Select(p => p.PuntuacionElo)
+                            .FirstOrDefault() ?? 800
+                    ),
+            })
+            .ToListAsync();
+
     public async Task<List<ClasificacionEloDataDTO>> GetClasificacionEloAsync()
     {
         return await _dbamonsulContext.Usuarios

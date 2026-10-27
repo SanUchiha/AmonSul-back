@@ -189,6 +189,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("Fecha_Elo");
 
+                    b.Property<int?>("IdPartidaTorneo")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Partida_Torneo");
+
                     b.Property<int?>("IdUsuario")
                         .HasColumnType("int")
                         .HasColumnName("ID_Usuario");
@@ -201,6 +205,8 @@ namespace AS.Infrastructure.Migrations
                         .HasName("PK__Elo__2D4D22C31CCC8245");
 
                     b.HasIndex("IdUsuario");
+
+                    b.HasIndex(new[] { "IdPartidaTorneo" }, "IX_Elo_ID_Partida_Torneo");
 
                     b.ToTable("Elo", (string)null);
                 });

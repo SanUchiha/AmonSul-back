@@ -14,4 +14,5 @@ public interface IEloRepository
     Task<bool> CheckEloByUser(int idUsuario);
     Task<List<Usuario>> GetUsuariosWithElos();
     Task<List<ClasificacionEloDataDTO>> GetClasificacionEloAsync();
+    Task<List<EloVariacionPartidaDTO>> GetVariacionesByPartidas(List<int> idsPartidaTorneo);
 }

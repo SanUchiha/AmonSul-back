@@ -123,6 +123,9 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
             entity.Property(e => e.PuntuacionElo).HasColumnName("Puntuacion_Elo");
             entity.Property(e => e.FechaElo).HasColumnName("Fecha_Elo");
+            // Sin FK: borrar una partida o una ronda no debe fallar por su ELO
+            entity.Property(e => e.IdPartidaTorneo).HasColumnName("ID_Partida_Torneo");
+            entity.HasIndex(e => e.IdPartidaTorneo, "IX_Elo_ID_Partida_Torneo");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Elos)
                 .HasForeignKey(d => d.IdUsuario)
