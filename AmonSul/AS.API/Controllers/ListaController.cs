@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Lista;
+﻿using AS.API.Extensions;
+using AS.Application.DTOs.Lista;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
@@ -18,13 +19,23 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpGet]
     public async Task<ActionResult<List<Lista>>> GetListas()
     {
-        var listas = await _listaApplication.GetListas();
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        var listas = await _listaApplication.GetListas(idUsuarioSolicitante);
         return Ok(listas);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ListaDTO>> GetListaById(int id)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await _listaApplication.PuedeVerListaAsync(id, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
         ListaDTO lista = await _listaApplication.GetListaById(id);
         if (lista == null)
         {
@@ -36,6 +47,12 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpGet("Inscripcion/{idInscripcion}")]
     public async Task<ActionResult<Lista>> GetListaInscripcionById(int idInscripcion)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        if (!await _listaApplication.PuedeVerListasInscripcionAsync(idInscripcion, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
         ListaViewDTO lista = await _listaApplication.GetListaInscripcionById(idInscripcion);
         if (lista == null)
         {
@@ -47,6 +64,12 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpGet("listas/{idInscripcion}")]
     public async Task<ActionResult<Lista>> GetListasByInscripcion(int idInscripcion)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        if (!await _listaApplication.PuedeVerListasInscripcionAsync(idInscripcion, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
         List<ListaViewDTO> listas = await _listaApplication.GetListasByInscripcionAsync(idInscripcion);
 
         return listas == null ? (ActionResult<Lista>)NotFound() : (ActionResult<Lista>)Ok(listas);
@@ -55,6 +78,12 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpGet("Torneo/{idTorneo}")]
     public async Task<ActionResult<List<Lista>>> GetListasByTorneo(int idTorneo)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        if (!await _listaApplication.PuedeVerListasTorneoAsync(idTorneo, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
         var listas = await _listaApplication.GetListasByTorneo(idTorneo);
         return Ok(listas);
     }
@@ -62,7 +91,11 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpGet("User/{idUsuario}")]
     public async Task<ActionResult<List<Lista>>> GetListasByUser(int idUsuario)
     {
-        var listas = await _listaApplication.GetListasByUser(idUsuario);
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        // Solo las de torneos con listas visibles, las propias y las de torneos que organiza
+        var listas = await _listaApplication.GetListasByUser(idUsuario, idUsuarioSolicitante);
         return Ok(listas);
     }
 
@@ -121,6 +154,13 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [Route("Lista-Torneo/{idTorneo}/{idUsuario}")]
     public async Task<ActionResult>GetListaTorneo(int idTorneo, int idUsuario)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await _listaApplication.PuedeVerListaTorneoAsync(idTorneo, idUsuario, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
         ListaTorneoRequestDTO listaTorneoRequestDTO = new()
         {
             IdTorneo = idTorneo,

@@ -7,8 +7,8 @@ namespace AS.Application.Interfaces;
 
 public interface IListaApplication
 {
-    Task<List<Lista>> GetListas();
-    Task<List<Lista>> GetListasByUser(int idUsuario);
+    Task<List<Lista>> GetListas(int idUsuarioSolicitante);
+    Task<List<Lista>> GetListasByUser(int idUsuario, int idUsuarioSolicitante);
     Task<List<Lista>> GetListasByTorneo(int idTorneo);
     Task<ListaViewDTO> GetListaInscripcionById(int idInscripcion);
     Task<ListaDTO> GetListaById(int idLista);
@@ -16,6 +16,10 @@ public interface IListaApplication
     Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
     Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
     Task<ListaDTO> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO);
+    Task<bool> PuedeVerListaTorneoAsync(int idTorneo, int idUsuarioLista, int idUsuarioSolicitante);
+    Task<bool> PuedeVerListaAsync(int idLista, int idUsuarioSolicitante);
+    Task<bool> PuedeVerListasInscripcionAsync(int idInscripcion, int idUsuarioSolicitante);
+    Task<bool> PuedeVerListasTorneoAsync(int idTorneo, int idUsuarioSolicitante);
     Task<List<ListaViewDTO>> GetListasByInscripcionAsync(int idInscripcion);
     Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request);
 

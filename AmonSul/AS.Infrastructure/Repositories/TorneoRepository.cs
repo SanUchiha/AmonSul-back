@@ -101,6 +101,21 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             })
             .ToListAsync();
 
+    /// <summary>
+    /// Organizador y si las listas son visibles, sin cargar bases ni cartel
+    /// </summary>
+    public async Task<Torneo?> GetVisibilidadListas(int idTorneo) =>
+        await _dbamonsulContext
+            .Torneos.AsNoTracking()
+            .Where(t => t.IdTorneo == idTorneo)
+            .Select(t => new Torneo
+            {
+                IdTorneo = t.IdTorneo,
+                IdUsuario = t.IdUsuario,
+                MostrarListas = t.MostrarListas,
+            })
+            .FirstOrDefaultAsync();
+
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
         await _dbamonsulContext
             .Torneos.Where(u => u.IdTorneo == IdTorneo)

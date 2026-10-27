@@ -11,6 +11,21 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
+    /// <summary>
+    /// Torneo y dueño de una lista, sin cargar la imagen de la lista
+    /// </summary>
+    public async Task<InscripcionTorneo?> GetInscripcionByIdLista(int idLista) =>
+        await _dbamonsulContext
+            .Listas.AsNoTracking()
+            .Where(l => l.IdLista == idLista)
+            .Select(l => new InscripcionTorneo
+            {
+                IdInscripcion = l.IdInscripcion,
+                IdTorneo = l.IdInscripcionNavigation!.IdTorneo,
+                IdUsuario = l.IdInscripcionNavigation.IdUsuario,
+            })
+            .FirstOrDefaultAsync();
+
     public async Task<Lista> Delete(int idLista)
     {
         var lista = await _dbamonsulContext.Listas.FindAsync(idLista);
@@ -42,6 +57,21 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
 
         return lista;
     }
+
+    /// <summary>
+    /// Listas que puede ver el solicitante: las suyas, las de torneos con listas visibles
+    /// y las de torneos que organiza. Opcionalmente, solo las de un jugador
+    /// </summary>
+    public async Task<List<Lista>> GetListasVisibles(int idUsuarioSolicitante, int? idUsuarioLista = null) =>
+        await _dbamonsulContext.Listas
+            .Include(l => l.IdInscripcionNavigation)
+            .Where(l => idUsuarioLista == null || l.IdInscripcionNavigation!.IdUsuario == idUsuarioLista)
+            .Where(l =>
+                l.IdInscripcionNavigation!.IdUsuario == idUsuarioSolicitante
+                || l.IdInscripcionNavigation.IdTorneoNavigation!.MostrarListas
+                || l.IdInscripcionNavigation.IdTorneoNavigation.IdUsuario == idUsuarioSolicitante
+            )
+            .ToListAsync();
 
     public async Task<List<Lista>> GetListas()
     {

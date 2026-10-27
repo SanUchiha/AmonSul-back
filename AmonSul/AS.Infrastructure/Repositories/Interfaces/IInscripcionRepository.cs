@@ -11,6 +11,7 @@ public interface IInscripcionRepository
     Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario);
     Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo);
     Task<InscripcionTorneo> GetInscripcionById(int Id);
+    Task<InscripcionTorneo?> GetTorneoYUsuario(int idInscripcion);
     Task<InscripcionTorneo> Delete(int id);
     Task<ResultInscripcionTorneoDTO> Register(InscripcionTorneo inscripcionTorneo);
 

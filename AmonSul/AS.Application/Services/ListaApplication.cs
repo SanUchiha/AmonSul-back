@@ -42,7 +42,9 @@ public class ListaApplication(
         return _mapper.Map<ListaViewDTO>(lista);
     }
 
-    public async Task<List<Lista>> GetListas() => await _unitOfWork.ListaRepository.GetListas();
+    // Solo las listas que puede ver el solicitante (ver PuedeVerListaTorneoAsync)
+    public async Task<List<Lista>> GetListas(int idUsuarioSolicitante) =>
+        await _unitOfWork.ListaRepository.GetListasVisibles(idUsuarioSolicitante);
 
     public async Task<List<ListaViewDTO>> GetListasByInscripcionAsync(int idInscripcion)
     {
@@ -56,8 +58,8 @@ public class ListaApplication(
     public async Task<List<Lista>> GetListasByTorneo(int idTorneo) =>
         await _unitOfWork.ListaRepository.GetListasByTorneo(idTorneo);
 
-    public async Task<List<Lista>> GetListasByUser(int idUsuario) =>
-        await _unitOfWork.ListaRepository.GetListasByUser(idUsuario);
+    public async Task<List<Lista>> GetListasByUser(int idUsuario, int idUsuarioSolicitante) =>
+        await _unitOfWork.ListaRepository.GetListasVisibles(idUsuarioSolicitante, idUsuario);
 
     public async Task<ListaDTO> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO)
     {
@@ -71,6 +73,70 @@ public class ListaApplication(
         ListaDTO listaDTO = _mapper.Map<ListaDTO>(lista);
 
         return listaDTO;
+    }
+
+    /// <summary>
+    /// Con las listas ocultas solo pueden verla su dueño y el organizador del torneo
+    /// </summary>
+    public async Task<bool> PuedeVerListaTorneoAsync(
+        int idTorneo,
+        int idUsuarioLista,
+        int idUsuarioSolicitante
+    )
+    {
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetVisibilidadListas(idTorneo);
+        if (torneo is null)
+            return false;
+
+        return torneo.MostrarListas
+            || idUsuarioSolicitante == idUsuarioLista
+            || idUsuarioSolicitante == torneo.IdUsuario;
+    }
+
+    /// <summary>
+    /// Misma regla que PuedeVerListaTorneoAsync, sacando torneo y dueño de la inscripción de la lista
+    /// </summary>
+    public async Task<bool> PuedeVerListaAsync(int idLista, int idUsuarioSolicitante)
+    {
+        InscripcionTorneo? inscripcion =
+            await _unitOfWork.ListaRepository.GetInscripcionByIdLista(idLista);
+        if (inscripcion is null)
+            return false;
+
+        return await PuedeVerListaTorneoAsync(
+            inscripcion.IdTorneo,
+            inscripcion.IdUsuario,
+            idUsuarioSolicitante
+        );
+    }
+
+    /// <summary>
+    /// Listas de una inscripción: misma regla, con torneo y dueño de la inscripción
+    /// </summary>
+    public async Task<bool> PuedeVerListasInscripcionAsync(int idInscripcion, int idUsuarioSolicitante)
+    {
+        InscripcionTorneo? inscripcion =
+            await _unitOfWork.InscripcionRepository.GetTorneoYUsuario(idInscripcion);
+        if (inscripcion is null)
+            return false;
+
+        return await PuedeVerListaTorneoAsync(
+            inscripcion.IdTorneo,
+            inscripcion.IdUsuario,
+            idUsuarioSolicitante
+        );
+    }
+
+    /// <summary>
+    /// Todas las listas de un torneo: solo si son visibles o lo pide el organizador
+    /// </summary>
+    public async Task<bool> PuedeVerListasTorneoAsync(int idTorneo, int idUsuarioSolicitante)
+    {
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetVisibilidadListas(idTorneo);
+        if (torneo is null)
+            return false;
+
+        return torneo.MostrarListas || idUsuarioSolicitante == torneo.IdUsuario;
     }
 
     public async Task<ResultRegisterListarDTO> RegisterLista(

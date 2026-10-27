@@ -214,6 +214,21 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     .ThenInclude(i => i.Lista)
             .FirstOrDefaultAsync(e => e.IdEquipo == id);
 
+    /// <summary>
+    /// Solo torneo y jugador de la inscripción, sin listas ni navegaciones
+    /// </summary>
+    public async Task<InscripcionTorneo?> GetTorneoYUsuario(int idInscripcion) =>
+        await _dbamonsulContext
+            .InscripcionTorneos.AsNoTracking()
+            .Where(it => it.IdInscripcion == idInscripcion)
+            .Select(it => new InscripcionTorneo
+            {
+                IdInscripcion = it.IdInscripcion,
+                IdTorneo = it.IdTorneo,
+                IdUsuario = it.IdUsuario,
+            })
+            .FirstOrDefaultAsync();
+
     public async Task<InscripcionTorneo> GetInscripcionById(int idInscripcion)
     {
         var insc = await _dbamonsulContext.InscripcionTorneos

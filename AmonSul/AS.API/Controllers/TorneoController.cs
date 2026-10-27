@@ -1,4 +1,5 @@
-﻿using AS.API.Filters;
+﻿using AS.API.Extensions;
+using AS.API.Filters;
 using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
@@ -483,7 +484,14 @@ public class TorneoController(
     [Route("Gestion/Listas/{idTorneo}")]
     public async Task<IActionResult> GetListasByTorneo(int idTorneo)
     {
-        List<ListaCompletaDTO> listas = 
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await _listaApplication.PuedeVerListasTorneoAsync(idTorneo, idUsuarioSolicitante))
+            return BadRequest("Las listas de este torneo están ocultas.");
+
+        List<ListaCompletaDTO> listas =
             await _listaApplication.GetListasCompletasByTorneo(idTorneo);
         
         if (listas == null || listas.Count == 0)
