@@ -308,6 +308,7 @@ public class UsuarioApplication(
                 if (!torneos.TryGetValue(item.IdTorneo, out Torneo? torneo)) continue;
                 ClasificacionTorneosDTO c = new()
                 {
+                    IdTorneo = item.IdTorneo,
                     Resultado = item.Resultado,
                     NombreTorneo = torneo.NombreTorneo
                 };

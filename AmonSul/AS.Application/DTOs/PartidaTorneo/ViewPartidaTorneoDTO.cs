@@ -5,6 +5,7 @@ namespace AS.Application.DTOs.PartidaTorneo;
 public class ViewPartidaTorneoDTO
 {
     public int IdPartidaTorneo { get; set; }
+    public int IdTorneo { get; set; }
     public int IdUsuario1 { get; set; }
     public string? NickUsuario1 { get; set; }
     public int IdUsuario2 { get; set; }
