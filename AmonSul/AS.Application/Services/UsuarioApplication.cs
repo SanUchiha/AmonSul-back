@@ -314,7 +314,7 @@ public class UsuarioApplication(
     public async Task<List<UsuarioDTO>> GetUsuarios()
     {
         // Obtener la lista de usuarios y facciones
-        var listaUsuarios = await _unitOfWork.UsuarioRepository.GetAll();
+        var listaUsuarios = await _unitOfWork.UsuarioRepository.GetAllSinImagen();
         var listaFacciones = await _unitOfWork.FaccionRepository.GetFacciones();
 
         // Crear un diccionario para acceder rápidamente a las facciones por IdFaccion

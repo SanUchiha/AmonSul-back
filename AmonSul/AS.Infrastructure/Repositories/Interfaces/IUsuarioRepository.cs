@@ -12,6 +12,7 @@ public interface IUsuarioRepository
     Task<Usuario> GetByEmail(string email);
     Task<Usuario> GetByNick(string nick);
     Task<List<Usuario>> GetAll();
+    Task<List<Usuario>> GetAllSinImagen();
     Task<bool> EditAsync(Usuario usuario);
     Task<bool> Register(Usuario usuario);
     Task<bool> Delete(string email);

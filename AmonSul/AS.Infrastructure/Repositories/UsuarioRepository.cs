@@ -131,6 +131,30 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
+    /// <summary>
+    /// Usuarios solo con los campos de listado, sin Imagen (base64) ni datos personales
+    /// </summary>
+    public async Task<List<Usuario>> GetAllSinImagen()
+    {
+        try
+        {
+            return await _dbamonsulContext.Usuarios
+                .AsNoTracking()
+                .Select(u => new Usuario
+                {
+                    IdUsuario = u.IdUsuario,
+                    Nick = u.Nick,
+                    IdFaccion = u.IdFaccion,
+                    Ciudad = u.Ciudad,
+                })
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un problema al obtener los usuarios.", ex);
+        }
+    }
+
     public async Task<List<string>> GetAllEmail()
     {
         try
