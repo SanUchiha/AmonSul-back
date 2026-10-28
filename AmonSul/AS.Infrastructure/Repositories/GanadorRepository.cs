@@ -1,6 +1,7 @@
 ﻿using AS.Domain.Models;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace AS.Infrastructure.Repositories;
@@ -92,6 +93,26 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
         catch (Exception ex)
         {
             throw new Exception("Ocurrió un problema al registrar el ganador.", ex);
+        }
+    }
+
+    /// <summary>
+    /// Todas las posiciones del torneo en un solo SaveChanges: o se guardan todas o ninguna.
+    /// False si ya estaban guardadas, por el índice único de torneo y jugador
+    /// </summary>
+    public async Task<bool> RegisterResultadosTorneoAsync(List<Ganador> ganadores)
+    {
+        try
+        {
+            await _dbamonsulContext.Ganador.AddRangeAsync(ganadores);
+            await _dbamonsulContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            // Otra petición guardó el torneo a la vez: se deja como estaba
+            _dbamonsulContext.ChangeTracker.Clear();
+            return false;
         }
     }
 }

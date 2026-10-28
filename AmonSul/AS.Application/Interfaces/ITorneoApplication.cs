@@ -12,6 +12,7 @@ public interface ITorneoApplication
     Task<List<TorneoDTO>> SearchTorneosByNameAsync(string nombre);
 
     Task<TorneoDTO> GetById(int Id);
+    Task<bool> EsOrganizadorAsync(int idTorneo, int idUsuario);
     Task<bool> Register(CrearTorneoDTO torneoDTO);
     Task<bool> Delete(int id);
     Task<(byte[] FileBytes, string FileName)> GetBasesTorneo(int idTorneo);

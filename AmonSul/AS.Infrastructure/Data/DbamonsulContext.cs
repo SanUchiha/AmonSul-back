@@ -523,6 +523,11 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.Resultado)
                 .HasColumnName("Resultado")
                 .IsRequired();
+
+            // Guardar dos veces el mismo torneo duplicaría las posiciones
+            entity.HasIndex(e => new { e.IdTorneo, e.IdUsuario })
+                .IsUnique()
+                .HasDatabaseName("IX_Ganador_Torneo_Usuario");
         });
 
         //Ligas

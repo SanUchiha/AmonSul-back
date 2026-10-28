@@ -8,6 +8,7 @@ public interface IGanadorRepository
     Task<List<Ganador>> GetAll();
     Task<List<Ganador>> GetAllByUsuario(int idUsuario);
     Task<bool> Register(Ganador usuario);
+    Task<bool> RegisterResultadosTorneoAsync(List<Ganador> ganadores);
     Task<bool> Delete(int id);
     Task<bool> ExistsByTorneoAsync(int idTorneo);
     Task<List<Ganador>> GetByTorneoAsync(int idTorneo);

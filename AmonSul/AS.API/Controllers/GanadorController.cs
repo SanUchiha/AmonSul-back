@@ -68,8 +68,9 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
         if (await _ganadorApplication.IsSave(idTorneo))
             return BadRequest("Los resultados de este torneo ya están guardados.");
 
+        // False si otra petición los guardó a la vez, después de la comprobación anterior
         bool result = await _ganadorApplication.SaveResultTournamentAsync(guardarResultadosDTO);
-        if (!result) return BadRequest("No se pudo registrar los resultados del torneo.");
+        if (!result) return BadRequest("Los resultados de este torneo ya están guardados.");
 
         return StatusCode(200);
 

@@ -84,11 +84,13 @@ public class GanadorApplication(
         if (torneo?.TipoTorneo == TorneoType.PAREJAS)
             ganadores = await ConParejasCompletasAsync(ganadores, idTorneo);
 
-        foreach (GanadorDTO item in ganadores)
-        {
-            Ganador ganador = _mapper.Map<Ganador>(item);
-            await _unitOfWork.GanadorRepository.Register(ganador);
-        }
+        // Una fila por jugador: el índice único de torneo y jugador rechazaría el guardado entero
+        ganadores = [.. ganadores.OrderBy(g => g.Resultado).DistinctBy(g => g.IdUsuario)];
+
+        // False si otra petición lo guardó a la vez: sin esto el ELO del torneo se aplicaría dos veces
+        if (!await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(
+            _mapper.Map<List<Ganador>>(ganadores)))
+            return false;
 
         string eloJobId =
             BackgroundJob.Enqueue(() =>

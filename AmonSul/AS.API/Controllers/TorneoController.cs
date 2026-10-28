@@ -46,6 +46,9 @@ public class TorneoController(
     [Route("Gestion/Generar-Ronda")]
     public async Task<IActionResult> GenerarRonda([FromBody, Required] GenerarRondaDTO request)
     {
+        if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.GenerateRound(request);
 
         if (response == false)
@@ -60,6 +63,9 @@ public class TorneoController(
         [FromBody, Required] GenerarRondaEquiposDTO request
     )
     {
+        if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.GenerateRoundEquipos(request);
 
         if (response == false)
@@ -74,12 +80,30 @@ public class TorneoController(
         [FromBody, Required] GenerarOtraRondaEquiposRequestDTO request
     )
     {
+        if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.GenerarOtraRondaEquiposAsync(request);
 
         if (response == false)
             return BadRequest("No se ha podido generar la ronda");
 
         return Created(string.Empty, "La ronda ha sido creada con éxito");
+    }
+
+    /// <summary>
+    /// Las rondas solo las genera el organizador. El id del torneo va en el cuerpo, por eso no sirve AdminTorneoFilter
+    /// </summary>
+    private async Task<IActionResult?> SoloOrganizadorAsync(int idTorneo)
+    {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await _torneoApplication.EsOrganizadorAsync(idTorneo, idUsuarioSolicitante))
+            return BadRequest("Solo el organizador del torneo puede generar sus rondas.");
+
+        return null;
     }
 
     [HttpPost]

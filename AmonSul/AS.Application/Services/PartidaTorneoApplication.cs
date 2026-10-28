@@ -844,17 +844,22 @@ public class PartidaTorneoApplication(
             int idInscripcion1 = 0;
             int idInscripcion2 = 0;
 
+            // Sin llaves el ejército salía de la última inscripción con lista, igual para los dos jugadores
             foreach (var inscripcion in inscripciones)
             {
                 if (inscripcion.IdUsuario == item.Jugador1.IdUsuario)
+                {
                     idInscripcion1 = inscripcion.IdInscripcion;
-                if (inscripcion.Lista.Count != 0)
-                    nuevaPartida.EjercitoUsuario1 = inscripcion.Lista.ToList()[0].Ejercito;
+                    if (inscripcion.Lista.Count != 0)
+                        nuevaPartida.EjercitoUsuario1 = inscripcion.Lista.ToList()[0].Ejercito;
+                }
 
                 if (inscripcion.IdUsuario == item.Jugador2.IdUsuario)
+                {
                     idInscripcion2 = inscripcion.IdInscripcion;
-                if (inscripcion.Lista.Count != 0)
-                    nuevaPartida.EjercitoUsuario2 = inscripcion.Lista.ToList()[0].Ejercito;
+                    if (inscripcion.Lista.Count != 0)
+                        nuevaPartida.EjercitoUsuario2 = inscripcion.Lista.ToList()[0].Ejercito;
+                }
             }
 
             await _unitOfWork.PartidaTorneoRepository.Register(nuevaPartida);

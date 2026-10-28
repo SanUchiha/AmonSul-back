@@ -76,6 +76,12 @@ public class TorneoApplication(
         return _mapper.Map<List<TorneoDTO>>(torneos);
     }
 
+    /// <summary>
+    /// Si el torneo no existe el organizador es 0 y no coincide
+    /// </summary>
+    public async Task<bool> EsOrganizadorAsync(int idTorneo, int idUsuario) =>
+        await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(idTorneo) == idUsuario;
+
     public async Task<TorneoDTO> GetById(int id)
     {
         var response = await _unitOfWork.TorneoRepository.GetById(id);

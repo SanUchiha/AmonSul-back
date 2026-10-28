@@ -300,6 +300,10 @@ namespace AS.Infrastructure.Migrations
                     b.HasKey("IdGanador")
                         .HasName("PK__Ganador__160354F0762D9D53");
 
+                    b.HasIndex("IdTorneo", "IdUsuario")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Ganador_Torneo_Usuario");
+
                     b.ToTable("Ganador", (string)null);
                 });
 
