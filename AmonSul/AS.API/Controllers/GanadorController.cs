@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Ganador;
+﻿using AS.API.Extensions;
+using AS.Application.DTOs.Ganador;
 using AS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,23 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
         [FromBody] GuardarResultadosDTO guardarResultadosDTO)
     {
         if (guardarResultadosDTO.GanadoresDTO.Count <= 0) return BadRequest();
+
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        int idTorneo = guardarResultadosDTO.GenerarRondaDTO.IdTorneo;
+
+        // Todas las posiciones tienen que ser del torneo que se guarda
+        if (guardarResultadosDTO.GanadoresDTO.Any(g => g.IdTorneo != idTorneo))
+            return BadRequest("Los resultados no corresponden a este torneo.");
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await _ganadorApplication.PuedeGuardarResultadosAsync(idTorneo, idUsuarioSolicitante))
+            return BadRequest("Solo el organizador del torneo puede guardar sus resultados.");
+
+        // Guardar dos veces duplicaría las posiciones y aplicaría el ELO del torneo dos veces
+        if (await _ganadorApplication.IsSave(idTorneo))
+            return BadRequest("Los resultados de este torneo ya están guardados.");
 
         bool result = await _ganadorApplication.SaveResultTournamentAsync(guardarResultadosDTO);
         if (!result) return BadRequest("No se pudo registrar los resultados del torneo.");

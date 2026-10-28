@@ -65,6 +65,12 @@ public class GanadorApplication(
     public async Task<bool> IsSave(int idTorneo) =>
         await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(idTorneo);
 
+    /// <summary>
+    /// Solo el organizador puede guardar los resultados. Si el torneo no existe el organizador es 0 y no coincide
+    /// </summary>
+    public async Task<bool> PuedeGuardarResultadosAsync(int idTorneo, int idUsuarioSolicitante) =>
+        await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(idTorneo) == idUsuarioSolicitante;
+
     public async Task<bool> Register(Ganador ganador) =>
         await _unitOfWork.GanadorRepository.Register(ganador);
 
