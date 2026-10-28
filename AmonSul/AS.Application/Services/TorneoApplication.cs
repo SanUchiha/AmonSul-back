@@ -337,7 +337,7 @@ public class TorneoApplication(
 
         torneoDTO.JugadoresXEquipo = torneo.TipoTorneo switch
         {
-            TorneoType.PAREJAS => 2,
+            TorneoType.EQUIPOS_2 or TorneoType.PAREJAS => 2,
             TorneoType.EQUIPOS_4 => 4,
             TorneoType.EQUIPOS_6 => 6,
             _ => (int?)1,
