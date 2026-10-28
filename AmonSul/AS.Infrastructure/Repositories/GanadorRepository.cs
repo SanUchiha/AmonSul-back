@@ -57,6 +57,12 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
         }
     }
 
+    public async Task<int?> GetIdTorneoAsync(int idGanador) =>
+        await _dbamonsulContext.Ganador
+            .Where(g => g.IdGanador == idGanador)
+            .Select(g => (int?)g.IdTorneo)
+            .FirstOrDefaultAsync();
+
     public async Task<bool> ExistsByTorneoAsync(int idTorneo) => 
         await _dbamonsulContext.Ganador.AnyAsync(x => x.IdTorneo == idTorneo);
 

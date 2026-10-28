@@ -43,6 +43,32 @@ public class PartidaTorneoApplication(
     public async Task<bool> Delete(int idPartida) =>
         await _unitOfWork.PartidaTorneoRepository.Delete(idPartida);
 
+    /// <summary>
+    /// Torneo de una partida ya creada, para comprobar el organizador sin fiarse del cuerpo de la petición
+    /// </summary>
+    public async Task<int?> GetIdTorneoDePartidaAsync(int idPartida) =>
+        (await _unitOfWork.PartidaTorneoRepository.GetById(idPartida))?.IdTorneo;
+
+    /// <summary>
+    /// Capitán de uno de los dos equipos de la partida. En individual no hay capitanes
+    /// </summary>
+    public async Task<bool> EsCapitanDePartidaAsync(int idPartida, int idUsuario)
+    {
+        PartidaTorneo? partida = await _unitOfWork.PartidaTorneoRepository.GetById(idPartida);
+        if (partida is null)
+            return false;
+
+        foreach (int? idEquipo in new[] { partida.IdEquipo1, partida.IdEquipo2 })
+        {
+            if (idEquipo is not int id)
+                continue;
+            Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(id);
+            if (equipo?.IdCapitan == idUsuario)
+                return true;
+        }
+        return false;
+    }
+
     public async Task<(bool success, string? errorMessage)> DeleteRonda(int idTorneo, int idRonda)
     {
         HashSet<int> rondasExistentes =

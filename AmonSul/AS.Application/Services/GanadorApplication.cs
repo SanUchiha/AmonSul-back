@@ -73,6 +73,18 @@ public class GanadorApplication(
     public async Task<bool> PuedeGuardarResultadosAsync(int idTorneo, int idUsuarioSolicitante) =>
         await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(idTorneo) == idUsuarioSolicitante;
 
+    /// <summary>
+    /// Solo el organizador del torneo puede borrar una de sus posiciones. Null si la posición no existe
+    /// </summary>
+    public async Task<bool?> PuedeBorrarGanadorAsync(int idGanador, int idUsuarioSolicitante)
+    {
+        int? idTorneo = await _unitOfWork.GanadorRepository.GetIdTorneoAsync(idGanador);
+        if (idTorneo is null)
+            return null;
+
+        return await PuedeGuardarResultadosAsync(idTorneo.Value, idUsuarioSolicitante);
+    }
+
     public async Task<bool> Register(Ganador ganador) =>
         await _unitOfWork.GanadorRepository.Register(ganador);
 

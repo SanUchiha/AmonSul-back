@@ -92,18 +92,40 @@ public class TorneoController(
     }
 
     /// <summary>
-    /// Las rondas solo las genera el organizador. El id del torneo va en el cuerpo, por eso no sirve AdminTorneoFilter
+    /// Rondas y partidas solo las gestiona el organizador. El id del torneo va en el cuerpo, por eso no sirve AdminTorneoFilter
     /// </summary>
-    private async Task<IActionResult?> SoloOrganizadorAsync(int idTorneo)
+    private async Task<IActionResult?> SoloOrganizadorAsync(int idTorneo, string accion = "generar sus rondas")
     {
         if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
             return Unauthorized();
 
         // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
         if (!await _torneoApplication.EsOrganizadorAsync(idTorneo, idUsuarioSolicitante))
-            return BadRequest("Solo el organizador del torneo puede generar sus rondas.");
+            return BadRequest($"Solo el organizador del torneo puede {accion}.");
 
         return null;
+    }
+
+    /// <summary>
+    /// Para una partida ya creada el torneo sale de la partida, no de la petición.
+    /// Con permitirCapitanes también vale un capitán de la partida: el botón Cambiar del directo
+    /// </summary>
+    private async Task<IActionResult?> SoloOrganizadorDePartidaAsync(int idPartida, bool permitirCapitanes = false)
+    {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        int? idTorneo = await _partidaTorneoApplication.GetIdTorneoDePartidaAsync(idPartida);
+        if (idTorneo is null)
+            return BadRequest("La partida no existe.");
+
+        if (await _torneoApplication.EsOrganizadorAsync(idTorneo.Value, idUsuarioSolicitante))
+            return null;
+
+        if (permitirCapitanes && await _partidaTorneoApplication.EsCapitanDePartidaAsync(idPartida, idUsuarioSolicitante))
+            return null;
+
+        return BadRequest("Solo el organizador del torneo puede cambiar sus partidas.");
     }
 
     [HttpPost]
@@ -408,6 +430,9 @@ public class TorneoController(
         [FromBody, Required] UpdatePairingTorneoDTO request
     )
     {
+        if (await SoloOrganizadorDePartidaAsync(request.IdPartidaTorneo, permitirCapitanes: true) is IActionResult denegado)
+            return denegado;
+
         PartidaTorneoDTO? response = await _partidaTorneoApplication.EdtarPairingAsync(request);
 
         if (response is null)
@@ -422,6 +447,9 @@ public class TorneoController(
         [FromBody, Required] UpdatePairingTorneoDTO request
     )
     {
+        if (await SoloOrganizadorDePartidaAsync(request.IdPartidaTorneo) is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.EdtarPairingEquiposAsync(request);
 
         if (response == false)
@@ -434,6 +462,9 @@ public class TorneoController(
     [Route("Agregar-Pairing")]
     public async Task<IActionResult> AddPairing([FromBody, Required] AddPairingTorneoDTO request)
     {
+        if (await SoloOrganizadorAsync(request.IdTorneo, "añadir partidas") is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.Register(request);
 
         if (response == false)
@@ -446,6 +477,9 @@ public class TorneoController(
     [Route("Eliminar-Partida/{idPartida}")]
     public async Task<IActionResult> DeletePartida(int idPartida)
     {
+        if (await SoloOrganizadorDePartidaAsync(idPartida) is IActionResult denegado)
+            return denegado;
+
         bool response = await _partidaTorneoApplication.Delete(idPartida);
 
         if (response == false)

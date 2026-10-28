@@ -13,4 +13,5 @@ public interface IGanadorApplication
     Task<bool> IsSave(int idTorneo);
     Task<bool> PuedeGuardarResultadosAsync(int idTorneo, int idUsuarioSolicitante);
     Task ActualizarEloAsync(GenerarRondaDTO request);
+    Task<bool?> PuedeBorrarGanadorAsync(int idGanador, int idUsuarioSolicitante);
 }

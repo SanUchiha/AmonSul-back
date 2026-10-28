@@ -79,6 +79,17 @@ public class GanadorController(IGanadorApplication ganadorApplication) : Control
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
+            return Unauthorized();
+
+        bool? puedeBorrar = await _ganadorApplication.PuedeBorrarGanadorAsync(id, idUsuarioSolicitante);
+        if (puedeBorrar is null)
+            return NotFound($"No se encontró un ganador con ID {id}.");
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (puedeBorrar == false)
+            return BadRequest("Solo el organizador del torneo puede borrar sus resultados.");
+
         try
         {
             bool result = await _ganadorApplication.Delete(id);
