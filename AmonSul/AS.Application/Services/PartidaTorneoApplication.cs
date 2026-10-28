@@ -1286,12 +1286,12 @@ public class PartidaTorneoApplication(
 
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
-        existingEntity.EjercitoUsuario1 =
-            inscripcion1.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito
-            ?? null;
-        existingEntity.EjercitoUsuario2 =
-            inscripcion2.InscripcionTorneos.FirstOrDefault()?.Lista?.FirstOrDefault()?.Ejercito
-            ?? null;
+        existingEntity.EjercitoUsuario1 = EjercitoDeInscripcion(
+            inscripcion1.InscripcionTorneos.FirstOrDefault()
+        );
+        existingEntity.EjercitoUsuario2 = EjercitoDeInscripcion(
+            inscripcion2.InscripcionTorneos.FirstOrDefault()
+        );
 
         existingEntity.ResultadoUsuario1 = null;
         existingEntity.ResultadoUsuario2 = null;
@@ -1310,6 +1310,20 @@ public class PartidaTorneoApplication(
         PartidaTorneoDTO partidaTorneoDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
         partidaTorneoDTO.Nick1 = inscripcion1.Nick;
         partidaTorneoDTO.Nick2 = inscripcion2.Nick;
+
+        // La partida se carga sin relaciones y el front pinta la que devolvemos: va con sus equipos
+        if (existingEntity.IdEquipo1 is int idEquipo1)
+        {
+            Equipo? equipo1 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo1);
+            partidaTorneoDTO.NombreEquipo1 = equipo1?.NombreEquipo;
+            partidaTorneoDTO.IdCapitan1 = equipo1?.IdCapitan;
+        }
+        if (existingEntity.IdEquipo2 is int idEquipo2)
+        {
+            Equipo? equipo2 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo2);
+            partidaTorneoDTO.NombreEquipo2 = equipo2?.NombreEquipo;
+            partidaTorneoDTO.IdCapitan2 = equipo2?.IdCapitan;
+        }
 
         return partidaTorneoDTO;
     }
@@ -2118,8 +2132,13 @@ public class PartidaTorneoApplication(
                     .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
                     .FirstOrDefault();
 
-                item.EjercitoUsuario1 = lista1Entity?.Ejercito ?? item.EjercitoUsuario1 ?? string.Empty;
-                item.EjercitoUsuario2 = lista2Entity?.Ejercito ?? item.EjercitoUsuario2 ?? string.Empty;
+                // El guardado en la partida, como en gestión y live; la última lista solo si la partida no tiene
+                item.EjercitoUsuario1 = string.IsNullOrWhiteSpace(item.EjercitoUsuario1)
+                    ? lista1Entity?.Ejercito ?? string.Empty
+                    : item.EjercitoUsuario1;
+                item.EjercitoUsuario2 = string.IsNullOrWhiteSpace(item.EjercitoUsuario2)
+                    ? lista2Entity?.Ejercito ?? string.Empty
+                    : item.EjercitoUsuario2;
 
                 if (partidas[0].IdEquipo1.HasValue || partidas[0].IdEquipo2.HasValue)
                 {
@@ -2213,8 +2232,13 @@ public class PartidaTorneoApplication(
                     .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
                     .FirstOrDefault();
 
-                item.EjercitoUsuario1 = lista1Entity?.Ejercito ?? item.EjercitoUsuario1 ?? string.Empty;
-                item.EjercitoUsuario2 = lista2Entity?.Ejercito ?? item.EjercitoUsuario2 ?? string.Empty;
+                // El guardado en la partida, como en gestión y live; la última lista solo si la partida no tiene
+                item.EjercitoUsuario1 = string.IsNullOrWhiteSpace(item.EjercitoUsuario1)
+                    ? lista1Entity?.Ejercito ?? string.Empty
+                    : item.EjercitoUsuario1;
+                item.EjercitoUsuario2 = string.IsNullOrWhiteSpace(item.EjercitoUsuario2)
+                    ? lista2Entity?.Ejercito ?? string.Empty
+                    : item.EjercitoUsuario2;
 
                 if (torneo.TipoTorneo == TorneoType.PAREJAS)
                     await CompletarCompanerosAsync(item, torneo.ListaPorPareja);
@@ -2241,7 +2265,7 @@ public class PartidaTorneoApplication(
     }
 
     /// <summary>
-    /// Nick y ejército de los compañeros. Con lista conjunta el compañero no tiene ejército propio
+    /// Nick y ejército de los compañeros: el guardado o, si no hay, el de su última lista. Con lista conjunta el compañero no tiene ejército propio
     /// </summary>
     private async Task CompletarCompanerosAsync(PartidaTorneoDTO partida, bool listaPorPareja)
     {
@@ -2250,10 +2274,11 @@ public class PartidaTorneoApplication(
             partida.NickCompanero1 = (
                 await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero1)
             ).Nick;
-            if (!listaPorPareja)
-                partida.EjercitoCompanero1 =
-                    await GetEjercitoUltimaListaAsync(partida.IdTorneo!.Value, idCompanero1)
-                    ?? partida.EjercitoCompanero1;
+            if (!listaPorPareja && string.IsNullOrWhiteSpace(partida.EjercitoCompanero1))
+                partida.EjercitoCompanero1 = await GetEjercitoUltimaListaAsync(
+                    partida.IdTorneo!.Value,
+                    idCompanero1
+                );
         }
 
         if (partida.IdCompanero2 is int idCompanero2)
@@ -2261,10 +2286,11 @@ public class PartidaTorneoApplication(
             partida.NickCompanero2 = (
                 await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero2)
             ).Nick;
-            if (!listaPorPareja)
-                partida.EjercitoCompanero2 =
-                    await GetEjercitoUltimaListaAsync(partida.IdTorneo!.Value, idCompanero2)
-                    ?? partida.EjercitoCompanero2;
+            if (!listaPorPareja && string.IsNullOrWhiteSpace(partida.EjercitoCompanero2))
+                partida.EjercitoCompanero2 = await GetEjercitoUltimaListaAsync(
+                    partida.IdTorneo!.Value,
+                    idCompanero2
+                );
         }
     }
 
