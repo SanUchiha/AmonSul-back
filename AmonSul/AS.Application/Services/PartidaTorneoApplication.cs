@@ -35,6 +35,25 @@ public class PartidaTorneoApplication(
 
         partida.FechaPartida = torneo.FechaInicioTorneo;
 
+        // Los ejércitos de sus listas y, por equipos, el equipo de cada uno para que cuente en la clasificación
+        List<InscripcionTorneo> inscripciones =
+            await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(
+                addPairingTorneoDTO.IdTorneo
+            );
+        InscripcionTorneo? inscripcion1 = inscripciones.FirstOrDefault(i =>
+            i.IdUsuario == partida.IdUsuario1
+        );
+        InscripcionTorneo? inscripcion2 = inscripciones.FirstOrDefault(i =>
+            i.IdUsuario == partida.IdUsuario2
+        );
+        partida.EjercitoUsuario1 = EjercitoDeInscripcion(inscripcion1);
+        partida.EjercitoUsuario2 = EjercitoDeInscripcion(inscripcion2);
+        if (torneo.TipoTorneo != TorneoType.INDIVIDUAL)
+        {
+            partida.IdEquipo1 = inscripcion1?.IdEquipo;
+            partida.IdEquipo2 = inscripcion2?.IdEquipo;
+        }
+
         bool response = await _unitOfWork.PartidaTorneoRepository.Register(partida);
 
         return response;
@@ -1909,10 +1928,15 @@ public class PartidaTorneoApplication(
             return true;
         }
 
+        // Siempre en el mismo orden: el de inscripción
         List<InscripcionTorneo> nuevoEquipo1 =
-            await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(
-                request.IdEquipo1
-            );
+        [
+            .. (
+                await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(
+                    request.IdEquipo1
+                )
+            ).OrderBy(i => i.IdInscripcion),
+        ];
         List<InscripcionTorneo> nuevoEquipo2;
 
         if (request.IdEquipo2 == 117)
@@ -1934,10 +1958,19 @@ public class PartidaTorneoApplication(
         }
         else
         {
-            nuevoEquipo2 = await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(
-                request.IdEquipo2
-            );
+            nuevoEquipo2 =
+            [
+                .. (
+                    await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(
+                        request.IdEquipo2
+                    )
+                ).OrderBy(i => i.IdInscripcion),
+            ];
         }
+
+        // Sin jugadores para todas las partidas, mejor no cambiar nada que dejarlo a medias
+        if (nuevoEquipo1.Count < partidas.Count || nuevoEquipo2.Count < partidas.Count)
+            return false;
 
         for (int i = 0; i < partidas.Count; i++)
         {
@@ -1947,6 +1980,14 @@ public class PartidaTorneoApplication(
 
             partida.IdUsuario1 = jugadorNuevo1.IdUsuario;
             partida.IdUsuario2 = jugadorNuevo2.IdUsuario;
+            // Cada jugador con su ejército, no con el de quien ocupaba antes la partida
+            partida.EjercitoUsuario1 = EjercitoDeInscripcion(jugadorNuevo1);
+            partida.EjercitoUsuario2 = EjercitoDeInscripcion(jugadorNuevo2);
+            // Es otra partida: no queda nada del resultado de la anterior
+            partida.ResultadoUsuario1 = null;
+            partida.ResultadoUsuario2 = null;
+            partida.LiderMuertoUsuario1 = null;
+            partida.LiderMuertoUsuario2 = null;
             partida.GanadorPartidaTorneo = null;
             partida.PartidaValidadaUsuario1 = null;
             partida.PartidaValidadaUsuario2 = null;
@@ -1957,6 +1998,18 @@ public class PartidaTorneoApplication(
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Ejército de un jugador en una partida: el de su lista o, con varias, solo si son del mismo ejército
+    /// </summary>
+    private static string? EjercitoDeInscripcion(InscripcionTorneo? inscripcion)
+    {
+        List<Lista> listas = [.. inscripcion?.Lista ?? []];
+        if (listas.Count == 0)
+            return null;
+        string? ejercito = listas[0].Ejercito;
+        return listas.All(l => l.Ejercito == ejercito) ? ejercito : null;
     }
 
     public async Task<List<ViewPartidaTorneoDTO>> GetPartidasTorneoByUsuarioAsync(
