@@ -2012,6 +2012,7 @@ public class PartidaTorneoApplication(
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(
             partidas[0].IdTorneo
         );
+        estaJugandoDTO.ListaPorPareja = torneo.ListaPorPareja;
 
         if(torneo.TipoTorneo == TorneoType.INDIVIDUAL)
         {
