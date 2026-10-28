@@ -1,6 +1,7 @@
 ﻿using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,15 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
     {
         return await _dbamonsulContext.PartidaTorneos.ToListAsync();
     }
+
+    /// <summary>
+    /// Sin las partidas a Parejas: dos ejércitos por lado no sirven para comparar ejércitos uno contra uno
+    /// </summary>
+    public async Task<List<PartidaTorneo>> GetAllSinParejasAsync() =>
+        await _dbamonsulContext
+            .PartidaTorneos.AsNoTracking()
+            .Where(p => p.IdTorneoNavigation!.TipoTorneo != TorneoType.PAREJAS)
+            .ToListAsync();
 
     public async Task<bool> Delete(int idPartida)
     {
@@ -133,7 +143,13 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             // y el Include traía en cada partida la Imagen de los jugadores y las bases (PDF) y cartel del torneo
             List<PartidaTorneo> partidas = await _dbamonsulContext
                 .PartidaTorneos.AsNoTracking()
-                .Where(p => p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                // En Parejas el compañero también juega la partida
+                .Where(p =>
+                    p.IdUsuario1 == idUsuario
+                    || p.IdUsuario2 == idUsuario
+                    || p.IdCompanero1 == idUsuario
+                    || p.IdCompanero2 == idUsuario
+                )
                 .Select(p => new PartidaTorneo
                 {
                     IdPartidaTorneo = p.IdPartidaTorneo,
@@ -211,11 +227,18 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             List<PartidaTorneo> partidas = await _dbamonsulContext
                 .PartidaTorneos.AsNoTracking()
                 .Where(p =>
-                    (p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                    (
+                        p.IdUsuario1 == idUsuario
+                        || p.IdUsuario2 == idUsuario
+                        || p.IdCompanero1 == idUsuario
+                        || p.IdCompanero2 == idUsuario
+                    )
                     && (p.IdTorneo == idTorneo)
                 )
                 .Include(p => p.IdUsuario1Navigation)
                 .Include(p => p.IdUsuario2Navigation)
+                .Include(p => p.IdCompanero1Navigation)
+                .Include(p => p.IdCompanero2Navigation)
                 .ToListAsync();
 
             if (partidas == null)
@@ -400,7 +423,12 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             .PartidaTorneos.Where(p =>
                 p.FechaPartida != null
                 && p.FechaPartida.Value == DateOnly.FromDateTime(fecha)
-                && (p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+                && (
+                    p.IdUsuario1 == idUsuario
+                    || p.IdUsuario2 == idUsuario
+                    || p.IdCompanero1 == idUsuario
+                    || p.IdCompanero2 == idUsuario
+                )
             )
             .ToListAsync();
     }

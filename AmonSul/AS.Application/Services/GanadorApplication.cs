@@ -3,7 +3,9 @@ using AS.Application.DTOs.Ganador;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Equipo;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Statics;
 using AutoMapper;
@@ -76,7 +78,13 @@ public class GanadorApplication(
 
     public async Task<bool> SaveResultTournamentAsync(GuardarResultadosDTO guardarResultadosDTO)
     {
-        foreach (GanadorDTO item in guardarResultadosDTO.GanadoresDTO)
+        List<GanadorDTO> ganadores = guardarResultadosDTO.GanadoresDTO;
+        int idTorneo = guardarResultadosDTO.GenerarRondaDTO.IdTorneo;
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(idTorneo);
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+            ganadores = await ConParejasCompletasAsync(ganadores, idTorneo);
+
+        foreach (GanadorDTO item in ganadores)
         {
             Ganador ganador = _mapper.Map<Ganador>(item);
             await _unitOfWork.GanadorRepository.Register(ganador);
@@ -93,6 +101,44 @@ public class GanadorApplication(
         return true;
     }
 
+    /// <summary>
+    /// Parejas: los dos miembros quedan en la posición de su pareja, venga en la lista uno de ellos o los dos.
+    /// Si vienen los dos con distinta posición, se queda la mejor
+    /// </summary>
+    private async Task<List<GanadorDTO>> ConParejasCompletasAsync(List<GanadorDTO> ganadores, int idTorneo)
+    {
+        List<EquipoDTO> parejas = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(idTorneo);
+        Dictionary<int, List<int>> miembrosPorJugador = [];
+        foreach (EquipoDTO pareja in parejas)
+        {
+            List<int> miembros = [.. pareja.Inscripciones.Select(i => i.IdUsuario)];
+            foreach (int idUsuario in miembros)
+                miembrosPorJugador[idUsuario] = miembros;
+        }
+
+        List<GanadorDTO> resultado = [];
+        HashSet<int> yaColocados = [];
+        foreach (GanadorDTO ganador in ganadores.OrderBy(g => g.Resultado))
+        {
+            if (!miembrosPorJugador.TryGetValue(ganador.IdUsuario, out List<int>? miembrosPareja))
+                miembrosPareja = [ganador.IdUsuario];
+
+            foreach (int idUsuario in miembrosPareja)
+            {
+                if (!yaColocados.Add(idUsuario)) continue;
+
+                resultado.Add(new GanadorDTO
+                {
+                    IdTorneo = ganador.IdTorneo,
+                    IdUsuario = idUsuario,
+                    Resultado = ganador.Resultado,
+                });
+            }
+        }
+
+        return resultado;
+    }
+
     public async Task ActualizarEloAsync(GenerarRondaDTO request)
     {
         // Me traigo todas las partidas del torneo.
@@ -100,6 +146,13 @@ public class GanadorApplication(
 
         // Ordeno por rondas
         partidasTorneo = [.. partidasTorneo.OrderBy(x => x.NumeroRonda)];
+
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+        {
+            await ActualizarEloParejasAsync(partidasTorneo);
+            return;
+        }
 
         // si para la ronda 1, no hay mas de 7 partidas. No cuenta para el elo
         if (partidasTorneo.Where(x => x.NumeroRonda == 1).Count() <= 7) return;
@@ -149,6 +202,62 @@ public class GanadorApplication(
             };
             if (createElo2.IdUsuario != 568)
                 await _eloApplication.RegisterElo(createElo2);
+        }
+    }
+
+    /// <summary>
+    /// Parejas: el ELO de cada pareja es la media de sus jugadores y la variación de pareja contra
+    /// pareja se suma o resta igual a los dos. Cuenta con 16 jugadores o más en la ronda 1, sin el bye
+    /// </summary>
+    private async Task ActualizarEloParejasAsync(List<PartidaTorneo> partidasTorneo)
+    {
+        int jugadoresRonda1 = partidasTorneo
+            .Where(p => p.NumeroRonda == 1)
+            .SelectMany(p => new[] { p.IdUsuario1, p.IdUsuario2, p.IdCompanero1, p.IdCompanero2 })
+            .Where(id => id is not null && id != 568)
+            .Distinct()
+            .Count();
+        if (jugadoresRonda1 < 16) return;
+
+        foreach (PartidaTorneo partida in partidasTorneo)
+        {
+            List<int> pareja1 = [partida.IdUsuario1];
+            if (partida.IdCompanero1 is int idCompanero1) pareja1.Add(idCompanero1);
+            List<int> pareja2 = [partida.IdUsuario2];
+            if (partida.IdCompanero2 is int idCompanero2) pareja2.Add(idCompanero2);
+
+            Dictionary<int, int> eloActual = [];
+            foreach (int idUsuario in pareja1.Concat(pareja2))
+                eloActual[idUsuario] = await _eloApplication.GetLastElo(idUsuario);
+
+            int eloPareja1 = (int)Math.Round(pareja1.Average(id => eloActual[id]));
+            int eloPareja2 = (int)Math.Round(pareja2.Average(id => eloActual[id]));
+
+            // Sin ganador cuenta como empate, igual que en individual
+            double scorePareja1 = 0.5;
+            if (partida.GanadorPartidaTorneo == partida.IdUsuario1) scorePareja1 = 1.0;
+            if (partida.GanadorPartidaTorneo == partida.IdUsuario2) scorePareja1 = 0.0;
+
+            int variacionPareja1 =
+                EloRating.CalculateNewRating(eloPareja1, eloPareja2, scorePareja1) - eloPareja1;
+            int variacionPareja2 =
+                EloRating.CalculateNewRating(eloPareja2, eloPareja1, 1.0 - scorePareja1) - eloPareja2;
+
+            foreach (int idUsuario in pareja1.Where(id => id != 568))
+                await _eloApplication.RegisterElo(new CreateEloDTO
+                {
+                    IdUsuario = idUsuario,
+                    PuntuacionElo = eloActual[idUsuario] + variacionPareja1,
+                    IdPartidaTorneo = partida.IdPartidaTorneo,
+                });
+
+            foreach (int idUsuario in pareja2.Where(id => id != 568))
+                await _eloApplication.RegisterElo(new CreateEloDTO
+                {
+                    IdUsuario = idUsuario,
+                    PuntuacionElo = eloActual[idUsuario] + variacionPareja2,
+                    IdPartidaTorneo = partida.IdPartidaTorneo,
+                });
         }
     }
 }

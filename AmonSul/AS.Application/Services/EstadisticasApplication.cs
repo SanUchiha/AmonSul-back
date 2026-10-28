@@ -64,7 +64,7 @@ public class EstadisticasApplication(IUnitOfWork unitOfWork) : IEstadisticasAppl
     {
         var (_, bandoMap) = await BuildStatsMapAsync();
 
-        var todasLasPartidas = await _unitOfWork.PartidaTorneoRepository.GetAllAsync();
+        var todasLasPartidas = await _unitOfWork.PartidaTorneoRepository.GetAllSinParejasAsync();
 
         // Solo partidas con resultado y desde 2025
         var partidas = todasLasPartidas
@@ -172,7 +172,7 @@ public class EstadisticasApplication(IUnitOfWork unitOfWork) : IEstadisticasAppl
             .GroupBy(l => l.Ejercito!.Trim().ToLowerInvariant())
             .ToDictionary(g => g.Key, g => g.First().Bando!);
 
-        var todasLasPartidas = await _unitOfWork.PartidaTorneoRepository.GetAllAsync();
+        var todasLasPartidas = await _unitOfWork.PartidaTorneoRepository.GetAllSinParejasAsync();
         // EP1 no filtra por fecha: cuenta todas las partidas con resultado
         var partidas = todasLasPartidas
             .Where(p =>

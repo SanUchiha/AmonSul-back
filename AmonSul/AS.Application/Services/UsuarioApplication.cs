@@ -292,7 +292,12 @@ public class UsuarioApplication(
         }
         foreach (var partida in response.PartidasTorneo)
         {
-            if (partida.GanadorPartidaTorneo == response.IdUsuario) contadorVictorias++;
+            // En Parejas el ganador es el capitán: el compañero gana o pierde con su capitán
+            int idJugadorDelLado =
+                partida.IdCompanero1 == response.IdUsuario ? partida.IdUsuario1
+                : partida.IdCompanero2 == response.IdUsuario ? partida.IdUsuario2
+                : response.IdUsuario;
+            if (partida.GanadorPartidaTorneo == idJugadorDelLado) contadorVictorias++;
             else if (partida.GanadorPartidaTorneo == null) contadorEmpates++;
             else contadorDerrotas++;
         }

@@ -116,6 +116,21 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             })
             .FirstOrDefaultAsync();
 
+    /// <summary>
+    /// Solo tipo de torneo y modo de listas, para saber si es a Parejas sin traer bases ni cartel
+    /// </summary>
+    public async Task<Torneo?> GetTipoYModoListas(int idTorneo) =>
+        await _dbamonsulContext
+            .Torneos.AsNoTracking()
+            .Where(t => t.IdTorneo == idTorneo)
+            .Select(t => new Torneo
+            {
+                IdTorneo = t.IdTorneo,
+                TipoTorneo = t.TipoTorneo,
+                ListaPorPareja = t.ListaPorPareja,
+            })
+            .FirstOrDefaultAsync();
+
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
         await _dbamonsulContext
             .Torneos.Where(u => u.IdTorneo == IdTorneo)

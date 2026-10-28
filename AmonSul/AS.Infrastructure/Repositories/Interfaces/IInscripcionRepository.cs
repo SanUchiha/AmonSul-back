@@ -23,6 +23,7 @@ public interface IInscripcionRepository
 
     Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int Id_Torneo);
     Task<Equipo?> GetEquipoByIdAsync(int id);
+    Task<Equipo?> GetEquipoByUsuarioAndTorneoAsync(int idUsuario, int idTorneo);
     Task<Equipo> CreateEquipoAsync(Equipo equipo);
     Task<bool> AddUsuarioToEquipoAsync(EquipoUsuario equipoUsurio);
     Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUser);

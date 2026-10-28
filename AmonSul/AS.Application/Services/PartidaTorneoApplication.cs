@@ -1271,6 +1271,33 @@ public class PartidaTorneoApplication(
         if (inscripcion1 is null || inscripcion2 is null)
             return false;
 
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(
+            existingEntity.IdTorneo
+        );
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+        {
+            // En Parejas cambia la pareja entera aunque se elija al compañero en vez del capitán
+            Equipo? equipo1 = await _unitOfWork.InscripcionRepository.GetEquipoByUsuarioAndTorneoAsync(
+                inscripcion1.IdUsuario,
+                existingEntity.IdTorneo
+            );
+            Equipo? equipo2 = await _unitOfWork.InscripcionRepository.GetEquipoByUsuarioAndTorneoAsync(
+                inscripcion2.IdUsuario,
+                existingEntity.IdTorneo
+            );
+            LadoPareja? pareja1 = equipo1 is null
+                ? null
+                : GetLadoPareja(equipo1, existingEntity.IdTorneo, torneo.ListaPorPareja);
+            LadoPareja? pareja2 = equipo2 is null
+                ? null
+                : GetLadoPareja(equipo2, existingEntity.IdTorneo, torneo.ListaPorPareja);
+            if (pareja1 is null || pareja2 is null)
+                return false;
+
+            AsignarParejas(existingEntity, pareja1.Value, pareja2.Value);
+            return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+        }
+
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
         existingEntity.EjercitoUsuario1 =
@@ -1447,6 +1474,15 @@ public class PartidaTorneoApplication(
         GenerarRondaEquiposDTO request
     )
     {
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+            return await GenerarPartidasParejasAsync(
+                request.IdTorneo,
+                request.IdRonda,
+                [.. emparejamientos.Select(e => (e.Equipo1.IdEquipo, e.Equipo2.IdEquipo))],
+                torneo.ListaPorPareja
+            );
+
         List<PartidaTorneo> partidas = [];
 
         foreach (EmparejamientoEquiposDTO emparejamiento in emparejamientos)
@@ -1577,6 +1613,15 @@ public class PartidaTorneoApplication(
         Dictionary<int, EquipoDTO> equiposDict
     )
     {
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+            return await GenerarPartidasParejasAsync(
+                request.IdTorneo,
+                request.IdRonda,
+                emparejamientos,
+                torneo.ListaPorPareja
+            );
+
         List<PartidaTorneo> partidas = [];
 
         foreach ((int equipo1, int equipo2) in emparejamientos)
@@ -1623,6 +1668,130 @@ public class PartidaTorneoApplication(
         return true;
     }
 
+    /// <summary>
+    /// Un lado de una partida a Parejas: el capitán juega como jugador 1 o 2 y el otro miembro es su compañero
+    /// </summary>
+    private readonly record struct LadoPareja(
+        int IdEquipo,
+        int IdCapitan,
+        string? EjercitoCapitan,
+        int? IdCompanero,
+        string? EjercitoCompanero
+    );
+
+    private static readonly LadoPareja ParejaBye = new(117, 568, null, null, null);
+
+    private async Task<LadoPareja?> GetLadoParejaAsync(int idEquipo, int idTorneo, bool listaPorPareja)
+    {
+        if (idEquipo == ParejaBye.IdEquipo)
+            return ParejaBye;
+
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo);
+        return equipo is null ? null : GetLadoPareja(equipo, idTorneo, listaPorPareja);
+    }
+
+    /// <summary>
+    /// Con lista conjunta la pareja tiene un solo ejército, el de su lista, y el compañero queda sin ejército
+    /// </summary>
+    private static LadoPareja? GetLadoPareja(Equipo equipo, int idTorneo, bool listaPorPareja)
+    {
+        List<InscripcionTorneo> inscripciones =
+        [
+            .. equipo.InscripcionTorneos.Where(i => i.IdTorneo == idTorneo),
+        ];
+        if (inscripciones.Count == 0)
+            return null;
+
+        InscripcionTorneo capitan =
+            inscripciones.FirstOrDefault(i => i.IdUsuario == equipo.IdCapitan) ?? inscripciones[0];
+        InscripcionTorneo? companero = inscripciones.FirstOrDefault(i =>
+            i.IdUsuario != capitan.IdUsuario
+        );
+
+        string? ejercitoCapitan = capitan.Lista.FirstOrDefault()?.Ejercito;
+        string? ejercitoCompanero = companero?.Lista.FirstOrDefault()?.Ejercito;
+
+        if (listaPorPareja)
+            return new(
+                equipo.IdEquipo,
+                capitan.IdUsuario,
+                ejercitoCapitan ?? ejercitoCompanero,
+                companero?.IdUsuario,
+                null
+            );
+
+        return new(
+            equipo.IdEquipo,
+            capitan.IdUsuario,
+            ejercitoCapitan,
+            companero?.IdUsuario,
+            ejercitoCompanero
+        );
+    }
+
+    /// <summary>
+    /// Pone las dos parejas en la partida y la deja sin resultado
+    /// </summary>
+    private static void AsignarParejas(PartidaTorneo partida, LadoPareja pareja1, LadoPareja pareja2)
+    {
+        partida.IdEquipo1 = pareja1.IdEquipo;
+        partida.IdUsuario1 = pareja1.IdCapitan;
+        partida.EjercitoUsuario1 = pareja1.EjercitoCapitan;
+        partida.IdCompanero1 = pareja1.IdCompanero;
+        partida.EjercitoCompanero1 = pareja1.EjercitoCompanero;
+
+        partida.IdEquipo2 = pareja2.IdEquipo;
+        partida.IdUsuario2 = pareja2.IdCapitan;
+        partida.EjercitoUsuario2 = pareja2.EjercitoCapitan;
+        partida.IdCompanero2 = pareja2.IdCompanero;
+        partida.EjercitoCompanero2 = pareja2.EjercitoCompanero;
+
+        partida.ResultadoUsuario1 = null;
+        partida.ResultadoUsuario2 = null;
+        partida.GanadorPartidaTorneo = null;
+        partida.PartidaValidadaUsuario1 = false;
+        partida.PartidaValidadaUsuario2 = false;
+        partida.LiderMuertoUsuario1 = null;
+        partida.LiderMuertoUsuario2 = null;
+    }
+
+    /// <summary>
+    /// Parejas: una sola partida por enfrentamiento, 2 contra 2 en la misma mesa
+    /// </summary>
+    private async Task<bool> GenerarPartidasParejasAsync(
+        int idTorneo,
+        int idRonda,
+        List<(int idEquipo1, int idEquipo2)> emparejamientos,
+        bool listaPorPareja
+    )
+    {
+        List<PartidaTorneo> partidas = [];
+
+        foreach ((int idEquipo1, int idEquipo2) in emparejamientos)
+        {
+            LadoPareja? pareja1 = await GetLadoParejaAsync(idEquipo1, idTorneo, listaPorPareja);
+            LadoPareja? pareja2 = await GetLadoParejaAsync(idEquipo2, idTorneo, listaPorPareja);
+            // Sin guardar nada si falta una pareja, para no dejar la ronda a medias
+            if (pareja1 is null || pareja2 is null)
+                return false;
+
+            PartidaTorneo partida = new()
+            {
+                IdTorneo = idTorneo,
+                NumeroRonda = idRonda,
+                FechaPartida = DateOnly.FromDateTime(DateTime.UtcNow),
+            };
+            AsignarParejas(partida, pareja1.Value, pareja2.Value);
+            partidas.Add(partida);
+        }
+
+        foreach (PartidaTorneo partida in partidas)
+        {
+            await _unitOfWork.PartidaTorneoRepository.Register(partida);
+        }
+        return true;
+    }
+
     public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo) =>
         await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
 
@@ -1641,6 +1810,31 @@ public class PartidaTorneoApplication(
 
         if (partidas == null || partidas.Count == 0)
             return false;
+
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(idTorneo);
+        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+        {
+            // En Parejas hay una sola partida por enfrentamiento: se cambian las dos parejas
+            LadoPareja? pareja1 = await GetLadoParejaAsync(
+                request.IdEquipo1,
+                idTorneo,
+                torneo.ListaPorPareja
+            );
+            LadoPareja? pareja2 = await GetLadoParejaAsync(
+                request.IdEquipo2,
+                idTorneo,
+                torneo.ListaPorPareja
+            );
+            if (pareja1 is null || pareja2 is null)
+                return false;
+
+            foreach (PartidaTorneo partida in partidas)
+            {
+                AsignarParejas(partida, pareja1.Value, pareja2.Value);
+                await _unitOfWork.PartidaTorneoRepository.Edit(partida);
+            }
+            return true;
+        }
 
         List<InscripcionTorneo> nuevoEquipo1 =
             await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(
@@ -1820,7 +2014,10 @@ public class PartidaTorneoApplication(
         else
         {
             List<PartidaTorneoDTO> partidaEquiposDTO = [];
-            if(partidas[0].IdEquipo1.HasValue && partidas[0].IdEquipo2.HasValue && partidas[0].IdUsuario1 == idUsuario)
+            // En Parejas el compañero del jugador 1 también juega en el equipo 1
+            bool juegaEnEquipo1 =
+                partidas[0].IdUsuario1 == idUsuario || partidas[0].IdCompanero1 == idUsuario;
+            if(partidas[0].IdEquipo1.HasValue && partidas[0].IdEquipo2.HasValue && juegaEnEquipo1)
             {
                 List<PartidaTorneo> partidasEquipo = 
                     await _unitOfWork.PartidaTorneoRepository.GetPartidasByEquipoYFechaAsync(
@@ -1892,6 +2089,9 @@ public class PartidaTorneoApplication(
                 item.EjercitoUsuario1 = lista1Entity?.Ejercito ?? item.EjercitoUsuario1 ?? string.Empty;
                 item.EjercitoUsuario2 = lista2Entity?.Ejercito ?? item.EjercitoUsuario2 ?? string.Empty;
 
+                if (torneo.TipoTorneo == TorneoType.PAREJAS)
+                    await CompletarCompanerosAsync(item, torneo.ListaPorPareja);
+
                 if (partidaEquiposDTO[0].IdEquipo1.HasValue || partidaEquiposDTO[0].IdEquipo2.HasValue)
                 {
                     Equipo? equipo1 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(
@@ -1911,5 +2111,45 @@ public class PartidaTorneoApplication(
         }
 
         return estaJugandoDTO;
+    }
+
+    /// <summary>
+    /// Nick y ejército de los compañeros. Con lista conjunta el compañero no tiene ejército propio
+    /// </summary>
+    private async Task CompletarCompanerosAsync(PartidaTorneoDTO partida, bool listaPorPareja)
+    {
+        if (partida.IdCompanero1 is int idCompanero1)
+        {
+            partida.NickCompanero1 = (
+                await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero1)
+            ).Nick;
+            if (!listaPorPareja)
+                partida.EjercitoCompanero1 =
+                    await GetEjercitoUltimaListaAsync(partida.IdTorneo!.Value, idCompanero1)
+                    ?? partida.EjercitoCompanero1;
+        }
+
+        if (partida.IdCompanero2 is int idCompanero2)
+        {
+            partida.NickCompanero2 = (
+                await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero2)
+            ).Nick;
+            if (!listaPorPareja)
+                partida.EjercitoCompanero2 =
+                    await GetEjercitoUltimaListaAsync(partida.IdTorneo!.Value, idCompanero2)
+                    ?? partida.EjercitoCompanero2;
+        }
+    }
+
+    private async Task<string?> GetEjercitoUltimaListaAsync(int idTorneo, int idUsuario)
+    {
+        List<Lista> listas = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
+            idTorneo,
+            idUsuario
+        );
+        return listas
+            .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
+            .FirstOrDefault()
+            ?.Ejercito;
     }
 }

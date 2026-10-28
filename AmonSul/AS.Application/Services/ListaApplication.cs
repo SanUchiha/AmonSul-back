@@ -7,6 +7,7 @@ using AS.Application.Interfaces;
 using AS.Domain.DTOs.Lista;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.DTOs.Lista;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
@@ -67,6 +68,15 @@ public class ListaApplication(
             listaTorneoRequestDTO.IdTorneo,
             listaTorneoRequestDTO.IdUsuario
         );
+        // Con lista conjunta el compañero no tiene lista propia: la de la pareja está en la inscripción del capitán
+        if (lista is null)
+        {
+            List<InscripcionTorneo> inscripcionesPareja = await GetInscripcionesListaConjuntaAsync(
+                listaTorneoRequestDTO.IdTorneo,
+                listaTorneoRequestDTO.IdUsuario
+            );
+            lista = inscripcionesPareja.SelectMany(i => i.Lista).FirstOrDefault()!;
+        }
         if (lista is null)
             return null!;
 
@@ -147,6 +157,26 @@ public class ListaApplication(
         lista.Bando = createListaTorneoDTO.Ejercito.Band;
         lista.Ejercito = createListaTorneoDTO.Ejercito.Name;
 
+        // Parejas con lista conjunta: una sola lista por pareja, en la inscripción del capitán
+        InscripcionTorneo? inscripcionLista =
+            await _unitOfWork.InscripcionRepository.GetTorneoYUsuario(createListaTorneoDTO.IdInscripcion);
+        List<InscripcionTorneo> inscripcionesPareja = inscripcionLista is null
+            ? []
+            : await GetInscripcionesListaConjuntaAsync(
+                inscripcionLista.IdTorneo,
+                inscripcionLista.IdUsuario
+            );
+        if (inscripcionesPareja.Count > 0)
+        {
+            if (inscripcionesPareja.Any(i => i.Lista.Count > 0))
+                return new ResultRegisterListarDTO
+                {
+                    Result = false,
+                    Mensaje = "Tu pareja ya ha entregado la lista conjunta. Modifícala en lugar de subir otra.",
+                };
+            lista.IdInscripcion = inscripcionesPareja[0].IdInscripcion;
+        }
+
         ResultRegisterListarDTO result = await _unitOfWork.ListaRepository.RegisterLista(lista);
         if (!result.Result)
             return result;
@@ -161,6 +191,11 @@ public class ListaApplication(
         inscripcion.FechaEntregaLista = createListaTorneoDTO.FechaEntrega;
 
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        await MarcarListaConjuntaEntregadaAsync(
+            inscripcionesPareja,
+            inscripcion.IdInscripcion,
+            createListaTorneoDTO.FechaEntrega
+        );
 
         string? emailOrganizador = createListaTorneoDTO.EmailOrganizador;
         if (emailOrganizador is null)
@@ -229,6 +264,11 @@ public class ListaApplication(
         inscripcion.FechaEntregaLista = updateListaTorneoDTO.FechaEntrega;
 
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        await MarcarListaConjuntaEntregadaAsync(
+            await GetInscripcionesListaConjuntaAsync(inscripcion.IdTorneo, inscripcion.IdUsuario),
+            inscripcion.IdInscripcion,
+            updateListaTorneoDTO.FechaEntrega
+        );
 
         int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(
             inscripcion.IdTorneo
@@ -249,6 +289,55 @@ public class ListaApplication(
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
 
         return true;
+    }
+
+    /// <summary>
+    /// Parejas con lista conjunta: inscripciones de la pareja en el torneo, con la del capitán primero.
+    /// Vacía en cualquier otro torneo
+    /// </summary>
+    private async Task<List<InscripcionTorneo>> GetInscripcionesListaConjuntaAsync(
+        int idTorneo,
+        int idUsuario
+    )
+    {
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(idTorneo);
+        if (torneo?.TipoTorneo != TorneoType.PAREJAS || !torneo.ListaPorPareja)
+            return [];
+
+        Equipo? pareja = await _unitOfWork.InscripcionRepository.GetEquipoByUsuarioAndTorneoAsync(
+            idUsuario,
+            idTorneo
+        );
+        if (pareja is null)
+            return [];
+
+        return
+        [
+            .. pareja
+                .InscripcionTorneos.Where(i => i.IdTorneo == idTorneo)
+                .OrderByDescending(i => i.IdUsuario == pareja.IdCapitan),
+        ];
+    }
+
+    /// <summary>
+    /// Con lista conjunta el compañero también queda con la lista entregada
+    /// </summary>
+    private async Task MarcarListaConjuntaEntregadaAsync(
+        List<InscripcionTorneo> inscripcionesPareja,
+        int idInscripcionYaMarcada,
+        DateOnly? fechaEntrega
+    )
+    {
+        foreach (
+            InscripcionTorneo inscripcion in inscripcionesPareja.Where(i =>
+                i.IdInscripcion != idInscripcionYaMarcada
+            )
+        )
+        {
+            inscripcion.EstadoLista = "ENTREGADA";
+            inscripcion.FechaEntregaLista = fechaEntrega;
+            await _unitOfWork.InscripcionRepository.Update(inscripcion);
+        }
     }
 
     public async Task<(byte[] FileBytes, string FileName)> GetListasPdfByTorneo(int idTorneo)
