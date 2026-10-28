@@ -168,9 +168,10 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         };
 
         ListaDTO lista = await _listaApplication.GetListaTorneo(listaTorneoRequestDTO);
+        // El front enseña este texto tal cual al pulsar en una lista que no existe
         if (lista is null)
         {
-            return BadRequest("Unable to get the lista.");
+            return BadRequest("Todavía no ha entregado la lista.");
         }
         return Ok(lista);
     }
