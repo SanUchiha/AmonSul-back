@@ -157,6 +157,20 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                     LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
                     IdEquipo1 = p.IdEquipo1,
                     IdEquipo2 = p.IdEquipo2,
+                    IdCompanero1 = p.IdCompanero1,
+                    IdCompanero2 = p.IdCompanero2,
+                    EjercitoCompanero1 = p.EjercitoCompanero1,
+                    EjercitoCompanero2 = p.EjercitoCompanero2,
+                    IdCompanero1Navigation = p.IdCompanero1 == null ? null : new Usuario
+                    {
+                        IdUsuario = p.IdCompanero1Navigation!.IdUsuario,
+                        Nick = p.IdCompanero1Navigation.Nick,
+                    },
+                    IdCompanero2Navigation = p.IdCompanero2 == null ? null : new Usuario
+                    {
+                        IdUsuario = p.IdCompanero2Navigation!.IdUsuario,
+                        Nick = p.IdCompanero2Navigation.Nick,
+                    },
                     IdUsuario1Navigation = new Usuario
                     {
                         IdUsuario = p.IdUsuario1Navigation!.IdUsuario,
@@ -352,6 +366,12 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                 NombreEquipo2 = p.IdEquipo2Navigation!.NombreEquipo,
                 IdCapitan1 = p.IdEquipo1Navigation!.IdCapitan,
                 IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan,
+                IdCompanero1 = p.IdCompanero1,
+                IdCompanero2 = p.IdCompanero2,
+                NickCompanero1 = p.IdCompanero1Navigation!.Nick,
+                NickCompanero2 = p.IdCompanero2Navigation!.Nick,
+                EjercitoCompanero1 = p.EjercitoCompanero1,
+                EjercitoCompanero2 = p.EjercitoCompanero2,
             })
             .ToListAsync();
 

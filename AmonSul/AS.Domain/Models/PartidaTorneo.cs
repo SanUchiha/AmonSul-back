@@ -29,4 +29,12 @@ public partial class PartidaTorneo
     public int? IdEquipo2 { get; set; }
     public virtual Equipo? IdEquipo1Navigation { get; set; }
     public virtual Equipo? IdEquipo2Navigation { get; set; }
+    // Solo en torneos a Parejas: compañero del jugador 1 y del jugador 2, que son los capitanes
+    public int? IdCompanero1 { get; set; }
+    public int? IdCompanero2 { get; set; }
+    // Vacíos si la pareja juega con una lista conjunta
+    public string? EjercitoCompanero1 { get; set; }
+    public string? EjercitoCompanero2 { get; set; }
+    public virtual Usuario? IdCompanero1Navigation { get; set; }
+    public virtual Usuario? IdCompanero2Navigation { get; set; }
 }

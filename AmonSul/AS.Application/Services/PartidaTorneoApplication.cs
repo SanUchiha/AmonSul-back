@@ -140,6 +140,8 @@ public class PartidaTorneoApplication(
         {
             partida.NickUsuario1 = partida.IdUsuario1Navigation!.Nick;
             partida.NickUsuario2 = partida.IdUsuario2Navigation!.Nick;
+            partida.NickCompanero1 = partida.IdCompanero1Navigation?.Nick;
+            partida.NickCompanero2 = partida.IdCompanero2Navigation?.Nick;
 
             if (partida.GanadorPartidaTorneo != 0)
             {
@@ -1707,6 +1709,8 @@ public class PartidaTorneoApplication(
         {
             partida.NickUsuario1 = partida.IdUsuario1Navigation!.Nick;
             partida.NickUsuario2 = partida.IdUsuario2Navigation!.Nick;
+            partida.NickCompanero1 = partida.IdCompanero1Navigation?.Nick;
+            partida.NickCompanero2 = partida.IdCompanero2Navigation?.Nick;
 
             if (partida.GanadorPartidaTorneo != 0)
             {

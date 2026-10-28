@@ -30,4 +30,6 @@ public class CrearTorneoDTO
     public DateOnly? InicioInscripciones { get; set; }
     public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
     public string? Contacto { get; set; }
+    // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
+    public bool ListaPorPareja { get; set; }
 }

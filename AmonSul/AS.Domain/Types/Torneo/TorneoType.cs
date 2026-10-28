@@ -3,7 +3,7 @@
 public static class TorneoType
 {
     public const string INDIVIDUAL = "Individual";
-    // Antiguo nombre de EQUIPOS_2: se mantiene hasta renombrar los torneos que aún lo tienen
+    // 2 contra 2 en la misma mesa: una partida por enfrentamiento. Hasta octubre de 2026 era el nombre de EQUIPOS_2
     public const string PAREJAS = "Parejas";
     public const string EQUIPOS_2 = "Equipos_2";
     public const string EQUIPOS_4 = "Equipos_4";

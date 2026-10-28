@@ -113,6 +113,7 @@ public class TorneoApplication(
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
+        AjustarModoListas(torneo);
 
         ResultTorneoCreadoDTO torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
 
@@ -144,6 +145,17 @@ public class TorneoApplication(
             await _unitOfWork.LigaRepository.AddTorneoToLigaAsync(ligaTorneo);
 
         return torneoCreado.HasCreated;
+    }
+
+    /// <summary>
+    /// La lista conjunta solo existe en Parejas, y con ella cada pareja entrega una única lista
+    /// </summary>
+    private static void AjustarModoListas(Torneo torneo)
+    {
+        if (torneo.TipoTorneo != TorneoType.PAREJAS)
+            torneo.ListaPorPareja = false;
+        else if (torneo.ListaPorPareja)
+            torneo.ListasPorJugador = 1;
     }
 
     private static async Task GuardarBasesEnPDFAsync(string basesTorneo, string nombreTorneo)
@@ -295,6 +307,11 @@ public class TorneoApplication(
 
         if (!string.IsNullOrWhiteSpace(request.Contacto))
             torneo.Contacto = request.Contacto;
+
+        if (request.ListaPorPareja.HasValue)
+            torneo.ListaPorPareja = request.ListaPorPareja.Value;
+
+        AjustarModoListas(torneo);
 
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";

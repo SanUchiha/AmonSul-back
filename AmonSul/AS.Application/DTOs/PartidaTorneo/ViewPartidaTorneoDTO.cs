@@ -29,8 +29,19 @@ public class ViewPartidaTorneoDTO
     // ELO ganado o perdido en la partida; null si no contó para el ELO o no se sabe
     public int? EloVariacionUsuario1 { get; set; }
     public int? EloVariacionUsuario2 { get; set; }
+    // Solo en torneos a Parejas: compañeros de los capitanes IdUsuario1 e IdUsuario2
+    public int? IdCompanero1 { get; set; }
+    public string? NickCompanero1 { get; set; }
+    public string? EjercitoCompanero1 { get; set; }
+    public int? IdCompanero2 { get; set; }
+    public string? NickCompanero2 { get; set; }
+    public string? EjercitoCompanero2 { get; set; }
     [JsonIgnore]
     public Domain.Models.Usuario? IdUsuario1Navigation { get; set; }
     [JsonIgnore]
     public Domain.Models.Usuario? IdUsuario2Navigation { get; set; }
+    [JsonIgnore]
+    public Domain.Models.Usuario? IdCompanero1Navigation { get; set; }
+    [JsonIgnore]
+    public Domain.Models.Usuario? IdCompanero2Navigation { get; set; }
 }

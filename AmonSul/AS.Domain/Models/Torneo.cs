@@ -35,6 +35,8 @@ public partial class Torneo
     public int ListasPorJugador { get; set; }
     public ClassificationType ClassificationType { get; set; } = ClassificationType.NORMAL;
     public string? Contacto { get; set; }
+    // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta en vez de una por jugador
+    public bool ListaPorPareja { get; set; }
 
     public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual List<Comentario> Comentarios { get; set; } = [];

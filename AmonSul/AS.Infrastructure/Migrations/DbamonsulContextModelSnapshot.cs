@@ -581,6 +581,14 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPartidaTorneo"));
 
+                    b.Property<string>("EjercitoCompanero1")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Ejercito_Companero1");
+
+                    b.Property<string>("EjercitoCompanero2")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Ejercito_Companero2");
+
                     b.Property<string>("EjercitoUsuario1")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Ejercito_Usuario1");
@@ -610,6 +618,14 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int?>("GanadorPartidaTorneo")
                         .HasColumnType("int")
                         .HasColumnName("Ganador_Partida_Torneo");
+
+                    b.Property<int?>("IdCompanero1")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Companero1");
+
+                    b.Property<int?>("IdCompanero2")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Companero2");
 
                     b.Property<int?>("IdEquipo1")
                         .HasColumnType("int")
@@ -667,6 +683,10 @@ namespace AS.Infrastructure.Migrations
                         .HasName("PK__Partida___4AA741CABAA82AD2");
 
                     b.HasIndex("GanadorPartidaTorneo");
+
+                    b.HasIndex("IdCompanero1");
+
+                    b.HasIndex("IdCompanero2");
 
                     b.HasIndex("IdEquipo1");
 
@@ -886,6 +906,10 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int?>("LimiteParticipantes")
                         .HasColumnType("int")
                         .HasColumnName("Limite_Participantes");
+
+                    b.Property<bool>("ListaPorPareja")
+                        .HasColumnType("bit")
+                        .HasColumnName("Lista_Por_Pareja");
 
                     b.Property<int>("ListasPorJugador")
                         .HasColumnType("int")
@@ -1249,6 +1273,18 @@ namespace AS.Infrastructure.Migrations
                         .HasForeignKey("GanadorPartidaTorneo")
                         .HasConstraintName("FK_Partida_Torneo_Ganador");
 
+                    b.HasOne("AS.Domain.Models.Usuario", "IdCompanero1Navigation")
+                        .WithMany()
+                        .HasForeignKey("IdCompanero1")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Partida_Torneo_Companero1");
+
+                    b.HasOne("AS.Domain.Models.Usuario", "IdCompanero2Navigation")
+                        .WithMany()
+                        .HasForeignKey("IdCompanero2")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Partida_Torneo_Companero2");
+
                     b.HasOne("AS.Domain.Models.Equipo", "IdEquipo1Navigation")
                         .WithMany("PartidaTorneoIdEquipo1Navigations")
                         .HasForeignKey("IdEquipo1")
@@ -1283,6 +1319,10 @@ namespace AS.Infrastructure.Migrations
                         .HasConstraintName("FK_Partida_Torneo_Usuario2");
 
                     b.Navigation("GanadorPartidaTorneoNavigation");
+
+                    b.Navigation("IdCompanero1Navigation");
+
+                    b.Navigation("IdCompanero2Navigation");
 
                     b.Navigation("IdEquipo1Navigation");
 

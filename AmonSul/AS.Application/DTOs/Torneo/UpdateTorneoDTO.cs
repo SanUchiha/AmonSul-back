@@ -23,4 +23,6 @@ public class UpdateTorneoDTO
     public ClassificationType ClassificationType { get; set; }
     public required string TipoTorneo { get; set; }
     public string? Contacto { get; set; }
+    // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
+    public bool? ListaPorPareja { get; set; }
 }

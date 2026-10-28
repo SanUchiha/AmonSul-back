@@ -293,6 +293,10 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.LiderMuertoUsuario2).HasColumnName("Lider_Muerto_Usuario2");
             entity.Property(e => e.IdEquipo1).HasColumnName("Id_Equipo1");
             entity.Property(e => e.IdEquipo2).HasColumnName("Id_Equipo2");
+            entity.Property(e => e.IdCompanero1).HasColumnName("ID_Companero1");
+            entity.Property(e => e.IdCompanero2).HasColumnName("ID_Companero2");
+            entity.Property(e => e.EjercitoCompanero1).HasColumnName("Ejercito_Companero1");
+            entity.Property(e => e.EjercitoCompanero2).HasColumnName("Ejercito_Companero2");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)
@@ -317,6 +321,14 @@ public partial class DbamonsulContext : DbContext
             entity.HasOne(pt => pt.IdEquipo2Navigation).WithMany(e => e.PartidaTorneoIdEquipo2Navigations)
                .HasForeignKey(pt => pt.IdEquipo2).IsRequired(false).OnDelete(DeleteBehavior.Restrict)
                .HasConstraintName("FK_PartidaTorneo_Equipo2");
+
+            entity.HasOne(pt => pt.IdCompanero1Navigation).WithMany()
+                .HasForeignKey(pt => pt.IdCompanero1).IsRequired(false).OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Partida_Torneo_Companero1");
+
+            entity.HasOne(pt => pt.IdCompanero2Navigation).WithMany()
+                .HasForeignKey(pt => pt.IdCompanero2).IsRequired(false).OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Partida_Torneo_Companero2");
         });
 
         //Rango torneos
@@ -423,6 +435,7 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Tipo_Torneo");
             entity.Property(e => e.ClassificationType).HasColumnName("Tipo_Clasificacion");
             entity.Property(e => e.ListasPorJugador).HasColumnName("Listas_Por_jugador");
+            entity.Property(e => e.ListaPorPareja).HasColumnName("Lista_Por_Pareja");
             entity.Property(e => e.Contacto)
                 .HasMaxLength(200)
                 .IsUnicode(false)

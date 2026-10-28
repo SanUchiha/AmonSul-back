@@ -14,4 +14,5 @@ public class TorneoCreadoDTO
     public int? JugadoresXEquipo { get; set; }
     public bool MostrarListas { get; set; }
     public bool MostrarClasificacion { get; set; }
+    public bool ListaPorPareja { get; set; }
 }

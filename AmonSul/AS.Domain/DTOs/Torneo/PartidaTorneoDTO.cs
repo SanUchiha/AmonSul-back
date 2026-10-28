@@ -31,4 +31,12 @@ public class PartidaTorneoDTO
     public ListaDTO? ListaJugador1 { get; set; }
     public ListaDTO? ListaJugador2 { get; set; }
     public int? NumeroMesa { get; set; }
+    // Solo en torneos a Parejas: compañeros de los capitanes IdUsuario1 e IdUsuario2
+    public int? IdCompanero1 { get; set; }
+    public int? IdCompanero2 { get; set; }
+    public string? NickCompanero1 { get; set; }
+    public string? NickCompanero2 { get; set; }
+    // Vacíos si la pareja juega con una lista conjunta
+    public string? EjercitoCompanero1 { get; set; }
+    public string? EjercitoCompanero2 { get; set; }
 }

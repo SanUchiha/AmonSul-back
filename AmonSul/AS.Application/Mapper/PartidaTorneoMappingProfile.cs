@@ -16,6 +16,8 @@ public class PartidaTorneoMappingProfile : Profile
              .ForMember(dest => dest.NombreEquipo2, opt => opt.MapFrom(src => src.IdEquipo2Navigation!.NombreEquipo))
              .ForMember(dest => dest.IdCapitan1, opt => opt.MapFrom(src => src.IdEquipo1Navigation!.IdCapitan))
              .ForMember(dest => dest.IdCapitan2, opt => opt.MapFrom(src => src.IdEquipo2Navigation!.IdCapitan))
+             .ForMember(dest => dest.NickCompanero1, opt => opt.MapFrom(src => src.IdCompanero1Navigation!.Nick))
+             .ForMember(dest => dest.NickCompanero2, opt => opt.MapFrom(src => src.IdCompanero2Navigation!.Nick))
              .ReverseMap();
 
         CreateMap<PartidaTorneo, PartidaTorneoMasDTO>()
