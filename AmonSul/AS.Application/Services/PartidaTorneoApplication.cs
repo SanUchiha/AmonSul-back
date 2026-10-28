@@ -1584,9 +1584,6 @@ public class PartidaTorneoApplication(
     {
         List<EquipoDTO> clasificacion = [.. request.Clasificacion];
 
-        List<(int equipo1, int equipo2)> emparejamientos = [];
-        HashSet<int> emparejados = [];
-
         if (request.NecesitaBye && clasificacion.Count % 2 != 0)
         {
             clasificacion.Add(
@@ -1601,56 +1598,86 @@ public class PartidaTorneoApplication(
 
         Dictionary<int, EquipoDTO> equiposDict = clasificacion.ToDictionary(e => e.IdEquipo);
 
-        // 3. Emparejar equipos
-        for (int i = 0; i < clasificacion.Count; i++)
-        {
-            EquipoDTO equipo1 = clasificacion[i];
-            if (emparejados.Contains(equipo1.IdEquipo))
-                continue;
+        List<(int equipo1, int equipo2)>? emparejamientos = request.PermiteRepetirRival
+            ? EmparejarEnOrden(clasificacion)
+            : EmparejarSinRepetir(clasificacion, request.PairingRondaAnterior);
 
-            int j = i + 1;
-            while (j < clasificacion.Count)
-            {
-                EquipoDTO equipo2 = clasificacion[j];
-
-                if (emparejados.Contains(equipo2.IdEquipo))
-                {
-                    j++;
-                    continue;
-                }
-
-                // Si permite repetir rival → no comprobamos nada más
-                if (request.PermiteRepetirRival)
-                {
-                    emparejamientos.Add((equipo1.IdEquipo, equipo2.IdEquipo));
-                    emparejados.Add(equipo1.IdEquipo);
-                    emparejados.Add(equipo2.IdEquipo);
-                    break;
-                }
-
-                // Si **NO** permite repetir rival → comprobamos que no se hayan enfrentado ya
-                bool yaSeEnfrentaron = request.PairingRondaAnterior.Any(p =>
-                    (p.IdEquipo1 == equipo1.IdEquipo && p.IdEquipo2 == equipo2.IdEquipo)
-                    || (p.IdEquipo1 == equipo2.IdEquipo && p.IdEquipo2 == equipo1.IdEquipo)
-                );
-
-                if (!yaSeEnfrentaron)
-                {
-                    emparejamientos.Add((equipo1.IdEquipo, equipo2.IdEquipo));
-                    emparejados.Add(equipo1.IdEquipo);
-                    emparejados.Add(equipo2.IdEquipo);
-                    break;
-                }
-
-                j++;
-            }
-        }
+        // Sin forma de emparejar a todos sin repetir: mejor no generar la ronda que dejar a alguien sin rival
+        if (emparejamientos is null)
+            return false;
 
         return await GenerarPartidasDesdeEmparejamientosOtrasRondas(
             emparejamientos,
             request,
             equiposDict
         );
+    }
+
+    /// <summary>
+    /// Por orden de clasificación, de dos en dos. Con impares el último se queda sin jugar
+    /// </summary>
+    private static List<(int equipo1, int equipo2)> EmparejarEnOrden(List<EquipoDTO> clasificacion) =>
+    [
+        .. Enumerable
+            .Range(0, clasificacion.Count / 2)
+            .Select(k => (clasificacion[2 * k].IdEquipo, clasificacion[2 * k + 1].IdEquipo)),
+    ];
+
+    /// <summary>
+    /// Por orden de clasificación sin repetir ningún emparejamiento de rondas anteriores, bye incluido.
+    /// Busca hacia atrás: emparejando de uno en uno, el último podía quedarse sin rival cuando su único
+    /// hueco libre era repetido. Con impares se queda uno sin jugar, el peor clasificado que se pueda.
+    /// Null si no hay forma de emparejarlos sin repetir
+    /// </summary>
+    private static List<(int equipo1, int equipo2)>? EmparejarSinRepetir(
+        List<EquipoDTO> clasificacion,
+        List<PairingDTO> anteriores
+    )
+    {
+        HashSet<(int, int)> jugados = [];
+        foreach (PairingDTO pairing in anteriores)
+        {
+            if (pairing.IdEquipo2 is not int idEquipo2)
+                continue;
+            jugados.Add((pairing.IdEquipo1, idEquipo2));
+            jugados.Add((idEquipo2, pairing.IdEquipo1));
+        }
+
+        int total = clasificacion.Count;
+        bool[] usado = new bool[total];
+        List<(int equipo1, int equipo2)> emparejamientos = [];
+
+        bool Emparejar(int desde, int sinRivalPermitidos)
+        {
+            int i = desde;
+            while (i < total && usado[i])
+                i++;
+            if (i == total)
+                return true;
+
+            usado[i] = true;
+            for (int j = i + 1; j < total; j++)
+            {
+                if (usado[j] || jugados.Contains((clasificacion[i].IdEquipo, clasificacion[j].IdEquipo)))
+                    continue;
+
+                usado[j] = true;
+                emparejamientos.Add((clasificacion[i].IdEquipo, clasificacion[j].IdEquipo));
+                if (Emparejar(i + 1, sinRivalPermitidos))
+                    return true;
+                emparejamientos.RemoveAt(emparejamientos.Count - 1);
+                usado[j] = false;
+            }
+
+            // Solo si no hay rival posible: se queda sin jugar, si con impares aún cabe uno
+            if (sinRivalPermitidos > 0 && Emparejar(i + 1, sinRivalPermitidos - 1))
+                return true;
+
+            usado[i] = false;
+            return false;
+        }
+
+        return Emparejar(0, total % 2) ? emparejamientos : null;
     }
 
     private async Task<bool> GenerarPartidasDesdeEmparejamientosOtrasRondas(
