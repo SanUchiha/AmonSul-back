@@ -108,9 +108,14 @@ public class TorneoController(
 
     /// <summary>
     /// Para una partida ya creada el torneo sale de la partida, no de la petición.
-    /// Con permitirCapitanes también vale un capitán de la partida: el botón Cambiar del directo
+    /// Con permitirCapitanes también vale un capitán de la partida: el botón Cambiar del directo.
+    /// Con permitirJugadores, sus jugadores y compañeros: meten y validan su resultado en el directo
     /// </summary>
-    private async Task<IActionResult?> SoloOrganizadorDePartidaAsync(int idPartida, bool permitirCapitanes = false)
+    private async Task<IActionResult?> SoloOrganizadorDePartidaAsync(
+        int idPartida,
+        bool permitirCapitanes = false,
+        bool permitirJugadores = false
+    )
     {
         if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
             return Unauthorized();
@@ -122,10 +127,17 @@ public class TorneoController(
         if (await _torneoApplication.EsOrganizadorAsync(idTorneo.Value, idUsuarioSolicitante))
             return null;
 
+        if (permitirJugadores && await _partidaTorneoApplication.JuegaPartidaAsync(idPartida, idUsuarioSolicitante))
+            return null;
+
         if (permitirCapitanes && await _partidaTorneoApplication.EsCapitanDePartidaAsync(idPartida, idUsuarioSolicitante))
             return null;
 
-        return BadRequest("Solo el organizador del torneo puede cambiar sus partidas.");
+        return BadRequest(
+            permitirJugadores
+                ? "Solo el organizador y los jugadores de la partida pueden cambiar su resultado."
+                : "Solo el organizador del torneo puede cambiar sus partidas."
+        );
     }
 
     [HttpPost]
@@ -416,6 +428,16 @@ public class TorneoController(
         [FromBody, Required] UpdatePartidaTorneoDTO request
     )
     {
+        if (
+            await SoloOrganizadorDePartidaAsync(
+                request.IdPartidaTorneo,
+                permitirCapitanes: true,
+                permitirJugadores: true
+            )
+            is IActionResult denegado
+        )
+            return denegado;
+
         PartidaTorneoDTO? response = await _partidaTorneoApplication.EditAsync(request);
 
         if (response is null)

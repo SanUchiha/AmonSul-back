@@ -50,6 +50,21 @@ public class PartidaTorneoApplication(
         (await _unitOfWork.PartidaTorneoRepository.GetById(idPartida))?.IdTorneo;
 
     /// <summary>
+    /// Jugador de la partida: uno de los dos jugadores o, en Parejas, uno de sus compañeros
+    /// </summary>
+    public async Task<bool> JuegaPartidaAsync(int idPartida, int idUsuario)
+    {
+        PartidaTorneo? partida = await _unitOfWork.PartidaTorneoRepository.GetById(idPartida);
+        return partida is not null
+            && (
+                partida.IdUsuario1 == idUsuario
+                || partida.IdUsuario2 == idUsuario
+                || partida.IdCompanero1 == idUsuario
+                || partida.IdCompanero2 == idUsuario
+            );
+    }
+
+    /// <summary>
     /// Capitán de uno de los dos equipos de la partida. En individual no hay capitanes
     /// </summary>
     public async Task<bool> EsCapitanDePartidaAsync(int idPartida, int idUsuario)
