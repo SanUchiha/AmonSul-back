@@ -117,7 +117,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             .FirstOrDefaultAsync();
 
     /// <summary>
-    /// Solo tipo de torneo y modo de listas, para saber si es a Parejas sin traer bases ni cartel
+    /// Solo tipo, formato y modo de listas, para saber si es a Parejas o una Liga sin traer bases ni cartel
     /// </summary>
     public async Task<Torneo?> GetTipoYModoListas(int idTorneo) =>
         await _dbamonsulContext
@@ -128,6 +128,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 IdTorneo = t.IdTorneo,
                 TipoTorneo = t.TipoTorneo,
                 ListaPorPareja = t.ListaPorPareja,
+                FormatoTorneo = t.FormatoTorneo,
             })
             .FirstOrDefaultAsync();
 

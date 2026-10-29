@@ -16,4 +16,6 @@ public class InscripcionTorneoCreadoDTO
     public string? Bando { get; set; }
     public int PuntosExtra { get; set; }
     public string? EjercitoElegido { get; set; }
+    // RETIRADO si el organizador lo ha retirado de la liga
+    public string? EstadoInscripcion { get; set; }
 }
