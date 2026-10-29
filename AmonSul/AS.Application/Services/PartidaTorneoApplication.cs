@@ -162,6 +162,9 @@ public class PartidaTorneoApplication(
         if (request.EjercitoUsuario2 is not null)
             existingEntity.EjercitoUsuario2 = request.EjercitoUsuario2;
 
+        if (existingEntity.ResultadoUsuario1 is not null || existingEntity.ResultadoUsuario2 is not null)
+            await GuardarListasJugadasAsync(existingEntity);
+
         // Guardar los cambios en la base de datos
         bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
 
@@ -172,6 +175,25 @@ public class PartidaTorneoApplication(
         resultDTO.Nick2 = request.Nick2;
 
         return resultDTO;
+    }
+
+    /// <summary>
+    /// En una liga cada jugador puede cambiar de lista entre jornadas: al tener resultado, la partida se queda con
+    /// la lista que tenía cada uno en ese momento. Una vez guardada no cambia
+    /// </summary>
+    private async Task GuardarListasJugadasAsync(PartidaTorneo partida)
+    {
+        if (partida.ListaUsuario1 is not null && partida.ListaUsuario2 is not null)
+            return;
+        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(partida.IdTorneo) != FormatoTorneoType.LIGA)
+            return;
+
+        partida.ListaUsuario1 ??= (
+            await _unitOfWork.ListaRepository.GetListaTorneo(partida.IdTorneo, partida.IdUsuario1)
+        )?.ListaData;
+        partida.ListaUsuario2 ??= (
+            await _unitOfWork.ListaRepository.GetListaTorneo(partida.IdTorneo, partida.IdUsuario2)
+        )?.ListaData;
     }
 
     public Task<PartidaTorneo> GetById(int idPartida)

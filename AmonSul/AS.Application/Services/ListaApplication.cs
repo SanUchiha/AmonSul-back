@@ -177,6 +177,10 @@ public class ListaApplication(
             lista.IdInscripcion = inscripcionesPareja[0].IdInscripcion;
         }
 
+        string? errorEjercito = await ErrorEjercitoLigaAsync(lista.IdInscripcion, lista.Ejercito);
+        if (errorEjercito is not null)
+            return new ResultRegisterListarDTO { Result = false, Mensaje = errorEjercito };
+
         ResultRegisterListarDTO result = await _unitOfWork.ListaRepository.RegisterLista(lista);
         if (!result.Result)
             return result;
@@ -248,17 +252,30 @@ public class ListaApplication(
         return true;
     }
 
-    public async Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO)
+    public async Task<(bool Ok, string? Error)> UpdateLista(UpdateListaDTO updateListaTorneoDTO)
     {
+        InscripcionTorneo? inscripcionLista = await _unitOfWork.ListaRepository.GetInscripcionByIdLista(
+            updateListaTorneoDTO.IdLista
+        );
+        if (inscripcionLista is not null)
+        {
+            string? errorEjercito = await ErrorEjercitoLigaAsync(
+                inscripcionLista.IdInscripcion,
+                updateListaTorneoDTO.Ejercito.Name
+            );
+            if (errorEjercito is not null)
+                return (false, errorEjercito);
+        }
+
         Lista lista = await _unitOfWork.ListaRepository.UpdateLista(updateListaTorneoDTO);
         if (lista == null)
-            return false;
+            return (false, null);
 
         InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(
             lista.IdInscripcion
         );
         if (inscripcion == null)
-            return false;
+            return (false, null);
 
         inscripcion.EstadoLista = "ENTREGADA";
         inscripcion.FechaEntregaLista = updateListaTorneoDTO.FechaEntrega;
@@ -288,7 +305,63 @@ public class ListaApplication(
 
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
 
-        return true;
+        return (true, null);
+    }
+
+    /// <summary>
+    /// En una liga cada jugador lleva toda la liga el ejército que eligió al inscribirse: sus listas, que puede
+    /// cambiar en cada jornada, tienen que ser de ese ejército
+    /// </summary>
+    private async Task<string?> ErrorEjercitoLigaAsync(int idInscripcion, string? ejercito)
+    {
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+        if (
+            inscripcion?.IdTorneoNavigation?.FormatoTorneo != FormatoTorneoType.LIGA
+            || string.IsNullOrWhiteSpace(inscripcion.EjercitoElegido)
+        )
+            return null;
+
+        return string.Equals(ejercito?.Trim(), inscripcion.EjercitoElegido, StringComparison.OrdinalIgnoreCase)
+            ? null
+            : $"En esta liga tu ejército es {inscripcion.EjercitoElegido}: la lista tiene que ser de ese ejército.";
+    }
+
+    /// <summary>
+    /// La lista de un lado de la partida: la guardada al registrar el resultado de una partida de liga o, si aún no
+    /// se ha jugado, la actual del jugador
+    /// </summary>
+    public async Task<(ListaDTO? Lista, string? Error)> GetListaPartidaAsync(
+        int idPartida,
+        int lado,
+        int idUsuarioSolicitante
+    )
+    {
+        if (lado is not (1 or 2))
+            return (null, "El lado de la partida es 1 o 2.");
+
+        PartidaTorneo? partida = await _unitOfWork.PartidaTorneoRepository.GetById(idPartida);
+        if (partida is null)
+            return (null, "La partida no existe.");
+
+        int idUsuario = lado == 1 ? partida.IdUsuario1 : partida.IdUsuario2;
+        if (!await PuedeVerListaTorneoAsync(partida.IdTorneo, idUsuario, idUsuarioSolicitante))
+            return (null, "Las listas de este torneo están ocultas.");
+
+        string? listaJugada = lado == 1 ? partida.ListaUsuario1 : partida.ListaUsuario2;
+        if (listaJugada is not null)
+            return (
+                new ListaDTO
+                {
+                    ListaData = listaJugada,
+                    Ejercito = lado == 1 ? partida.EjercitoUsuario1 : partida.EjercitoUsuario2,
+                },
+                null
+            );
+
+        ListaDTO? actual = await GetListaTorneo(
+            new ListaTorneoRequestDTO { IdTorneo = partida.IdTorneo, IdUsuario = idUsuario }
+        );
+        return actual is null ? (null, "Todavía no ha entregado la lista.") : (actual, null);
     }
 
     /// <summary>

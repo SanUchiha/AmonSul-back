@@ -35,6 +35,10 @@ public partial class PartidaTorneo
     // Vacíos si la pareja juega con una lista conjunta
     public string? EjercitoCompanero1 { get; set; }
     public string? EjercitoCompanero2 { get; set; }
+    // Solo en Liga: la lista con la que se jugó, guardada al registrar el resultado. El jugador puede cambiar
+    // de lista en la siguiente jornada y esta sigue siendo la de esa partida
+    public string? ListaUsuario1 { get; set; }
+    public string? ListaUsuario2 { get; set; }
     public virtual Usuario? IdCompanero1Navigation { get; set; }
     public virtual Usuario? IdCompanero2Navigation { get; set; }
 }

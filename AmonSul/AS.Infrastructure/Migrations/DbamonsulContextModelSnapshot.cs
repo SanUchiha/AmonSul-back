@@ -665,6 +665,18 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("Lider_Muerto_Usuario2");
 
+                    b.Property<string>("ListaUsuario1")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("Lista_Usuario1");
+
+                    b.Property<string>("ListaUsuario2")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("Lista_Usuario2");
+
                     b.Property<int?>("NumeroRonda")
                         .HasColumnType("int")
                         .HasColumnName("Numero_Ronda");

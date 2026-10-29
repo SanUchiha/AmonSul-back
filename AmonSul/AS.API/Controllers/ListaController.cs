@@ -113,11 +113,11 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     {
         if (id != request.IdLista) return BadRequest("ID mismatch.");
 
-        bool result = await _listaApplication.UpdateLista(request);
-        if (!result)
-            return BadRequest("Unable to register the lista.");
+        (bool ok, string? error) = await _listaApplication.UpdateLista(request);
+        if (!ok)
+            return BadRequest(error ?? "Unable to register the lista.");
 
-        return Ok(result);
+        return Ok(true);
     }
 
     [HttpPut("estado")]
@@ -143,6 +143,20 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     }
 
     [AllowAnonymous]
+    /// <summary>
+    /// Lista de un lado de la partida (1 o 2): en una liga, la que llevaba cuando se registró el resultado
+    /// </summary>
+    [HttpGet("Partida/{idPartida}/{lado}")]
+    public async Task<ActionResult> GetListaPartida(int idPartida, int lado)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
+        // 400 y no 404: el interceptor del front manda a iniciar sesión con cualquier 404
+        (ListaDTO? lista, string? error) = await _listaApplication.GetListaPartidaAsync(idPartida, lado, idSolicitante);
+        return lista is null ? BadRequest(error) : Ok(lista);
+    }
+
     [HttpPost("migrar-cloudinary")]
     public async Task<ActionResult<MigracionCloudinaryResultDTO>> MigrarListasACloudinary()
     {

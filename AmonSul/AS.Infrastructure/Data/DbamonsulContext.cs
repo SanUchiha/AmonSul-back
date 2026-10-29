@@ -301,6 +301,14 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdCompanero2).HasColumnName("ID_Companero2");
             entity.Property(e => e.EjercitoCompanero1).HasColumnName("Ejercito_Companero1");
             entity.Property(e => e.EjercitoCompanero2).HasColumnName("Ejercito_Companero2");
+            entity.Property(e => e.ListaUsuario1)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("Lista_Usuario1");
+            entity.Property(e => e.ListaUsuario2)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("Lista_Usuario2");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)

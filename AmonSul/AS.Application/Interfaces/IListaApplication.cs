@@ -14,7 +14,8 @@ public interface IListaApplication
     Task<ListaDTO> GetListaById(int idLista);
     Task<Lista> Delete(int idLista);
     Task<ResultRegisterListarDTO> RegisterLista(CreateListaTorneoDTO createListaTorneoDTO);
-    Task<bool> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
+    Task<(bool Ok, string? Error)> UpdateLista(UpdateListaDTO updateListaTorneoDTO);
+    Task<(ListaDTO? Lista, string? Error)> GetListaPartidaAsync(int idPartida, int lado, int idUsuarioSolicitante);
     Task<ListaDTO> GetListaTorneo(ListaTorneoRequestDTO listaTorneoRequestDTO);
     Task<bool> PuedeVerListaTorneoAsync(int idTorneo, int idUsuarioLista, int idUsuarioSolicitante);
     Task<bool> PuedeVerListaAsync(int idLista, int idUsuarioSolicitante);
