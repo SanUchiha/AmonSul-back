@@ -14,7 +14,7 @@ public interface IUnitOfWork: IDisposable
     IListaRepository ListaRepository { get; }
     IPartidaTorneoRepository PartidaTorneoRepository { get; }
     IGanadorRepository GanadorRepository { get; }
-    ILigaRepository LigaRepository { get; }
+    ICircuitoRepository CircuitoRepository { get; }
     IParticipacionTorneoRepository ParticipacionTorneoRepository { get; }
     IClasificacionEloCacheRepository ClasificacionEloCacheRepository { get; }
 

@@ -22,6 +22,43 @@ namespace AS.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AS.Domain.Models.Circuito", b =>
+                {
+                    b.Property<int>("IdCircuito")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id_Circuito");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCircuito"));
+
+                    b.Property<string>("NombreCircuito")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Nombre_Circuito");
+
+                    b.HasKey("IdCircuito")
+                        .HasName("PK_Circuito");
+
+                    b.ToTable("Circuito");
+                });
+
+            modelBuilder.Entity("AS.Domain.Models.CircuitoTorneo", b =>
+                {
+                    b.Property<int>("IdCircuito")
+                        .HasColumnType("int")
+                        .HasColumnName("Id_Circuito");
+
+                    b.Property<int>("IdTorneo")
+                        .HasColumnType("int")
+                        .HasColumnName("Id_Torneo");
+
+                    b.HasKey("IdCircuito", "IdTorneo");
+
+                    b.HasIndex("IdTorneo");
+
+                    b.ToTable("CircuitoTorneo");
+                });
+
             modelBuilder.Entity("AS.Domain.Models.ClasificacionEloCache", b =>
                 {
                     b.Property<int>("IdClasificacion")
@@ -368,43 +405,6 @@ namespace AS.Infrastructure.Migrations
                     b.HasIndex("IdUsuario");
 
                     b.ToTable("Inscripcion_Torneo", (string)null);
-                });
-
-            modelBuilder.Entity("AS.Domain.Models.Liga", b =>
-                {
-                    b.Property<int>("IdLiga")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id_Liga");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdLiga"));
-
-                    b.Property<string>("NombreLiga")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Nombre_Liga");
-
-                    b.HasKey("IdLiga")
-                        .HasName("PK__Liga__0CCA9DE1B35035A6");
-
-                    b.ToTable("Liga");
-                });
-
-            modelBuilder.Entity("AS.Domain.Models.LigaTorneo", b =>
-                {
-                    b.Property<int>("IdLiga")
-                        .HasColumnType("int")
-                        .HasColumnName("Id_Liga");
-
-                    b.Property<int>("IdTorneo")
-                        .HasColumnType("int")
-                        .HasColumnName("Id_Torneo");
-
-                    b.HasKey("IdLiga", "IdTorneo");
-
-                    b.HasIndex("IdTorneo");
-
-                    b.ToTable("LigaTorneo");
                 });
 
             modelBuilder.Entity("AS.Domain.Models.Lista", b =>
@@ -852,10 +852,6 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Descripcion_Torneo");
 
-                    b.Property<bool>("EsLiga")
-                        .HasColumnType("bit")
-                        .HasColumnName("Es_Liga");
-
                     b.Property<bool?>("EsMatchedPlayTorneo")
                         .HasColumnType("bit")
                         .HasColumnName("Es_Matched_Play_Torneo");
@@ -1069,6 +1065,25 @@ namespace AS.Infrastructure.Migrations
                     b.ToTable("Usuario", (string)null);
                 });
 
+            modelBuilder.Entity("AS.Domain.Models.CircuitoTorneo", b =>
+                {
+                    b.HasOne("AS.Domain.Models.Circuito", "Circuito")
+                        .WithMany("CircuitoTorneos")
+                        .HasForeignKey("IdCircuito")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AS.Domain.Models.Torneo", "Torneo")
+                        .WithMany("CircuitoTorneos")
+                        .HasForeignKey("IdTorneo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Circuito");
+
+                    b.Navigation("Torneo");
+                });
+
             modelBuilder.Entity("AS.Domain.Models.ClasificacionGeneral", b =>
                 {
                     b.HasOne("AS.Domain.Models.Elo", "IdPuntuacionEloNavigation")
@@ -1186,25 +1201,6 @@ namespace AS.Infrastructure.Migrations
                     b.Navigation("IdTorneoNavigation");
 
                     b.Navigation("IdUsuarioNavigation");
-                });
-
-            modelBuilder.Entity("AS.Domain.Models.LigaTorneo", b =>
-                {
-                    b.HasOne("AS.Domain.Models.Liga", "Liga")
-                        .WithMany("LigaTorneos")
-                        .HasForeignKey("IdLiga")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AS.Domain.Models.Torneo", "Torneo")
-                        .WithMany("LigaTorneos")
-                        .HasForeignKey("IdTorneo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Liga");
-
-                    b.Navigation("Torneo");
                 });
 
             modelBuilder.Entity("AS.Domain.Models.Lista", b =>
@@ -1377,6 +1373,11 @@ namespace AS.Infrastructure.Migrations
                     b.Navigation("IdFaccionNavigation");
                 });
 
+            modelBuilder.Entity("AS.Domain.Models.Circuito", b =>
+                {
+                    b.Navigation("CircuitoTorneos");
+                });
+
             modelBuilder.Entity("AS.Domain.Models.Elo", b =>
                 {
                     b.Navigation("ClasificacionGenerals");
@@ -1403,11 +1404,6 @@ namespace AS.Infrastructure.Migrations
                     b.Navigation("Lista");
                 });
 
-            modelBuilder.Entity("AS.Domain.Models.Liga", b =>
-                {
-                    b.Navigation("LigaTorneos");
-                });
-
             modelBuilder.Entity("AS.Domain.Models.RangoTorneo", b =>
                 {
                     b.Navigation("Torneos");
@@ -1415,13 +1411,13 @@ namespace AS.Infrastructure.Migrations
 
             modelBuilder.Entity("AS.Domain.Models.Torneo", b =>
                 {
+                    b.Navigation("CircuitoTorneos");
+
                     b.Navigation("ClasificacionTorneos");
 
                     b.Navigation("Comentarios");
 
                     b.Navigation("InscripcionTorneos");
-
-                    b.Navigation("LigaTorneos");
 
                     b.Navigation("PartidaTorneos");
 

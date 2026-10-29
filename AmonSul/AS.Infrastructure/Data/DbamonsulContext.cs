@@ -29,8 +29,8 @@ public partial class DbamonsulContext : DbContext
     public virtual DbSet<Torneo> Torneos { get; set; }
     public virtual DbSet<Usuario> Usuarios { get; set; }
     public virtual DbSet<Ganador> Ganador { get; set; }
-    public virtual DbSet<Liga> Liga { get; set; }
-    public virtual DbSet<LigaTorneo> LigaTorneo { get; set; }
+    public virtual DbSet<Circuito> Circuito { get; set; }
+    public virtual DbSet<CircuitoTorneo> CircuitoTorneo { get; set; }
     public virtual DbSet<Equipo> Equipo { get; set; }
     public virtual DbSet<EquipoUsuario> EquipoUsuario { get; set; }
     public virtual DbSet<ParticipacionTorneo> ParticipacionTorneos { get; set; }
@@ -396,7 +396,6 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.DescripcionTorneo)
                 .HasColumnType("text")
                 .HasColumnName("Descripcion_Torneo");
-            entity.Property(e => e.EsLiga).HasColumnName("Es_Liga");
             entity.Property(e => e.EsMatchedPlayTorneo).HasColumnName("Es_Matched_Play_Torneo");
             entity.Property(e => e.MostrarListas).HasColumnName("Mostrar_Listas");
             entity.Property(e => e.MostrarClasificacion).HasColumnName("Mostrar_Clasificacion");
@@ -530,40 +529,40 @@ public partial class DbamonsulContext : DbContext
                 .HasDatabaseName("IX_Ganador_Torneo_Usuario");
         });
 
-        //Ligas
-        modelBuilder.Entity<Liga>(entity =>
+        //Circuitos
+        modelBuilder.Entity<Circuito>(entity =>
         {
-            entity.HasKey(e => e.IdLiga).HasName("PK__Liga__0CCA9DE1B35035A6");
+            entity.HasKey(e => e.IdCircuito).HasName("PK_Circuito");
 
-            entity.Property(e => e.NombreLiga)
-                .HasColumnName("Nombre_Liga")
+            entity.Property(e => e.NombreCircuito)
+                .HasColumnName("Nombre_Circuito")
                 .IsRequired();
-            entity.Property(e => e.IdLiga)
-                .HasColumnName("Id_Liga")
+            entity.Property(e => e.IdCircuito)
+                .HasColumnName("Id_Circuito")
                 .IsRequired();
         });
 
-        //LigaTorneo
-        modelBuilder.Entity<LigaTorneo>(entity =>
+        //CircuitoTorneo
+        modelBuilder.Entity<CircuitoTorneo>(entity =>
         {
 
             entity.Property(e => e.IdTorneo)
                 .HasColumnName("Id_Torneo")
                 .IsRequired();
-            entity.Property(e => e.IdLiga)
-                .HasColumnName("Id_Liga")
+            entity.Property(e => e.IdCircuito)
+                .HasColumnName("Id_Circuito")
                 .IsRequired();
 
-            entity.HasKey(lt => new { lt.IdLiga, lt.IdTorneo });
+            entity.HasKey(lt => new { lt.IdCircuito, lt.IdTorneo });
 
             entity
-                .HasOne(lt => lt.Liga)
-                .WithMany(l => l.LigaTorneos)
-                .HasForeignKey(lt => lt.IdLiga);
+                .HasOne(lt => lt.Circuito)
+                .WithMany(l => l.CircuitoTorneos)
+                .HasForeignKey(lt => lt.IdCircuito);
 
             entity
                 .HasOne(lt => lt.Torneo)
-                .WithMany(t => t.LigaTorneos)
+                .WithMany(t => t.CircuitoTorneos)
                 .HasForeignKey(lt => lt.IdTorneo);
         });
 

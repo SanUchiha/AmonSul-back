@@ -19,7 +19,6 @@ public partial class Torneo
     public string LugarTorneo { get; set; } = null!;
     public string TipoTorneo { get; set; } = TorneoType.INDIVIDUAL;
     public bool EsPrivadoTorneo { get; set; }
-    public bool EsLiga { get; set; }
     public int? IdRangoTorneo { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }
     public bool MostrarListas { get; set; }
@@ -45,5 +44,5 @@ public partial class Torneo
     public virtual List<InscripcionTorneo> InscripcionTorneos { get; set; } = [];
     public virtual List<PartidaTorneo> PartidaTorneos { get; set; } = [];
     public virtual List<Ronda> Ronda { get; set; } = [];
-    public virtual List<LigaTorneo>? LigaTorneos { get; set; } = [];
+    public virtual List<CircuitoTorneo>? CircuitoTorneos { get; set; } = [];
 }

@@ -19,7 +19,6 @@ public class TorneoDTO
     public string? TipoTorneo { get; set; }
     public ClassificationType ClassificationType { get; set; }
     public bool EsPrivadoTorneo { get; set; }
-    public bool EsLiga { get; set; }
     public int? IdRangoTorneo { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }

@@ -16,7 +16,6 @@ public class CrearTorneoDTO
     public EstadoTorneoType EstadoTorneo { get; set; }
     public string LugarTorneo { get; set; } = null!;
     public string TipoTorneo { get; set; } = TorneoType.INDIVIDUAL;
-    public bool EsLiga { get; set; } = true;
     public int? IdRangoTorneo { get; set; }
     public int ListasPorJugador { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }

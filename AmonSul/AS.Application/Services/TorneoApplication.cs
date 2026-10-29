@@ -142,13 +142,18 @@ public class TorneoApplication(
                 );
         }
 
-        Liga? ligaAmonSul = await _unitOfWork.LigaRepository.GetLigaAmonSulUltimoAnioAsync();
-        int idLiga = ligaAmonSul?.IdLiga ?? 2;
+        Circuito? circuitoAmonSul =
+            await _unitOfWork.CircuitoRepository.GetCircuitoAmonSulUltimoAnioAsync();
+        int idCircuito = circuitoAmonSul?.IdCircuito ?? 2;
 
-        LigaTorneo ligaTorneo = new() { IdLiga = idLiga, IdTorneo = torneoCreado.IdTorneo };
+        CircuitoTorneo circuitoTorneo = new()
+        {
+            IdCircuito = idCircuito,
+            IdTorneo = torneoCreado.IdTorneo,
+        };
 
         if (torneoCreado.HasCreated)
-            await _unitOfWork.LigaRepository.AddTorneoToLigaAsync(ligaTorneo);
+            await _unitOfWork.CircuitoRepository.AddTorneoToCircuitoAsync(circuitoTorneo);
 
         return torneoCreado.HasCreated;
     }

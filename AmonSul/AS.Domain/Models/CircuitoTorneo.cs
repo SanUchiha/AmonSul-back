@@ -1,9 +1,9 @@
 ﻿namespace AS.Domain.Models;
 
-public class LigaTorneo
+public class CircuitoTorneo
 {
-    public int IdLiga { get; set; }
-    public Liga? Liga { get; set; }
+    public int IdCircuito { get; set; }
+    public Circuito? Circuito { get; set; }
 
     public int IdTorneo { get; set; }
     public Torneo? Torneo { get; set; }

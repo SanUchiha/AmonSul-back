@@ -31,9 +31,11 @@ app.UseHangfireDashboard();
 
 BackgroundJob.Enqueue(() => Console.WriteLine("Amon s�l configurada correctamente."));
 
-RecurringJob.AddOrUpdate<ILigaApplication>(
-    "crear-liga-amon-sul-anual",
-    job => job.CrearLigaAmonSulAnualAsync(),
+// El trabajo antiguo guarda el tipo ILigaApplication, que ya no existe: se quita para que no falle
+RecurringJob.RemoveIfExists("crear-liga-amon-sul-anual");
+RecurringJob.AddOrUpdate<ICircuitoApplication>(
+    "crear-circuito-amon-sul-anual",
+    job => job.CrearCircuitoAmonSulAnualAsync(),
     "0 0 1 1 *",
     new RecurringJobOptions
     {
