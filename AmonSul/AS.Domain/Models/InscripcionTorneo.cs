@@ -12,6 +12,8 @@ public partial class InscripcionTorneo
     public string? EsPago { get; set; }
     public int? IdEquipo { get; set; }
     public int PuntosExtra { get; set; }
+    // Solo en Liga: el ejército que elige al inscribirse y lleva toda la liga
+    public string? EjercitoElegido { get; set; }
 
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }

@@ -13,6 +13,7 @@ public interface IInscripcionApplication
     Task<InscripcionTorneoDTO> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
     Task<bool> Register(CrearInscripcionDTO inscripcionTorneo);
+    Task<(bool Ok, string? Error)> CambiarEjercitoElegidoAsync(CambiarEjercitoElegidoDTO request, int idSolicitante);
 
     Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);

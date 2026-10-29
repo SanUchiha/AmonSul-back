@@ -6,6 +6,7 @@ using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Repositories.Interfaces;
 using AutoMapper;
 using System.Net.Mail;
@@ -200,6 +201,16 @@ public class InscripcionApplication(
         UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(torneo.IdUsuario);
         if (organizador == null) return false;
 
+        // En Liga hay que elegir ejército, y las inscripciones se cierran al generarla
+        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcionTorneo.IdTorneo) == FormatoTorneoType.LIGA)
+        {
+            if (string.IsNullOrWhiteSpace(inscripcionTorneo.EjercitoElegido)) return false;
+            if (await TienePartidasAsync(inscripcionTorneo.IdTorneo)) return false;
+            inscripcionTorneo.EjercitoElegido = inscripcionTorneo.EjercitoElegido.Trim();
+        }
+        else
+            inscripcionTorneo.EjercitoElegido = null;
+
         ResultInscripcionTorneoDTO registro = await _unitOfWork.InscripcionRepository.Register(
             _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
 
@@ -369,6 +380,43 @@ public class InscripcionApplication(
             equipo2
         ];
     }
+
+    /// <summary>
+    /// En Liga el jugador, o el organizador, cambia el ejército elegido mientras la liga no esté generada
+    /// </summary>
+    public async Task<(bool Ok, string? Error)> CambiarEjercitoElegidoAsync(
+        CambiarEjercitoElegidoDTO request,
+        int idSolicitante
+    )
+    {
+        if (string.IsNullOrWhiteSpace(request.EjercitoElegido))
+            return (false, "Elige un ejército.");
+
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(
+            request.IdInscripcion
+        );
+        if (inscripcion is null)
+            return (false, "La inscripción no existe.");
+
+        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo) != FormatoTorneoType.LIGA)
+            return (false, "Solo en las ligas se elige ejército al inscribirse.");
+
+        int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
+        if (idSolicitante != inscripcion.IdUsuario && idSolicitante != idOrganizador)
+            return (false, "Solo el jugador o el organizador pueden cambiar el ejército.");
+
+        if (await TienePartidasAsync(inscripcion.IdTorneo))
+            return (false, "La liga ya está generada: el ejército no se puede cambiar.");
+
+        bool ok = await _unitOfWork.InscripcionRepository.ActualizarEjercitoElegidoAsync(
+            inscripcion.IdInscripcion,
+            request.EjercitoElegido.Trim()
+        );
+        return ok ? (true, null) : (false, "No se ha podido cambiar el ejército.");
+    }
+
+    private async Task<bool> TienePartidasAsync(int idTorneo) =>
+        (await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo)).Count > 0;
 
     public async Task<bool> UpdatePuntosExtraAsync(UpdatePuntosExtraDTO request)
     {

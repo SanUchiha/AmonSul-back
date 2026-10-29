@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.Inscripcion;
+﻿using AS.API.Extensions;
+using AS.Application.DTOs.Inscripcion;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
@@ -92,6 +93,17 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
             return BadRequest();
         }
         return Created();
+    }
+
+    [HttpPut("Ejercito-Elegido")]
+    public async Task<ActionResult> CambiarEjercitoElegido([FromBody] CambiarEjercitoElegidoDTO request)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        (bool ok, string? error) = await _inscripcionApplication.CambiarEjercitoElegidoAsync(request, idSolicitante);
+        return ok ? Ok() : BadRequest(error);
     }
 
     [HttpPut("Puntos-Extra")]

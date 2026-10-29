@@ -35,4 +35,7 @@ public class TorneoDTO
     public int ListasPorJugador { get; set; }
     public string? Contacto { get; set; }
     public bool ListaPorPareja { get; set; }
+    public string FormatoTorneo { get; set; } = null!;
+    public bool CuentaElo { get; set; }
+    public bool IdaYVuelta { get; set; }
 }

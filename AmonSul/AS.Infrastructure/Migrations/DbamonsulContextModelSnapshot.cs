@@ -353,6 +353,12 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdInscripcion"));
 
+                    b.Property<string>("EjercitoElegido")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Ejercito_Elegido");
+
                     b.Property<string>("EsPago")
                         .HasMaxLength(2)
                         .IsUnicode(false)
@@ -847,6 +853,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("Contacto");
 
+                    b.Property<bool>("CuentaElo")
+                        .HasColumnType("bit")
+                        .HasColumnName("Cuenta_Elo");
+
                     b.Property<string>("DescripcionTorneo")
                         .IsRequired()
                         .HasColumnType("text")
@@ -883,6 +893,13 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("Fecha_Inicio_Torneo");
 
+                    b.Property<string>("FormatoTorneo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Formato_Torneo");
+
                     b.Property<TimeOnly?>("HoraFinTorneo")
                         .HasColumnType("time")
                         .HasColumnName("Hora_Fin_Torneo");
@@ -898,6 +915,10 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int>("IdUsuario")
                         .HasColumnType("int")
                         .HasColumnName("ID_Usuario");
+
+                    b.Property<bool>("IdaYVuelta")
+                        .HasColumnType("bit")
+                        .HasColumnName("Ida_Y_Vuelta");
 
                     b.Property<DateOnly?>("InicioInscripciones")
                         .HasColumnType("date")

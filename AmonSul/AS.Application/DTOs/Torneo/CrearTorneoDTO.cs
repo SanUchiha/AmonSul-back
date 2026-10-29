@@ -31,4 +31,8 @@ public class CrearTorneoDTO
     public string? Contacto { get; set; }
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
     public bool ListaPorPareja { get; set; }
+    public string FormatoTorneo { get; set; } = FormatoTorneoType.SUIZO;
+    // Solo en Liga: si cuenta para el ELO y si es ida y vuelta
+    public bool CuentaElo { get; set; }
+    public bool IdaYVuelta { get; set; }
 }

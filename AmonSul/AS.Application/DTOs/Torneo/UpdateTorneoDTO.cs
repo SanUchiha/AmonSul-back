@@ -25,4 +25,7 @@ public class UpdateTorneoDTO
     public string? Contacto { get; set; }
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
     public bool? ListaPorPareja { get; set; }
+    // Solo en Liga y mientras no tenga partidas
+    public bool? CuentaElo { get; set; }
+    public bool? IdaYVuelta { get; set; }
 }

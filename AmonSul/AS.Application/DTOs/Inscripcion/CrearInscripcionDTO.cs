@@ -7,4 +7,6 @@ public class CrearInscripcionDTO
     public DateOnly? FechaInscripcion { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public string? EstadoLista { get; set; } = "NO ENTREGADA";
     public string EsPago { get; set; } = "NO";
+    // Solo en Liga, obligatorio: el ejército que lleva toda la liga
+    public string? EjercitoElegido { get; set; }
 }

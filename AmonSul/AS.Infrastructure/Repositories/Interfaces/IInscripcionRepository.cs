@@ -20,6 +20,7 @@ public interface IInscripcionRepository
     Task<bool> CambiarEstadoInscripcion(InscripcionTorneo actualizarEstadoInscripcion);
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
+    Task<bool> ActualizarEjercitoElegidoAsync(int idInscripcion, string ejercito);
 
     Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int Id_Torneo);
     Task<Equipo?> GetEquipoByIdAsync(int id);

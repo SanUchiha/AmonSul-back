@@ -171,6 +171,10 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdTorneo).HasColumnName("ID_Torneo");
             entity.Property(e => e.IdUsuario).HasColumnName("ID_Usuario");
             entity.Property(e => e.PuntosExtra).HasColumnName("Puntos_Extra");
+            entity.Property(e => e.EjercitoElegido)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("Ejercito_Elegido");
 
             entity.HasOne(d => d.IdTorneoNavigation)
                 .WithMany(p => p.InscripcionTorneos)
@@ -435,6 +439,12 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.ClassificationType).HasColumnName("Tipo_Clasificacion");
             entity.Property(e => e.ListasPorJugador).HasColumnName("Listas_Por_jugador");
             entity.Property(e => e.ListaPorPareja).HasColumnName("Lista_Por_Pareja");
+            entity.Property(e => e.FormatoTorneo)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("Formato_Torneo");
+            entity.Property(e => e.CuentaElo).HasColumnName("Cuenta_Elo");
+            entity.Property(e => e.IdaYVuelta).HasColumnName("Ida_Y_Vuelta");
             entity.Property(e => e.Contacto)
                 .HasMaxLength(200)
                 .IsUnicode(false)

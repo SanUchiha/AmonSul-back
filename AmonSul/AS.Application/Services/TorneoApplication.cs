@@ -119,6 +119,11 @@ public class TorneoApplication(
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
+        if (!AjustarFormato(torneo))
+            return false;
+        // Las jornadas salen al generar la liga, según los inscritos
+        if (torneo.FormatoTorneo == FormatoTorneoType.LIGA)
+            torneo.NumeroPartidas = 1;
         AjustarModoListas(torneo);
 
         ResultTorneoCreadoDTO torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
@@ -156,6 +161,29 @@ public class TorneoApplication(
             await _unitOfWork.CircuitoRepository.AddTorneoToCircuitoAsync(circuitoTorneo);
 
         return torneoCreado.HasCreated;
+    }
+
+    /// <summary>
+    /// La Liga es individual y con una lista por jugador; ELO e ida y vuelta solo existen en ella
+    /// </summary>
+    private static bool AjustarFormato(Torneo torneo)
+    {
+        if (string.IsNullOrWhiteSpace(torneo.FormatoTorneo))
+            torneo.FormatoTorneo = FormatoTorneoType.SUIZO;
+        if (!FormatoTorneoType.EsValido(torneo.FormatoTorneo))
+            return false;
+
+        if (torneo.FormatoTorneo == FormatoTorneoType.LIGA)
+        {
+            torneo.TipoTorneo = TorneoType.INDIVIDUAL;
+            torneo.ListasPorJugador = 1;
+        }
+        else
+        {
+            torneo.CuentaElo = false;
+            torneo.IdaYVuelta = false;
+        }
+        return true;
     }
 
     /// <summary>
@@ -286,7 +314,7 @@ public class TorneoApplication(
         if (request.PrecioTorneo.HasValue)
             torneo.PrecioTorneo = request.PrecioTorneo.Value;
 
-        if (request.NumeroPartidas.HasValue)
+        if (request.NumeroPartidas.HasValue && torneo.FormatoTorneo != FormatoTorneoType.LIGA)
             torneo.NumeroPartidas = request.NumeroPartidas.Value;
 
         if (request.PuntosTorneo.HasValue)
@@ -322,6 +350,22 @@ public class TorneoApplication(
         if (request.ListaPorPareja.HasValue)
             torneo.ListaPorPareja = request.ListaPorPareja.Value;
 
+        // ELO e ida y vuelta deciden cómo se genera y puntúa la liga: no se cambian si ya tiene partidas
+        bool cambiaElo = request.CuentaElo.HasValue && request.CuentaElo.Value != torneo.CuentaElo;
+        bool cambiaVuelta = request.IdaYVuelta.HasValue && request.IdaYVuelta.Value != torneo.IdaYVuelta;
+        if (cambiaElo || cambiaVuelta)
+        {
+            bool tienePartidas = (
+                await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(torneo.IdTorneo)
+            ).Count > 0;
+            if (tienePartidas)
+                return false;
+            torneo.CuentaElo = request.CuentaElo ?? torneo.CuentaElo;
+            torneo.IdaYVuelta = request.IdaYVuelta ?? torneo.IdaYVuelta;
+        }
+
+        if (!AjustarFormato(torneo))
+            return false;
         AjustarModoListas(torneo);
 
         torneo.BasesTorneo = null;

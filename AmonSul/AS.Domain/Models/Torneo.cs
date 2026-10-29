@@ -36,6 +36,10 @@ public partial class Torneo
     public string? Contacto { get; set; }
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta en vez de una por jugador
     public bool ListaPorPareja { get; set; }
+    public string FormatoTorneo { get; set; } = FormatoTorneoType.SUIZO;
+    // Solo en Liga, los decide el organizador al crearla: si sus partidas cuentan para el ELO y si hay vuelta
+    public bool CuentaElo { get; set; }
+    public bool IdaYVuelta { get; set; }
 
     public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual List<Comentario> Comentarios { get; set; } = [];

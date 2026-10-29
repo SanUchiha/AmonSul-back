@@ -15,4 +15,5 @@ public class InscripcionTorneoCreadoDTO
     public string? EsPago { get; set; }
     public string? Bando { get; set; }
     public int PuntosExtra { get; set; }
+    public string? EjercitoElegido { get; set; }
 }

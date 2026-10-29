@@ -131,6 +131,12 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             })
             .FirstOrDefaultAsync();
 
+    public async Task<string?> GetFormatoTorneoAsync(int idTorneo) =>
+        await _dbamonsulContext
+            .Torneos.Where(t => t.IdTorneo == idTorneo)
+            .Select(t => t.FormatoTorneo)
+            .FirstOrDefaultAsync();
+
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
         await _dbamonsulContext
             .Torneos.Where(u => u.IdTorneo == IdTorneo)
@@ -214,6 +220,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 NombreTorneo = t.NombreTorneo,
                 TipoTorneo = t.TipoTorneo,
                 ListasPorJugador = t.ListasPorJugador,
+                FormatoTorneo = t.FormatoTorneo,
             })
             .ToListAsync();
 

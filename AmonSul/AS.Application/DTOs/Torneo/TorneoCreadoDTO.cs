@@ -16,4 +16,7 @@ public class TorneoCreadoDTO
     public bool MostrarListas { get; set; }
     public bool MostrarClasificacion { get; set; }
     public bool ListaPorPareja { get; set; }
+    public string FormatoTorneo { get; set; } = null!;
+    public bool CuentaElo { get; set; }
+    public bool IdaYVuelta { get; set; }
 }

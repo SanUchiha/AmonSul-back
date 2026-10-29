@@ -301,6 +301,22 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         }
     }
 
+    /// <summary>
+    /// Solo el ejército elegido: Update marcaría también el torneo cargado y lo reescribiría entero
+    /// </summary>
+    public async Task<bool> ActualizarEjercitoElegidoAsync(int idInscripcion, string ejercito)
+    {
+        InscripcionTorneo? inscripcion = await _dbamonsulContext.InscripcionTorneos.FirstOrDefaultAsync(i =>
+            i.IdInscripcion == idInscripcion
+        );
+        if (inscripcion is null)
+            return false;
+
+        inscripcion.EjercitoElegido = ejercito;
+        await _dbamonsulContext.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<bool> Update(InscripcionTorneo inscripcionTorneo)
     {
         try

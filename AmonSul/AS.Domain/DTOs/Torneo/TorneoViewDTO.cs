@@ -10,4 +10,5 @@ public class TorneoViewDTO
     public int PuntosTorneo { get; set; }
     public string? TipoTorneo { get; set; }
     public int ListasPorJugador { get; set; }
+    public string FormatoTorneo { get; set; } = null!;
 }

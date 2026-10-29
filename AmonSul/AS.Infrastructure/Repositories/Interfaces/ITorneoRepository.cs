@@ -19,6 +19,7 @@ public interface ITorneoRepository
     Task<Torneo?> GetVisibilidadListas(int idTorneo);
     Task<Torneo?> GetTipoYModoListas(int idTorneo);
     Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo);
+    Task<string?> GetFormatoTorneoAsync(int idTorneo);
     Task<bool> Edit(Torneo torneo);
     Task<ResultTorneoCreadoDTO> Register(Torneo torneo);
     Task<bool> Delete(int id);
