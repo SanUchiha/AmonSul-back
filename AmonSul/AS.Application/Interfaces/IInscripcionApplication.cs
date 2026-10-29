@@ -12,6 +12,7 @@ public interface IInscripcionApplication
     Task<List<InscripcionUsuarioIndividualDTO>> GetInscripcionesByTorneo(int idTorneo);
     Task<InscripcionTorneoDTO> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
+    Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante);
     Task<bool> Register(CrearInscripcionDTO inscripcionTorneo);
     Task<(bool Ok, string? Error)> CambiarEjercitoElegidoAsync(CambiarEjercitoElegidoDTO request, int idSolicitante);
 

@@ -69,6 +69,13 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpDelete("{id}")]
     public async Task<ActionResult<InscripcionTorneo>> Delete(int id)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        (bool puede, string? error) = await _inscripcionApplication.PuedeBorrarInscripcionAsync(id, idSolicitante);
+        if (!puede)
+            return BadRequest(error);
+
         InscripcionTorneo inscripcion = await _inscripcionApplication.Delete(id);
         if (inscripcion == null)
         {

@@ -453,6 +453,23 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             .Distinct()
             .ToListAsync())];
 
+    /// <summary>
+    /// Borra las partidas del torneo; con jugador, solo las suyas
+    /// </summary>
+    public async Task<int> DeletePartidasAsync(int idTorneo, int? idUsuario = null)
+    {
+        List<PartidaTorneo> partidas = await _dbamonsulContext
+            .PartidaTorneos.Where(p =>
+                p.IdTorneo == idTorneo
+                && (idUsuario == null || p.IdUsuario1 == idUsuario || p.IdUsuario2 == idUsuario)
+            )
+            .ToListAsync();
+
+        _dbamonsulContext.PartidaTorneos.RemoveRange(partidas);
+        await _dbamonsulContext.SaveChangesAsync();
+        return partidas.Count;
+    }
+
     public async Task<bool> DeleteRonda(int idTorneo, int idRonda)
     {
         try

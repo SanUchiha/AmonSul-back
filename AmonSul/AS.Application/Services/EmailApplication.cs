@@ -220,6 +220,34 @@ public class EmailApplication(
         }
     }
 
+    public void SendEmailLigaGenerada(string nombreTorneo, int jornadas, List<string> destinatarios)
+    {
+        string templateBody = $@"
+        <html>
+        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+            <p>Hola,</p>
+            <p>La liga <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span> ya está generada: son <span style=""font-size: 18px; color: #2e6c80;""><strong>{jornadas}</strong></span> jornadas y cada jugador se enfrenta a todos los demás.</p>
+            <p>Puedes acceder a Amon Sûl, ver tus partidas y organizarte con tus rivales para jugarlas.</p>
+            <p>Gracias por formar parte de AS.</p>
+        </body>
+        </html>";
+
+        List<List<string>> destinatarioGroups =
+            [.. destinatarios
+              .Select((item, index) => new { item, index })
+              .GroupBy(x => x.index / 5)
+              .Select(g => g.Select(x => x.item).ToList())];
+
+        foreach (List<string> items in destinatarioGroups)
+        {
+            BackgroundJob.Enqueue(() =>
+            EnviarCorreoAsync(
+                items,
+                templateBody,
+                ConstEmailMessage.MESSAGE_LIGA_GENERADA_ASUNTO));
+        }
+    }
+
     public async Task EnviarCorreoAsync(
         List<string> destinatarios, 
         string templateBody, 

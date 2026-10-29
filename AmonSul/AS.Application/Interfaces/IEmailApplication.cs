@@ -12,6 +12,7 @@ public interface IEmailApplicacion
     Task SendEmailModificacionLista(EmailListaDTO request);
     void SendEmailNuevoTorneo(string nombreTorneo, List<string> destinatarios);
     void SendEmailRonda(string nombreTorneo, int ronda, List<string> destinatarios);
+    void SendEmailLigaGenerada(string nombreTorneo, int jornadas, List<string> destinatarios);
     Task SendEmailOrganizadorNuevoRegistro(EmailContactoDTO request);
     Task SendEmailOrganizadorEnvioListaTorneo(EmailContactoDTO request);
     Task SendEmailModificacionPago(EmailPagoDTO emailPagoDTO);

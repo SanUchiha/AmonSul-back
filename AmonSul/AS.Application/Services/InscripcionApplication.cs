@@ -415,6 +415,29 @@ public class InscripcionApplication(
         return ok ? (true, null) : (false, "No se ha podido cambiar el ejército.");
     }
 
+    /// <summary>
+    /// Quitan una inscripción el propio jugador o el organizador. En una liga ya generada no: hay que retirar al
+    /// jugador, que borra también sus partidas
+    /// </summary>
+    public async Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante)
+    {
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+        if (inscripcion is null)
+            return (false, "La inscripción no existe.");
+
+        int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
+        if (idSolicitante != inscripcion.IdUsuario && idSolicitante != idOrganizador)
+            return (false, "Solo el jugador o el organizador pueden quitar la inscripción.");
+
+        if (
+            await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo) == FormatoTorneoType.LIGA
+            && await TienePartidasAsync(inscripcion.IdTorneo)
+        )
+            return (false, "La liga ya está generada: para que deje de jugar, retira al jugador.");
+
+        return (true, null);
+    }
+
     private async Task<bool> TienePartidasAsync(int idTorneo) =>
         (await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo)).Count > 0;
 

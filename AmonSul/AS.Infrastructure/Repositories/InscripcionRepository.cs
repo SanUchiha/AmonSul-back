@@ -317,6 +317,19 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return true;
     }
 
+    public async Task<bool> ActualizarEstadoInscripcionAsync(int idInscripcion, string? estado)
+    {
+        InscripcionTorneo? inscripcion = await _dbamonsulContext.InscripcionTorneos.FirstOrDefaultAsync(i =>
+            i.IdInscripcion == idInscripcion
+        );
+        if (inscripcion is null)
+            return false;
+
+        inscripcion.EstadoInscripcion = estado;
+        await _dbamonsulContext.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<bool> Update(InscripcionTorneo inscripcionTorneo)
     {
         try
