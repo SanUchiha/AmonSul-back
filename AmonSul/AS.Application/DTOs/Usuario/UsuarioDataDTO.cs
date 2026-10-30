@@ -12,6 +12,8 @@ public class UsuarioDataDTO
     public int IdUsuario { get; set; }
     public required string Nick { get; set; }
     public required string Email { get; set; }
+    // La foto del jugador, para la cabecera de su ficha
+    public string? Imagen { get; set; }
     public FaccionDTO? Faccion { get; set; }
     public List<ViewPartidaAmistosaDTO> PartidasValidadas { get; set; } = [];
     public List<ViewPartidaAmistosaDTO> PartidasPendientes { get; set; } = [];
