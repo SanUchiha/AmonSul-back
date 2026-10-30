@@ -13,4 +13,7 @@ public interface ICircuitoApplication
     Task<List<Circuito>?> GetCircuitosAsociadosATorneoAsync(int idTorneo);
     Task<bool> DeleteCircuitoTorneoAsync(int idCircuito, int idTorneo);
     Task CrearCircuitoAmonSulAnualAsync();
+    Task<Circuito?> CrearCircuitoAsync(string nombre, int idUsuario);
+    Task<bool> RenombrarCircuitoAsync(int idCircuito, string nombre);
+    Task<bool> BorrarCircuitoAsync(int idCircuito);
 }

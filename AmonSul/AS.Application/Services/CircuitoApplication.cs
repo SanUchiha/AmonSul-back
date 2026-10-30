@@ -40,4 +40,19 @@ public class CircuitoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ICirc
         Circuito circuito = new() { NombreCircuito = $"Amon S\u00FBl {anio}" };
         await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(circuito);
     }
+
+    /// <summary>
+    /// Un circuito nuevo desde la web: lo crea cualquiera y queda a su nombre. Null si ya hay uno que se llama así
+    /// </summary>
+    public async Task<Circuito?> CrearCircuitoAsync(string nombre, int idUsuario)
+    {
+        Circuito circuito = new() { NombreCircuito = nombre, IdUsuario = idUsuario };
+        return await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(circuito) ? circuito : null;
+    }
+
+    public async Task<bool> RenombrarCircuitoAsync(int idCircuito, string nombre) =>
+        await _unitOfWork.CircuitoRepository.RenombrarCircuitoAsync(idCircuito, nombre);
+
+    public async Task<bool> BorrarCircuitoAsync(int idCircuito) =>
+        await _unitOfWork.CircuitoRepository.BorrarCircuitoAsync(idCircuito);
 }

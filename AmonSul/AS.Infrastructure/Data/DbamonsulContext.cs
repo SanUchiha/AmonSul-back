@@ -582,6 +582,13 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.IdCircuito)
                 .HasColumnName("Id_Circuito")
                 .IsRequired();
+            entity.Property(e => e.IdUsuario).HasColumnName("Id_Usuario");
+
+            // Si se borra la cuenta de quien lo creó, el circuito sigue, sin creador
+            entity.HasOne<Usuario>().WithMany()
+                .HasForeignKey(e => e.IdUsuario)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Circuito_Usuario");
         });
 
         //CircuitoTorneo

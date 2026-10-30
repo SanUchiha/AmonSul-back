@@ -13,4 +13,6 @@ public interface ICircuitoRepository
     Task<bool> DeleteCircuitoTorneoAsync(int idCircuito, int idTorneo);
     Task<Circuito?> GetCircuitoAmonSulUltimoAnioAsync();
     Task<bool> CrearCircuitoAsync(Circuito circuito);
+    Task<bool> RenombrarCircuitoAsync(int idCircuito, string nombre);
+    Task<bool> BorrarCircuitoAsync(int idCircuito);
 }

@@ -57,9 +57,10 @@ public class CircuitoRepository(DbamonsulContext dbamonsulContext) : ICircuitoRe
                 .Where(t => t.IdCircuito == idCircuito)
                 .ToListAsync();
 
+    // Solo los de la web, sin creador: uno de un usuario que empezara igual se llevaría todos los torneos nuevos
     public async Task<Circuito?> GetCircuitoAmonSulUltimoAnioAsync() =>
         await _dbamonsulContext.Circuito
-            .Where(l => l.NombreCircuito.StartsWith("Amon S"))
+            .Where(l => l.IdUsuario == null && l.NombreCircuito.StartsWith("Amon S"))
             .OrderByDescending(l => l.NombreCircuito)
             .FirstOrDefaultAsync();
 
@@ -72,6 +73,34 @@ public class CircuitoRepository(DbamonsulContext dbamonsulContext) : ICircuitoRe
             return false;
 
         await _dbamonsulContext.Circuito.AddAsync(circuito);
+        await _dbamonsulContext.SaveChangesAsync();
+        return true;
+    }
+
+    // False si otro circuito ya se llama así. La columna no distingue mayúsculas ni tildes
+    public async Task<bool> RenombrarCircuitoAsync(int idCircuito, string nombre)
+    {
+        bool yaExiste = await _dbamonsulContext.Circuito
+            .AnyAsync(l => l.IdCircuito != idCircuito && l.NombreCircuito == nombre);
+        Circuito? circuito = await _dbamonsulContext.Circuito.FindAsync(idCircuito);
+        if (yaExiste || circuito is null)
+            return false;
+
+        circuito.NombreCircuito = nombre;
+        await _dbamonsulContext.SaveChangesAsync();
+        return true;
+    }
+
+    // Los torneos no se tocan: solo dejan de estar en él
+    public async Task<bool> BorrarCircuitoAsync(int idCircuito)
+    {
+        Circuito? circuito = await _dbamonsulContext.Circuito.FindAsync(idCircuito);
+        if (circuito is null)
+            return false;
+
+        _dbamonsulContext.CircuitoTorneo.RemoveRange(
+            _dbamonsulContext.CircuitoTorneo.Where(lt => lt.IdCircuito == idCircuito));
+        _dbamonsulContext.Circuito.Remove(circuito);
         await _dbamonsulContext.SaveChangesAsync();
         return true;
     }

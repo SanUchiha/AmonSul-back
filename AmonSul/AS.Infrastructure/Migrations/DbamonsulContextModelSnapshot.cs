@@ -31,6 +31,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCircuito"));
 
+                    b.Property<int?>("IdUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("Id_Usuario");
+
                     b.Property<string>("NombreCircuito")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -38,6 +42,8 @@ namespace AS.Infrastructure.Migrations
 
                     b.HasKey("IdCircuito")
                         .HasName("PK_Circuito");
+
+                    b.HasIndex("IdUsuario");
 
                     b.ToTable("Circuito");
                 });
@@ -1150,6 +1156,15 @@ namespace AS.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuario", (string)null);
+                });
+
+            modelBuilder.Entity("AS.Domain.Models.Circuito", b =>
+                {
+                    b.HasOne("AS.Domain.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Circuito_Usuario");
                 });
 
             modelBuilder.Entity("AS.Domain.Models.CircuitoTorneo", b =>
