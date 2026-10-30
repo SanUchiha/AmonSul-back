@@ -11,7 +11,7 @@ public interface ICircuitoRepository
     Task<List<Circuito>?> GetCircuitosNoTorneoAsync(int idTorneo);
     Task<List<Circuito>?> GetCircuitosAsociadosATorneoAsync(int idTorneo);
     Task<bool> DeleteCircuitoTorneoAsync(int idCircuito, int idTorneo);
-    Task<Circuito?> GetCircuitoAmonSulUltimoAnioAsync();
+    Task<Circuito?> GetCircuitoByNombreAsync(string nombre);
     Task<bool> CrearCircuitoAsync(Circuito circuito);
     Task<bool> RenombrarCircuitoAsync(int idCircuito, string nombre);
     Task<bool> BorrarCircuitoAsync(int idCircuito);

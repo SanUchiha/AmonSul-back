@@ -2,6 +2,7 @@
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
+using AS.Utils.Constantes;
 using AutoMapper;
 
 namespace AS.Application.Services;
@@ -34,11 +35,41 @@ public class CircuitoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ICirc
     public async Task<List<CircuitoTorneo>?> GetTorneosByIdCircuitoAsync(int idCircuito) =>
         await _unitOfWork.CircuitoRepository.GetTorneosByIdCircuitoAsync(idCircuito);
 
-    public async Task CrearCircuitoAmonSulAnualAsync()
+    public async Task CrearCircuitoAmonSulAnualAsync() => await GetOrCrearAmonSulAsync(DateTime.Now.Year);
+
+    /// <summary>
+    /// El Amon Sûl de ese año; si aún no existe, lo crea a nombre de la administración
+    /// </summary>
+    private async Task<Circuito> GetOrCrearAmonSulAsync(int anio)
     {
-        int anio = DateTime.Now.Year;
-        Circuito circuito = new() { NombreCircuito = $"Amon S\u00FBl {anio}" };
-        await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(circuito);
+        string nombre = ConstCircuitoAmonSul.Nombre(anio);
+        Circuito? circuito = await _unitOfWork.CircuitoRepository.GetCircuitoByNombreAsync(nombre);
+        if (circuito is not null)
+            return circuito;
+
+        // Si otra petición lo crea a la vez, este no se guarda y se usa el suyo
+        await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(
+            new Circuito { NombreCircuito = nombre, IdUsuario = ConstCircuitoAmonSul.IdUsuarioCreador });
+        return (await _unitOfWork.CircuitoRepository.GetCircuitoByNombreAsync(nombre))!;
+    }
+
+    /// <summary>
+    /// Todo evento suma en el Amon Sûl del año en que empieza, y solo en ese: al crearlo y cada vez que se modifica,
+    /// por si cambia de fecha
+    /// </summary>
+    public async Task AsociarAmonSulAsync(int idTorneo, DateOnly fechaInicio)
+    {
+        Circuito amonSul = await GetOrCrearAmonSulAsync(fechaInicio.Year);
+        List<Circuito> asociados =
+            await _unitOfWork.CircuitoRepository.GetCircuitosAsociadosATorneoAsync(idTorneo) ?? [];
+
+        foreach (Circuito otro in asociados.Where(c =>
+                     c.IdCircuito != amonSul.IdCircuito && ConstCircuitoAmonSul.EsAmonSul(c.NombreCircuito)))
+            await _unitOfWork.CircuitoRepository.DeleteCircuitoTorneoAsync(otro.IdCircuito, idTorneo);
+
+        if (!asociados.Any(c => c.IdCircuito == amonSul.IdCircuito))
+            await _unitOfWork.CircuitoRepository.AddTorneoToCircuitoAsync(
+                new CircuitoTorneo { IdCircuito = amonSul.IdCircuito, IdTorneo = idTorneo });
     }
 
     /// <summary>

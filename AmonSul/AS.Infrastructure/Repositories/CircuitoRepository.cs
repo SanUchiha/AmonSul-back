@@ -57,12 +57,9 @@ public class CircuitoRepository(DbamonsulContext dbamonsulContext) : ICircuitoRe
                 .Where(t => t.IdCircuito == idCircuito)
                 .ToListAsync();
 
-    // Solo los de la web, sin creador: uno de un usuario que empezara igual se llevaría todos los torneos nuevos
-    public async Task<Circuito?> GetCircuitoAmonSulUltimoAnioAsync() =>
-        await _dbamonsulContext.Circuito
-            .Where(l => l.IdUsuario == null && l.NombreCircuito.StartsWith("Amon S"))
-            .OrderByDescending(l => l.NombreCircuito)
-            .FirstOrDefaultAsync();
+    // La columna no distingue mayúsculas ni tildes
+    public async Task<Circuito?> GetCircuitoByNombreAsync(string nombre) =>
+        await _dbamonsulContext.Circuito.FirstOrDefaultAsync(l => l.NombreCircuito == nombre);
 
     public async Task<bool> CrearCircuitoAsync(Circuito circuito)
     {

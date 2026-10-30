@@ -3,8 +3,6 @@ using AS.Application.DTOs.CircuitoTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Utils.Constantes;
-using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +46,8 @@ namespace AS.API.Controllers
             Circuito? circuito = await _circuitoApplication.GetCircuitoByIdAsync(idCircuito);
             if (circuito is null)
                 return BadRequest("El circuito no existe.");
+            if (ConstCircuitoAmonSul.EsAmonSul(circuito.NombreCircuito))
+                return BadRequest("Los circuitos Amon Sûl no se renombran ni se borran.");
             if (circuito.IdUsuario != idSolicitante)
                 return BadRequest("Solo quien creó el circuito puede cambiarlo o borrarlo.");
 
@@ -56,16 +56,18 @@ namespace AS.API.Controllers
 
         private const int LONGITUD_MAXIMA_NOMBRE = 100;
 
-        // «Amon Sûl …» lo crea la web cada año y recoge los torneos nuevos: un usuario no puede quitarle el nombre
-        private static bool EsNombreReservado(string nombre) =>
-            string.Concat(nombre.Normalize(NormalizationForm.FormD)
-                    .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark))
-                .StartsWith("amon sul", StringComparison.OrdinalIgnoreCase);
+        // Cada evento va solo al Amon Sûl de su año y ahí se queda
+        private const string EVENTOS_EN_AMON_SUL =
+            "Los eventos van solos al Amon Sûl de su año: no se añaden ni se quitan a mano.";
+
+        private async Task<bool> EsAmonSulAsync(int idCircuito) =>
+            await _circuitoApplication.GetCircuitoByIdAsync(idCircuito) is Circuito circuito
+            && ConstCircuitoAmonSul.EsAmonSul(circuito.NombreCircuito);
 
         private static string? NombreNoValido(string nombre) =>
             nombre.Length is < 3 or > LONGITUD_MAXIMA_NOMBRE
                 ? $"El nombre del circuito tiene que tener entre 3 y {LONGITUD_MAXIMA_NOMBRE} caracteres."
-                : EsNombreReservado(nombre)
+                : ConstCircuitoAmonSul.EsAmonSul(nombre)
                     ? "Los circuitos Amon Sûl los crea la web cada año: elige otro nombre."
                     : null;
 
@@ -164,6 +166,8 @@ namespace AS.API.Controllers
         {
             if (await SoloOrganizadorAsync(circuitoTorneoDTO.IdTorneo) is IActionResult denegado)
                 return denegado;
+            if (await EsAmonSulAsync(circuitoTorneoDTO.IdCircuito))
+                return BadRequest(EVENTOS_EN_AMON_SUL);
 
             return Ok(await _circuitoApplication.AddTorneoToCircuitoAsync(circuitoTorneoDTO));
         }
@@ -173,6 +177,8 @@ namespace AS.API.Controllers
         {
             if (await SoloOrganizadorAsync(idTorneo) is IActionResult denegado)
                 return denegado;
+            if (await EsAmonSulAsync(idCircuito))
+                return BadRequest(EVENTOS_EN_AMON_SUL);
 
             return Ok(await _circuitoApplication.DeleteCircuitoTorneoAsync(idCircuito, idTorneo));
         }

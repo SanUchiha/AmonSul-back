@@ -16,12 +16,14 @@ namespace AS.Application.Services;
 public class TorneoApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IEmailApplicacion emailApplicacion
+    IEmailApplicacion emailApplicacion,
+    ICircuitoApplication circuitoApplication
 ) : ITorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private readonly ICircuitoApplication _circuitoApplication = circuitoApplication;
     private const int MAXIMO_GRUPOS = 32;
 
     public async Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosProximosAsync(
@@ -141,18 +143,7 @@ public class TorneoApplication(
                 );
         }
 
-        Circuito? circuitoAmonSul =
-            await _unitOfWork.CircuitoRepository.GetCircuitoAmonSulUltimoAnioAsync();
-        int idCircuito = circuitoAmonSul?.IdCircuito ?? 2;
-
-        CircuitoTorneo circuitoTorneo = new()
-        {
-            IdCircuito = idCircuito,
-            IdTorneo = torneoCreado.IdTorneo,
-        };
-
-        if (torneoCreado.HasCreated)
-            await _unitOfWork.CircuitoRepository.AddTorneoToCircuitoAsync(circuitoTorneo);
+        await _circuitoApplication.AsociarAmonSulAsync(torneoCreado.IdTorneo, torneo.FechaInicioTorneo);
 
         return torneoCreado.HasCreated;
     }
@@ -412,6 +403,9 @@ public class TorneoApplication(
 
         if (!torneoEditado)
             return false;
+
+        // Si cambia de año, pasa al Amon Sûl del nuevo
+        await _circuitoApplication.AsociarAmonSulAsync(torneo.IdTorneo, torneo.FechaInicioTorneo);
 
         if (string.IsNullOrWhiteSpace(request.BasesTorneo))
             return true;
