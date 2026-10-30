@@ -96,8 +96,9 @@ public class GanadorApplication(
         if (torneo?.TipoTorneo == TorneoType.PAREJAS)
             ganadores = await ConParejasCompletasAsync(ganadores, idTorneo);
 
-        // Una fila por jugador: el índice único de torneo y jugador rechazaría el guardado entero
-        ganadores = [.. ganadores.OrderBy(g => g.Resultado).DistinctBy(g => g.IdUsuario)];
+        // Una fila por jugador: el índice único de torneo y jugador rechazaría el guardado entero.
+        // El bye (568) no es un jugador: no lleva posición
+        ganadores = [.. ganadores.Where(g => g.IdUsuario != 568).OrderBy(g => g.Resultado).DistinctBy(g => g.IdUsuario)];
 
         // False si otra petición lo guardó a la vez: sin esto el ELO del torneo se aplicaría dos veces
         if (!await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(

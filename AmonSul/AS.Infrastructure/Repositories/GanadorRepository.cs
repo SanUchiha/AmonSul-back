@@ -75,9 +75,10 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
     /// <summary>
     /// Cuántos jugadores tiene la clasificación final de cada torneo
     /// </summary>
+    // Sin el bye (568): los torneos cerrados antes de quitarlo de las posiciones aún lo tienen
     public async Task<Dictionary<int, int>> GetTotalJugadoresAsync(IReadOnlyCollection<int> idsTorneo) =>
         await _dbamonsulContext.Ganador
-            .Where(g => idsTorneo.Contains(g.IdTorneo))
+            .Where(g => idsTorneo.Contains(g.IdTorneo) && g.IdUsuario != 568)
             .GroupBy(g => g.IdTorneo)
             .Select(g => new { IdTorneo = g.Key, Total = g.Count() })
             .ToDictionaryAsync(x => x.IdTorneo, x => x.Total);

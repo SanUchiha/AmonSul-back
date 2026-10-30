@@ -141,6 +141,19 @@ public class TorneoController(
         );
     }
 
+    /// <summary>
+    /// Con los resultados guardados el torneo está cerrado: sus posiciones salen de estas rondas y partidas
+    /// </summary>
+    private async Task<IActionResult?> SiTorneoCerradoAsync(int idTorneo) =>
+        await _ganadorApplication.IsSave(idTorneo)
+            ? BadRequest("Los resultados del torneo ya están guardados: sus rondas y emparejamientos ya no se cambian.")
+            : null;
+
+    private async Task<IActionResult?> SiTorneoCerradoDePartidaAsync(int idPartida) =>
+        await _partidaTorneoApplication.GetIdTorneoDePartidaAsync(idPartida) is int idTorneo
+            ? await SiTorneoCerradoAsync(idTorneo)
+            : null;
+
     [HttpPost]
     [Route("Gestion/Equipos/Modificar-Pairing-Equipos/{idTorneo}")]
     [ServiceFilter(typeof(AdminTorneoFilter))]
@@ -149,6 +162,9 @@ public class TorneoController(
         int idTorneo
     )
     {
+        if (await SiTorneoCerradoAsync(idTorneo) is IActionResult cerrado)
+            return cerrado;
+
         bool response = await _partidaTorneoApplication.ModificarPairingEquiposAsync(
             request,
             idTorneo
@@ -336,6 +352,9 @@ public class TorneoController(
     [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> DeleteRonda(int idTorneo, int idRonda)
     {
+        if (await SiTorneoCerradoAsync(idTorneo) is IActionResult cerrado)
+            return cerrado;
+
         var (success, errorMessage) = await _partidaTorneoApplication.DeleteRonda(idTorneo, idRonda);
 
         if (!success)
@@ -477,6 +496,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorDePartidaAsync(request.IdPartidaTorneo, permitirCapitanes: true) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoDePartidaAsync(request.IdPartidaTorneo) is IActionResult cerrado)
+            return cerrado;
 
         PartidaTorneoDTO? response = await _partidaTorneoApplication.EdtarPairingAsync(request);
 
@@ -494,6 +515,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorDePartidaAsync(request.IdPartidaTorneo) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoDePartidaAsync(request.IdPartidaTorneo) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.EdtarPairingEquiposAsync(request);
 
@@ -509,6 +532,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorAsync(request.IdTorneo, "añadir partidas") is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoAsync(request.IdTorneo) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.Register(request);
 
@@ -524,6 +549,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorDePartidaAsync(idPartida) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoDePartidaAsync(idPartida) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.Delete(idPartida);
 
