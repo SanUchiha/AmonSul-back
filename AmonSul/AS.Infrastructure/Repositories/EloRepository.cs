@@ -162,4 +162,48 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
             })
             .ToListAsync();
     }
+
+    /// <summary>
+    /// Filas de ELO de una partida de torneo, para corregirlas o quitarlas
+    /// </summary>
+    public async Task<List<Elo>> GetByPartidaAsync(int idPartidaTorneo) =>
+        await _dbamonsulContext.Elos.Where(e => e.IdPartidaTorneo == idPartidaTorneo).ToListAsync();
+
+    /// <summary>
+    /// ELO actual del jugador: el de su fila más reciente, o 800 si no tiene, como GetLastElo
+    /// </summary>
+    public async Task<int> GetUltimoEloAsync(int idUsuario) =>
+        await _dbamonsulContext.Elos
+            .Where(e => e.IdUsuario == idUsuario)
+            .OrderByDescending(e => e.FechaElo)
+            .ThenByDescending(e => e.IdElo)
+            .Select(e => e.PuntuacionElo)
+            .FirstOrDefaultAsync() ?? 800;
+
+    /// <summary>
+    /// ELO del jugador justo antes de una de sus filas: la anterior por IdElo, o 800, como GetVariacionesByPartidas
+    /// </summary>
+    public async Task<int> GetEloAnteriorAsync(int idUsuario, int idElo) =>
+        await _dbamonsulContext.Elos
+            .Where(e => e.IdUsuario == idUsuario && e.IdElo < idElo)
+            .OrderByDescending(e => e.IdElo)
+            .Select(e => e.PuntuacionElo)
+            .FirstOrDefaultAsync() ?? 800;
+
+    /// <summary>
+    /// Suma la diferencia a todas las filas del jugador posteriores a una. Cada fila guarda el ELO tras la partida,
+    /// así que corregir o quitar una partida antigua mueve igual el resto de su historial. No guarda
+    /// </summary>
+    public async Task DesplazarPosterioresAsync(int idUsuario, int idElo, int diferencia)
+    {
+        List<Elo> posteriores = await _dbamonsulContext.Elos
+            .Where(e => e.IdUsuario == idUsuario && e.IdElo > idElo)
+            .ToListAsync();
+        foreach (Elo elo in posteriores)
+            elo.PuntuacionElo += diferencia;
+    }
+
+    public void Agregar(Elo elo) => _dbamonsulContext.Elos.Add(elo);
+
+    public void Quitar(Elo elo) => _dbamonsulContext.Elos.Remove(elo);
 }

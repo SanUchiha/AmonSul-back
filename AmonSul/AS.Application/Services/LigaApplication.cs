@@ -11,13 +11,18 @@ namespace AS.Application.Services;
 /// Torneos con formato Liga: generar las jornadas de todos contra todos, rehacerlas y retirar jugadores.
 /// El calendario sale de RoundRobin, que también servirá para los grupos de otros formatos
 /// </summary>
-public class LigaApplication(IUnitOfWork unitOfWork, IEmailApplicacion emailApplicacion) : ILigaApplication
+public class LigaApplication(
+    IUnitOfWork unitOfWork,
+    IEmailApplicacion emailApplicacion,
+    IEloLigaApplication eloLigaApplication
+) : ILigaApplication
 {
     public const string ESTADO_RETIRADO = "RETIRADO";
     private const int MINIMO_JUGADORES = 3;
 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private readonly IEloLigaApplication _eloLigaApplication = eloLigaApplication;
 
     public async Task<(bool Ok, string? Error)> GenerarAsync(int idTorneo)
     {
@@ -126,7 +131,12 @@ public class LigaApplication(IUnitOfWork unitOfWork, IEmailApplicacion emailAppl
         if (await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(idTorneo))
             return (false, "La liga ya está cerrada: tiene los resultados guardados.");
 
-        await _unitOfWork.InscripcionRepository.RetirarAsync(idInscripcion, ESTADO_RETIRADO);
+        // Primero se quita el ELO de sus partidas que ya contaban; todo junto, o nada
+        await _unitOfWork.EnTransaccionAsync(async () =>
+        {
+            await _eloLigaApplication.QuitarDeJugadorAsync(idTorneo, inscripcion.IdUsuario);
+            await _unitOfWork.InscripcionRepository.RetirarAsync(idInscripcion, ESTADO_RETIRADO);
+        });
         return (true, null);
     }
 

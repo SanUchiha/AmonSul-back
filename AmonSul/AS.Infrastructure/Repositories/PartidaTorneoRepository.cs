@@ -203,6 +203,7 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                         NombreTorneo = p.IdTorneoNavigation.NombreTorneo,
                         PuntosTorneo = p.IdTorneoNavigation.PuntosTorneo,
                         MostrarListas = p.IdTorneoNavigation.MostrarListas,
+                        FormatoTorneo = p.IdTorneoNavigation.FormatoTorneo,
                     },
                 })
                 .ToListAsync();
@@ -253,7 +254,10 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
 
     public async Task<bool> Edit(PartidaTorneo partidaTorneo)
     {
-        using var transaction = await _dbamonsulContext.Database.BeginTransactionAsync();
+        // Dentro de otra transacción (la liga guarda a la vez el ELO) no se abre una nueva
+        using var transaction = _dbamonsulContext.Database.CurrentTransaction is null
+            ? await _dbamonsulContext.Database.BeginTransactionAsync()
+            : null;
 
         PartidaTorneo? existingEntity = await _dbamonsulContext
             .PartidaTorneos.Where(p => p.IdPartidaTorneo == partidaTorneo.IdPartidaTorneo)
@@ -277,7 +281,8 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             }
         }
         await _dbamonsulContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+        if (transaction is not null)
+            await transaction.CommitAsync();
         return true;
     }
 

@@ -1,5 +1,6 @@
 ﻿using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AS.Infrastructure.Repositories;
 
@@ -25,4 +26,14 @@ public class UnitOfWork(DbamonsulContext context, Utilidades utilidades) : IUnit
     public void Dispose() => _context.Dispose();
     public void SaveChanges() => _context.SaveChanges();
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+
+    /// <summary>
+    /// Los guardados de la acción van juntos: si algo falla, no queda ninguno
+    /// </summary>
+    public async Task EnTransaccionAsync(Func<Task> accion)
+    {
+        await using IDbContextTransaction transaccion = await _context.Database.BeginTransactionAsync();
+        await accion();
+        await transaccion.CommitAsync();
+    }
 }

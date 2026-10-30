@@ -32,6 +32,7 @@ public class UsuarioMappingProfile : Profile
             .ForMember(dest => dest.NombreTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.NombreTorneo))
             .ForMember(dest => dest.PuntosTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.PuntosTorneo))
             .ForMember(dest => dest.MostrarListas, opt => opt.MapFrom(src => src.IdTorneoNavigation!.MostrarListas))
+            .ForMember(dest => dest.FormatoTorneo, opt => opt.MapFrom(src => src.IdTorneoNavigation!.FormatoTorneo))
             .ReverseMap(); 
         
     }

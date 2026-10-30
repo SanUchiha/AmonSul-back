@@ -20,4 +20,5 @@ public interface IUnitOfWork: IDisposable
 
     void SaveChanges();
     Task SaveChangesAsync();
+    Task EnTransaccionAsync(Func<Task> accion);
 }

@@ -19,12 +19,14 @@ namespace AS.Application.Services;
 public class PartidaTorneoApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IEmailApplicacion emailApplicacion
+    IEmailApplicacion emailApplicacion,
+    IEloLigaApplication eloLigaApplication
 ) : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private readonly IEloLigaApplication _eloLigaApplication = eloLigaApplication;
 
     public async Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO)
     {
@@ -165,8 +167,18 @@ public class PartidaTorneoApplication(
         if (existingEntity.ResultadoUsuario1 is not null || existingEntity.ResultadoUsuario2 is not null)
             await GuardarListasJugadasAsync(existingEntity);
 
-        // Guardar los cambios en la base de datos
-        bool result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+        // Guardar los cambios en la base de datos. En una liga, a la vez que su ELO: suma al validarla los dos, se
+        // recalcula si cambia el resultado y se quita si deja de estar validada
+        bool result = false;
+        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(existingEntity.IdTorneo) == FormatoTorneoType.LIGA)
+            await _unitOfWork.EnTransaccionAsync(async () =>
+            {
+                result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+                if (result)
+                    await _eloLigaApplication.SincronizarPartidaAsync(existingEntity);
+            });
+        else
+            result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
 
         if (!result)
             return null;

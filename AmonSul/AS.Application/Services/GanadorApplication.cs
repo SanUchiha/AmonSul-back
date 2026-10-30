@@ -162,7 +162,7 @@ public class GanadorApplication(
         partidasTorneo = [.. partidasTorneo.OrderBy(x => x.NumeroRonda)];
 
         Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
-        // La regla de aquí no sirve para ligas (cuenta como empate lo no jugado): hasta tener la suya, no cuentan
+        // La liga suma su ELO partida a partida al validarse (EloLigaApplication): al cerrarla no se toca
         if (torneo?.FormatoTorneo == FormatoTorneoType.LIGA)
             return;
         if (torneo?.TipoTorneo == TorneoType.PAREJAS)
