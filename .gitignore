@@ -59,3 +59,6 @@ AmonSul/AS.API/.config/dotnet-tools.json
 *.suo
 AmonSul/.vs/AmonSul/v18
 AmonSul/.vs/CopilotSnapshots
+
+# Configuración local de Claude Code (arrancar el front en local, etc.)
+.claude/
