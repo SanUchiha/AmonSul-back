@@ -309,6 +309,9 @@ public class UsuarioApplication(
         List<ClasificacionTorneosDTO> clasificacionTorneos = [];
         if(listaResultadosRaw.Count > 0)
         {
+            Dictionary<int, int> totalJugadores =
+                await _unitOfWork.GanadorRepository.GetTotalJugadoresAsync(
+                    [.. listaResultadosRaw.Select(g => g.IdTorneo).Distinct()]);
             foreach (var item in listaResultadosRaw)
             {
                 if (!torneos.TryGetValue(item.IdTorneo, out Torneo? torneo)) continue;
@@ -316,7 +319,8 @@ public class UsuarioApplication(
                 {
                     IdTorneo = item.IdTorneo,
                     Resultado = item.Resultado,
-                    NombreTorneo = torneo.NombreTorneo
+                    NombreTorneo = torneo.NombreTorneo,
+                    TotalJugadores = totalJugadores.GetValueOrDefault(item.IdTorneo)
                 };
                 clasificacionTorneos.Add( c );
 

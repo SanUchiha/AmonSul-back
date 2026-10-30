@@ -72,6 +72,16 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
             .OrderBy(g => g.Resultado)
             .ToListAsync();
 
+    /// <summary>
+    /// Cuántos jugadores tiene la clasificación final de cada torneo
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetTotalJugadoresAsync(IReadOnlyCollection<int> idsTorneo) =>
+        await _dbamonsulContext.Ganador
+            .Where(g => idsTorneo.Contains(g.IdTorneo))
+            .GroupBy(g => g.IdTorneo)
+            .Select(g => new { IdTorneo = g.Key, Total = g.Count() })
+            .ToDictionaryAsync(x => x.IdTorneo, x => x.Total);
+
     public async Task<Ganador> GetById(int id)
     {
         try

@@ -13,4 +13,5 @@ public interface IGanadorRepository
     Task<bool> ExistsByTorneoAsync(int idTorneo);
     Task<int?> GetIdTorneoAsync(int idGanador);
     Task<List<Ganador>> GetByTorneoAsync(int idTorneo);
+    Task<Dictionary<int, int>> GetTotalJugadoresAsync(IReadOnlyCollection<int> idsTorneo);
 }

@@ -16,6 +16,9 @@ public class ViewPartidaTorneoDTO
     public string? EscenarioPartida { get; set; }
     public int PuntosPartida { get; set; }
     public int? GanadorPartidaTorneo { get; set; }
+    // Solo cuenta como jugada si la han validado los dos: las pendientes llegan sin resultado
+    public bool? PartidaValidadaUsuario1 { get; set; }
+    public bool? PartidaValidadaUsuario2 { get; set; }
     public string? GanadorPartidaNick { get; set; }
     public bool EsTorneo { get; set; }
     public string? EjercitoUsuario1 { get; set; }
