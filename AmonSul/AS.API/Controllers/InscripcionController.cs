@@ -116,12 +116,12 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
     [HttpPut("Puntos-Extra")]
     public async Task<ActionResult> UpdatePuntosExtra([FromBody] UpdatePuntosExtraDTO request)
     {
-        bool result = await _inscripcionApplication.UpdatePuntosExtraAsync(request);
-        if (!result)
-        {
-            return BadRequest();
-        }
-        return Created();
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        (bool ok, string? error) = await _inscripcionApplication.UpdatePuntosExtraAsync(request, idSolicitante);
+        return ok ? Created() : BadRequest(error);
     }
 
     [HttpPut("Estado-Pago")]

@@ -13,6 +13,8 @@ public class InscripcionTorneoCreadoMasDTO
     public DateOnly? FechaInscripcion { get; set; }
     public DateOnly? FechaUltimaEntrega { get; set; }
     public string? EsPago { get; set; }
+    // Los que da el organizador y suman en la clasificación
+    public int PuntosExtra { get; set; }
     public List<ListaViewDTO> Lista { get; set; } = [];
     public int CountListasEntregadas { get; set; } = 0;
 }

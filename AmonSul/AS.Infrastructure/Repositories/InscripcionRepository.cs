@@ -171,6 +171,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     i.EstadoLista,
                     i.FechaEntregaLista,
                     i.EsPago,
+                    i.PuntosExtra,
                     i.IdUsuarioNavigation!.Nick,
                     i.IdUsuarioNavigation!.Email,
                     Lista = i.Lista.FirstOrDefault()
@@ -191,6 +192,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     EstadoLista = i.EstadoLista,
                     FechaEntregaLista = i.FechaEntregaLista,
                     EsPago = i.EsPago,
+                    PuntosExtra = i.PuntosExtra,
                     Nick = i.Nick,
                     Email = i.Email,
                     IdLista = i.Lista != null ? i.Lista.IdLista : 0,

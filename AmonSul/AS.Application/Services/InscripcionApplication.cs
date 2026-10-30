@@ -441,14 +441,19 @@ public class InscripcionApplication(
     private async Task<bool> TienePartidasAsync(int idTorneo) =>
         (await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo)).Count > 0;
 
-    public async Task<bool> UpdatePuntosExtraAsync(UpdatePuntosExtraDTO request)
+    public async Task<(bool Ok, string? Error)> UpdatePuntosExtraAsync(UpdatePuntosExtraDTO request, int idSolicitante)
     {
-        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(request.IdInscripcion);
-        if (inscripcion == null) return false;
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(request.IdInscripcion);
+        if (inscripcion is null)
+            return (false, "La inscripción no existe.");
+
+        int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
+        if (idSolicitante != idOrganizador)
+            return (false, "Solo el organizador puede dar puntos extra.");
 
         inscripcion.PuntosExtra = request.PuntosExtra;
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
 
-        return true;
+        return (true, null);
     }
 }
