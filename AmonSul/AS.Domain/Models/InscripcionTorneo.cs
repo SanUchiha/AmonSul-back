@@ -16,6 +16,8 @@ public partial class InscripcionTorneo
     public string? EjercitoElegido { get; set; }
     // Solo en Copa: su grupo, del 1 al número de grupos; null hasta que se reparten
     public int? Grupo { get; set; }
+    // Solo en Copa: su hueco en la primera ronda del cuadro (1 contra 2, 3 contra 4...); null si no entra
+    public int? PosicionCuadro { get; set; }
 
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }

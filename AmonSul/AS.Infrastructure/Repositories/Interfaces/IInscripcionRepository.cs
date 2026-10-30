@@ -23,6 +23,8 @@ public interface IInscripcionRepository
     Task<bool> ActualizarEjercitoElegidoAsync(int idInscripcion, string ejercito);
     Task<bool> RetirarAsync(int idInscripcion, string estado);
     Task ActualizarGruposAsync(IReadOnlyDictionary<int, int> grupoPorInscripcion);
+    Task ActualizarPosicionesCuadroAsync(int idTorneo, IReadOnlyDictionary<int, int> posicionPorInscripcion);
+    Task ActualizarEstadoInscripcionAsync(int idInscripcion, string estado);
 
     Task<List<EquipoDTO>> GetAllEquiposByTorneoAsync(int Id_Torneo);
     Task<Equipo?> GetEquipoByIdAsync(int id);

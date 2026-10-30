@@ -476,6 +476,11 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         return partidas.Count;
     }
 
+    // Sin guardar: el cuadro de la Copa guarda todos sus cambios juntos
+    public void Agregar(PartidaTorneo partida) => _dbamonsulContext.PartidaTorneos.Add(partida);
+
+    public void Quitar(PartidaTorneo partida) => _dbamonsulContext.PartidaTorneos.Remove(partida);
+
     public async Task<bool> DeleteRonda(int idTorneo, int idRonda)
     {
         try

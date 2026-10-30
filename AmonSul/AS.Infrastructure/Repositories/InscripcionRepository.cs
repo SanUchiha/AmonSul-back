@@ -332,6 +332,35 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     }
 
     /// <summary>
+    /// El hueco en el cuadro de cada inscripción del torneo: a las que no vienen se les quita
+    /// </summary>
+    public async Task ActualizarPosicionesCuadroAsync(int idTorneo, IReadOnlyDictionary<int, int> posicionPorInscripcion)
+    {
+        List<InscripcionTorneo> inscripciones = await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo)
+            .ToListAsync();
+        foreach (InscripcionTorneo inscripcion in inscripciones)
+            inscripcion.PosicionCuadro = posicionPorInscripcion.TryGetValue(inscripcion.IdInscripcion, out int posicion)
+                ? posicion
+                : null;
+        await _dbamonsulContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Solo el estado, sin tocar sus partidas
+    /// </summary>
+    public async Task ActualizarEstadoInscripcionAsync(int idInscripcion, string estado)
+    {
+        InscripcionTorneo? inscripcion = await _dbamonsulContext.InscripcionTorneos.FirstOrDefaultAsync(i =>
+            i.IdInscripcion == idInscripcion
+        );
+        if (inscripcion is null)
+            return;
+        inscripcion.EstadoInscripcion = estado;
+        await _dbamonsulContext.SaveChangesAsync();
+    }
+
+    /// <summary>
     /// Borra todas las partidas del jugador en el torneo y cambia el estado de su inscripción en un solo guardado,
     /// para que no quede a medias si algo falla
     /// </summary>

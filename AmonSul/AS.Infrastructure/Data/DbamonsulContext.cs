@@ -176,6 +176,7 @@ public partial class DbamonsulContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("Ejercito_Elegido");
             entity.Property(e => e.Grupo).HasColumnName("Grupo");
+            entity.Property(e => e.PosicionCuadro).HasColumnName("Posicion_Cuadro");
 
             entity.HasOne(d => d.IdTorneoNavigation)
                 .WithMany(p => p.InscripcionTorneos)

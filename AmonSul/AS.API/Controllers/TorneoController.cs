@@ -3,6 +3,7 @@ using AS.API.Filters;
 using AS.Application.DTOs.Lista;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
+using AS.Application.Exceptions;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Torneo;
@@ -438,7 +439,15 @@ public class TorneoController(
         )
             return denegado;
 
-        PartidaTorneoDTO? response = await _partidaTorneoApplication.EditAsync(request);
+        PartidaTorneoDTO? response;
+        try
+        {
+            response = await _partidaTorneoApplication.EditAsync(request);
+        }
+        catch (ReglaTorneoException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         if (response is null)
             return BadRequest("No se ha podido editar la partida");

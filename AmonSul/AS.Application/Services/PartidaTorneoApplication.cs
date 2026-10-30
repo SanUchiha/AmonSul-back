@@ -20,13 +20,15 @@ public class PartidaTorneoApplication(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IEmailApplicacion emailApplicacion,
-    IEloLigaApplication eloLigaApplication
+    IEloLigaApplication eloLigaApplication,
+    ICopaApplication copaApplication
 ) : IPartidaTorneoApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
     private readonly IEloLigaApplication _eloLigaApplication = eloLigaApplication;
+    private readonly ICopaApplication _copaApplication = copaApplication;
 
     public async Task<bool> Register(AddPairingTorneoDTO addPairingTorneoDTO)
     {
@@ -169,13 +171,19 @@ public class PartidaTorneoApplication(
 
         // Guardar los cambios en la base de datos. En una liga o copa, a la vez que su ELO: suma al validarla los dos,
         // se recalcula si cambia el resultado y se quita si deja de estar validada
+        // En la copa, además, el cuadro avanza (o se corrige) con cada resultado; si una regla lo impide, no se guarda
+        // nada y ReglaTorneoException lleva el motivo
         bool result = false;
-        if (FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(existingEntity.IdTorneo)))
+        string? formato = await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(existingEntity.IdTorneo);
+        if (FormatoTorneoType.EsPorJornadas(formato))
             await _unitOfWork.EnTransaccionAsync(async () =>
             {
                 result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
-                if (result)
-                    await _eloLigaApplication.SincronizarPartidaAsync(existingEntity);
+                if (!result)
+                    return;
+                await _eloLigaApplication.SincronizarPartidaAsync(existingEntity);
+                if (formato == FormatoTorneoType.COPA)
+                    await _copaApplication.SincronizarCuadroAsync(existingEntity.IdTorneo);
             });
         else
             result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);

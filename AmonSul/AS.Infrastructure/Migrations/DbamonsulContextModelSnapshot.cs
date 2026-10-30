@@ -401,6 +401,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ID_Usuario");
 
+                    b.Property<int?>("PosicionCuadro")
+                        .HasColumnType("int")
+                        .HasColumnName("Posicion_Cuadro");
+
                     b.Property<int>("PuntosExtra")
                         .HasColumnType("int")
                         .HasColumnName("Puntos_Extra");

@@ -18,6 +18,7 @@ public class InscripcionTorneoCreadoDTO
     public string? EjercitoElegido { get; set; }
     // Solo en Copa
     public int? Grupo { get; set; }
+    public int? PosicionCuadro { get; set; }
     // RETIRADO si el organizador lo ha retirado de la liga
     public string? EstadoInscripcion { get; set; }
 }

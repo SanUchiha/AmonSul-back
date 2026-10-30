@@ -40,6 +40,26 @@ public class CopaController(ICopaApplication copaApplication) : ControllerBase
     public async Task<IActionResult> RetirarJugador(int idTorneo, int idInscripcion) =>
         Resultado(await _copaApplication.RetirarJugadorAsync(idTorneo, idInscripcion));
 
+    [HttpPost("{idTorneo}/Eliminatoria/Generar")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> GenerarEliminatoria(int idTorneo) =>
+        Resultado(await _copaApplication.GenerarEliminatoriaAsync(idTorneo));
+
+    [HttpDelete("{idTorneo}/Eliminatoria")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> EliminarEliminatoria(int idTorneo) =>
+        Resultado(await _copaApplication.EliminarEliminatoriaAsync(idTorneo));
+
+    [HttpPost("{idTorneo}/Eliminatoria/{idPartida}/Pasa/{idUsuario}")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> ElegirQuienPasa(int idTorneo, int idPartida, int idUsuario) =>
+        Resultado(await _copaApplication.ElegirQuienPasaAsync(idTorneo, idPartida, idUsuario));
+
+    [HttpPost("{idTorneo}/Cerrar")]
+    [ServiceFilter(typeof(AdminTorneoFilter))]
+    public async Task<IActionResult> Cerrar(int idTorneo) =>
+        Resultado(await _copaApplication.CerrarAsync(idTorneo));
+
     private IActionResult Resultado((bool Ok, string? Error) resultado) =>
         resultado.Ok ? Ok() : BadRequest(resultado.Error);
 }

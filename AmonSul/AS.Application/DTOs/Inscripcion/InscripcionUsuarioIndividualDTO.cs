@@ -20,4 +20,5 @@ public class InscripcionUsuarioIndividualDTO
     public string? EjercitoElegido { get; set; }
     // Solo en Copa
     public int? Grupo { get; set; }
+    public int? PosicionCuadro { get; set; }
 }
