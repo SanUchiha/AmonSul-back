@@ -400,6 +400,10 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                 NickCompanero2 = p.IdCompanero2Navigation!.Nick,
                 EjercitoCompanero1 = p.EjercitoCompanero1,
                 EjercitoCompanero2 = p.EjercitoCompanero2,
+                Fase = p.Fase,
+                Grupo = p.Grupo,
+                Cruce = p.Cruce,
+                IdUsuarioPasa = p.IdUsuarioPasa,
             })
             .ToListAsync();
 

@@ -25,6 +25,7 @@ public static class ServicesConfiguration
         services.AddScoped<ICircuitoApplication, CircuitoApplication>();
         services.AddScoped<ILigaApplication, LigaApplication>();
         services.AddScoped<IEloLigaApplication, EloLigaApplication>();
+        services.AddScoped<ICopaApplication, CopaApplication>();
         services.AddScoped<IEstadisticasApplication, EstadisticasApplication>();
 
         return services;

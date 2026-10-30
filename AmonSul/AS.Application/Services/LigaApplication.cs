@@ -49,25 +49,7 @@ public class LigaApplication(
         List<PartidaTorneo> partidas = [];
         for (int jornada = 0; jornada < jornadas.Count; jornada++)
             foreach ((InscripcionTorneo local, InscripcionTorneo visitante) in jornadas[jornada])
-                partidas.Add(
-                    new PartidaTorneo
-                    {
-                        IdTorneo = idTorneo,
-                        NumeroRonda = jornada + 1,
-                        IdUsuario1 = local.IdUsuario,
-                        IdUsuario2 = visitante.IdUsuario,
-                        // Cada jugador lleva toda la liga el ejército que eligió al inscribirse
-                        EjercitoUsuario1 = local.EjercitoElegido,
-                        EjercitoUsuario2 = visitante.EjercitoElegido,
-                        FechaPartida = torneo.FechaInicioTorneo,
-                        EsElo = torneo.CuentaElo,
-                        EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
-                        PuntosPartida = torneo.PuntosTorneo,
-                        EscenarioPartida = "",
-                        PartidaValidadaUsuario1 = false,
-                        PartidaValidadaUsuario2 = false,
-                    }
-                );
+                partidas.Add(NuevaPartida(torneo, jornada + 1, local, visitante));
 
         await _unitOfWork.PartidaTorneoRepository.RegisterMany(partidas);
 
@@ -139,6 +121,33 @@ public class LigaApplication(
         });
         return (true, null);
     }
+
+    /// <summary>
+    /// Partida de una jornada, sin jugar. Cada jugador lleva todo el torneo el ejército que eligió al inscribirse.
+    /// También la usan los grupos de la Copa
+    /// </summary>
+    internal static PartidaTorneo NuevaPartida(
+        Torneo torneo,
+        int numeroRonda,
+        InscripcionTorneo local,
+        InscripcionTorneo visitante
+    ) =>
+        new()
+        {
+            IdTorneo = torneo.IdTorneo,
+            NumeroRonda = numeroRonda,
+            IdUsuario1 = local.IdUsuario,
+            IdUsuario2 = visitante.IdUsuario,
+            EjercitoUsuario1 = local.EjercitoElegido,
+            EjercitoUsuario2 = visitante.EjercitoElegido,
+            FechaPartida = torneo.FechaInicioTorneo,
+            EsElo = torneo.CuentaElo,
+            EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
+            PuntosPartida = torneo.PuntosTorneo,
+            EscenarioPartida = "",
+            PartidaValidadaUsuario1 = false,
+            PartidaValidadaUsuario2 = false,
+        };
 
     private async Task<Torneo?> GetLigaAsync(int idTorneo)
     {

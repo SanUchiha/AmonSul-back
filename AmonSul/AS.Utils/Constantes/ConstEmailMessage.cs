@@ -22,6 +22,7 @@
 
         public const string MESSAGE_NUEVA_RONDA_ASUNTO = "Nueva ronda generada";
         public const string MESSAGE_LIGA_GENERADA_ASUNTO = "Liga generada";
+        public const string MESSAGE_COPA_GENERADA_ASUNTO = "Grupos de la copa generados";
         public const string MESSAGE_NUEVO_TORNEO_ASUNTO = "Nueva torneo";
     }
 }

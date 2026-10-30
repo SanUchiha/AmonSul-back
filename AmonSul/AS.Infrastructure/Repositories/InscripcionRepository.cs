@@ -318,6 +318,20 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     }
 
     /// <summary>
+    /// Solo el grupo de cada inscripción, en un solo guardado
+    /// </summary>
+    public async Task ActualizarGruposAsync(IReadOnlyDictionary<int, int> grupoPorInscripcion)
+    {
+        List<int> ids = [.. grupoPorInscripcion.Keys];
+        List<InscripcionTorneo> inscripciones = await _dbamonsulContext.InscripcionTorneos
+            .Where(i => ids.Contains(i.IdInscripcion))
+            .ToListAsync();
+        foreach (InscripcionTorneo inscripcion in inscripciones)
+            inscripcion.Grupo = grupoPorInscripcion[inscripcion.IdInscripcion];
+        await _dbamonsulContext.SaveChangesAsync();
+    }
+
+    /// <summary>
     /// Borra todas las partidas del jugador en el torneo y cambia el estado de su inscripción en un solo guardado,
     /// para que no quede a medias si algo falla
     /// </summary>

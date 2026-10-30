@@ -248,6 +248,28 @@ public class EmailApplication(
         }
     }
 
+    public void SendEmailCopaGenerada(
+        string nombreTorneo,
+        int jornadas,
+        int clasificadosPorGrupo,
+        List<string> destinatarios)
+    {
+        string pasan = clasificadosPorGrupo == 1 ? "el primero" : $"los {clasificadosPorGrupo} primeros";
+        string templateBody = $@"
+        <html>
+        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+            <p>Hola,</p>
+            <p>La copa <span style=""font-size: 18px; color: #2e6c80;""><strong>{nombreTorneo}</strong></span> ya tiene los grupos: son <span style=""font-size: 18px; color: #2e6c80;""><strong>{jornadas}</strong></span> jornadas y en tu grupo te enfrentas a todos los demás. Pasan a la eliminatoria {pasan} de cada grupo.</p>
+            <p>Puedes acceder a Amon Sûl, ver tus partidas y organizarte con tus rivales para jugarlas.</p>
+            <p>Gracias por formar parte de AS.</p>
+        </body>
+        </html>";
+
+        foreach (List<string> items in destinatarios.Chunk(5).Select(c => c.ToList()))
+            BackgroundJob.Enqueue(() =>
+                EnviarCorreoAsync(items, templateBody, ConstEmailMessage.MESSAGE_COPA_GENERADA_ASUNTO));
+    }
+
     public async Task EnviarCorreoAsync(
         List<string> destinatarios, 
         string templateBody, 

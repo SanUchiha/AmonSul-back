@@ -18,4 +18,6 @@ public class InscripcionUsuarioIndividualDTO
     public TorneoViewDTO? Torneo { get; set; }
     public int PuntosExtra { get; set; }
     public string? EjercitoElegido { get; set; }
+    // Solo en Copa
+    public int? Grupo { get; set; }
 }
