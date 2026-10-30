@@ -24,14 +24,18 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
         }
     }
 
+    // Próximos son los que aún no han terminado: una liga o una copa dura semanas y, ya empezada, se sigue jugando.
+    // Sin fecha de fin válida (anterior al inicio) cuenta solo el inicio
     public async Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy)
     {
-        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo >= fechaHoy);
+        return await _dbamonsulContext.Torneos.CountAsync(t =>
+            t.FechaInicioTorneo >= fechaHoy || t.FechaFinTorneo >= fechaHoy);
     }
 
     public async Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy)
     {
-        return await _dbamonsulContext.Torneos.CountAsync(t => t.FechaInicioTorneo < fechaHoy);
+        return await _dbamonsulContext.Torneos.CountAsync(t =>
+            t.FechaInicioTorneo < fechaHoy && t.FechaFinTorneo < fechaHoy);
     }
 
     public async Task<List<Torneo>> GetTorneosProximosAsync(
@@ -41,7 +45,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     )
     {
         return await _dbamonsulContext
-            .Torneos.Where(t => t.FechaInicioTorneo >= fechaHoy)
+            .Torneos.Where(t => t.FechaInicioTorneo >= fechaHoy || t.FechaFinTorneo >= fechaHoy)
             .OrderBy(t => t.FechaInicioTorneo)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -55,7 +59,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
     )
     {
         return await _dbamonsulContext
-            .Torneos.Where(t => t.FechaInicioTorneo < fechaHoy)
+            .Torneos.Where(t => t.FechaInicioTorneo < fechaHoy && t.FechaFinTorneo < fechaHoy)
             .OrderByDescending(t => t.FechaInicioTorneo)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
