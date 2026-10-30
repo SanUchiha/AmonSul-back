@@ -39,4 +39,7 @@ public class PartidaTorneoDTO
     // Vacíos si la pareja juega con una lista conjunta
     public string? EjercitoCompanero1 { get; set; }
     public string? EjercitoCompanero2 { get; set; }
+    // Solo en ligas: ELO ganado o perdido en la partida; null si no ha contado
+    public int? EloVariacionUsuario1 { get; set; }
+    public int? EloVariacionUsuario2 { get; set; }
 }

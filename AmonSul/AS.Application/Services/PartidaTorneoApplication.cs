@@ -1932,8 +1932,29 @@ public class PartidaTorneoApplication(
         return true;
     }
 
-    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo) =>
-        await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
+    {
+        List<PartidaTorneoDTO> partidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
+
+        // En una liga el ELO va partida a partida: cada una lleva lo que ganó o perdió cada jugador
+        if (partidas.Count == 0
+            || await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(idTorneo) != FormatoTorneoType.LIGA)
+            return partidas;
+
+        List<EloVariacionPartidaDTO> variaciones = await _unitOfWork.EloRepository.GetVariacionesByPartidas(
+            [.. partidas.Select(p => p.IdPartidaTorneo)]
+        );
+        foreach (PartidaTorneoDTO partida in partidas)
+        {
+            partida.EloVariacionUsuario1 = variaciones
+                .FirstOrDefault(v => v.IdPartidaTorneo == partida.IdPartidaTorneo && v.IdUsuario == partida.IdUsuario1)
+                ?.Variacion;
+            partida.EloVariacionUsuario2 = variaciones
+                .FirstOrDefault(v => v.IdPartidaTorneo == partida.IdPartidaTorneo && v.IdUsuario == partida.IdUsuario2)
+                ?.Variacion;
+        }
+        return partidas;
+    }
 
     public async Task<bool> ModificarPairingEquiposAsync(
         ModificarPairingTorneoEquiposDTO request,
