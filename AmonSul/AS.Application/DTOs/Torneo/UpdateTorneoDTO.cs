@@ -25,7 +25,13 @@ public class UpdateTorneoDTO
     public string? Contacto { get; set; }
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
     public bool? ListaPorPareja { get; set; }
-    // Solo en Liga y mientras no tenga partidas
+    // Solo en Liga y Copa, y mientras no tenga partidas
     public bool? CuentaElo { get; set; }
     public bool? IdaYVuelta { get; set; }
+    // Solo en Copa: grupos y reparto mientras no tenga partidas; el resto, hasta que empiece la eliminatoria
+    public int? NumeroGrupos { get; set; }
+    public int? ClasificadosPorGrupo { get; set; }
+    public string? RepartoGrupos { get; set; }
+    public string? DesempateEliminatoria { get; set; }
+    public bool? TercerPuesto { get; set; }
 }

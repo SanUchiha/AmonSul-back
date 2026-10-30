@@ -32,7 +32,13 @@ public class CrearTorneoDTO
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta
     public bool ListaPorPareja { get; set; }
     public string FormatoTorneo { get; set; } = FormatoTorneoType.SUIZO;
-    // Solo en Liga: si cuenta para el ELO y si es ida y vuelta
+    // Solo en Liga y Copa: si cuenta para el ELO y si es ida y vuelta
     public bool CuentaElo { get; set; }
     public bool IdaYVuelta { get; set; }
+    // Solo en Copa; sin ellos, 2 grupos, pasan 2 de cada uno, reparto por ELO y en un empate pasa el mejor de grupos
+    public int? NumeroGrupos { get; set; }
+    public int? ClasificadosPorGrupo { get; set; }
+    public string? RepartoGrupos { get; set; }
+    public string? DesempateEliminatoria { get; set; }
+    public bool TercerPuesto { get; set; }
 }

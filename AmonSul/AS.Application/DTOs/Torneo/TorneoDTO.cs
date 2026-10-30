@@ -38,4 +38,10 @@ public class TorneoDTO
     public string FormatoTorneo { get; set; } = null!;
     public bool CuentaElo { get; set; }
     public bool IdaYVuelta { get; set; }
+    // Solo en Copa
+    public int? NumeroGrupos { get; set; }
+    public int? ClasificadosPorGrupo { get; set; }
+    public string? RepartoGrupos { get; set; }
+    public string? DesempateEliminatoria { get; set; }
+    public bool TercerPuesto { get; set; }
 }

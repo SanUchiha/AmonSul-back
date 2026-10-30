@@ -167,10 +167,10 @@ public class PartidaTorneoApplication(
         if (existingEntity.ResultadoUsuario1 is not null || existingEntity.ResultadoUsuario2 is not null)
             await GuardarListasJugadasAsync(existingEntity);
 
-        // Guardar los cambios en la base de datos. En una liga, a la vez que su ELO: suma al validarla los dos, se
-        // recalcula si cambia el resultado y se quita si deja de estar validada
+        // Guardar los cambios en la base de datos. En una liga o copa, a la vez que su ELO: suma al validarla los dos,
+        // se recalcula si cambia el resultado y se quita si deja de estar validada
         bool result = false;
-        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(existingEntity.IdTorneo) == FormatoTorneoType.LIGA)
+        if (FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(existingEntity.IdTorneo)))
             await _unitOfWork.EnTransaccionAsync(async () =>
             {
                 result = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
@@ -197,7 +197,7 @@ public class PartidaTorneoApplication(
     {
         if (partida.ListaUsuario1 is not null && partida.ListaUsuario2 is not null)
             return;
-        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(partida.IdTorneo) != FormatoTorneoType.LIGA)
+        if (!FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(partida.IdTorneo)))
             return;
 
         partida.ListaUsuario1 ??= (
@@ -1936,9 +1936,9 @@ public class PartidaTorneoApplication(
     {
         List<PartidaTorneoDTO> partidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
 
-        // En una liga el ELO va partida a partida: cada una lleva lo que ganó o perdió cada jugador
+        // En una liga o copa el ELO va partida a partida: cada una lleva lo que ganó o perdió cada jugador
         if (partidas.Count == 0
-            || await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(idTorneo) != FormatoTorneoType.LIGA)
+            || !FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(idTorneo)))
             return partidas;
 
         List<EloVariacionPartidaDTO> variaciones = await _unitOfWork.EloRepository.GetVariacionesByPartidas(

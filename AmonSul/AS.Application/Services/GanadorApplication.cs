@@ -162,8 +162,8 @@ public class GanadorApplication(
         partidasTorneo = [.. partidasTorneo.OrderBy(x => x.NumeroRonda)];
 
         Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
-        // La liga suma su ELO partida a partida al validarse (EloLigaApplication): al cerrarla no se toca
-        if (torneo?.FormatoTorneo == FormatoTorneoType.LIGA)
+        // Liga y Copa suman su ELO partida a partida al validarse (EloLigaApplication): al cerrarlas no se toca
+        if (FormatoTorneoType.EsPorJornadas(torneo?.FormatoTorneo))
             return;
         if (torneo?.TipoTorneo == TorneoType.PAREJAS)
         {

@@ -35,10 +35,16 @@ public partial class PartidaTorneo
     // Vacíos si la pareja juega con una lista conjunta
     public string? EjercitoCompanero1 { get; set; }
     public string? EjercitoCompanero2 { get; set; }
-    // Solo en Liga: la lista con la que se jugó, guardada al registrar el resultado. El jugador puede cambiar
+    // Solo en Liga y Copa: la lista con la que se jugó, guardada al registrar el resultado. El jugador puede cambiar
     // de lista en la siguiente jornada y esta sigue siendo la de esa partida
     public string? ListaUsuario1 { get; set; }
     public string? ListaUsuario2 { get; set; }
+    // Solo en Copa: fase (FaseCopaType), grupo en la fase de grupos, posición del cruce en su ronda de la
+    // eliminatoria (de él sale con quién se cruza el ganador) y quién pasa si acaba en empate
+    public string? Fase { get; set; }
+    public int? Grupo { get; set; }
+    public int? Cruce { get; set; }
+    public int? IdUsuarioPasa { get; set; }
     public virtual Usuario? IdCompanero1Navigation { get; set; }
     public virtual Usuario? IdCompanero2Navigation { get; set; }
 }

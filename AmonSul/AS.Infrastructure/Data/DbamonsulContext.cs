@@ -175,6 +175,7 @@ public partial class DbamonsulContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("Ejercito_Elegido");
+            entity.Property(e => e.Grupo).HasColumnName("Grupo");
 
             entity.HasOne(d => d.IdTorneoNavigation)
                 .WithMany(p => p.InscripcionTorneos)
@@ -309,6 +310,13 @@ public partial class DbamonsulContext : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false)
                 .HasColumnName("Lista_Usuario2");
+            entity.Property(e => e.Fase)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("Fase");
+            entity.Property(e => e.Grupo).HasColumnName("Grupo");
+            entity.Property(e => e.Cruce).HasColumnName("Cruce");
+            entity.Property(e => e.IdUsuarioPasa).HasColumnName("ID_Usuario_Pasa");
 
             entity.HasOne(d => d.IdTorneoNavigation).WithMany(p => p.PartidaTorneos)
                 .HasForeignKey(d => d.IdTorneo)
@@ -453,6 +461,17 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Formato_Torneo");
             entity.Property(e => e.CuentaElo).HasColumnName("Cuenta_Elo");
             entity.Property(e => e.IdaYVuelta).HasColumnName("Ida_Y_Vuelta");
+            entity.Property(e => e.NumeroGrupos).HasColumnName("Numero_Grupos");
+            entity.Property(e => e.ClasificadosPorGrupo).HasColumnName("Clasificados_Por_Grupo");
+            entity.Property(e => e.RepartoGrupos)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("Reparto_Grupos");
+            entity.Property(e => e.DesempateEliminatoria)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("Desempate_Eliminatoria");
+            entity.Property(e => e.TercerPuesto).HasColumnName("Tercer_Puesto");
             entity.Property(e => e.Contacto)
                 .HasMaxLength(200)
                 .IsUnicode(false)

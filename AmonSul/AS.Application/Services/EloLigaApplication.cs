@@ -8,7 +8,7 @@ using Hangfire;
 namespace AS.Application.Services;
 
 /// <summary>
-/// ELO de las ligas que cuentan para el ELO: cada partida suma en cuanto la validan los dos jugadores, con el ELO que
+/// ELO de las ligas y copas que cuentan para el ELO: cada partida suma en cuanto la validan los dos jugadores, con el ELO que
 /// tienen en ese momento. Si el organizador cambia luego el resultado se recalcula, y si deja de contar (se desvalida
 /// o se retira a un jugador) se quita. Como cada fila guarda el ELO tras la partida, al corregir o quitar una partida
 /// antigua el resto del historial de cada jugador se mueve en la misma diferencia
@@ -21,7 +21,7 @@ public class EloLigaApplication(IUnitOfWork unitOfWork, IBackgroundJobClient tra
     public async Task SincronizarPartidaAsync(PartidaTorneo partida)
     {
         Torneo? torneo = await _unitOfWork.TorneoRepository.GetById(partida.IdTorneo);
-        if (torneo?.FormatoTorneo != FormatoTorneoType.LIGA || !torneo.CuentaElo)
+        if (!FormatoTorneoType.EsPorJornadas(torneo?.FormatoTorneo) || !torneo!.CuentaElo)
             return;
 
         List<Elo> filas = await _unitOfWork.EloRepository.GetByPartidaAsync(partida.IdPartidaTorneo);

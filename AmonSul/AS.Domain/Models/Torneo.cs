@@ -37,9 +37,17 @@ public partial class Torneo
     // Solo en torneos a Parejas: true si cada pareja entrega una lista conjunta en vez de una por jugador
     public bool ListaPorPareja { get; set; }
     public string FormatoTorneo { get; set; } = FormatoTorneoType.SUIZO;
-    // Solo en Liga, los decide el organizador al crearla: si sus partidas cuentan para el ELO y si hay vuelta
+    // Solo en Liga y Copa, los decide el organizador al crearla: si sus partidas cuentan para el ELO y si hay vuelta
+    // (en la Copa, en los grupos)
     public bool CuentaElo { get; set; }
     public bool IdaYVuelta { get; set; }
+    // Solo en Copa, los decide el organizador: cuántos grupos, cuántos pasan de cada uno, cómo se reparten, quién
+    // pasa en un empate de la eliminatoria y si se juega el tercer puesto
+    public int? NumeroGrupos { get; set; }
+    public int? ClasificadosPorGrupo { get; set; }
+    public string? RepartoGrupos { get; set; }
+    public string? DesempateEliminatoria { get; set; }
+    public bool TercerPuesto { get; set; }
 
     public virtual List<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
     public virtual List<Comentario> Comentarios { get; set; } = [];

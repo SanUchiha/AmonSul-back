@@ -22,6 +22,7 @@ public class TorneoApplication(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private const int MAXIMO_GRUPOS = 32;
 
     public async Task<List<TorneoDTO>> GetTorneos()
     {
@@ -121,8 +122,8 @@ public class TorneoApplication(
         torneo.MetodosPago ??= "";
         if (!AjustarFormato(torneo))
             return false;
-        // Las jornadas salen al generar la liga, según los inscritos
-        if (torneo.FormatoTorneo == FormatoTorneoType.LIGA)
+        // Las jornadas salen al generar la liga o los grupos de la copa, según los inscritos
+        if (FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
             torneo.NumeroPartidas = 1;
         AjustarModoListas(torneo);
 
@@ -164,7 +165,8 @@ public class TorneoApplication(
     }
 
     /// <summary>
-    /// La Liga es individual y con una lista por jugador; ELO e ida y vuelta solo existen en ella
+    /// Liga y Copa son individuales y con una lista por jugador; ELO e ida y vuelta solo existen en ellas, y los
+    /// grupos y la eliminatoria solo en la Copa
     /// </summary>
     private static bool AjustarFormato(Torneo torneo)
     {
@@ -173,7 +175,7 @@ public class TorneoApplication(
         if (!FormatoTorneoType.EsValido(torneo.FormatoTorneo))
             return false;
 
-        if (torneo.FormatoTorneo == FormatoTorneoType.LIGA)
+        if (FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
         {
             torneo.TipoTorneo = TorneoType.INDIVIDUAL;
             torneo.ListasPorJugador = 1;
@@ -183,7 +185,27 @@ public class TorneoApplication(
             torneo.CuentaElo = false;
             torneo.IdaYVuelta = false;
         }
-        return true;
+
+        if (torneo.FormatoTorneo != FormatoTorneoType.COPA)
+        {
+            torneo.NumeroGrupos = null;
+            torneo.ClasificadosPorGrupo = null;
+            torneo.RepartoGrupos = null;
+            torneo.DesempateEliminatoria = null;
+            torneo.TercerPuesto = false;
+            return true;
+        }
+
+        torneo.NumeroGrupos ??= 2;
+        torneo.ClasificadosPorGrupo ??= 2;
+        torneo.RepartoGrupos ??= RepartoGruposType.ELO;
+        torneo.DesempateEliminatoria ??= DesempateEliminatoriaType.GRUPOS;
+        // Al menos dos en la eliminatoria, y grupos con sentido
+        return torneo.NumeroGrupos is >= 1 and <= MAXIMO_GRUPOS
+            && torneo.ClasificadosPorGrupo >= 1
+            && torneo.NumeroGrupos * torneo.ClasificadosPorGrupo >= 2
+            && RepartoGruposType.EsValido(torneo.RepartoGrupos)
+            && DesempateEliminatoriaType.EsValido(torneo.DesempateEliminatoria);
     }
 
     /// <summary>
@@ -314,7 +336,7 @@ public class TorneoApplication(
         if (request.PrecioTorneo.HasValue)
             torneo.PrecioTorneo = request.PrecioTorneo.Value;
 
-        if (request.NumeroPartidas.HasValue && torneo.FormatoTorneo != FormatoTorneoType.LIGA)
+        if (request.NumeroPartidas.HasValue && !FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
             torneo.NumeroPartidas = request.NumeroPartidas.Value;
 
         if (request.PuntosTorneo.HasValue)
@@ -350,10 +372,12 @@ public class TorneoApplication(
         if (request.ListaPorPareja.HasValue)
             torneo.ListaPorPareja = request.ListaPorPareja.Value;
 
-        // ELO e ida y vuelta deciden cómo se genera y puntúa la liga: no se cambian si ya tiene partidas
+        // ELO, ida y vuelta, grupos y reparto deciden cómo se genera y puntúa: no se cambian si ya tiene partidas
         bool cambiaElo = request.CuentaElo.HasValue && request.CuentaElo.Value != torneo.CuentaElo;
         bool cambiaVuelta = request.IdaYVuelta.HasValue && request.IdaYVuelta.Value != torneo.IdaYVuelta;
-        if (cambiaElo || cambiaVuelta)
+        bool cambiaGrupos = request.NumeroGrupos.HasValue && request.NumeroGrupos != torneo.NumeroGrupos;
+        bool cambiaReparto = request.RepartoGrupos is not null && request.RepartoGrupos != torneo.RepartoGrupos;
+        if (cambiaElo || cambiaVuelta || cambiaGrupos || cambiaReparto)
         {
             bool tienePartidas = (
                 await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(torneo.IdTorneo)
@@ -362,6 +386,24 @@ public class TorneoApplication(
                 return false;
             torneo.CuentaElo = request.CuentaElo ?? torneo.CuentaElo;
             torneo.IdaYVuelta = request.IdaYVuelta ?? torneo.IdaYVuelta;
+            torneo.NumeroGrupos = request.NumeroGrupos ?? torneo.NumeroGrupos;
+            torneo.RepartoGrupos = request.RepartoGrupos ?? torneo.RepartoGrupos;
+        }
+
+        // Clasificados, desempate y tercer puesto deciden la eliminatoria: hasta que empiece se pueden cambiar
+        bool cambiaClasificados =
+            request.ClasificadosPorGrupo.HasValue && request.ClasificadosPorGrupo != torneo.ClasificadosPorGrupo;
+        bool cambiaDesempate =
+            request.DesempateEliminatoria is not null && request.DesempateEliminatoria != torneo.DesempateEliminatoria;
+        bool cambiaTercero = request.TercerPuesto.HasValue && request.TercerPuesto != torneo.TercerPuesto;
+        if (cambiaClasificados || cambiaDesempate || cambiaTercero)
+        {
+            List<PartidaTorneo> partidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(torneo.IdTorneo);
+            if (partidas.Any(p => p.Fase is not null && p.Fase != FaseCopaType.GRUPOS))
+                return false;
+            torneo.ClasificadosPorGrupo = request.ClasificadosPorGrupo ?? torneo.ClasificadosPorGrupo;
+            torneo.DesempateEliminatoria = request.DesempateEliminatoria ?? torneo.DesempateEliminatoria;
+            torneo.TercerPuesto = request.TercerPuesto ?? torneo.TercerPuesto;
         }
 
         if (!AjustarFormato(torneo))

@@ -201,8 +201,8 @@ public class InscripcionApplication(
         UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(torneo.IdUsuario);
         if (organizador == null) return false;
 
-        // En Liga hay que elegir ejército, y las inscripciones se cierran al generarla
-        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcionTorneo.IdTorneo) == FormatoTorneoType.LIGA)
+        // En Liga y Copa hay que elegir ejército, y las inscripciones se cierran al generar las jornadas
+        if (FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcionTorneo.IdTorneo)))
         {
             if (string.IsNullOrWhiteSpace(inscripcionTorneo.EjercitoElegido)) return false;
             if (await TienePartidasAsync(inscripcionTorneo.IdTorneo)) return false;
@@ -398,15 +398,15 @@ public class InscripcionApplication(
         if (inscripcion is null)
             return (false, "La inscripción no existe.");
 
-        if (await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo) != FormatoTorneoType.LIGA)
-            return (false, "Solo en las ligas se elige ejército al inscribirse.");
+        if (!FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo)))
+            return (false, "Solo en las ligas y copas se elige ejército al inscribirse.");
 
         int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
         if (idSolicitante != inscripcion.IdUsuario && idSolicitante != idOrganizador)
             return (false, "Solo el jugador o el organizador pueden cambiar el ejército.");
 
         if (await TienePartidasAsync(inscripcion.IdTorneo))
-            return (false, "La liga ya está generada: el ejército no se puede cambiar.");
+            return (false, "Las jornadas ya están generadas: el ejército no se puede cambiar.");
 
         bool ok = await _unitOfWork.InscripcionRepository.ActualizarEjercitoElegidoAsync(
             inscripcion.IdInscripcion,
@@ -416,8 +416,8 @@ public class InscripcionApplication(
     }
 
     /// <summary>
-    /// Quitan una inscripción el propio jugador o el organizador. En una liga ya generada no: hay que retirar al
-    /// jugador, que borra también sus partidas
+    /// Quitan una inscripción el propio jugador o el organizador. En una liga o copa con las jornadas generadas no:
+    /// hay que retirar al jugador, que borra también sus partidas
     /// </summary>
     public async Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante)
     {
@@ -430,10 +430,10 @@ public class InscripcionApplication(
             return (false, "Solo el jugador o el organizador pueden quitar la inscripción.");
 
         if (
-            await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo) == FormatoTorneoType.LIGA
+            FormatoTorneoType.EsPorJornadas(await _unitOfWork.TorneoRepository.GetFormatoTorneoAsync(inscripcion.IdTorneo))
             && await TienePartidasAsync(inscripcion.IdTorneo)
         )
-            return (false, "La liga ya está generada: para que deje de jugar, retira al jugador.");
+            return (false, "Las jornadas ya están generadas: para que deje de jugar, retira al jugador.");
 
         return (true, null);
     }

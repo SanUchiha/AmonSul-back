@@ -385,6 +385,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("date")
                         .HasColumnName("Fecha_Inscripcion");
 
+                    b.Property<int?>("Grupo")
+                        .HasColumnType("int")
+                        .HasColumnName("Grupo");
+
                     b.Property<int?>("IdEquipo")
                         .HasColumnType("int")
                         .HasColumnName("Id_Equipo");
@@ -591,6 +595,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPartidaTorneo"));
 
+                    b.Property<int?>("Cruce")
+                        .HasColumnType("int")
+                        .HasColumnName("Cruce");
+
                     b.Property<string>("EjercitoCompanero1")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Ejercito_Companero1");
@@ -621,6 +629,12 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("varchar(150)")
                         .HasColumnName("Escenario_Partida");
 
+                    b.Property<string>("Fase")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Fase");
+
                     b.Property<DateOnly?>("FechaPartida")
                         .HasColumnType("date")
                         .HasColumnName("Fecha_Partida");
@@ -628,6 +642,10 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int?>("GanadorPartidaTorneo")
                         .HasColumnType("int")
                         .HasColumnName("Ganador_Partida_Torneo");
+
+                    b.Property<int?>("Grupo")
+                        .HasColumnType("int")
+                        .HasColumnName("Grupo");
 
                     b.Property<int?>("IdCompanero1")
                         .HasColumnType("int")
@@ -656,6 +674,10 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int>("IdUsuario2")
                         .HasColumnType("int")
                         .HasColumnName("ID_Usuario2");
+
+                    b.Property<int?>("IdUsuarioPasa")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Usuario_Pasa");
 
                     b.Property<bool?>("LiderMuertoUsuario1")
                         .HasColumnType("bit")
@@ -855,6 +877,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("Cartel_Torneo");
 
+                    b.Property<int?>("ClasificadosPorGrupo")
+                        .HasColumnType("int")
+                        .HasColumnName("Clasificados_Por_Grupo");
+
                     b.Property<int>("ClassificationType")
                         .HasColumnType("int")
                         .HasColumnName("Tipo_Clasificacion");
@@ -873,6 +899,12 @@ namespace AS.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("Descripcion_Torneo");
+
+                    b.Property<string>("DesempateEliminatoria")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Desempate_Eliminatoria");
 
                     b.Property<bool?>("EsMatchedPlayTorneo")
                         .HasColumnType("bit")
@@ -974,6 +1006,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("Nombre_Torneo");
 
+                    b.Property<int?>("NumeroGrupos")
+                        .HasColumnType("int")
+                        .HasColumnName("Numero_Grupos");
+
                     b.Property<int>("NumeroPartidas")
                         .HasColumnType("int")
                         .HasColumnName("Numero_Partidas");
@@ -985,6 +1021,16 @@ namespace AS.Infrastructure.Migrations
                     b.Property<int>("PuntosTorneo")
                         .HasColumnType("int")
                         .HasColumnName("Puntos_Torneo");
+
+                    b.Property<string>("RepartoGrupos")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Reparto_Grupos");
+
+                    b.Property<bool>("TercerPuesto")
+                        .HasColumnType("bit")
+                        .HasColumnName("Tercer_Puesto");
 
                     b.Property<string>("TipoTorneo")
                         .IsRequired()

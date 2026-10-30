@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net.Mail;
 using System.Text.Json;
 using AS.Application.DTOs.Email;
@@ -309,21 +309,21 @@ public class ListaApplication(
     }
 
     /// <summary>
-    /// En una liga cada jugador lleva toda la liga el ejército que eligió al inscribirse: sus listas, que puede
-    /// cambiar en cada jornada, tienen que ser de ese ejército
+    /// En una liga o copa cada jugador lleva todo el torneo el ejército que eligió al inscribirse: sus listas, que
+    /// puede cambiar en cada jornada, tienen que ser de ese ejército
     /// </summary>
     private async Task<string?> ErrorEjercitoLigaAsync(int idInscripcion, string? ejercito)
     {
         InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
         if (
-            inscripcion?.IdTorneoNavigation?.FormatoTorneo != FormatoTorneoType.LIGA
+            !FormatoTorneoType.EsPorJornadas(inscripcion?.IdTorneoNavigation?.FormatoTorneo)
             || string.IsNullOrWhiteSpace(inscripcion.EjercitoElegido)
         )
             return null;
 
         return string.Equals(ejercito?.Trim(), inscripcion.EjercitoElegido, StringComparison.OrdinalIgnoreCase)
             ? null
-            : $"En esta liga tu ejército es {inscripcion.EjercitoElegido}: la lista tiene que ser de ese ejército.";
+            : $"En este torneo tu ejército es {inscripcion.EjercitoElegido}: la lista tiene que ser de ese ejército.";
     }
 
     /// <summary>
