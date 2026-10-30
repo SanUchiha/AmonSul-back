@@ -174,16 +174,18 @@ public class TorneoController(
         return Ok(response);
     }
 
-    // Solo el organizador: lleva el correo de cada inscrito
     [HttpGet]
     [Route("Gestion/info-torneo/{idTorneo}")]
-    [ServiceFilter(typeof(AdminTorneoFilter))]
     public async Task<IActionResult> GetInfoTorneoCreado(int idTorneo)
     {
         TorneoGestionInfoDTO response = await _torneoApplication.GetInfoTorneoCreado(idTorneo);
 
         if (response == null)
             return NotFound();
+
+        // Lo usa también la pestaña Listas de las vistas en vivo: los correos, solo para el organizador
+        if (!User.TryGetIdUsuario(out int idSolicitante) || idSolicitante != response.Torneo?.IdUsuario)
+            response.Inscripciones?.ForEach(i => i.Email = null);
 
         return Ok(response);
     }
