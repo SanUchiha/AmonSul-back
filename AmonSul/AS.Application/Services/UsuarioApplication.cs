@@ -7,6 +7,7 @@ using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
+using AS.Application.Utils;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure;
@@ -520,7 +521,10 @@ public class UsuarioApplication(
             List<PartidaTorneo> partidasTorneoRaw =
                 await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneosByUsuario(idUsuario);
 
-            return _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasTorneoRaw);
+            List<ViewPartidaTorneoDTO> partidas = _mapper.Map<List<ViewPartidaTorneoDTO>>(partidasTorneoRaw);
+            // Las de eliminatoria de una copa se nombran por su ronda
+            await CuadroCopa.CompletarRondasAsync(_unitOfWork, partidas);
+            return partidas;
         }
         catch (Exception)
         {

@@ -31,6 +31,8 @@ public class ViewPartidaTorneoDTO
     // Solo en Copa: la fase y el grupo, para nombrar la partida por su grupo y jornada o por la eliminatoria
     public string? Fase { get; set; }
     public int? Grupo { get; set; }
+    // En la eliminatoria, las rondas que tiene el cuadro: con ellas se sabe si es la final, las semifinales...
+    public int? RondasEliminatoria { get; set; }
     // ELO ganado o perdido en la partida; null si no contó para el ELO o no se sabe
     public int? EloVariacionUsuario1 { get; set; }
     public int? EloVariacionUsuario2 { get; set; }

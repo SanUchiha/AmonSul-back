@@ -347,6 +347,17 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     }
 
     /// <summary>
+    /// El hueco más alto de la primera ronda del cuadro de cada copa, para saber cuántas rondas tiene. Las copas sin
+    /// eliminatoria no salen
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetMaxPosicionCuadroAsync(IReadOnlyCollection<int> idsTorneo) =>
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(i => idsTorneo.Contains(i.IdTorneo) && i.PosicionCuadro != null)
+            .GroupBy(i => i.IdTorneo)
+            .Select(g => new { IdTorneo = g.Key, Maximo = g.Max(i => i.PosicionCuadro!.Value) })
+            .ToDictionaryAsync(x => x.IdTorneo, x => x.Maximo);
+
+    /// <summary>
     /// Solo el estado, sin tocar sus partidas
     /// </summary>
     public async Task ActualizarEstadoInscripcionAsync(int idInscripcion, string estado)

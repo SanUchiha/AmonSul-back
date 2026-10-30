@@ -177,6 +177,9 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                     IdCompanero2 = p.IdCompanero2,
                     EjercitoCompanero1 = p.EjercitoCompanero1,
                     EjercitoCompanero2 = p.EjercitoCompanero2,
+                    // Solo en Copa: para nombrar la partida por su grupo y jornada o su ronda
+                    Fase = p.Fase,
+                    Grupo = p.Grupo,
                     IdCompanero1Navigation = p.IdCompanero1 == null ? null : new Usuario
                     {
                         IdUsuario = p.IdCompanero1Navigation!.IdUsuario,

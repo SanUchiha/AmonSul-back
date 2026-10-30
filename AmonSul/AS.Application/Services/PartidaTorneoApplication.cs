@@ -2,6 +2,7 @@
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.DTOs.Torneo;
 using AS.Application.Interfaces;
+using AS.Application.Utils;
 using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.DTOs.Inscripcion;
@@ -276,6 +277,9 @@ public class PartidaTorneoApplication(
                 ? variacion2
                 : null;
         }
+
+        // Las de eliminatoria de una copa se nombran por su ronda
+        await CuadroCopa.CompletarRondasAsync(_unitOfWork, response);
 
         return response;
     }
@@ -2130,6 +2134,9 @@ public class PartidaTorneoApplication(
                     partida.GanadorPartidaNick = null;
             }
         }
+        // Las de eliminatoria de una copa se nombran por su ronda
+        await CuadroCopa.CompletarRondasAsync(_unitOfWork, response);
+
         return response;
     }
 
@@ -2155,6 +2162,13 @@ public class PartidaTorneoApplication(
         );
         estaJugandoDTO.ListaPorPareja = torneo.ListaPorPareja;
         estaJugandoDTO.FormatoTorneo = torneo.FormatoTorneo;
+        if (torneo.FormatoTorneo == FormatoTorneoType.COPA)
+        {
+            Dictionary<int, int> maximos =
+                await _unitOfWork.InscripcionRepository.GetMaxPosicionCuadroAsync([torneo.IdTorneo]);
+            if (maximos.TryGetValue(torneo.IdTorneo, out int maximo))
+                estaJugandoDTO.RondasEliminatoria = CuadroCopa.Rondas(maximo);
+        }
 
         if(torneo.TipoTorneo == TorneoType.INDIVIDUAL)
         {

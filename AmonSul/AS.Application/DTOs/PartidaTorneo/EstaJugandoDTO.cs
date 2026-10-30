@@ -11,4 +11,6 @@ public class EstaJugandoDTO
     public bool ListaPorPareja { get; set; }
     // En una liga la partida se nombra por su jornada, no por la mesa
     public string? FormatoTorneo { get; set; }
+    // En una copa, las rondas que tiene el cuadro: así la partida de eliminatoria se nombra por su ronda
+    public int? RondasEliminatoria { get; set; }
 }
