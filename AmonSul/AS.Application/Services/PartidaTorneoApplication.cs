@@ -295,6 +295,9 @@ public class PartidaTorneoApplication(
 
     public async Task<bool> GenerateRound(GenerarRondaDTO generarRondaDTO)
     {
+        if (await RondaYaGeneradaAsync(generarRondaDTO.IdTorneo, generarRondaDTO.IdRonda))
+            return false;
+
         // Traer todas las inscripciones del torneo
         List<InscripcionTorneo> inscripciones =
             await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(
@@ -1339,6 +1342,14 @@ public class PartidaTorneoApplication(
         if (inscripcion1 is null || inscripcion2 is null)
             return null;
 
+        // Quien entra en la mesa deja su sitio al que sale: si no, el que entra jugaría dos partidas de la ronda y el
+        // que sale ninguna
+        Dictionary<int, int> sustituciones = [];
+        if (inscripcion1.IdUsuario != existingEntity.IdUsuario1)
+            sustituciones[inscripcion1.IdUsuario] = existingEntity.IdUsuario1;
+        if (inscripcion2.IdUsuario != existingEntity.IdUsuario2)
+            sustituciones[inscripcion2.IdUsuario] = existingEntity.IdUsuario2;
+
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
         existingEntity.EjercitoUsuario1 = EjercitoDeInscripcion(
@@ -1361,6 +1372,8 @@ public class PartidaTorneoApplication(
 
         if (response == false)
             return null;
+
+        await IntercambiarEnOtraMesaAsync(existingEntity, sustituciones, inscripciones);
 
         PartidaTorneoDTO partidaTorneoDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
         partidaTorneoDTO.Nick1 = inscripcion1.Nick;
@@ -1502,6 +1515,9 @@ public class PartidaTorneoApplication(
 
     public async Task<bool> GenerateRoundEquipos(GenerarRondaEquiposDTO request)
     {
+        if (await RondaYaGeneradaAsync(request.IdTorneo, request.IdRonda))
+            return false;
+
         // Si vienen los emparejamientos predefinidos
         if (request.EmparejamientosEquipos?.Count != 0)
         {
@@ -1673,6 +1689,9 @@ public class PartidaTorneoApplication(
 
     public async Task<bool> GenerarOtraRondaEquiposAsync(GenerarOtraRondaEquiposRequestDTO request)
     {
+        if (await RondaYaGeneradaAsync(request.IdTorneo, request.IdRonda))
+            return false;
+
         List<EquipoDTO> clasificacion = [.. request.Clasificacion];
 
         if (request.NecesitaBye && clasificacion.Count % 2 != 0)
@@ -2122,6 +2141,57 @@ public class PartidaTorneoApplication(
     /// <summary>
     /// Ejército de un jugador en una partida: el de su lista o, con varias, solo si son del mismo ejército
     /// </summary>
+    /// <summary>
+    /// Tras cambiar a mano una partida: en la otra mesa de la misma ronda donde jugaba el que entra, pasa a jugar el
+    /// que ha salido, sin resultado
+    /// </summary>
+    private async Task IntercambiarEnOtraMesaAsync(
+        PartidaTorneo editada,
+        Dictionary<int, int> sustituciones,
+        List<Usuario> inscritos
+    )
+    {
+        if (sustituciones.Count == 0 || editada.NumeroRonda is not int ronda)
+            return;
+
+        List<PartidaTorneo> deLaRonda = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoByRonda(
+            editada.IdTorneo, ronda);
+        foreach (PartidaTorneo otra in deLaRonda.Where(p =>
+            p.IdPartidaTorneo != editada.IdPartidaTorneo && p.Fase == editada.Fase && p.Grupo == editada.Grupo))
+        {
+            bool cambia = false;
+            if (sustituciones.TryGetValue(otra.IdUsuario1, out int sale1))
+            {
+                otra.IdUsuario1 = sale1;
+                otra.EjercitoUsuario1 = EjercitoDeInscripcion(
+                    inscritos.FirstOrDefault(u => u.IdUsuario == sale1)?.InscripcionTorneos.FirstOrDefault());
+                cambia = true;
+            }
+            if (sustituciones.TryGetValue(otra.IdUsuario2, out int sale2))
+            {
+                otra.IdUsuario2 = sale2;
+                otra.EjercitoUsuario2 = EjercitoDeInscripcion(
+                    inscritos.FirstOrDefault(u => u.IdUsuario == sale2)?.InscripcionTorneos.FirstOrDefault());
+                cambia = true;
+            }
+            if (!cambia)
+                continue;
+
+            otra.ResultadoUsuario1 = null;
+            otra.ResultadoUsuario2 = null;
+            otra.GanadorPartidaTorneo = null;
+            otra.PartidaValidadaUsuario1 = false;
+            otra.PartidaValidadaUsuario2 = false;
+            otra.LiderMuertoUsuario1 = null;
+            otra.LiderMuertoUsuario2 = null;
+            await _unitOfWork.PartidaTorneoRepository.Edit(otra);
+        }
+    }
+
+    // Cada ronda se genera una sola vez: volver a pulsar (o un doble toque) la duplicaba entera
+    private async Task<bool> RondaYaGeneradaAsync(int idTorneo, int ronda) =>
+        (await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(idTorneo)).Contains(ronda);
+
     private static string? EjercitoDeInscripcion(InscripcionTorneo? inscripcion)
     {
         List<Lista> listas = [.. inscripcion?.Lista ?? []];
