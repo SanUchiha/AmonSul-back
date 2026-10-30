@@ -172,6 +172,7 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     i.FechaEntregaLista,
                     i.EsPago,
                     i.IdUsuarioNavigation!.Nick,
+                    i.IdUsuarioNavigation!.Email,
                     Lista = i.Lista.FirstOrDefault()
                 }).ToList()
             })
@@ -191,8 +192,10 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     FechaEntregaLista = i.FechaEntregaLista,
                     EsPago = i.EsPago,
                     Nick = i.Nick,
+                    Email = i.Email,
                     IdLista = i.Lista != null ? i.Lista.IdLista : 0,
-                    Ejercito = i.Lista != null ? i.Lista.Ejercito ?? null : null
+                    Ejercito = i.Lista != null ? i.Lista.Ejercito ?? null : null,
+                    Bando = i.Lista != null ? i.Lista.Bando : null
                 })]
             }).ToList());
 

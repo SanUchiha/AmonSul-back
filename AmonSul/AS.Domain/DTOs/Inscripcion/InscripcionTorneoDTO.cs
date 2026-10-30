@@ -15,6 +15,10 @@ public class InscripcionTorneoDTO
     public string? Ejercito { get; set; }
     public int IdLista { get; set; }
     public string? Nick { get; set; }
+    // Solo en la gestión por equipos y únicamente para el organizador
+    public string? Email { get; set; }
+    // good o evil: el bando de su lista, si la ha entregado
+    public string? Bando { get; set; }
     public TorneoViewDTO? Torneo { get; set; }
     public int PuntosExtra { get; set; }
 }

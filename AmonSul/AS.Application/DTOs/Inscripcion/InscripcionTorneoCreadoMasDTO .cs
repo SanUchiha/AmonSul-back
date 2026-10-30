@@ -8,6 +8,8 @@ public class InscripcionTorneoCreadoMasDTO
     public int IdUsuario { get; set; }
     public int IdTorneo { get; set; }
     public string? Nick { get; set; }
+    // Solo en la gestión, que únicamente ve el organizador
+    public string? Email { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public DateOnly? FechaUltimaEntrega { get; set; }
     public string? EsPago { get; set; }
