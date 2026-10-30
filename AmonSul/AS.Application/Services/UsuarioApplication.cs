@@ -25,7 +25,6 @@ public class UsuarioApplication(
     IAccountRepository accountRepository,
     IPartidaAmistosaApplication partidaAmistosaApplication,
     IEloApplication eloApplication,
-    ITorneoApplication torneoApplication,
     IServiceProvider serviceProvider,
     IEmailApplicacion emailApplication) : IUsuarioApplication
 {
@@ -34,7 +33,6 @@ public class UsuarioApplication(
     private readonly IAccountRepository _accountRepository = accountRepository;
     private readonly IPartidaAmistosaApplication _partidaAmistosaApplication = partidaAmistosaApplication;
     private readonly IEloApplication _eloApplication = eloApplication;
-    private readonly ITorneoApplication _torneoApplication = torneoApplication;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly IEmailApplicacion _emailApplication = emailApplication;
 
@@ -197,8 +195,6 @@ public class UsuarioApplication(
         result.Elos = elos.Elos;
         result.PuntuacionElo = elos.Elos[^1].PuntuacionElo;
 
-        List<TorneoDTO> torneos = await _torneoApplication.GetTorneos();
-        
         return result;
     }
 

@@ -12,18 +12,6 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
 
-    public async Task<List<Torneo>> GetTorneos()
-    {
-        try
-        {
-            return await _dbamonsulContext.Torneos.ToListAsync();
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Ocurrio un problema en el servidor.", ex);
-        }
-    }
-
     // Próximos son los que aún no han terminado: una liga o una copa dura semanas y, ya empezada, se sigue jugando.
     // Sin fecha de fin válida (anterior al inicio) cuenta solo el inicio
     public async Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy)

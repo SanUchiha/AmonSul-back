@@ -1,6 +1,8 @@
-﻿using AS.Application.DTOs.CircuitoTorneo;
+﻿using AS.API.Extensions;
+using AS.Application.DTOs.CircuitoTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
+using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +11,30 @@ namespace AS.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CircuitosController(ICircuitoApplication circuitoApplication) : ControllerBase
+    public class CircuitosController(
+        ICircuitoApplication circuitoApplication,
+        ITorneoApplication torneoApplication
+    ) : ControllerBase
     {
         private readonly ICircuitoApplication _circuitoApplication = circuitoApplication;
+        private readonly ITorneoApplication _torneoApplication = torneoApplication;
+
+        /// <summary>
+        /// Meter o sacar un torneo de un circuito cambia su clasificación: solo el organizador del torneo o la
+        /// administración
+        /// </summary>
+        private async Task<IActionResult?> SoloOrganizadorAsync(int idTorneo)
+        {
+            if (!User.TryGetIdUsuario(out int idSolicitante))
+                return Unauthorized();
+
+            // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+            if (!ConstAdministracion.EsAdministrador(idSolicitante)
+                && !await _torneoApplication.EsOrganizadorAsync(idTorneo, idSolicitante))
+                return BadRequest("Solo el organizador del torneo puede cambiar sus circuitos.");
+
+            return null;
+        }
 
         [HttpGet]
         public async Task<List<Circuito>> Get() => await _circuitoApplication.GetAllCircuitosAsync();
@@ -59,11 +82,21 @@ namespace AS.API.Controllers
             Ok(await _circuitoApplication.GetCircuitosAsociadosATorneoAsync(idTorneo));
 
         [HttpPost]
-        public async Task<IActionResult> AddTorneoToCircuito([FromBody] CircuitoTorneoDTO circuitoTorneoDTO) =>
-            Ok(await _circuitoApplication.AddTorneoToCircuitoAsync(circuitoTorneoDTO));
+        public async Task<IActionResult> AddTorneoToCircuito([FromBody] CircuitoTorneoDTO circuitoTorneoDTO)
+        {
+            if (await SoloOrganizadorAsync(circuitoTorneoDTO.IdTorneo) is IActionResult denegado)
+                return denegado;
+
+            return Ok(await _circuitoApplication.AddTorneoToCircuitoAsync(circuitoTorneoDTO));
+        }
 
         [HttpDelete("{idCircuito}/torneo/{idTorneo}")]
-        public async Task<IActionResult> DeleteCircuitoTorneo(int idCircuito, int idTorneo) =>
-            Ok(await _circuitoApplication.DeleteCircuitoTorneoAsync(idCircuito, idTorneo));
+        public async Task<IActionResult> DeleteCircuitoTorneo(int idCircuito, int idTorneo)
+        {
+            if (await SoloOrganizadorAsync(idTorneo) is IActionResult denegado)
+                return denegado;
+
+            return Ok(await _circuitoApplication.DeleteCircuitoTorneoAsync(idCircuito, idTorneo));
+        }
     }
 }

@@ -6,7 +6,6 @@ namespace AS.Application.Interfaces;
 
 public interface ITorneoApplication
 {
-    Task<List<TorneoDTO>> GetTorneos();
     Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosProximosAsync(TorneoPaginationDTO pagination);
     Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosPasadosAsync(TorneoPaginationDTO pagination);
     Task<List<TorneoDTO>> SearchTorneosByNameAsync(string nombre);

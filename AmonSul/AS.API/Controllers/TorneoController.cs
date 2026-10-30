@@ -366,18 +366,6 @@ public class TorneoController(
     #endregion
 
     [HttpGet]
-    [Route("")]
-    public async Task<IActionResult> GetTorneos()
-    {
-        List<TorneoDTO> response = await _torneoApplication.GetTorneos();
-
-        if (response == null)
-            return NotFound();
-
-        return Ok(response);
-    }
-
-    [HttpGet]
     [Route("proximos")]
     public async Task<IActionResult> GetTorneosProximos(
         [FromQuery] int pageNumber = 1,

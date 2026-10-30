@@ -32,7 +32,12 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
     {
         try
         {
+            // Sin el bye (568), que los torneos antiguos aún guardan, y en orden de posición: los circuitos
+            // reparten puntos a las diez primeras de cada torneo
             List<Ganador> ganadores = await _dbamonsulContext.Ganador
+                .Where(g => g.IdUsuario != 568)
+                .OrderBy(g => g.IdTorneo)
+                .ThenBy(g => g.Resultado)
                 .ToListAsync();
 
             return ganadores;

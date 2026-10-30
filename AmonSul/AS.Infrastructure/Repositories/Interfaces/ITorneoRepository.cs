@@ -8,7 +8,6 @@ namespace AS.Infrastructure.Repositories.Interfaces;
 public interface ITorneoRepository
 
 {
-    Task<List<Torneo>> GetTorneos();
     Task<int> GetTorneosProximosCountAsync(DateOnly fechaHoy);
     Task<int> GetTorneosPasadosCountAsync(DateOnly fechaHoy);
     Task<List<Torneo>> GetTorneosProximosAsync(DateOnly fechaHoy, int pageNumber, int pageSize);

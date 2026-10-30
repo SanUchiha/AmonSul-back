@@ -24,13 +24,6 @@ public class TorneoApplication(
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
     private const int MAXIMO_GRUPOS = 32;
 
-    public async Task<List<TorneoDTO>> GetTorneos()
-    {
-        List<Torneo> response = await _unitOfWork.TorneoRepository.GetTorneos();
-
-        return _mapper.Map<List<TorneoDTO>>(response);
-    }
-
     public async Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosProximosAsync(
         TorneoPaginationDTO pagination
     )
