@@ -38,7 +38,7 @@ public class PartidaTorneoApplication(
         Torneo torneo = 
             await _unitOfWork.TorneoRepository.GetById(addPairingTorneoDTO.IdTorneo);
 
-        partida.FechaPartida = torneo.FechaInicioTorneo;
+        partida.FechaPartida = FechaDeRonda(torneo);
 
         // Los ejércitos de sus listas y, por equipos, el equipo de cada uno para que cuente en la clasificación
         List<InscripcionTorneo> inscripciones =
@@ -158,8 +158,17 @@ public class PartidaTorneoApplication(
         if (request.LiderMuertoUsuario2.HasValue)
             existingEntity.LiderMuertoUsuario2 = request.LiderMuertoUsuario2.Value;
 
-        if (request.FechaPartida is null)
-            existingEntity.FechaPartida = DateOnly.FromDateTime(DateTime.Now);
+        // La fecha no depende de lo que mande el front: sin ella en el JSON el DTO trae hoy, y las tarjetas de partida
+        // mandan null. En ligas y copas el calendario es abierto: al guardar el resultado desde la partida lleva el día
+        // en que se juega. En un torneo lleva el de su ronda: corregirlo días después no se la cambia
+        Torneo? torneoDeLaPartida = await _unitOfWork.TorneoRepository.GetTipoYModoListas(existingEntity.IdTorneo);
+        if (FormatoTorneoType.EsPorJornadas(torneoDeLaPartida?.FormatoTorneo))
+        {
+            if (request.FechaPartida is null || existingEntity.FechaPartida is null)
+                existingEntity.FechaPartida = DateOnly.FromDateTime(DateTime.Now);
+        }
+        else if (torneoDeLaPartida is not null)
+            existingEntity.FechaPartida ??= FechaDeRonda(torneoDeLaPartida);
 
         if(request.EjercitoUsuario1 is not null)
             existingEntity.EjercitoUsuario1 = request.EjercitoUsuario1;
@@ -561,7 +570,7 @@ public class PartidaTorneoApplication(
                 IdTorneo = generarRondaDTO.IdTorneo,
                 IdUsuario1 = item.Jugador1.IdUsuario,
                 IdUsuario2 = item.Jugador2.IdUsuario,
-                FechaPartida = torneo.FechaInicioTorneo,
+                FechaPartida = FechaDeRonda(torneo),
                 NumeroRonda = generarRondaDTO.IdRonda,
                 EsElo = generarRondaDTO.EsEloCheck,
                 EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
@@ -682,7 +691,7 @@ public class PartidaTorneoApplication(
                 IdTorneo = generarRondaDTO.IdTorneo,
                 IdUsuario1 = item.Jugador1.IdUsuario,
                 IdUsuario2 = item.Jugador2.IdUsuario,
-                FechaPartida = torneo.FechaInicioTorneo,
+                FechaPartida = FechaDeRonda(torneo),
                 NumeroRonda = generarRondaDTO.IdRonda,
                 EsElo = generarRondaDTO.EsEloCheck,
                 EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
@@ -939,7 +948,7 @@ public class PartidaTorneoApplication(
                 IdTorneo = generarRondaDTO.IdTorneo,
                 IdUsuario1 = item.Jugador1.IdUsuario,
                 IdUsuario2 = item.Jugador2.IdUsuario,
-                FechaPartida = torneo.FechaInicioTorneo,
+                FechaPartida = FechaDeRonda(torneo),
                 NumeroRonda = generarRondaDTO.IdRonda,
                 EsElo = generarRondaDTO.EsEloCheck,
                 EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
@@ -1237,7 +1246,7 @@ public class PartidaTorneoApplication(
                     IdTorneo = generarRondaDTO.IdTorneo,
                     IdUsuario1 = item.Jugador1.IdUsuario,
                     IdUsuario2 = item.Jugador2.IdUsuario,
-                    FechaPartida = torneo.FechaInicioTorneo,
+                    FechaPartida = FechaDeRonda(torneo),
                     NumeroRonda = generarRondaDTO.IdRonda,
                     EsElo = generarRondaDTO.EsEloCheck,
                     EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
@@ -1284,7 +1293,7 @@ public class PartidaTorneoApplication(
                     IdTorneo = generarRondaDTO.IdTorneo,
                     IdUsuario1 = item.Jugador1.IdUsuario,
                     IdUsuario2 = item.Jugador2.IdUsuario,
-                    FechaPartida = torneo.FechaInicioTorneo,
+                    FechaPartida = FechaDeRonda(torneo),
                     NumeroRonda = generarRondaDTO.IdRonda,
                     EsElo = generarRondaDTO.EsEloCheck,
                     EsMatchedPlayPartida = torneo.EsMatchedPlayTorneo,
@@ -1605,10 +1614,12 @@ public class PartidaTorneoApplication(
                 request.IdTorneo,
                 request.IdRonda,
                 [.. emparejamientos.Select(e => (e.Equipo1.IdEquipo, e.Equipo2.IdEquipo))],
-                torneo.ListaPorPareja
+                torneo.ListaPorPareja,
+                FechaDeRonda(torneo)
             );
 
         Dictionary<int, string?> ejercitos = await EjercitosDelTorneoAsync(request.IdTorneo);
+        DateOnly? fecha = torneo is null ? null : FechaDeRonda(torneo);
         List<PartidaTorneo> partidas = [];
 
         foreach (EmparejamientoEquiposDTO emparejamiento in emparejamientos)
@@ -1646,7 +1657,7 @@ public class PartidaTorneoApplication(
                         IdEquipo2 = emparejamiento.Equipo2.IdEquipo,
                         PartidaValidadaUsuario1 = false,
                         PartidaValidadaUsuario2 = false,
-                        FechaPartida = DateOnly.FromDateTime(DateTime.UtcNow),
+                        FechaPartida = fecha,
                     }
                 );
             }
@@ -1772,10 +1783,12 @@ public class PartidaTorneoApplication(
                 request.IdTorneo,
                 request.IdRonda,
                 emparejamientos,
-                torneo.ListaPorPareja
+                torneo.ListaPorPareja,
+                FechaDeRonda(torneo)
             );
 
         Dictionary<int, string?> ejercitos = await EjercitosDelTorneoAsync(request.IdTorneo);
+        DateOnly? fecha = torneo is null ? null : FechaDeRonda(torneo);
         List<PartidaTorneo> partidas = [];
 
         foreach ((int equipo1, int equipo2) in emparejamientos)
@@ -1810,6 +1823,7 @@ public class PartidaTorneoApplication(
                         IdEquipo2 = equipo2,
                         PartidaValidadaUsuario1 = false,
                         PartidaValidadaUsuario2 = false,
+                        FechaPartida = fecha,
                     }
                 );
             }
@@ -1916,7 +1930,8 @@ public class PartidaTorneoApplication(
         int idTorneo,
         int idRonda,
         List<(int idEquipo1, int idEquipo2)> emparejamientos,
-        bool listaPorPareja
+        bool listaPorPareja,
+        DateOnly fecha
     )
     {
         List<PartidaTorneo> partidas = [];
@@ -1933,7 +1948,7 @@ public class PartidaTorneoApplication(
             {
                 IdTorneo = idTorneo,
                 NumeroRonda = idRonda,
-                FechaPartida = DateOnly.FromDateTime(DateTime.UtcNow),
+                FechaPartida = fecha,
             };
             AsignarParejas(partida, pareja1.Value, pareja2.Value);
             partidas.Add(partida);
@@ -2087,6 +2102,18 @@ public class PartidaTorneoApplication(
     /// El ejército de cada jugador del torneo según sus listas. Las rondas por equipos no se fían del que traiga el
     /// emparejamiento: el sorteo automático de la primera ronda lo dejaba siempre vacío
     /// </summary>
+    /// <summary>
+    /// El día de una ronda: hoy, sin salirse de los días del torneo. Una ronda generada antes del torneo lleva el
+    /// primero, para que salga en Partidas de hoy el día que se juega
+    /// </summary>
+    private static DateOnly FechaDeRonda(Torneo torneo)
+    {
+        DateOnly hoy = DateOnly.FromDateTime(DateTime.Now);
+        DateOnly fin = torneo.FechaFinTorneo < torneo.FechaInicioTorneo ? torneo.FechaInicioTorneo : torneo.FechaFinTorneo;
+        if (hoy < torneo.FechaInicioTorneo) return torneo.FechaInicioTorneo;
+        return hoy > fin ? fin : hoy;
+    }
+
     private async Task<Dictionary<int, string?>> EjercitosDelTorneoAsync(int idTorneo) =>
         (await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo))
             .GroupBy(i => i.IdUsuario)

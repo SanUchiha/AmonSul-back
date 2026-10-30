@@ -129,6 +129,9 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 TipoTorneo = t.TipoTorneo,
                 ListaPorPareja = t.ListaPorPareja,
                 FormatoTorneo = t.FormatoTorneo,
+                // Para fechar las rondas que se generan
+                FechaInicioTorneo = t.FechaInicioTorneo,
+                FechaFinTorneo = t.FechaFinTorneo,
             })
             .FirstOrDefaultAsync();
 
