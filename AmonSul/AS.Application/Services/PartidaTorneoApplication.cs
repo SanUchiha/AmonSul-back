@@ -1604,6 +1604,7 @@ public class PartidaTorneoApplication(
                 torneo.ListaPorPareja
             );
 
+        Dictionary<int, string?> ejercitos = await EjercitosDelTorneoAsync(request.IdTorneo);
         List<PartidaTorneo> partidas = [];
 
         foreach (EmparejamientoEquiposDTO emparejamiento in emparejamientos)
@@ -1634,8 +1635,8 @@ public class PartidaTorneoApplication(
                         IdTorneo = request.IdTorneo,
                         IdUsuario1 = jugador1.IdUsuario,
                         IdUsuario2 = jugador2.IdUsuario,
-                        EjercitoUsuario1 = jugador1.Ejercito,
-                        EjercitoUsuario2 = jugador2.Ejercito,
+                        EjercitoUsuario1 = ejercitos.GetValueOrDefault(jugador1.IdUsuario) ?? jugador1.Ejercito,
+                        EjercitoUsuario2 = ejercitos.GetValueOrDefault(jugador2.IdUsuario) ?? jugador2.Ejercito,
                         NumeroRonda = request.IdRonda,
                         IdEquipo1 = emparejamiento.Equipo1.IdEquipo,
                         IdEquipo2 = emparejamiento.Equipo2.IdEquipo,
@@ -1770,6 +1771,7 @@ public class PartidaTorneoApplication(
                 torneo.ListaPorPareja
             );
 
+        Dictionary<int, string?> ejercitos = await EjercitosDelTorneoAsync(request.IdTorneo);
         List<PartidaTorneo> partidas = [];
 
         foreach ((int equipo1, int equipo2) in emparejamientos)
@@ -1797,8 +1799,8 @@ public class PartidaTorneoApplication(
                         IdTorneo = request.IdTorneo,
                         IdUsuario1 = jugador1.IdUsuario,
                         IdUsuario2 = jugador2.IdUsuario,
-                        EjercitoUsuario1 = jugador1.Ejercito,
-                        EjercitoUsuario2 = jugador2.Ejercito,
+                        EjercitoUsuario1 = ejercitos.GetValueOrDefault(jugador1.IdUsuario) ?? jugador1.Ejercito,
+                        EjercitoUsuario2 = ejercitos.GetValueOrDefault(jugador2.IdUsuario) ?? jugador2.Ejercito,
                         NumeroRonda = request.IdRonda,
                         IdEquipo1 = equipo1,
                         IdEquipo2 = equipo2,
@@ -2076,6 +2078,15 @@ public class PartidaTorneoApplication(
 
         return true;
     }
+
+    /// <summary>
+    /// El ejército de cada jugador del torneo según sus listas. Las rondas por equipos no se fían del que traiga el
+    /// emparejamiento: el sorteo automático de la primera ronda lo dejaba siempre vacío
+    /// </summary>
+    private async Task<Dictionary<int, string?>> EjercitosDelTorneoAsync(int idTorneo) =>
+        (await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo))
+            .GroupBy(i => i.IdUsuario)
+            .ToDictionary(g => g.Key, g => EjercitoDeInscripcion(g.First()));
 
     /// <summary>
     /// Ejército de un jugador en una partida: el de su lista o, con varias, solo si son del mismo ejército

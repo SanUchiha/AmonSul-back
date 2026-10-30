@@ -28,6 +28,9 @@ public class ViewPartidaTorneoDTO
     public bool? MostrarListas { get; set; }
     // En una liga la partida se nombra por su jornada
     public string? FormatoTorneo { get; set; }
+    // Solo en Copa: la fase y el grupo, para nombrar la partida por su grupo y jornada o por la eliminatoria
+    public string? Fase { get; set; }
+    public int? Grupo { get; set; }
     // ELO ganado o perdido en la partida; null si no contó para el ELO o no se sabe
     public int? EloVariacionUsuario1 { get; set; }
     public int? EloVariacionUsuario2 { get; set; }
