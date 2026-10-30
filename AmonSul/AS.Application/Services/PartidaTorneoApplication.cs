@@ -2102,6 +2102,7 @@ public class PartidaTorneoApplication(
             partidas[0].IdTorneo
         );
         estaJugandoDTO.ListaPorPareja = torneo.ListaPorPareja;
+        estaJugandoDTO.FormatoTorneo = torneo.FormatoTorneo;
 
         if(torneo.TipoTorneo == TorneoType.INDIVIDUAL)
         {
