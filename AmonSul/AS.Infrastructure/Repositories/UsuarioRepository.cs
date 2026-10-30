@@ -404,6 +404,16 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         }
     }
 
+    /// <summary>
+    /// De esos correos, los de quien no quiere recibir avisos
+    /// </summary>
+    public async Task<List<string>> GetEmailsSinNotificacionesAsync(IReadOnlyCollection<string> emails) =>
+        await _dbamonsulContext.Usuarios
+            .AsNoTracking()
+            .Where(u => !u.PermiteNotificaciones && emails.Contains(u.Email))
+            .Select(u => u.Email)
+            .ToListAsync();
+
     public async Task<Usuario> GetByIdFast(int idUsuario) =>
         await _dbamonsulContext.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario)
         ?? throw new Exception("Usuario no encontrado");

@@ -76,6 +76,7 @@ public class UsuarioApplication(
         usuario.IdFaccion = editarUsuarioDTO.IdFaccion ?? usuario.IdFaccion;
         usuario.Telefono = editarUsuarioDTO.Telefono ?? usuario.Telefono;
         usuario.Imagen = editarUsuarioDTO.Imagen ?? usuario.Imagen;
+        usuario.PermiteNotificaciones = editarUsuarioDTO.PermiteNotificaciones ?? usuario.PermiteNotificaciones;
 
         bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
         return result;

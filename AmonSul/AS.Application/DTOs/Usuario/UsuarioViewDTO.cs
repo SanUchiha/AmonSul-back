@@ -15,4 +15,5 @@ public class UsuarioViewDTO
     public string? Telefono { get; set; }
     public string? NickLGDA { get; set; }
     public string? Imagen { get; set; }
+    public bool PermiteNotificaciones { get; set; }
 }

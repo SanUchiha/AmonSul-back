@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.PartidaAmistosa;
+﻿using AS.API.Extensions;
+using AS.Application.DTOs.PartidaAmistosa;
 using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Usuario;
@@ -228,6 +229,12 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("editar")]
     public async Task<IActionResult> Edit([FromBody] EditarUsuarioDTO request)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        // Cada uno solo edita su perfil. 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (idSolicitante != request.IdUsuario)
+            return BadRequest("Solo puedes modificar tu propio perfil.");
+
         try
         {
             bool response = await _usuarioApplication.EditAsync(request);

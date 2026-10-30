@@ -6,13 +6,32 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 using AS.Utils.Constantes;
+using AS.Infrastructure.Repositories.Interfaces;
 
 namespace AS.Application.Services;
 
 public class EmailApplication(
-    IOptions<EmailSettings> emailSettings): IEmailApplicacion
+    IOptions<EmailSettings> emailSettings,
+    IUnitOfWork unitOfWork): IEmailApplicacion
 {
     private readonly EmailSettings _emailSettings = emailSettings.Value;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+    /// <summary>
+    /// Quita a quien ha desactivado los avisos en su perfil
+    /// </summary>
+    private async Task<List<string>> ConNotificacionesAsync(List<string> destinatarios)
+    {
+        if (destinatarios.Count == 0) return destinatarios;
+
+        HashSet<string> sinNotificaciones = new(
+            await _unitOfWork.UsuarioRepository.GetEmailsSinNotificacionesAsync(destinatarios),
+            StringComparer.OrdinalIgnoreCase);
+        return [.. destinatarios.Where(email => !sinNotificaciones.Contains(email))];
+    }
+
+    private async Task<bool> PermiteNotificacionesAsync(string? email) =>
+        !string.IsNullOrWhiteSpace(email) && (await ConNotificacionesAsync([email])).Count > 0;
 
     public async Task SendEmailContacto(EmailContactoDTO request)
     {
@@ -49,6 +68,8 @@ public class EmailApplication(
 
     public async Task SendEmailModificacionLista(EmailListaDTO request)
     {
+        if (!await PermiteNotificacionesAsync(request.EmailTo)) return;
+
         try
         {
             var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
@@ -102,6 +123,8 @@ public class EmailApplication(
 
     public async Task SendEmailModificacionPago(EmailPagoDTO request)
     {
+        if (!await PermiteNotificacionesAsync(request.EmailTo)) return;
+
         try
         {
             SmtpClient client = new(_emailSettings.SmtpServer, _emailSettings.Port)
@@ -275,6 +298,10 @@ public class EmailApplication(
         string templateBody, 
         string asunto)
     {
+        // Se mira al enviar, no al encolar: cuenta también quien los desactiva con el correo ya en cola
+        destinatarios = await ConNotificacionesAsync(destinatarios);
+        if (destinatarios.Count == 0) return;
+
         using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
         {
             EnableSsl = _emailSettings.EnableSsl,
@@ -313,6 +340,8 @@ public class EmailApplication(
 
     public async Task SendEmailOrganizadorEnvioListaTorneo(EmailContactoDTO request)
     {
+        if (!await PermiteNotificacionesAsync(request.Email)) return;
+
         try
         {
             var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
@@ -364,6 +393,8 @@ public class EmailApplication(
 
     public async Task SendEmailOrganizadorNuevoRegistro(EmailContactoDTO request)
     {
+        if (!await PermiteNotificacionesAsync(request.Email)) return;
+
         try
         {
             var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
@@ -435,6 +466,8 @@ public class EmailApplication(
 
     public async Task SendEmailRegistroTorneo(EmailContactoDTO request)
     {
+        if (!await PermiteNotificacionesAsync(request.Email)) return;
+
         try
         {
             var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)

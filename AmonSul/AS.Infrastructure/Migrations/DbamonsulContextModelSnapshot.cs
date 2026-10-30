@@ -1112,6 +1112,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("Nombre_Usuario");
 
+                    b.Property<bool>("PermiteNotificaciones")
+                        .HasColumnType("bit")
+                        .HasColumnName("Permite_Notificaciones");
+
                     b.Property<string>("PrimerApellido")
                         .IsRequired()
                         .HasMaxLength(50)

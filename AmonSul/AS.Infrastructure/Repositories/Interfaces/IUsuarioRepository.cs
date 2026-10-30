@@ -21,6 +21,7 @@ public interface IUsuarioRepository
 
     Task<UsuarioEmailDto> GetEmailNickById(int id);
     Task<List<string>> GetAllEmail();
+    Task<List<string>> GetEmailsSinNotificacionesAsync(IReadOnlyCollection<string> emails);
     Task<List<Usuario>> GetUsuariosByIds(List<int> usuarioIds);
     Task<string> GetComunidadNameByIdUser(int idUser);
     Task<List<UsersElosDTO>> GetAllUserWithElo();

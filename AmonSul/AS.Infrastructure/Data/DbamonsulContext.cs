@@ -537,6 +537,10 @@ public partial class DbamonsulContext : DbContext
                 .HasMaxLength(50);
             entity.Property(e => e.Imagen)
                .HasColumnType("text");
+            // Sin HasDefaultValue: con un bool EF no mandaría el false al insertar. El 1 por defecto
+            // para los usuarios que ya existían lo pone la migración
+            entity.Property(e => e.PermiteNotificaciones)
+                .HasColumnName("Permite_Notificaciones");
 
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)
