@@ -293,6 +293,33 @@ public class EmailApplication(
                 EnviarCorreoAsync(items, templateBody, ConstEmailMessage.MESSAGE_COPA_GENERADA_ASUNTO));
     }
 
+    /// <summary>
+    /// Un correo a todos los usuarios, por lotes con copia oculta como el de nuevo torneo. Con soloAlUsuario, solo a
+    /// ese usuario y al momento, para verlo antes de mandarlo a todos. Devuelve a cuántos va
+    /// </summary>
+    public async Task<int> SendEmailNovedadesAsync(string asunto, string html, int? soloAlUsuario)
+    {
+        List<string> destinatarios = soloAlUsuario is int idUsuario
+            ? [(await _unitOfWork.UsuarioRepository.GetUsuarioSoloById(idUsuario)).Email]
+            : await _unitOfWork.UsuarioRepository.GetAllEmail();
+
+        List<string> emailsExcluidos = _emailSettings.EmailsExcluidos;
+        destinatarios =
+            [.. destinatarios
+                .Where(email => !string.IsNullOrWhiteSpace(email) && !emailsExcluidos.Contains(email))
+                .Distinct(StringComparer.OrdinalIgnoreCase)];
+        // Para el recuento ya sin quien ha desactivado los avisos; EnviarCorreoAsync lo vuelve a mirar al enviar
+        destinatarios = await ConNotificacionesAsync(destinatarios);
+
+        if (soloAlUsuario is not null)
+            await EnviarCorreoAsync(destinatarios, html, asunto);
+        else
+            foreach (List<string> lote in destinatarios.Chunk(5).Select(c => c.ToList()))
+                BackgroundJob.Enqueue(() => EnviarCorreoAsync(lote, html, asunto));
+
+        return destinatarios.Count;
+    }
+
     public async Task EnviarCorreoAsync(
         List<string> destinatarios, 
         string templateBody, 
