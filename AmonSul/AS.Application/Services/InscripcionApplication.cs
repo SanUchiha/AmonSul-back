@@ -174,7 +174,7 @@ public class InscripcionApplication(
 
     public async Task<List<InscripcionUsuarioIndividualDTO>> GetInscripcionesByTorneo(int idTorneo)
     {
-        List<InscripcionTorneo> insc = await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo);
+        List<InscripcionTorneo> insc = await _unitOfWork.InscripcionRepository.GetInscripcionesParaMostrarAsync(idTorneo);
 
         return _mapper.Map<List<InscripcionUsuarioIndividualDTO>>(insc);
     }

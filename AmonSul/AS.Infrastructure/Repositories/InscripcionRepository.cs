@@ -269,6 +269,31 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .Where(it => it.IdTorneo == idTorneo) // Filtra por el torneo
             .ToListAsync();
 
+    /// <summary>
+    /// Solo para leer: el usuario, con su nick y su correo y sin la foto de perfil, que en algunos pesa megas y se
+    /// cargaba en cada vista en vivo. Sin seguimiento: guardar estas entidades borraría los datos que no traen
+    /// </summary>
+    public async Task<List<InscripcionTorneo>> GetInscripcionesParaMostrarAsync(int idTorneo)
+    {
+        List<InscripcionTorneo> inscripciones = await _dbamonsulContext.InscripcionTorneos
+            .AsNoTracking()
+            .Include(it => it.Lista)
+            .Where(it => it.IdTorneo == idTorneo)
+            .ToListAsync();
+
+        List<int> idsUsuario = [.. inscripciones.Select(i => i.IdUsuario).Distinct()];
+        Dictionary<int, Usuario> usuarios = await _dbamonsulContext.Usuarios
+            .AsNoTracking()
+            .Where(u => idsUsuario.Contains(u.IdUsuario))
+            .Select(u => new Usuario { IdUsuario = u.IdUsuario, Nick = u.Nick, Email = u.Email })
+            .ToDictionaryAsync(u => u.IdUsuario);
+
+        foreach (InscripcionTorneo inscripcion in inscripciones)
+            inscripcion.IdUsuarioNavigation = usuarios.GetValueOrDefault(inscripcion.IdUsuario);
+
+        return inscripciones;
+    }
+
     public async Task<List<InscripcionTorneo>> GetInscripcionesEquipoByUser(int idUsuario) => 
         await _dbamonsulContext.InscripcionTorneos
                 .Include(it => it.IdTorneoNavigation)

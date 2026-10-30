@@ -254,7 +254,7 @@ public class TorneoApplication(
     public async Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo)
     {
         List<InscripcionTorneo> inscripciones =
-            await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(IdTorneo);
+            await _unitOfWork.InscripcionRepository.GetInscripcionesParaMostrarAsync(IdTorneo);
 
         Torneo torneo =
             await _unitOfWork.TorneoRepository.GetById(IdTorneo)
@@ -477,7 +477,7 @@ public class TorneoApplication(
     public async Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo)
     {
         List<InscripcionTorneo> inscripciones =
-            await _unitOfWork.InscripcionRepository.GetInscripcionesByTorneo(idTorneo);
+            await _unitOfWork.InscripcionRepository.GetInscripcionesParaMostrarAsync(idTorneo);
 
         Torneo torneo =
             await _unitOfWork.TorneoRepository.GetById(idTorneo)

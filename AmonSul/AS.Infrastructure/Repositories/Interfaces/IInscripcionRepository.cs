@@ -10,6 +10,7 @@ public interface IInscripcionRepository
     Task<List<InscripcionTorneo>> GetInscripciones();
     Task<List<InscripcionTorneo>> GetInscripcionesIndividualByUser(int idUsuario);
     Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo);
+    Task<List<InscripcionTorneo>> GetInscripcionesParaMostrarAsync(int idTorneo);
     Task<InscripcionTorneo> GetInscripcionById(int Id);
     Task<InscripcionTorneo?> GetTorneoYUsuario(int idInscripcion);
     Task<InscripcionTorneo> Delete(int id);
