@@ -8,6 +8,8 @@ public class InscripcionTorneoCreadoDTO
     public int IdLista { get; set; }
     public int IdEquipo { get; set; }
     public string? Nick { get; set; }
+    // Solo en la gestión, que únicamente ve el organizador: para escribir a cada inscrito
+    public string? Email { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public string? Ejercito { get; set; }
     public string? EstadoLista { get; set; }

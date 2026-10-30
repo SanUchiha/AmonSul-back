@@ -285,6 +285,7 @@ public class TorneoApplication(
         for (int i = 0; i < inscripciones.Count; i++)
         {
             inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
+            inscripcionesDTO[i].Email = inscripciones[i].IdUsuarioNavigation?.Email;
             inscripcionesDTO[i].FechaEntrega = inscripciones[i].FechaEntregaLista;
 
             if (inscripciones[i].Lista.Count > 0)
