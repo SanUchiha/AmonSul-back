@@ -317,7 +317,11 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return true;
     }
 
-    public async Task<bool> ActualizarEstadoInscripcionAsync(int idInscripcion, string? estado)
+    /// <summary>
+    /// Borra todas las partidas del jugador en el torneo y cambia el estado de su inscripción en un solo guardado,
+    /// para que no quede a medias si algo falla
+    /// </summary>
+    public async Task<bool> RetirarAsync(int idInscripcion, string estado)
     {
         InscripcionTorneo? inscripcion = await _dbamonsulContext.InscripcionTorneos.FirstOrDefaultAsync(i =>
             i.IdInscripcion == idInscripcion
@@ -325,6 +329,14 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         if (inscripcion is null)
             return false;
 
+        List<PartidaTorneo> partidas = await _dbamonsulContext
+            .PartidaTorneos.Where(p =>
+                p.IdTorneo == inscripcion.IdTorneo
+                && (p.IdUsuario1 == inscripcion.IdUsuario || p.IdUsuario2 == inscripcion.IdUsuario)
+            )
+            .ToListAsync();
+
+        _dbamonsulContext.PartidaTorneos.RemoveRange(partidas);
         inscripcion.EstadoInscripcion = estado;
         await _dbamonsulContext.SaveChangesAsync();
         return true;

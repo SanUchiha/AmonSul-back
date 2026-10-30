@@ -24,7 +24,7 @@ public interface IPartidaTorneoRepository
 
     Task<bool> Delete(int idPartida);
     Task<bool> DeleteRonda(int idTorneo, int idRonda);
-    Task<int> DeletePartidasAsync(int idTorneo, int? idUsuario = null);
+    Task<int> DeletePartidasAsync(int idTorneo);
     Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
     Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(

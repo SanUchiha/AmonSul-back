@@ -126,8 +126,7 @@ public class LigaApplication(IUnitOfWork unitOfWork, IEmailApplicacion emailAppl
         if (await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(idTorneo))
             return (false, "La liga ya está cerrada: tiene los resultados guardados.");
 
-        await _unitOfWork.PartidaTorneoRepository.DeletePartidasAsync(idTorneo, inscripcion.IdUsuario);
-        await _unitOfWork.InscripcionRepository.ActualizarEstadoInscripcionAsync(idInscripcion, ESTADO_RETIRADO);
+        await _unitOfWork.InscripcionRepository.RetirarAsync(idInscripcion, ESTADO_RETIRADO);
         return (true, null);
     }
 
