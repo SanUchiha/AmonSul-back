@@ -473,6 +473,8 @@ public class UsuarioApplication(
             string rawPass = registrarUsuarioDTO.Contraseña;
             registrarUsuarioDTO.Contraseña = Contrasenas.Cifrar(registrarUsuarioDTO.Contraseña);
             Usuario usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
+            // Ha aceptado la política al registrarse: no hace falta volver a pedírsela
+            usuario.ProteccionDatos = registrarUsuarioDTO.AceptaPrivacidad;
             bool rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 
             LoginDTO loginDTO = new()

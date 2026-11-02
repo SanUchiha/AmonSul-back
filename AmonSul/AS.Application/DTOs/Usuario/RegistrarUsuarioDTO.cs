@@ -15,4 +15,6 @@ public class RegistrarUsuarioDTO
     public string? Telefono { get; set; }
     public string? NickLGDA { get; set; }
     public string? Imagen { get; set; }
+    // Obligatorio: sin aceptar la política de privacidad no se registra
+    public bool AceptaPrivacidad { get; set; }
 }

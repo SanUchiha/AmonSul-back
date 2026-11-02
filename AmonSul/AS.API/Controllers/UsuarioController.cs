@@ -36,11 +36,20 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
         EsAdministracion()
         || string.Equals(User.FindFirst(ClaimTypes.Email)?.Value?.Trim(), email.Trim(), StringComparison.OrdinalIgnoreCase);
 
+    private const int EDAD_MINIMA = 14;
+
     [HttpPost]
     [AllowAnonymous]
     [Route("Registrar")]
     public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDTO registrarUsuarioDTO)
     {
+        if (!registrarUsuarioDTO.AceptaPrivacidad)
+            return BadRequest(new { message = "Tienes que aceptar la política de privacidad." });
+
+        // Art. 7 LOPDGDD: con menos de 14 años hace falta el consentimiento de los padres
+        if (registrarUsuarioDTO.FechaNacimiento > DateOnly.FromDateTime(DateTime.Today).AddYears(-EDAD_MINIMA))
+            return BadRequest(new { message = $"Necesitas tener al menos {EDAD_MINIMA} años para registrarte." });
+
         try
         {
             var response = await _usuarioApplication.Register(registrarUsuarioDTO);
