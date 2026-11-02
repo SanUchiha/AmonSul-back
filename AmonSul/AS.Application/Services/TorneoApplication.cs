@@ -25,6 +25,9 @@ public class TorneoApplication(
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
     private readonly ICircuitoApplication _circuitoApplication = circuitoApplication;
     private const int MAXIMO_GRUPOS = 32;
+    // Los de las columnas de la BD: más largo, el guardado falla
+    private const int MAXIMO_NOMBRE = 200;
+    private const int MAXIMO_LUGAR = 200;
 
     public async Task<TorneoPagedResultDTO<TorneoDTO>> GetTorneosProximosAsync(
         TorneoPaginationDTO pagination
@@ -109,26 +112,55 @@ public class TorneoApplication(
             return true;
     }
 
-    public async Task<bool> Register(CrearTorneoDTO request)
+    /// <summary>
+    /// Crea el evento. Si no se puede, dice por qué; si se crea pero las bases no se pueden guardar, lo avisa
+    /// </summary>
+    public async Task<(bool Ok, string? Error, string? Aviso)> Register(CrearTorneoDTO request)
     {
         Torneo torneo = _mapper.Map<Torneo>(request);
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
-        if (!AjustarFormato(torneo))
-            return false;
+        if (AjustarFormato(torneo) is string errorFormato)
+            return (false, errorFormato, null);
         // Las jornadas salen al generar la liga o los grupos de la copa, según los inscritos
         if (FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
             torneo.NumeroPartidas = 1;
         AjustarModoListas(torneo);
 
-        ResultTorneoCreadoDTO torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
+        if (torneo.NombreTorneo.Length > MAXIMO_NOMBRE)
+            return (false, $"El nombre no puede pasar de {MAXIMO_NOMBRE} caracteres.", null);
+        if (torneo.LugarTorneo?.Length > MAXIMO_LUGAR)
+            return (false, $"La dirección no puede pasar de {MAXIMO_LUGAR} caracteres.", null);
+
+        ResultTorneoCreadoDTO torneoCreado;
+        try
+        {
+            torneoCreado = await _unitOfWork.TorneoRepository.Register(torneo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return (false, "No se ha podido guardar por un error del servidor. Inténtalo de nuevo en un rato y, si sigue fallando, escríbenos desde Contacto.", null);
+        }
 
         if (!torneoCreado.HasCreated)
-            return false;
+            return (false, "No se ha podido guardar. Inténtalo de nuevo en un rato.", null);
 
+        // El evento ya está creado: si las bases fallan, se avisa, pero no se deshace
+        string? aviso = null;
         if (!string.IsNullOrEmpty(request.BasesTorneo))
-            await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
+        {
+            try
+            {
+                await GuardarBasesEnPDFAsync(request.BasesTorneo, request.NombreTorneo!);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                aviso = "Se ha creado, pero no se han podido guardar las bases: súbelas desde la gestión del evento.";
+            }
+        }
 
         if (!torneo.NombreTorneo.Contains("test"))
         {
@@ -145,19 +177,19 @@ public class TorneoApplication(
 
         await _circuitoApplication.AsociarAmonSulAsync(torneoCreado.IdTorneo, torneo.FechaInicioTorneo);
 
-        return torneoCreado.HasCreated;
+        return (true, null, aviso);
     }
 
     /// <summary>
     /// Liga y Copa son individuales y con una lista por jugador; ELO e ida y vuelta solo existen en ellas, y los
-    /// grupos y la eliminatoria solo en la Copa
+    /// grupos y la eliminatoria solo en la Copa. Devuelve por qué no vale, o null si vale
     /// </summary>
-    private static bool AjustarFormato(Torneo torneo)
+    private static string? AjustarFormato(Torneo torneo)
     {
         if (string.IsNullOrWhiteSpace(torneo.FormatoTorneo))
             torneo.FormatoTorneo = FormatoTorneoType.SUIZO;
         if (!FormatoTorneoType.EsValido(torneo.FormatoTorneo))
-            return false;
+            return "El tipo de evento no es válido.";
 
         if (FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
         {
@@ -177,7 +209,7 @@ public class TorneoApplication(
             torneo.RepartoGrupos = null;
             torneo.DesempateEliminatoria = null;
             torneo.TercerPuesto = false;
-            return true;
+            return null;
         }
 
         torneo.NumeroGrupos ??= 2;
@@ -185,11 +217,17 @@ public class TorneoApplication(
         torneo.RepartoGrupos ??= RepartoGruposType.ELO;
         torneo.DesempateEliminatoria ??= DesempateEliminatoriaType.GRUPOS;
         // Al menos dos en la eliminatoria, y grupos con sentido
-        return torneo.NumeroGrupos is >= 1 and <= MAXIMO_GRUPOS
-            && torneo.ClasificadosPorGrupo >= 1
-            && torneo.NumeroGrupos * torneo.ClasificadosPorGrupo >= 2
-            && RepartoGruposType.EsValido(torneo.RepartoGrupos)
-            && DesempateEliminatoriaType.EsValido(torneo.DesempateEliminatoria);
+        if (torneo.NumeroGrupos is not (>= 1 and <= MAXIMO_GRUPOS))
+            return $"El número de grupos tiene que estar entre 1 y {MAXIMO_GRUPOS}.";
+        if (torneo.ClasificadosPorGrupo < 1)
+            return "De cada grupo tiene que pasar al menos un jugador.";
+        if (torneo.NumeroGrupos * torneo.ClasificadosPorGrupo < 2)
+            return "A la eliminatoria tienen que pasar al menos dos jugadores: con un solo grupo, que pasen dos o más.";
+        if (!RepartoGruposType.EsValido(torneo.RepartoGrupos))
+            return "El reparto de los grupos no es válido.";
+        if (!DesempateEliminatoriaType.EsValido(torneo.DesempateEliminatoria))
+            return "El desempate de la eliminatoria no es válido.";
+        return null;
     }
 
     /// <summary>
@@ -394,7 +432,7 @@ public class TorneoApplication(
             torneo.TercerPuesto = request.TercerPuesto ?? torneo.TercerPuesto;
         }
 
-        if (!AjustarFormato(torneo))
+        if (AjustarFormato(torneo) is not null)
             return false;
         AjustarModoListas(torneo);
 

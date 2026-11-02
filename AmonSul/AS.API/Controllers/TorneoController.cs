@@ -430,12 +430,13 @@ public class TorneoController(
         // El organizador es quien lo crea, no quien diga la petición
         request.IdUsuario = idSolicitante;
 
-        bool response = await _torneoApplication.Register(request);
+        // 400 y no 500 con el motivo: el interceptor del front manda a la página de error con un 500 y se perdería
+        // todo lo rellenado
+        var (ok, error, aviso) = await _torneoApplication.Register(request);
+        if (!ok)
+            return BadRequest(new { message = error });
 
-        if (response == false)
-            return BadRequest("No se ha podido crear el torneo");
-
-        return Created(string.Empty, "El torneo ha sido creada con éxito");
+        return Created(string.Empty, new { message = "Creado", aviso });
     }
 
     [HttpGet]
