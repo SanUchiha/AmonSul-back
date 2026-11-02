@@ -279,10 +279,6 @@ public class InscripcionApplication(
 
         inscripcionEquipoDTO.IdOrganizador= await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcionEquipoDTO.IdTorneo);
 
-        UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcionEquipoDTO.IdOrganizador);
-
-        inscripcionEquipoDTO.EmailOrganizador = organizador.Email;
-
         return inscripcionEquipoDTO;
     }
 

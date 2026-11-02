@@ -240,8 +240,18 @@ public class InscripcionController(
     [HttpGet("Equipo/{idInscripcion}")]
     public async Task<ActionResult<List<InscripcionUsuarioEquipoDTO>>> GetInscripcionEquipo(int idInscripcion)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
         InscripcionEquipoDTO inscripcionEquipoDTO =
             await _inscripcionApplication.GetInscripcionEquipo(idInscripcion);
+
+        // Solo los miembros del equipo, el organizador y la administración. 400 y no 403: el interceptor del front
+        // manda a la página de error con cualquier 403
+        if (!inscripcionEquipoDTO.ComponentesEquipoDTO.Any(c => c.IdUsuario == idSolicitante)
+            && inscripcionEquipoDTO.IdOrganizador != idSolicitante
+            && !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo pueden verla los miembros del equipo y el organizador.");
 
         return Ok(inscripcionEquipoDTO);
     }
