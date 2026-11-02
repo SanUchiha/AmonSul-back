@@ -163,8 +163,10 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
     {
         try
         {
+            // Sin las cuentas borradas: ya no son jugadores, solo nombres en resultados antiguos
             return await _dbamonsulContext.Usuarios
                 .AsNoTracking()
+                .Where(u => !u.Email.EndsWith("@" + DOMINIO_BORRADOS))
                 .Select(u => new Usuario
                 {
                     IdUsuario = u.IdUsuario,
