@@ -448,11 +448,11 @@ public class UsuarioApplication(
         enviados.Valor++;
 
         var (enlace, hash) = Contrasenas.NuevoEnlace();
-        bool existe = await _unitOfWork.UsuarioRepository
-            .GuardarEnlaceContrasenaAsync(correo, hash, DateTime.UtcNow + VALIDEZ_ENLACE);
+        DateTime caducidad = DateTime.UtcNow + VALIDEZ_ENLACE;
+        bool existe = await _unitOfWork.UsuarioRepository.GuardarEnlaceContrasenaAsync(correo, hash, caducidad);
         if (!existe) return;
 
-        await _emailApplication.SendEmailEnlaceContrasena(correo, $"{ConstFront.URL}/restablecer-contrasena?token={enlace}");
+        await _emailApplication.SendEmailEnlaceContrasena(correo, $"{ConstFront.URL}/restablecer-contrasena?token={enlace}", caducidad);
     }
 
     public async Task<bool> RestablecerContrasena(string enlace, string nuevaContrasena)

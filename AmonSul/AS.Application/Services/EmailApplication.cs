@@ -544,8 +544,12 @@ public class EmailApplication(
         }
     }
 
-    public async Task SendEmailEnlaceContrasena(string email, string enlace)
+    public async Task SendEmailEnlaceContrasena(string email, string enlace, DateTime caducidadUtc)
     {
+        // La hora va en el asunto: así cada correo es distinto y Gmail no lo esconde dentro del anterior,
+        // que con un enlace nuevo ya no vale
+        string hasta = HoraDeEspana(caducidadUtc).ToString("HH:mm");
+
         try
         {
             var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
@@ -558,7 +562,7 @@ public class EmailApplication(
             using var mailMessage = new MailMessage
             {
                 From = new MailAddress(_emailSettings.From),
-                Subject = "Elige una contraseña nueva",
+                Subject = $"Elige una contraseña nueva (vale hasta las {hasta})",
                 Body = $@"
                 <html>
                 <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
@@ -570,7 +574,10 @@ public class EmailApplication(
                             Elegir una contraseña nueva
                         </a>
                     </p>
-                    <p>El enlace vale durante 1 hora y solo se puede usar una vez.</p>
+                    <p>
+                        El enlace vale hasta las {hasta} (hora de España) y solo se puede usar una vez.
+                        Si pides otro, este deja de valer: usa siempre el del último correo.
+                    </p>
                     <p>
                         Si no lo has pedido tú, ignora este correo: tu contraseña no ha cambiado y nadie puede
                         cambiarla sin este enlace.
@@ -622,5 +629,15 @@ public class EmailApplication(
                 templateBody,
                 ConstEmailMessage.MESSAGE_BIENVENIDA_ASUNTO));
         }
+    }
+
+    private static DateTime HoraDeEspana(DateTime utc)
+    {
+        foreach (string zona in new[] { "Romance Standard Time", "Europe/Madrid" })
+        {
+            try { return TimeZoneInfo.ConvertTimeFromUtc(utc, TimeZoneInfo.FindSystemTimeZoneById(zona)); }
+            catch (TimeZoneNotFoundException) { }
+        }
+        return utc;
     }
 }
