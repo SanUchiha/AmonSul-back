@@ -33,9 +33,27 @@ jobs:
         env:
           JWT_KEY: ${{ secrets.JWT_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        # Los avisos van como anotaciones (::notice:: y ::error::), que se leen sin entrar en GitHub. Nunca con valores
         run: |
           $ruta = "AmonSul/AS.API/appsettings.json"
-          $config = Get-Content $ruta -Raw | ConvertFrom-Json
+          try {
+            $config = Get-Content $ruta -Raw | ConvertFrom-Json -ErrorAction Stop
+          } catch {
+            Write-Output "::error::APPSETTINGS_JSON no es un JSON válido: revisa comas y comillas al editarlo."
+            exit 1
+          }
+          $secciones = ($config.PSObject.Properties.Name) -join ", "
+          $jwt = if ($env:JWT_KEY) { "presente" } else { "vacío o sin acceso" }
+          $correo = if ($env:EMAIL_PASSWORD) { "presente" } else { "vacío o sin acceso" }
+          Write-Output "::notice::JWT_KEY: $jwt. EMAIL_PASSWORD: $correo. Secciones de APPSETTINGS_JSON: $secciones."
+
+          if (-not $config.EmailSettings) {
+            Write-Output "::error::Falta la sección EmailSettings en APPSETTINGS_JSON: deja la sección con el campo Password vacío."
+            exit 1
+          }
+          if (-not $config.Jwt) {
+            $config | Add-Member -NotePropertyName Jwt -NotePropertyValue ([pscustomobject]@{}) -Force
+          }
           if ($env:JWT_KEY) {
             $config.Jwt | Add-Member -NotePropertyName key -NotePropertyValue $env:JWT_KEY -Force
           }
@@ -43,8 +61,13 @@ jobs:
             $config.EmailSettings | Add-Member -NotePropertyName Password -NotePropertyValue $env:EMAIL_PASSWORD -Force
           }
           # Sin clave de firma el back no arranca: mejor parar aquí que desplegar algo roto
-          if (-not $config.Jwt.key) { throw "Falta la clave JWT: crea el secreto JWT_KEY." }
-          if (-not $config.EmailSettings.Password) { Write-Warning "Sin contraseña de correo: no se enviarán correos." }
+          if (-not $config.Jwt.key) {
+            Write-Output "::error::Falta la clave JWT: crea el secreto de repositorio JWT_KEY en Settings, Secrets and variables, Actions."
+            exit 1
+          }
+          if (-not $config.EmailSettings.Password) {
+            Write-Output "::warning::Sin contraseña de correo: no se enviarán correos."
+          }
           $config | ConvertTo-Json -Depth 20 | Set-Content $ruta -Encoding utf8NoBOM
         shell: pwsh
 
