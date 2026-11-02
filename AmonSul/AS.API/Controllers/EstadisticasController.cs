@@ -18,7 +18,7 @@ public class EstadisticasController(IEstadisticasApplication estadisticasApplica
     // Los filtros que no se entienden se rechazan con su motivo, en vez de ignorarlos en silencio
     private static string? ErrorDeFiltro(FiltroEstadisticasDTO filtro)
     {
-        if (!string.IsNullOrEmpty(filtro.Tramo) && !Tramos.Contains(filtro.Tramo))
+        if (filtro.Tramos?.Any(t => !Tramos.Contains(t)) == true)
             return "El tramo de puntos no existe.";
         if (!string.IsNullOrEmpty(filtro.Bando) && !Bandos.Contains(filtro.Bando))
             return "El bando debe ser good o evil.";

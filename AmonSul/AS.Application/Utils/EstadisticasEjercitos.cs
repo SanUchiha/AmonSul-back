@@ -207,10 +207,14 @@ internal static class EstadisticasEjercitos
 
     // Las amistosas no son torneos: solo cuentan la temporada y los puntos
     internal static IEnumerable<Participacion> Filtrar(IEnumerable<Participacion> participaciones, FiltroEstadisticasDTO filtro) =>
-        participaciones.Where(p =>
-            (filtro.Temporada is null || p.Temporada == filtro.Temporada)
-            && (string.IsNullOrEmpty(filtro.Tramo) || p.Tramo == filtro.Tramo)
-        );
+        participaciones.Where(p => EnTemporadas(filtro, p.Temporada) && EnTramos(filtro, p.Tramo));
+
+    // Sin ninguna elegida valen todas
+    private static bool EnTemporadas(FiltroEstadisticasDTO filtro, int temporada) =>
+        filtro.Temporadas is not { Count: > 0 } || filtro.Temporadas.Contains(temporada);
+
+    private static bool EnTramos(FiltroEstadisticasDTO filtro, string? tramo) =>
+        filtro.Tramos is not { Count: > 0 } || (tramo is not null && filtro.Tramos.Contains(tramo));
 
     private static T ConTorneos<T>(T fila, IEnumerable<Participacion> participaciones)
         where T : EjercitoBalanceDTO
@@ -228,9 +232,7 @@ internal static class EstadisticasEjercitos
 
     internal static IEnumerable<Partida> Filtrar(IEnumerable<Partida> partidas, FiltroEstadisticasDTO filtro) =>
         partidas.Where(p =>
-            (filtro.Amistosas || !p.Origen.EsAmistosa)
-            && (filtro.Temporada is null || p.Temporada == filtro.Temporada)
-            && (string.IsNullOrEmpty(filtro.Tramo) || p.Tramo == filtro.Tramo)
+            (filtro.Amistosas || !p.Origen.EsAmistosa) && EnTemporadas(filtro, p.Temporada) && EnTramos(filtro, p.Tramo)
         );
 
     // Los dos lados de cada partida, sin las espejo
