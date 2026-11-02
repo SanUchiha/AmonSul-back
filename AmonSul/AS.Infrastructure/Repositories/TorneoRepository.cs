@@ -217,6 +217,8 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 TipoTorneo = t.TipoTorneo,
                 ListasPorJugador = t.ListasPorJugador,
                 FormatoTorneo = t.FormatoTorneo,
+                FechaInicioTorneo = t.FechaInicioTorneo,
+                FechaFinTorneo = t.FechaFinTorneo,
             })
             .ToListAsync();
 

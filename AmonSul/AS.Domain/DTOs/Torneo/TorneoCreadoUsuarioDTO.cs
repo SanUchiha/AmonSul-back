@@ -9,4 +9,7 @@ public class TorneoCreadoUsuarioDTO
     public int ListasPorJugador { get; set; }
     // Decide a qué vista de gestión se va
     public string FormatoTorneo { get; set; } = null!;
+    // Para separar los próximos y en curso de los terminados
+    public DateOnly FechaInicioTorneo { get; set; }
+    public DateOnly FechaFinTorneo { get; set; }
 }
