@@ -501,6 +501,8 @@ public class UsuarioApplication(
             Usuario usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
             // Ha aceptado la política al registrarse: no hace falta volver a pedírsela
             usuario.ProteccionDatos = registrarUsuarioDTO.AceptaPrivacidad;
+            // La pone el servidor: la web nunca la mandaba y se guardaba 01/01/0001
+            usuario.FechaRegistro = DateOnly.FromDateTime(DateTime.Today);
             bool rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 
             LoginDTO loginDTO = new()
