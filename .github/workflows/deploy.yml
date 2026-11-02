@@ -27,6 +27,27 @@ jobs:
           echo '${{ secrets.APPSETTINGS_JSON }}' > AmonSul/AS.API/appsettings.json
         shell: pwsh
 
+      # La clave JWT y la contraseña del correo, cada una en su propio secreto: así no están en APPSETTINGS_JSON
+      # ni en el appsettings.json de nadie. Solo pisan el valor si el secreto existe
+      - name: Inject secrets
+        env:
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: |
+          $ruta = "AmonSul/AS.API/appsettings.json"
+          $config = Get-Content $ruta -Raw | ConvertFrom-Json
+          if ($env:JWT_KEY) {
+            $config.Jwt | Add-Member -NotePropertyName key -NotePropertyValue $env:JWT_KEY -Force
+          }
+          if ($env:EMAIL_PASSWORD) {
+            $config.EmailSettings | Add-Member -NotePropertyName Password -NotePropertyValue $env:EMAIL_PASSWORD -Force
+          }
+          # Sin clave de firma el back no arranca: mejor parar aquí que desplegar algo roto
+          if (-not $config.Jwt.key) { throw "Falta la clave JWT: crea el secreto JWT_KEY." }
+          if (-not $config.EmailSettings.Password) { Write-Warning "Sin contraseña de correo: no se enviarán correos." }
+          $config | ConvertTo-Json -Depth 20 | Set-Content $ruta -Encoding utf8NoBOM
+        shell: pwsh
+
       - name: Publish
         run: dotnet publish AmonSul/AS.API/AS.API.csproj -c Release -o publish
 
