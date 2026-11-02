@@ -31,6 +31,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCircuito"));
 
+                    b.Property<DateOnly>("FechaCreacion")
+                        .HasColumnType("date")
+                        .HasColumnName("Fecha_Creacion");
+
                     b.Property<int?>("IdUsuario")
                         .HasColumnType("int")
                         .HasColumnName("Id_Usuario");

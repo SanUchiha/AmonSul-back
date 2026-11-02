@@ -590,6 +590,7 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Id_Circuito")
                 .IsRequired();
             entity.Property(e => e.IdUsuario).HasColumnName("Id_Usuario");
+            entity.Property(e => e.FechaCreacion).HasColumnName("Fecha_Creacion");
 
             // Si se borra la cuenta de quien lo creó, el circuito sigue, sin creador
             entity.HasOne<Usuario>().WithMany()

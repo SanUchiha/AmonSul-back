@@ -53,7 +53,13 @@ public class CircuitoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ICirc
 
         // Si otra petición lo crea a la vez, este no se guarda y se usa el suyo
         await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(
-            new Circuito { NombreCircuito = nombre, IdUsuario = ConstCircuitoAmonSul.IdUsuarioCreador });
+            new Circuito
+            {
+                NombreCircuito = nombre,
+                IdUsuario = ConstCircuitoAmonSul.IdUsuarioCreador,
+                // El de su año, aunque se cree antes (al crear un evento del año siguiente)
+                FechaCreacion = new DateOnly(anio, 1, 1),
+            });
         return (await _unitOfWork.CircuitoRepository.GetCircuitoByNombreAsync(nombre))!;
     }
 
@@ -81,7 +87,12 @@ public class CircuitoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ICirc
     /// </summary>
     public async Task<Circuito?> CrearCircuitoAsync(string nombre, int idUsuario)
     {
-        Circuito circuito = new() { NombreCircuito = nombre, IdUsuario = idUsuario };
+        Circuito circuito = new()
+        {
+            NombreCircuito = nombre,
+            IdUsuario = idUsuario,
+            FechaCreacion = DateOnly.FromDateTime(DateTime.Today),
+        };
         return await _unitOfWork.CircuitoRepository.CrearCircuitoAsync(circuito) ? circuito : null;
     }
 

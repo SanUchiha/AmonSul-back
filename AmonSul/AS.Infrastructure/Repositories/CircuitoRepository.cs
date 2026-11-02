@@ -35,31 +35,26 @@ public class CircuitoRepository(DbamonsulContext dbamonsulContext) : ICircuitoRe
     public async Task<List<Circuito>> GetAllCircuitosAsync() => 
         await _dbamonsulContext.Circuito.ToListAsync();
 
-    // Para la lista: los años en que empiezan sus eventos y cuántos son. En dos consultas que se juntan aquí:
-    // EF no sabe traducir la lista de años dentro de la de circuitos
+    // Para la lista: cuántos eventos tiene cada circuito. En dos consultas que se juntan aquí, como las demás
+    // listas con recuentos
     public async Task<List<CircuitoListadoDTO>> GetCircuitosParaListadoAsync()
     {
         var circuitos = await _dbamonsulContext.Circuito
             .AsNoTracking()
-            .Select(c => new { c.IdCircuito, c.NombreCircuito, c.IdUsuario })
+            .Select(c => new { c.IdCircuito, c.NombreCircuito, c.IdUsuario, c.FechaCreacion })
             .ToListAsync();
-        var eventos = await _dbamonsulContext.CircuitoTorneo
-            .AsNoTracking()
-            .Select(ct => new { ct.IdCircuito, Anio = ct.Torneo!.FechaInicioTorneo.Year })
-            .ToListAsync();
-        var porCircuito = eventos.GroupBy(e => e.IdCircuito).ToDictionary(g => g.Key, g => g.Select(e => e.Anio).ToList());
+        Dictionary<int, int> eventos = await _dbamonsulContext.CircuitoTorneo
+            .GroupBy(ct => ct.IdCircuito)
+            .Select(g => new { IdCircuito = g.Key, Total = g.Count() })
+            .ToDictionaryAsync(g => g.IdCircuito, g => g.Total);
 
-        return [.. circuitos.Select(c =>
+        return [.. circuitos.Select(c => new CircuitoListadoDTO
         {
-            List<int> anios = porCircuito.GetValueOrDefault(c.IdCircuito) ?? [];
-            return new CircuitoListadoDTO
-            {
-                IdCircuito = c.IdCircuito,
-                NombreCircuito = c.NombreCircuito,
-                IdUsuario = c.IdUsuario,
-                Anios = [.. anios.Distinct().Order()],
-                NumeroEventos = anios.Count,
-            };
+            IdCircuito = c.IdCircuito,
+            NombreCircuito = c.NombreCircuito,
+            IdUsuario = c.IdUsuario,
+            FechaCreacion = c.FechaCreacion,
+            NumeroEventos = eventos.GetValueOrDefault(c.IdCircuito),
         })];
     }
 
