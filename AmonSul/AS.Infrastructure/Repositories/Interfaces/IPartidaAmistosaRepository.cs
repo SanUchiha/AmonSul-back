@@ -1,10 +1,12 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
 public interface IPartidaAmistosaRepository
 {
     Task<List<PartidaAmistosa>> GetPartidasAmistosas();
+    Task<List<PartidaEstadisticaDTO>> GetParaEstadisticasAsync();
     Task<PartidaAmistosa> GetById(int Id);
     Task<List<PartidaAmistosa>> GetPartidaAmistosasByUsuario(string email);
     Task<List<PartidaAmistosa>> GetPartidaAmistosasUsuarioById(int idUsuario);

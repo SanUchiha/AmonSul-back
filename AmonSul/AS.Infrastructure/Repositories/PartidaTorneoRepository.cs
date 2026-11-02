@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Estadisticas;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 using AS.Domain.Types.Torneo;
@@ -29,6 +30,42 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
     /// <summary>
     /// Sin las partidas a Parejas: dos ejércitos por lado no sirven para comparar ejércitos uno contra uno
     /// </summary>
+    /// <summary>
+    /// Para las estadísticas de ejércitos: las validadas por los dos, con los dos ejércitos y sin el bye. Sin Parejas,
+    /// que son 2 contra 2
+    /// </summary>
+    public async Task<List<PartidaEstadisticaDTO>> GetParaEstadisticasAsync() =>
+        await _dbamonsulContext
+            .PartidaTorneos.AsNoTracking()
+            .Where(p =>
+                p.IdTorneoNavigation!.TipoTorneo != TorneoType.PAREJAS
+                && p.PartidaValidadaUsuario1 == true
+                && p.PartidaValidadaUsuario2 == true
+                && p.EjercitoUsuario1 != null && p.EjercitoUsuario1 != ""
+                && p.EjercitoUsuario2 != null && p.EjercitoUsuario2 != ""
+                && p.IdUsuario1 != 568 && p.IdUsuario2 != 568
+            )
+            .Select(p => new PartidaEstadisticaDTO
+            {
+                IdPartida = p.IdPartidaTorneo,
+                EsAmistosa = false,
+                IdTorneo = p.IdTorneo,
+                NombreTorneo = p.IdTorneoNavigation!.NombreTorneo,
+                Ronda = p.NumeroRonda,
+                Fecha = p.FechaPartida ?? p.IdTorneoNavigation.FechaInicioTorneo,
+                Puntos = p.PuntosPartida ?? p.IdTorneoNavigation.PuntosTorneo,
+                IdUsuario1 = p.IdUsuario1,
+                IdUsuario2 = p.IdUsuario2,
+                Ejercito1 = p.EjercitoUsuario1!,
+                Ejercito2 = p.EjercitoUsuario2!,
+                Resultado1 = p.ResultadoUsuario1 ?? 0,
+                Resultado2 = p.ResultadoUsuario2 ?? 0,
+                Ganador = p.GanadorPartidaTorneo,
+                General1 = p.LiderMuertoUsuario1 == true,
+                General2 = p.LiderMuertoUsuario2 == true,
+            })
+            .ToListAsync();
+
     public async Task<List<PartidaTorneo>> GetAllSinParejasAsync() =>
         await _dbamonsulContext
             .PartidaTorneos.AsNoTracking()

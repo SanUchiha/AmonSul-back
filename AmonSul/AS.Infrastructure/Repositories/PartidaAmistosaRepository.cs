@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.Models;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,36 @@ namespace AS.Infrastructure.Repositories;
 public class PartidaAmistosaRepository(DbamonsulContext dbamonsulContext) : IPartidaAmistosaRepository
 {
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
+
+    /// <summary>
+    /// Para las estadísticas de ejércitos: las validadas por los dos y con los dos ejércitos
+    /// </summary>
+    public async Task<List<PartidaEstadisticaDTO>> GetParaEstadisticasAsync() =>
+        await _dbamonsulContext
+            .PartidaAmistosas.AsNoTracking()
+            .Where(p =>
+                p.PartidaValidadaUsuario1 == true
+                && p.PartidaValidadaUsuario2 == true
+                && p.IdUsuario1 != null && p.IdUsuario2 != null
+                && p.FechaPartida != null
+                && p.EjercitoUsuario1 != null && p.EjercitoUsuario1 != ""
+                && p.EjercitoUsuario2 != null && p.EjercitoUsuario2 != ""
+            )
+            .Select(p => new PartidaEstadisticaDTO
+            {
+                IdPartida = p.IdPartidaAmistosa,
+                EsAmistosa = true,
+                Fecha = p.FechaPartida!.Value,
+                Puntos = p.PuntosPartida,
+                IdUsuario1 = p.IdUsuario1!.Value,
+                IdUsuario2 = p.IdUsuario2!.Value,
+                Ejercito1 = p.EjercitoUsuario1!,
+                Ejercito2 = p.EjercitoUsuario2!,
+                Resultado1 = p.ResultadoUsuario1 ?? 0,
+                Resultado2 = p.ResultadoUsuario2 ?? 0,
+                Ganador = p.GanadorPartida,
+            })
+            .ToListAsync();
 
     public async Task<List<PartidaAmistosa>> GetPartidasAmistosas()
     {

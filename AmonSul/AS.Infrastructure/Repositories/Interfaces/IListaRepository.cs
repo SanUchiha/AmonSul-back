@@ -1,4 +1,5 @@
-﻿using AS.Domain.DTOs.Lista;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
 
@@ -7,6 +8,7 @@ namespace AS.Infrastructure.Repositories.Interfaces;
 public interface IListaRepository
 {
     Task<List<Lista>> GetListas();
+    Task<List<EjercitoBandoDTO>> GetBandosPorEjercitoAsync();
     Task<List<Lista>> GetListasByUser(int idUsuario);
     Task<List<Lista>> GetListasByTorneo(int idTorneo);
     Task<Lista> GetListaInscripcionById(int IdInscripcion);

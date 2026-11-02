@@ -1,4 +1,5 @@
-﻿using AS.Domain.DTOs.Lista;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.DTOs.Lista;
@@ -71,6 +72,17 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
                 || l.IdInscripcionNavigation.IdTorneoNavigation!.MostrarListas
                 || l.IdInscripcionNavigation.IdTorneoNavigation.IdUsuario == idUsuarioSolicitante
             )
+            .ToListAsync();
+
+    /// <summary>
+    /// Con qué bando se ha entregado cada ejército y cuántas veces, sin cargar las listas
+    /// </summary>
+    public async Task<List<EjercitoBandoDTO>> GetBandosPorEjercitoAsync() =>
+        await _dbamonsulContext
+            .Listas.AsNoTracking()
+            .Where(l => l.Ejercito != null && l.Ejercito != "" && l.Bando != null && l.Bando != "")
+            .GroupBy(l => new { l.Ejercito, l.Bando })
+            .Select(g => new EjercitoBandoDTO { Ejercito = g.Key.Ejercito!, Bando = g.Key.Bando!, Listas = g.Count() })
             .ToListAsync();
 
     public async Task<List<Lista>> GetListas()

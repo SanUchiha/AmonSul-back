@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Estadisticas;
 using AS.Domain.Models;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -162,6 +163,22 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
             })
             .ToListAsync();
     }
+
+    /// <summary>
+    /// Todo el historial de ELO, solo lo necesario para saber el ELO de cada jugador en una fecha
+    /// </summary>
+    public async Task<List<EloFechaDTO>> GetHistorialAsync() =>
+        await _dbamonsulContext.Elos
+            .AsNoTracking()
+            .Where(e => e.IdUsuario != null && e.PuntuacionElo != null)
+            .Select(e => new EloFechaDTO
+            {
+                IdElo = e.IdElo,
+                IdUsuario = e.IdUsuario!.Value,
+                Elo = e.PuntuacionElo!.Value,
+                Fecha = e.FechaElo,
+            })
+            .ToListAsync();
 
     /// <summary>
     /// De las partidas dadas, las que ya tienen alguna fila de ELO

@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Estadisticas;
 using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
@@ -17,6 +18,7 @@ public interface IEloRepository
     Task<List<EloVariacionPartidaDTO>> GetVariacionesByPartidas(List<int> idsPartidaTorneo);
     Task<List<Elo>> GetByPartidaAsync(int idPartidaTorneo);
     Task<HashSet<int>> GetPartidasConEloAsync(List<int> idsPartidaTorneo);
+    Task<List<EloFechaDTO>> GetHistorialAsync();
     Task<int> GetUltimoEloAsync(int idUsuario);
     Task<int> GetEloAnteriorAsync(int idUsuario, int idElo);
     Task DesplazarPosterioresAsync(int idUsuario, int idElo, int diferencia);

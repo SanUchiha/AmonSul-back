@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Elos;
+using AS.Domain.DTOs.Estadisticas;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
 
@@ -16,6 +17,7 @@ public interface IPartidaTorneoRepository
     Task<List<PartidaTorneo>> GetPartidasTorneoByUsuarioAsync(int idTorneo, int idUsuario); // Todas las partidas de un torneo de un jugador
     Task<List<PartidaTorneo>> GetAllAsync();
     Task<List<PartidaTorneo>> GetAllSinParejasAsync(); // Para estadísticas de ejércitos
+    Task<List<PartidaEstadisticaDTO>> GetParaEstadisticasAsync(); // Validadas, con ejércitos, sin bye ni Parejas
     Task<List<PartidaTorneo>> GetByFechaAsync(DateTime fecha);
 
     Task<bool> Edit(PartidaTorneo partidaTorneo);
