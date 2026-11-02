@@ -173,7 +173,8 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
                     i.EsPago,
                     i.PuntosExtra,
                     i.IdUsuarioNavigation!.Nick,
-                    i.IdUsuarioNavigation!.Email,
+                    // Solo si el jugador lo comparte con el organizador
+                    Email = i.CompartirEmail == true ? i.IdUsuarioNavigation!.Email : null,
                     Lista = i.Lista.FirstOrDefault()
                 }).ToList()
             })
@@ -334,6 +335,12 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
     /// <summary>
     /// Solo el ejército elegido: Update marcaría también el torneo cargado y lo reescribiría entero
     /// </summary>
+    // Solo en una inscripción del propio jugador: false si no es suya o no existe
+    public async Task<bool> CambiarCompartirEmailAsync(int idInscripcion, int idUsuario, bool compartirEmail) =>
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdInscripcion == idInscripcion && i.IdUsuario == idUsuario)
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.CompartirEmail, compartirEmail)) > 0;
+
     public async Task<bool> ActualizarEjercitoElegidoAsync(int idInscripcion, string ejercito)
     {
         InscripcionTorneo? inscripcion = await _dbamonsulContext.InscripcionTorneos.FirstOrDefaultAsync(i =>

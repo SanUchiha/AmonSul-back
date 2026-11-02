@@ -359,6 +359,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdInscripcion"));
 
+                    b.Property<bool?>("CompartirEmail")
+                        .HasColumnType("bit")
+                        .HasColumnName("Compartir_Email");
+
                     b.Property<string>("EjercitoElegido")
                         .HasMaxLength(100)
                         .IsUnicode(false)

@@ -20,6 +20,7 @@ public interface IInscripcionApplication
     Task<bool> EsCapitanUOrganizadorDeEquipoAsync(int idEquipo, int idSolicitante);
     Task<bool> Register(CrearInscripcionDTO inscripcionTorneo);
     Task<(bool Ok, string? Error)> CambiarEjercitoElegidoAsync(CambiarEjercitoElegidoDTO request, int idSolicitante);
+    Task<bool> CambiarCompartirEmailAsync(CambiarCompartirEmailDTO request, int idSolicitante);
 
     Task<bool> CambiarEstadoPago(ActualizarEstadoPago actualizarEstadoPago);
     Task<bool> CambiarEstadoLista(ActualizarEstadoLista actualizarEstadoLista);

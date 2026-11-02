@@ -12,5 +12,7 @@ public class InscripcionEquipoDTO
     public required string NombreEquipo { get; set; }
     public DateOnly? FechaInscripcion { get; set; }
     public string? EsPago { get; set; }
+    // El de esta inscripción: si su jugador deja que el organizador vea su correo
+    public bool? CompartirEmail { get; set; }
     public List<ComponentesEquipoDTO> ComponentesEquipoDTO { get; set; } = [];
 }

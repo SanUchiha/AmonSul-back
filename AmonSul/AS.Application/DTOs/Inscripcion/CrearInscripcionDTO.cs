@@ -9,4 +9,6 @@ public class CrearInscripcionDTO
     public string EsPago { get; set; } = "NO";
     // Solo en Liga, obligatorio: el ejército que lleva toda la liga
     public string? EjercitoElegido { get; set; }
+    // Si deja que el organizador vea su correo. Solo cuenta si se inscribe él mismo
+    public bool? CompartirEmail { get; set; }
 }

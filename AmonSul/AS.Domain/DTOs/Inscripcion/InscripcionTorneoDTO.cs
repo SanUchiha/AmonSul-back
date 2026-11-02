@@ -21,4 +21,5 @@ public class InscripcionTorneoDTO
     public string? Bando { get; set; }
     public TorneoViewDTO? Torneo { get; set; }
     public int PuntosExtra { get; set; }
+    public bool? CompartirEmail { get; set; }
 }

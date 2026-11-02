@@ -22,6 +22,7 @@ public interface IInscripcionRepository
 
     Task<bool> Update(InscripcionTorneo actualizarEstadoInscripcion);
     Task<bool> ActualizarEjercitoElegidoAsync(int idInscripcion, string ejercito);
+    Task<bool> CambiarCompartirEmailAsync(int idInscripcion, int idUsuario, bool compartirEmail);
     Task<bool> RetirarAsync(int idInscripcion, string estado);
     Task ActualizarGruposAsync(IReadOnlyDictionary<int, int> grupoPorInscripcion);
     Task ActualizarPosicionesCuadroAsync(int idTorneo, IReadOnlyDictionary<int, int> posicionPorInscripcion);

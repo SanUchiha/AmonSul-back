@@ -143,10 +143,16 @@ public class InscripcionApplication(
         };
 
         InscripcionTorneo inscripcionCapitan = _mapper.Map<InscripcionTorneo>(crearInscripcionEquipoCapitanDTO);
+        inscripcionCapitan.CompartirEmail = createEquipoDTO.CompartirEmail;
         ResultInscripcionTorneoDTO result = await _unitOfWork.InscripcionRepository.Register(inscripcionCapitan);
 
         return result.Result;
     }
+
+    // Solo el propio jugador decide si el organizador ve su correo
+    public async Task<bool> CambiarCompartirEmailAsync(CambiarCompartirEmailDTO request, int idSolicitante) =>
+        await _unitOfWork.InscripcionRepository.CambiarCompartirEmailAsync(
+            request.IdInscripcion, idSolicitante, request.CompartirEmail);
 
     public async Task<InscripcionTorneo> Delete(int id)
     {

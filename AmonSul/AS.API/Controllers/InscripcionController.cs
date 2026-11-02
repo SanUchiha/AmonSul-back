@@ -87,6 +87,10 @@ public class InscripcionController(
         if (inscripcionTorneo.IdUsuario != idSolicitante && !esOrganizador)
             return BadRequest("Solo el organizador puede inscribir a otro jugador.");
 
+        // Compartir el correo lo decide cada uno: el organizador no puede hacerlo por el jugador que añade
+        if (inscripcionTorneo.IdUsuario != idSolicitante)
+            inscripcionTorneo.CompartirEmail = null;
+
         // El pago y la lista los marca el organizador: un jugador no se inscribe ya pagado ni con la lista validada
         if (!esOrganizador)
         {
@@ -160,6 +164,19 @@ public class InscripcionController(
         return ok ? Ok() : BadRequest(error);
     }
 
+    // Si el organizador puede ver su correo: lo cambia el propio jugador, en sus inscripciones
+    [HttpPut("Compartir-Email")]
+    public async Task<ActionResult> CambiarCompartirEmail([FromBody] CambiarCompartirEmailDTO request)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        return await _inscripcionApplication.CambiarCompartirEmailAsync(request, idSolicitante)
+            ? Ok()
+            : BadRequest("Solo puedes cambiarlo en tus propias inscripciones.");
+    }
+
     [HttpPut("Puntos-Extra")]
     public async Task<ActionResult> UpdatePuntosExtra([FromBody] UpdatePuntosExtraDTO request)
     {
@@ -212,6 +229,10 @@ public class InscripcionController(
         if (createEquipoDTO.IdCapitan != idSolicitante
             && !await _inscripcionApplication.EsOrganizadorDelTorneoAsync(createEquipoDTO.IdTorneo, idSolicitante))
             return BadRequest("Solo puedes apuntar un equipo del que seas capitán.");
+
+        // Compartir el correo lo decide cada uno: el organizador no puede hacerlo por el capitán
+        if (createEquipoDTO.IdCapitan != idSolicitante)
+            createEquipoDTO.CompartirEmail = null;
 
         return Ok(await _inscripcionApplication.CreaInscripcionEquipo(createEquipoDTO));
     }

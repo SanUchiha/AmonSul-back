@@ -269,7 +269,10 @@ public class TorneoApplication(
         for (int i = 0; i < inscripciones.Count; i++)
         {
             inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
-            inscripcionesDTO[i].Email = inscripciones[i].IdUsuarioNavigation?.Email;
+            // Solo si el jugador lo comparte con el organizador
+            inscripcionesDTO[i].Email = inscripciones[i].CompartirEmail == true
+                ? inscripciones[i].IdUsuarioNavigation?.Email
+                : null;
             inscripcionesDTO[i].FechaEntrega = inscripciones[i].FechaEntregaLista;
 
             if (inscripciones[i].Lista.Count > 0)
@@ -460,7 +463,8 @@ public class TorneoApplication(
                 IdEquipo = item.IdEquipo,
                 IdCapitan = item.IdCapitan,
                 NickCapitan = capi.Nick,
-                EmailCapitan = capi.Email,
+                // El del capitán, como el de cualquier miembro: solo si lo comparte
+                EmailCapitan = item.Inscripciones.FirstOrDefault(i => i.IdUsuario == item.IdCapitan)?.Email,
                 Inscripciones = [.. item.Inscripciones],
                 FechaInscripcion = item.Inscripciones[0].FechaInscripcion,
                 EsPago = item.Inscripciones[0].EsPago,
@@ -492,7 +496,10 @@ public class TorneoApplication(
         for (int i = 0; i < inscripciones.Count; i++)
         {
             inscripcionesDTO[i].Nick = inscripciones[i].IdUsuarioNavigation?.Nick;
-            inscripcionesDTO[i].Email = inscripciones[i].IdUsuarioNavigation?.Email;
+            // Solo si el jugador lo comparte con el organizador
+            inscripcionesDTO[i].Email = inscripciones[i].CompartirEmail == true
+                ? inscripciones[i].IdUsuarioNavigation?.Email
+                : null;
             inscripcionesDTO[i].CountListasEntregadas = inscripciones[i].Lista.Count;
 
             if (inscripciones[i].Lista.Count > 0)

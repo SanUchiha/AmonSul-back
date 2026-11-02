@@ -177,6 +177,7 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Ejercito_Elegido");
             entity.Property(e => e.Grupo).HasColumnName("Grupo");
             entity.Property(e => e.PosicionCuadro).HasColumnName("Posicion_Cuadro");
+            entity.Property(e => e.CompartirEmail).HasColumnName("Compartir_Email");
 
             entity.HasOne(d => d.IdTorneoNavigation)
                 .WithMany(p => p.InscripcionTorneos)

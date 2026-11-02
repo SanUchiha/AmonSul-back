@@ -18,6 +18,9 @@ public partial class InscripcionTorneo
     public int? Grupo { get; set; }
     // Solo en Copa: su hueco en la primera ronda del cuadro (1 contra 2, 3 contra 4...); null si no entra
     public int? PosicionCuadro { get; set; }
+    // Si el jugador deja que el organizador vea su correo para contactarle. Lo decide solo él, al inscribirse o
+    // desde Mi inscripción; null (por defecto) es que no
+    public bool? CompartirEmail { get; set; }
 
     public virtual Torneo? IdTorneoNavigation { get; set; }
     public virtual Usuario? IdUsuarioNavigation { get; set; }
