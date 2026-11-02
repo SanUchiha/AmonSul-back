@@ -442,4 +442,31 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         if (usuario.ProteccionDatos == null) return false;
         return true;
     }
+
+    // Guarda el enlace nuevo para recuperar la contraseña, anulando el anterior. False si el correo no existe
+    public async Task<bool> GuardarEnlaceContrasenaAsync(string email, string hash, DateTime caducidad) =>
+        await _dbamonsulContext.Usuarios
+            .Where(u => u.Email == email)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.HashEnlaceContrasena, hash)
+                .SetProperty(u => u.CaducidadEnlaceContrasena, caducidad)) > 0;
+
+    // Cambia la contraseña con un enlace vivo y lo gasta en la misma orden: si llegan dos peticiones con el mismo
+    // enlace, solo una lo usa. Devuelve el correo de la cuenta, o null si el enlace no vale
+    public async Task<string?> UsarEnlaceContrasenaAsync(string hash, string contrasenaCifrada)
+    {
+        DateTime ahora = DateTime.UtcNow;
+        IQueryable<Usuario> conEnlaceVivo = _dbamonsulContext.Usuarios
+            .Where(u => u.HashEnlaceContrasena == hash && u.CaducidadEnlaceContrasena > ahora);
+
+        string? email = await conEnlaceVivo.Select(u => u.Email).FirstOrDefaultAsync();
+        if (email is null) return null;
+
+        int cambiados = await conEnlaceVivo.ExecuteUpdateAsync(s => s
+            .SetProperty(u => u.Contraseña, contrasenaCifrada)
+            .SetProperty(u => u.HashEnlaceContrasena, (string?)null)
+            .SetProperty(u => u.CaducidadEnlaceContrasena, (DateTime?)null));
+
+        return cambiados > 0 ? email : null;
+    }
 }

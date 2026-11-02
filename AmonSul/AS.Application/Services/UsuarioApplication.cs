@@ -13,7 +13,9 @@ using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
 using AS.Infrastructure.Repositories.Interfaces;
+using AS.Utils.Constantes;
 using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
@@ -26,7 +28,8 @@ public class UsuarioApplication(
     IPartidaAmistosaApplication partidaAmistosaApplication,
     IEloApplication eloApplication,
     IServiceProvider serviceProvider,
-    IEmailApplicacion emailApplication) : IUsuarioApplication
+    IEmailApplicacion emailApplication,
+    IMemoryCache cache) : IUsuarioApplication
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
@@ -35,6 +38,13 @@ public class UsuarioApplication(
     private readonly IEloApplication _eloApplication = eloApplication;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly IEmailApplicacion _emailApplication = emailApplication;
+    private readonly IMemoryCache _cache = cache;
+
+    // Recuperar la contraseña: el enlace vale una hora, y como mucho 3 correos por dirección y hora,
+    // para que nadie pueda llenar de correos el buzón de otro
+    private static readonly TimeSpan VALIDEZ_ENLACE = TimeSpan.FromHours(1);
+    private const int MAXIMO_ENLACES_POR_HORA = 3;
+    private sealed class Contador { public int Valor; }
 
     public async Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO)
     {
@@ -45,6 +55,9 @@ public class UsuarioApplication(
         if (!Contrasenas.Comprobar(cambiarPassDTO.OldPass!, usuario.Contraseña)) return false;
 
         usuario.Contraseña = Contrasenas.Cifrar(cambiarPassDTO.NewPass!);
+        // Cambiarla anula el enlace de recuperarla que hubiera pendiente
+        usuario.HashEnlaceContrasena = null;
+        usuario.CaducidadEnlaceContrasena = null;
         bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
@@ -420,28 +433,36 @@ public class UsuarioApplication(
         return result;
     }
 
-    public async Task<bool> RecordarPass(string email)
+    // Manda un enlace para elegir una contraseña nueva. La contraseña no cambia hasta que se usa el enlace:
+    // pedirlo con el correo de otro no le deja sin entrar
+    public async Task PedirEnlaceContrasena(string email)
     {
-        //1. conseguimos el usuario
-        Usuario usuario  = await _unitOfWork.UsuarioRepository.GetByEmail(email);
-        if (usuario == null) return false;
+        string correo = email.Trim();
 
-        //2. conseguimos la contraseña
-        string pass = Utilidades.GenerarPassTemporal();
-        usuario.Contraseña = Contrasenas.Cifrar(pass);
-
-        bool actualizarUsuario = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
-        if (!actualizarUsuario) return false;
-
-        //3. Se la enviamos por correo
-        EmailContactoDTO emailContacto = new()
+        Contador enviados = _cache.GetOrCreate($"enlaces-contrasena:{correo.ToLowerInvariant()}", entrada =>
         {
-            Email = email,
-            Message = pass
-        };
+            entrada.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+            return new Contador();
+        })!;
+        if (enviados.Valor >= MAXIMO_ENLACES_POR_HORA) return;
+        enviados.Valor++;
 
-        await _emailApplication.SendEmailResetPass(emailContacto);
-        
+        var (enlace, hash) = Contrasenas.NuevoEnlace();
+        bool existe = await _unitOfWork.UsuarioRepository
+            .GuardarEnlaceContrasenaAsync(correo, hash, DateTime.UtcNow + VALIDEZ_ENLACE);
+        if (!existe) return;
+
+        await _emailApplication.SendEmailEnlaceContrasena(correo, $"{ConstFront.URL}/restablecer-contrasena?token={enlace}");
+    }
+
+    public async Task<bool> RestablecerContrasena(string enlace, string nuevaContrasena)
+    {
+        string? email = await _unitOfWork.UsuarioRepository
+            .UsarEnlaceContrasenaAsync(Contrasenas.HashDeEnlace(enlace), Contrasenas.Cifrar(nuevaContrasena));
+        if (email is null) return false;
+
+        // Acaba de demostrar que es el dueño del correo: puede entrar ya, aunque estuviera bloqueado por fallos
+        _cache.Remove(LoginApplication.ClaveFallos(email));
         return true;
     }
 

@@ -544,7 +544,7 @@ public class EmailApplication(
         }
     }
 
-    public async Task SendEmailResetPass(EmailContactoDTO request)
+    public async Task SendEmailEnlaceContrasena(string email, string enlace)
     {
         try
         {
@@ -558,24 +558,22 @@ public class EmailApplication(
             using var mailMessage = new MailMessage
             {
                 From = new MailAddress(_emailSettings.From),
-                Subject = $"Reseteo de contraseña",
+                Subject = "Elige una contraseña nueva",
                 Body = $@"
                 <html>
                 <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
-                    <h2 style=""color: #2e6c80;"">Solicitud de restablecimiento de contraseña</h2>
+                    <h2 style=""color: #2e6c80;"">Recuperar la contraseña</h2>
                     <p>Hola,</p>
-                    <p>Hemos recibido una solicitud para restablecer la contraseña asociada a tu cuenta.</p>
+                    <p>Hemos recibido una solicitud para cambiar la contraseña de tu cuenta de Amon Sûl.</p>
                     <p>
-                        Tu nueva <strong>contraseña temporal</strong> es:
-                        <span style=""font-size: 18px; color: #2e6c80;""><strong>{request.Message}</strong></span>
+                        <a href=""{enlace}"" style=""display: inline-block; padding: 10px 20px; background-color: #2e6c80; color: #ffffff; text-decoration: none; border-radius: 4px;"">
+                            Elegir una contraseña nueva
+                        </a>
                     </p>
+                    <p>El enlace vale durante 1 hora y solo se puede usar una vez.</p>
                     <p>
-                        Te recomendamos que inicies sesión lo antes posible y cambies esta contraseña por una
-                        que solo tú conozcas.
-                    </p>
-                    <p>
-                        Si no solicitaste este cambio, por favor, contacta a nuestro equipo de soporte
-                        inmediatamente.
+                        Si no lo has pedido tú, ignora este correo: tu contraseña no ha cambiado y nadie puede
+                        cambiarla sin este enlace.
                     </p>
                     <p>Gracias,</p>
                     <p>El equipo de Amon Sûl</p>
@@ -585,7 +583,7 @@ public class EmailApplication(
                 IsBodyHtml = true
             };
 
-            mailMessage.To.Add(request.Email!);
+            mailMessage.To.Add(email);
 
             try
             {

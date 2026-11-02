@@ -12,28 +12,6 @@ public class Utilidades(IConfiguration configuration)
 {
     private readonly IConfiguration _configuration = configuration;
 
-    public static string EncriptarSHA256(string input)
-    {
-        byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-
-        StringBuilder stringBuilder = new();
-        for (int i = 0; i < bytes.Length; i++)
-        {
-            stringBuilder.Append(bytes[i].ToString("x2"));
-        }
-
-        return stringBuilder.ToString();
-    }
-
-    public static string GenerarPassTemporal()
-    {
-        const string caracteresPermitidos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        const int longitud = 10;
-        Random random = new();
-        return new string(Enumerable.Repeat(caracteresPermitidos, longitud)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
-    }
-
     public string GenerarJWT(Usuario usuario) 
     {
         var userClaims = new[]

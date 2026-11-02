@@ -107,18 +107,43 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
         }
     }
 
-    [HttpGet]
+    // Siempre la misma respuesta, exista o no el correo: así no dice quién está dado de alta
+    [HttpPost]
     [AllowAnonymous]
-    [Route("Recordar-Pass/{email}")]
-    public async Task<IActionResult> RecordarPass(string email)
+    [Route("Recuperar-Pass")]
+    public async Task<IActionResult> RecuperarPass(RecuperarPassDTO recuperarPassDTO)
     {
+        if (string.IsNullOrWhiteSpace(recuperarPassDTO.Email) || recuperarPassDTO.Email.Length > 100) return Ok();
+
         try
         {
-            bool response = await _usuarioApplication.RecordarPass(email);
+            await _usuarioApplication.PedirEnlaceContrasena(recuperarPassDTO.Email);
+            return Ok();
+        }
+        catch
+        {
+            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
+        }
+    }
 
-            if (!response) return NoContent();
+    [HttpPost]
+    [AllowAnonymous]
+    [Route("Restablecer-Pass")]
+    public async Task<IActionResult> RestablecerPass(RestablecerPassDTO restablecerPassDTO)
+    {
+        string? nueva = restablecerPassDTO.NuevaPass;
+        if (string.IsNullOrEmpty(nueva) || nueva.Length < 6 || nueva.Length > 100)
+            return BadRequest(new { message = "La contraseña debe tener entre 6 y 100 caracteres." });
 
-            return Ok(response);
+        try
+        {
+            bool cambiada = !string.IsNullOrEmpty(restablecerPassDTO.Token)
+                && await _usuarioApplication.RestablecerContrasena(restablecerPassDTO.Token, nueva);
+
+            if (!cambiada)
+                return BadRequest(new { message = "El enlace no vale o ha caducado. Pide otro desde «¿Desea recordar la contraseña?»." });
+
+            return Ok();
         }
         catch
         {

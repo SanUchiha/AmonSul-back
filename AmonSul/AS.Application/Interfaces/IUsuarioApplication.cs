@@ -11,7 +11,8 @@ public interface IUsuarioApplication
     Task<bool> ModificarFaccion(EditarFaccionUsuarioDTO editarFaccionUsuarioDTO);
     Task<RegistrarUsuarioResponseDTO> Register(RegistrarUsuarioDTO usuario);
     Task<bool> CambiarPass(CambiarPassDTO cambiarPassDTO);
-    Task<bool> RecordarPass(string email);
+    Task PedirEnlaceContrasena(string email);
+    Task<bool> RestablecerContrasena(string enlace, string nuevaContrasena);
     Task<ViewUsuarioPartidaDTO> GetByEmail(string email);
     Task<UsuarioDTO> GetByNick(string nick);
     Task<List<ViewUsuarioPartidaDTO>> GetAll();

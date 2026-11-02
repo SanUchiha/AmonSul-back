@@ -541,6 +541,12 @@ public partial class DbamonsulContext : DbContext
             // para los usuarios que ya existían lo pone la migración
             entity.Property(e => e.PermiteNotificaciones)
                 .HasColumnName("Permite_Notificaciones");
+            entity.Property(e => e.HashEnlaceContrasena)
+                .HasMaxLength(64)
+                .IsUnicode(false)
+                .HasColumnName("Hash_Enlace_Contrasena");
+            entity.Property(e => e.CaducidadEnlaceContrasena)
+                .HasColumnName("Caducidad_Enlace_Contrasena");
 
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)

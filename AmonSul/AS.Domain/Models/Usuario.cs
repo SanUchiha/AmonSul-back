@@ -19,6 +19,10 @@ public partial class Usuario
     public string? Imagen { get; set; }
     // Si es false no se le mandan correos de avisos: solo los de su cuenta, como el de la contraseña
     public bool PermiteNotificaciones { get; set; } = true;
+    // Recuperar la contraseña: el hash del enlace enviado por correo (nunca el enlace) y hasta cuándo vale.
+    // Un solo enlace vivo por usuario: pedir otro anula el anterior, y usarlo lo borra
+    public string? HashEnlaceContrasena { get; set; }
+    public DateTime? CaducidadEnlaceContrasena { get; set; }
 
     public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = [];
     public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];

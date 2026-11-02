@@ -30,4 +30,6 @@ public interface IUsuarioRepository
     Task<List<Usuario>> GetUsuariosByTorneo(int idTorneo);
     Task<Usuario> GetUsuarioSoloById(int idUsuario);
     Task<bool> GetProteccionDatos(int idUsuario);
+    Task<bool> GuardarEnlaceContrasenaAsync(string email, string hash, DateTime caducidad);
+    Task<string?> UsarEnlaceContrasenaAsync(string hash, string contrasenaCifrada);
 }

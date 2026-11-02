@@ -7,7 +7,7 @@ public interface IEmailApplicacion
     void SendEmailNuevaPartida(List<string> destinatarios);
     void SendEmailNuevoUsuario(List<string> destinatarios);
     Task SendEmailContacto(EmailContactoDTO request);
-    Task SendEmailResetPass(EmailContactoDTO request);
+    Task SendEmailEnlaceContrasena(string email, string enlace);
     Task SendEmailRegistroTorneo(EmailContactoDTO request);
     Task SendEmailModificacionLista(EmailListaDTO request);
     void SendEmailNuevoTorneo(string nombreTorneo, List<string> destinatarios);

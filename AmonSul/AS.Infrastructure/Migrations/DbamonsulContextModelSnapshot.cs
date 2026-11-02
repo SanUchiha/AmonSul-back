@@ -1068,6 +1068,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUsuario"));
 
+                    b.Property<DateTime?>("CaducidadEnlaceContrasena")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Caducidad_Enlace_Contrasena");
+
                     b.Property<string>("Ciudad")
                         .HasMaxLength(100)
                         .IsUnicode(false)
@@ -1092,6 +1096,12 @@ namespace AS.Infrastructure.Migrations
                     b.Property<DateOnly>("FechaRegistro")
                         .HasColumnType("date")
                         .HasColumnName("Fecha_Registro");
+
+                    b.Property<string>("HashEnlaceContrasena")
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("Hash_Enlace_Contrasena");
 
                     b.Property<int?>("IdFaccion")
                         .HasColumnType("int")

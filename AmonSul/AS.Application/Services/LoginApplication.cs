@@ -24,12 +24,14 @@ public class LoginApplication(
     private const int MAXIMO_FALLOS = 5;
     private static readonly TimeSpan BLOQUEO = TimeSpan.FromMinutes(15);
 
+    public static string ClaveFallos(string email) => $"login-fallos:{email.Trim().ToLowerInvariant()}";
+
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
         if (string.IsNullOrWhiteSpace(loginDTO.Email) || string.IsNullOrEmpty(loginDTO.Password))
             return new LoginResponse { IsAccess = false };
 
-        string clave = $"login-fallos:{loginDTO.Email.Trim().ToLowerInvariant()}";
+        string clave = ClaveFallos(loginDTO.Email);
         if (_cache.TryGetValue(clave, out int fallos) && fallos >= MAXIMO_FALLOS)
             return new LoginResponse
             {

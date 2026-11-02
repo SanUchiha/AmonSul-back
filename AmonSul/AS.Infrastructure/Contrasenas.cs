@@ -59,5 +59,16 @@ public static class Contrasenas
     public static bool EsSha256SinEnvolver(string? guardada) =>
         guardada is { Length: 64 } && guardada.All(Uri.IsHexDigit);
 
+    // El enlace de recuperar la contraseña: 32 bytes al azar que van en el correo. En la BD solo su hash,
+    // para que quien la lea no pueda usar los enlaces vivos. Al ser al azar y tan largos, basta SHA-256
+    public static (string Enlace, string Hash) NuevoEnlace()
+    {
+        string enlace = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        return (enlace, HashDeEnlace(enlace));
+    }
+
+    public static string HashDeEnlace(string enlace) => Sha256(enlace);
+
     private static string Sha256(string texto) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(texto))).ToLowerInvariant();
 }
