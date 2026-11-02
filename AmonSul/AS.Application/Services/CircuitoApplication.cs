@@ -1,4 +1,5 @@
-﻿using AS.Application.DTOs.CircuitoTorneo;
+using AS.Domain.DTOs.Circuitos;
+using AS.Application.DTOs.CircuitoTorneo;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -21,6 +22,9 @@ public class CircuitoApplication(IUnitOfWork unitOfWork, IMapper mapper) : ICirc
 
     public async Task<List<Circuito>> GetAllCircuitosAsync() =>
         await _unitOfWork.CircuitoRepository.GetAllCircuitosAsync();
+
+    public async Task<List<CircuitoListadoDTO>> GetCircuitosParaListadoAsync() =>
+        await _unitOfWork.CircuitoRepository.GetCircuitosParaListadoAsync();
 
     public async Task<Circuito?> GetCircuitoByIdAsync(int idCircuito) =>
         await _unitOfWork.CircuitoRepository.GetCircuitoByIdAsync(idCircuito);

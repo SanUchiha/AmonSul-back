@@ -1,6 +1,7 @@
 ﻿using AS.API.Extensions;
 using AS.Application.DTOs.CircuitoTorneo;
 using AS.Application.Interfaces;
+using AS.Domain.DTOs.Circuitos;
 using AS.Domain.Models;
 using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Authorization;
@@ -71,8 +72,9 @@ namespace AS.API.Controllers
                     ? "Los circuitos Amon Sûl los crea la web cada año: elige otro nombre."
                     : null;
 
+        // Con los años de sus eventos y cuántos son: la vista de circuitos filtra por año
         [HttpGet]
-        public async Task<List<Circuito>> Get() => await _circuitoApplication.GetAllCircuitosAsync();
+        public async Task<List<CircuitoListadoDTO>> Get() => await _circuitoApplication.GetCircuitosParaListadoAsync();
 
         [HttpGet("{idCircuito}")]
         public async Task<Circuito?> Get(int idCircuito)

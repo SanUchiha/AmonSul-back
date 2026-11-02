@@ -1,10 +1,12 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Circuitos;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
 public interface ICircuitoRepository
 {
     Task <List<Circuito>> GetAllCircuitosAsync();
+    Task<List<CircuitoListadoDTO>> GetCircuitosParaListadoAsync();
     Task <Circuito?> GetCircuitoByIdAsync(int idCircuito);
     Task<List<CircuitoTorneo>?> GetTorneosByIdCircuitoAsync(int idCircuito);
     Task<bool> AddTorneoToCircuitoAsync(CircuitoTorneo circuitoTorneo);
