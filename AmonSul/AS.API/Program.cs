@@ -1,5 +1,6 @@
 using AS.API.Configurations;
 using AS.API.Filters;
+using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Extensions;
 using AS.Application.Interfaces;
 using AS.Infrastructure.Extensions;
@@ -63,9 +64,13 @@ RecurringJob.AddOrUpdate<IGanadorApplication>(
         TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time")
     }
 );
-// Los que ya estaban terminados se guardan al publicar esto, sin esperar a fin de mes. Repetirlo no hace nada:
-// solo coge los que siguen sin posiciones
+// 9 Listas para los Hombres (mayo de 2025) guardó sus posiciones sin que se le aplicara el ELO: se aplica al publicar
+// esto. Repetirlo no hace nada: se salta las partidas que ya tienen ELO
 if (DateOnly.FromDateTime(DateTime.Now) <= new DateOnly(2026, 11, 3))
-    RecurringJob.TriggerJob("guardar-posiciones-torneos-terminados");
+{
+    string eloJobId = BackgroundJob.Enqueue<IGanadorApplication>(
+        job => job.ActualizarEloAsync(new GenerarRondaDTO { IdTorneo = 77 }));
+    BackgroundJob.ContinueJobWith<IEloApplication>(eloJobId, job => job.UpdateClasificacionEloCacheAsync());
+}
 
 app.Run();
