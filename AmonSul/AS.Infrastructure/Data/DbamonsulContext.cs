@@ -548,6 +548,10 @@ public partial class DbamonsulContext : DbContext
                 .HasColumnName("Hash_Enlace_Contrasena");
             entity.Property(e => e.CaducidadEnlaceContrasena)
                 .HasColumnName("Caducidad_Enlace_Contrasena");
+            entity.Property(e => e.NumeroLogins)
+                .HasColumnName("Numero_Logins");
+            entity.Property(e => e.UltimoLogin)
+                .HasColumnName("Ultimo_Login");
 
             entity.HasOne(d => d.IdFaccionNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdFaccion)

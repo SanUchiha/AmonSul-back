@@ -62,6 +62,13 @@ public class LoginApplication(
                 .ExecuteUpdateAsync(s => s.SetProperty(u => u.Contraseña, nueva));
         }
 
+        // Una vez más y la fecha: de una sola vez en la base de datos, aunque entre desde dos sitios a la vez
+        await _dbamonsulContext.Usuarios
+            .Where(u => u.IdUsuario == cuenta.IdUsuario)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.NumeroLogins, u => u.NumeroLogins + 1)
+                .SetProperty(u => u.UltimoLogin, DateTime.Now));
+
         var token = _utilidades.GenerarJWT(new Usuario { IdUsuario = cuenta.IdUsuario, Email = cuenta.Email });
 
         var loginResponse = new LoginResponse

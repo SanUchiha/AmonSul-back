@@ -506,7 +506,9 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
                 .SetProperty(u => u.Imagen, (string?)null)
                 .SetProperty(u => u.PermiteNotificaciones, false)
                 .SetProperty(u => u.HashEnlaceContrasena, (string?)null)
-                .SetProperty(u => u.CaducidadEnlaceContrasena, (DateTime?)null));
+                .SetProperty(u => u.CaducidadEnlaceContrasena, (DateTime?)null)
+                .SetProperty(u => u.NumeroLogins, 0)
+                .SetProperty(u => u.UltimoLogin, (DateTime?)null));
         if (cambiados == 0) return false;
 
         // La clasificación de ELO guarda una copia del nick

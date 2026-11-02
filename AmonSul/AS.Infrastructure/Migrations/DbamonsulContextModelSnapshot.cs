@@ -1136,6 +1136,10 @@ namespace AS.Infrastructure.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("Nombre_Usuario");
 
+                    b.Property<int>("NumeroLogins")
+                        .HasColumnType("int")
+                        .HasColumnName("Numero_Logins");
+
                     b.Property<bool>("PermiteNotificaciones")
                         .HasColumnType("bit")
                         .HasColumnName("Permite_Notificaciones");
@@ -1161,6 +1165,10 @@ namespace AS.Infrastructure.Migrations
                         .HasMaxLength(9)
                         .IsUnicode(false)
                         .HasColumnType("varchar(9)");
+
+                    b.Property<DateTime?>("UltimoLogin")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Ultimo_Login");
 
                     b.HasKey("IdUsuario")
                         .HasName("PK__Usuario__DE4431C52F8B3BC9");

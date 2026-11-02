@@ -23,6 +23,10 @@ public partial class Usuario
     // Un solo enlace vivo por usuario: pedir otro anula el anterior, y usarlo lo borra
     public string? HashEnlaceContrasena { get; set; }
     public DateTime? CaducidadEnlaceContrasena { get; set; }
+    // Cuántas veces ha iniciado sesión con su contraseña y cuándo fue la última, en hora del servidor. Null si aún no
+    // ha entrado desde que se cuenta (noviembre de 2026)
+    public int NumeroLogins { get; set; }
+    public DateTime? UltimoLogin { get; set; }
 
     public virtual ICollection<ClasificacionGeneral> ClasificacionGenerals { get; set; } = [];
     public virtual ICollection<ClasificacionTorneo> ClasificacionTorneos { get; set; } = [];
