@@ -8,7 +8,9 @@ using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Repositories.Interfaces;
+using AS.Utils.Constantes;
 using AutoMapper;
+using System.Net;
 using System.Net.Mail;
 
 namespace AS.Application.Services;
@@ -42,7 +44,8 @@ public class InscripcionApplication(
         {
             EmailTo = usuario.Email,
             NombreTorneo = torneo.NombreTorneo,
-            EstadoLista = actualizarEstado.EstadoLista!
+            // Va al HTML del correo tal cual llega: escapado
+            EstadoLista = WebUtility.HtmlEncode(actualizarEstado.EstadoLista!)
         };
         try
         {
@@ -76,7 +79,8 @@ public class InscripcionApplication(
         {
             EmailTo = usuario.Email,
             NombreTorneo = torneo.NombreTorneo,
-            EstadoPago = actualizarEstado.EsPago!
+            // Va al HTML del correo tal cual llega: escapado
+            EstadoPago = WebUtility.HtmlEncode(actualizarEstado.EsPago!)
         };
 
         try
@@ -419,6 +423,58 @@ public class InscripcionApplication(
     /// Quitan una inscripción el propio jugador o el organizador. En una liga o copa con las jornadas generadas no:
     /// hay que retirar al jugador, que borra también sus partidas
     /// </summary>
+    // --- Quién puede tocar qué. La administración puede todo ---
+
+    public async Task<bool> EsOrganizadorDelTorneoAsync(int idTorneo, int idSolicitante) =>
+        ConstAdministracion.EsAdministrador(idSolicitante)
+        || await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(idTorneo) == idSolicitante;
+
+    public async Task<bool> EsOrganizadorDeInscripcionAsync(int idInscripcion, int idSolicitante)
+    {
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+        return inscripcion is not null && await EsOrganizadorDelTorneoAsync(inscripcion.IdTorneo, idSolicitante);
+    }
+
+    /// <summary>
+    /// Subir, cambiar o quitar lo de una inscripción: el propio jugador, el capitán de su equipo o el organizador.
+    /// Con companeroDeListaConjunta, también el compañero de una pareja con lista conjunta: la lista es de los dos
+    /// </summary>
+    public async Task<bool> PuedeTocarInscripcionAsync(
+        int idInscripcion,
+        int idSolicitante,
+        bool companeroDeListaConjunta = false
+    )
+    {
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+        if (inscripcion is null)
+            return false;
+        if (inscripcion.IdUsuario == idSolicitante || await EsOrganizadorDelTorneoAsync(inscripcion.IdTorneo, idSolicitante))
+            return true;
+        if (inscripcion.IdEquipo is not int idEquipo)
+            return false;
+
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo);
+        if (equipo is null)
+            return false;
+        if (equipo.IdCapitan == idSolicitante)
+            return true;
+        return companeroDeListaConjunta
+            && inscripcion.IdTorneoNavigation?.ListaPorPareja == true
+            && equipo.Miembros.Any(m => m.IdUsuario == idSolicitante);
+    }
+
+    // El equipo no guarda su torneo: es el de las inscripciones de sus miembros
+    private async Task<int?> TorneoDeEquipoAsync(int idEquipo) =>
+        (await _unitOfWork.InscripcionRepository.GetAllInscripcionesByEquipoAsync(idEquipo)).FirstOrDefault()?.IdTorneo;
+
+    public async Task<bool> EsOrganizadorDeEquipoAsync(int idEquipo, int idSolicitante) =>
+        ConstAdministracion.EsAdministrador(idSolicitante)
+        || (await TorneoDeEquipoAsync(idEquipo) is int idTorneo && await EsOrganizadorDelTorneoAsync(idTorneo, idSolicitante));
+
+    public async Task<bool> EsCapitanUOrganizadorDeEquipoAsync(int idEquipo, int idSolicitante) =>
+        (await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo))?.IdCapitan == idSolicitante
+        || await EsOrganizadorDeEquipoAsync(idEquipo, idSolicitante);
+
     public async Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante)
     {
         InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);

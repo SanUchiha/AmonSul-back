@@ -110,6 +110,10 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     [Route("")]
     public async Task<IActionResult> RegistrarElo([FromBody] CreateEloDTO request)
     {
+        // Cambia el ranking de cualquiera: solo la administración
+        if (!User.TryGetIdUsuario(out int idSolicitante) || !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede registrar ELO a mano.");
+
         var response = await _eloApplication.RegisterElo(request);
 
         if (!response) return BadRequest("No se ha podido registrar el elo");
@@ -121,6 +125,9 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     [Route("actualizar-cache")]
     public IActionResult ActualizarCache()
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante) || !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede rehacer la caché del ELO.");
+
         try
         {
             // Crear un job de Hangfire para actualizar el caché

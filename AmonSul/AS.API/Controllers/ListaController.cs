@@ -4,6 +4,7 @@ using AS.Application.Interfaces;
 using AS.Domain.DTOs.Lista;
 using AS.Domain.Models;
 using AS.Infrastructure.DTOs.Lista;
+using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,22 @@ namespace AS.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class ListaController(IListaApplication listaApplication) : ControllerBase
+public class ListaController(IListaApplication listaApplication, IInscripcionApplication inscripcionApplication)
+    : ControllerBase
 {
     private readonly IListaApplication _listaApplication = listaApplication;
+    private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
+
+    // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+    private const string SOLO_SU_LISTA =
+        "Solo el propio jugador, su capitán o el organizador pueden cambiar esta lista.";
+
+    // Subir, cambiar o borrar la lista de una inscripción: el jugador, su capitán, el compañero de una pareja con
+    // lista conjunta, el organizador o la administración
+    private async Task<bool> PuedeTocarListaAsync(int idLista) =>
+        User.TryGetIdUsuario(out int idSolicitante)
+        && await _listaApplication.GetIdInscripcionDeListaAsync(idLista) is int idInscripcion
+        && await _inscripcionApplication.PuedeTocarInscripcionAsync(idInscripcion, idSolicitante, companeroDeListaConjunta: true);
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ListaDTO>> GetListaById(int id)
@@ -68,6 +82,11 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpPost]
     public async Task<ActionResult<ResultRegisterListarDTO>> RegisterLista([FromBody] CreateListaTorneoDTO lista)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.PuedeTocarInscripcionAsync(lista.IdInscripcion, idSolicitante, companeroDeListaConjunta: true))
+            return BadRequest(SOLO_SU_LISTA);
+
         ResultRegisterListarDTO result = await _listaApplication.RegisterLista(lista);
         if (!result.Result) return BadRequest(result);
 
@@ -78,6 +97,7 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     public async Task<ActionResult<bool>> UpdateLista(int id, [FromBody] UpdateListaDTO request)
     {
         if (id != request.IdLista) return BadRequest("ID mismatch.");
+        if (!await PuedeTocarListaAsync(id)) return BadRequest(SOLO_SU_LISTA);
 
         (bool ok, string? error) = await _listaApplication.UpdateLista(request);
         if (!ok)
@@ -89,6 +109,12 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpPut("estado")]
     public async Task<ActionResult<bool>> UpdateEstadoLista([FromBody] UpdateEstadoListaDTO request)
     {
+        // Validar una lista es cosa del organizador
+        if (!User.TryGetIdUsuario(out int idSolicitante)
+            || await _listaApplication.GetIdInscripcionDeListaAsync(request.IdLista) is not int idInscripcion
+            || !await _inscripcionApplication.EsOrganizadorDeInscripcionAsync(idInscripcion, idSolicitante))
+            return BadRequest("Solo el organizador puede cambiar el estado de la lista.");
+
         bool result = await _listaApplication.UpdateEstadoLista(request);
         if (!result)
             return BadRequest("No se ha podido cambiar el estado de la lista");
@@ -99,6 +125,8 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpDelete("{id}")]
     public async Task<ActionResult<Lista>> DeleteLista(int id)
     {
+        if (!await PuedeTocarListaAsync(id)) return BadRequest(SOLO_SU_LISTA);
+
         Lista deletedLista = await _listaApplication.Delete(id);
         if (deletedLista == null)
         {
@@ -126,6 +154,10 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
     [HttpPost("migrar-cloudinary")]
     public async Task<ActionResult<MigracionCloudinaryResultDTO>> MigrarListasACloudinary()
     {
+        // Tarea de mantenimiento: solo la administración
+        if (!User.TryGetIdUsuario(out int idSolicitante) || !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede lanzar la migración.");
+
         MigracionCloudinaryResultDTO result = await _listaApplication.MigrarListasACloudinaryAsync();
         return Ok(result);
     }

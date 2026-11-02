@@ -301,8 +301,14 @@ public class TorneoController(
 
     [HttpPatch]
     [Route("Gestion/editar")]
-    public async Task<IActionResult> UpdateTorneo([FromBody, Required] UpdateTorneoDTO request) =>
-        Ok(await _torneoApplication.UpdateTorneoAsync(request));
+    public async Task<IActionResult> UpdateTorneo([FromBody, Required] UpdateTorneoDTO request)
+    {
+        // Lleva los métodos de pago: que nadie más que el organizador pueda cambiarlos
+        if (await SoloOrganizadorAsync(request.IdTorneo, "modificar el torneo") is IActionResult denegado)
+            return denegado;
+
+        return Ok(await _torneoApplication.UpdateTorneoAsync(request));
+    }
 
     [HttpPatch]
     [Route("Gestion/subir-bases/{idTorneo}")]
@@ -419,6 +425,11 @@ public class TorneoController(
     [Route("")]
     public async Task<IActionResult> CrearTorneo([FromBody, Required] CrearTorneoDTO request)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        // El organizador es quien lo crea, no quien diga la petición
+        request.IdUsuario = idSolicitante;
+
         bool response = await _torneoApplication.Register(request);
 
         if (response == false)

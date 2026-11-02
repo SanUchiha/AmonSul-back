@@ -79,6 +79,22 @@ public class InscripcionController(
     [HttpPost]
     public async Task<ActionResult> Register([FromBody] CrearInscripcionDTO inscripcionTorneo)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+
+        // Uno se inscribe a sí mismo; a otros, solo el organizador (Añadir jugador)
+        bool esOrganizador = await _inscripcionApplication.EsOrganizadorDelTorneoAsync(inscripcionTorneo.IdTorneo, idSolicitante);
+        if (inscripcionTorneo.IdUsuario != idSolicitante && !esOrganizador)
+            return BadRequest("Solo el organizador puede inscribir a otro jugador.");
+
+        // El pago y la lista los marca el organizador: un jugador no se inscribe ya pagado ni con la lista validada
+        if (!esOrganizador)
+        {
+            inscripcionTorneo.EsPago = "NO";
+            inscripcionTorneo.EstadoLista = "NO ENTREGADA";
+            inscripcionTorneo.FechaInscripcion = DateOnly.FromDateTime(DateTime.Now);
+        }
+
         bool result = await _inscripcionApplication.Register(inscripcionTorneo);
         if (!result)
         {
@@ -108,6 +124,11 @@ public class InscripcionController(
     [HttpDelete("Equipo/{idEquipo}")]
     public async Task<ActionResult<InscripcionTorneo>> DeleteEquipo(int idEquipo)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.EsCapitanUOrganizadorDeEquipoAsync(idEquipo, idSolicitante))
+            return BadRequest("Solo el capitán o el organizador pueden borrar el equipo.");
+
         bool isDelete = await _inscripcionApplication.DeleteEquipo(idEquipo);
         return Ok(isDelete);
     }
@@ -115,6 +136,11 @@ public class InscripcionController(
     [HttpPut("Estado-Lista")]
     public async Task<ActionResult> CambiarEstadoLista([FromBody] ActualizarEstadoLista actualizarEstadoLista)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.EsOrganizadorDeInscripcionAsync(actualizarEstadoLista.IdInscripcion, idSolicitante))
+            return BadRequest("Solo el organizador puede cambiar el estado de la lista.");
+
         var result = await _inscripcionApplication.CambiarEstadoLista(actualizarEstadoLista);
         if (!result)
         {
@@ -148,6 +174,11 @@ public class InscripcionController(
     [HttpPut("Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPago([FromBody] ActualizarEstadoPago actualizarEstadoPago)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.EsOrganizadorDeInscripcionAsync(actualizarEstadoPago.IdInscripcion, idSolicitante))
+            return BadRequest("Solo el organizador puede cambiar el estado del pago.");
+
         bool result = await _inscripcionApplication.CambiarEstadoPago(actualizarEstadoPago);
         if (!result)
         {
@@ -159,6 +190,11 @@ public class InscripcionController(
     [HttpPut("Equipo/Estado-Pago")]
     public async Task<ActionResult> CambiarEstadoPagoEquipo([FromBody] ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo)
     {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.EsOrganizadorDeEquipoAsync(actualizarEstadoPagoEquipo.IdEquipo, idSolicitante))
+            return BadRequest("Solo el organizador puede cambiar el estado del pago.");
+
         bool result = await _inscripcionApplication.CambiarEstadoPagoEquipo(actualizarEstadoPagoEquipo);
         if (!result)
         {
@@ -168,8 +204,17 @@ public class InscripcionController(
     }
 
     [HttpPost("Equipo")]
-    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO) => 
-        Ok(await _inscripcionApplication.CreaInscripcionEquipo(createEquipoDTO));
+    public async Task<IActionResult> CreateEquipo([FromBody] CreateEquipoDTO createEquipoDTO)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        // El capitán apunta su equipo; el organizador puede apuntar uno de otros
+        if (createEquipoDTO.IdCapitan != idSolicitante
+            && !await _inscripcionApplication.EsOrganizadorDelTorneoAsync(createEquipoDTO.IdTorneo, idSolicitante))
+            return BadRequest("Solo puedes apuntar un equipo del que seas capitán.");
+
+        return Ok(await _inscripcionApplication.CreaInscripcionEquipo(createEquipoDTO));
+    }
 
     [HttpGet("Equipo/{idInscripcion}")]
     public async Task<ActionResult<List<InscripcionUsuarioEquipoDTO>>> GetInscripcionEquipo(int idInscripcion)
@@ -198,10 +243,24 @@ public class InscripcionController(
     }
 
     [HttpPost("Registar-miembro-Equipo")]
-    public async Task<IActionResult> RegisterMiembro([FromBody] CreateMiembroEquipoDTO createMiembroEquipoDTO) => 
-        Ok(await _inscripcionApplication.RegisterMiembroAsync(createMiembroEquipoDTO));
+    public async Task<IActionResult> RegisterMiembro([FromBody] CreateMiembroEquipoDTO createMiembroEquipoDTO)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.EsCapitanUOrganizadorDeEquipoAsync(createMiembroEquipoDTO.IdEquipo, idSolicitante))
+            return BadRequest("Solo el capitán o el organizador pueden añadir miembros al equipo.");
+
+        return Ok(await _inscripcionApplication.RegisterMiembroAsync(createMiembroEquipoDTO));
+    }
 
     [HttpDelete("Miembro/{idInscripcion}")]
-    public async Task<ActionResult<InscripcionTorneo>> DeleteMiembro(int idInscripcion) => 
-        Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
+    public async Task<ActionResult<InscripcionTorneo>> DeleteMiembro(int idInscripcion)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (!await _inscripcionApplication.PuedeTocarInscripcionAsync(idInscripcion, idSolicitante))
+            return BadRequest("Solo el propio jugador, su capitán o el organizador pueden quitarlo del equipo.");
+
+        return Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
+    }
 }

@@ -63,6 +63,10 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
     [Route("Cambiar-Pass")]
     public async Task<IActionResult> CambiarPass([FromBody] CambiarPassDTO cambiarPassDTO)
     {
+        // Solo la propia: si no, serviría para probar contraseñas de otros
+        if (cambiarPassDTO is null || !User.TryGetIdUsuario(out int idSolicitante) || cambiarPassDTO.idUsuario != idSolicitante)
+            return BadRequest("Solo puedes cambiar tu propia contraseña.");
+
         if (cambiarPassDTO == null || 
             string.IsNullOrWhiteSpace(cambiarPassDTO.OldPass) || 
             string.IsNullOrWhiteSpace(cambiarPassDTO.NewPass))
@@ -245,6 +249,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
     [Route("{email}")]
     public async Task<IActionResult> Delete(string email)
     {
+        if (!EsSuCorreoOAdministracion(email)) return BadRequest("Solo puedes borrar tu propia cuenta.");
+
         try
         {
             var response = await _usuarioApplication.Delete(email);
@@ -295,6 +301,10 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
     [Route("Proteccion-Datos")]
     public async Task<IActionResult> UpdateProteccionDatos([FromBody] UpdateProteccionDatosDTO request)
     {
+        // El consentimiento lo da cada uno por sí mismo
+        if (!User.TryGetIdUsuario(out int idSolicitante) || request.IdUsuario != idSolicitante)
+            return BadRequest("Solo puedes cambiar tu propio consentimiento.");
+
         try
         {
             bool response = await _usuarioApplication.UpdateProteccionDatos(request);
@@ -313,6 +323,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
     [Route("modificar-faccion")]
     public async Task<IActionResult> ModificarFaccion([FromBody] EditarFaccionUsuarioDTO request)
     {
+        if (!EsUsuarioOAdministracion(request.IdUsuario)) return BadRequest("Solo puedes cambiar tu propia facción.");
+
         try
         {
             var response = await _usuarioApplication.ModificarFaccion(request);

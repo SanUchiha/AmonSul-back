@@ -13,6 +13,11 @@ public interface IInscripcionApplication
     Task<InscripcionTorneoDTO> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
     Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante);
+    Task<bool> EsOrganizadorDelTorneoAsync(int idTorneo, int idSolicitante);
+    Task<bool> EsOrganizadorDeInscripcionAsync(int idInscripcion, int idSolicitante);
+    Task<bool> PuedeTocarInscripcionAsync(int idInscripcion, int idSolicitante, bool companeroDeListaConjunta = false);
+    Task<bool> EsOrganizadorDeEquipoAsync(int idEquipo, int idSolicitante);
+    Task<bool> EsCapitanUOrganizadorDeEquipoAsync(int idEquipo, int idSolicitante);
     Task<bool> Register(CrearInscripcionDTO inscripcionTorneo);
     Task<(bool Ok, string? Error)> CambiarEjercitoElegidoAsync(CambiarEjercitoElegidoDTO request, int idSolicitante);
 

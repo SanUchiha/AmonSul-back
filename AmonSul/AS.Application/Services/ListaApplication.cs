@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
 using AS.Application.DTOs.Email;
@@ -201,21 +202,16 @@ public class ListaApplication(
             createListaTorneoDTO.FechaEntrega
         );
 
-        string? emailOrganizador = createListaTorneoDTO.EmailOrganizador;
-        if (emailOrganizador is null)
-        {
-            int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(
-                createListaTorneoDTO.IdTorneo
-            );
-            emailOrganizador = (
-                await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador)
-            ).Email;
-        }
+        // El aviso, siempre al organizador del torneo de la inscripción y con el nick guardado: nada de la petición,
+        // que podría mandar el correo a cualquier dirección o meter HTML en él
+        int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
+        UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
+        UsuarioEmailDto jugador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
 
         EmailContactoDTO emailContactoDTO = new()
         {
-            Email = emailOrganizador,
-            Message = createListaTorneoDTO.Nick,
+            Email = organizador.Email,
+            Message = WebUtility.HtmlEncode(jugador.Nick),
         };
 
         await _emailApplicacion.SendEmailOrganizadorEnvioListaTorneo(emailContactoDTO);
@@ -225,20 +221,23 @@ public class ListaApplication(
 
     public async Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request)
     {
+        // El torneo y el jugador, de la propia lista: el aviso no puede ir a quien diga la petición
+        InscripcionTorneo? inscripcion = await _unitOfWork.ListaRepository.GetInscripcionByIdLista(request.IdLista);
+        if (inscripcion is null)
+            return false;
+
         bool result = await _unitOfWork.ListaRepository.UpdateEstadoLista(request);
         if (!result)
             return false;
 
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
-        UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(
-            request.IdUsuario
-        );
+        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
+        UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
 
         EmailListaDTO emailListaDTO = new()
         {
             EmailTo = usuario.Email,
             NombreTorneo = torneo.NombreTorneo,
-            EstadoLista = request.Estado.ToUpper().Trim(),
+            EstadoLista = WebUtility.HtmlEncode(request.Estado.ToUpper().Trim()),
         };
         try
         {
@@ -251,6 +250,10 @@ public class ListaApplication(
 
         return true;
     }
+
+    // La inscripción de una lista, para comprobar quién puede tocarla. Null si la lista no existe
+    public async Task<int?> GetIdInscripcionDeListaAsync(int idLista) =>
+        (await _unitOfWork.ListaRepository.GetInscripcionByIdLista(idLista))?.IdInscripcion;
 
     public async Task<(bool Ok, string? Error)> UpdateLista(UpdateListaDTO updateListaTorneoDTO)
     {
