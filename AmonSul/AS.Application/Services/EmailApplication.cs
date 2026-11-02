@@ -320,6 +320,81 @@ public class EmailApplication(
         return destinatarios.Count;
     }
 
+    /// <summary>
+    /// El aviso de la política de privacidad, a todos los usuarios: también a quien ha desactivado los avisos, porque
+    /// es sobre su cuenta. Gmail limita los destinatarios al día, y los demás correos de la web también cuentan, así
+    /// que va en tandas de TANDA_DIARIA, una cada día. Con soloAlUsuario, solo a ese usuario y al momento
+    /// </summary>
+    public async Task<int> SendEmailAvisoPrivacidadAsync(int? soloAlUsuario)
+    {
+        List<string> destinatarios = soloAlUsuario is int idUsuario
+            ? [(await _unitOfWork.UsuarioRepository.GetUsuarioSoloById(idUsuario)).Email]
+            : await _unitOfWork.UsuarioRepository.GetAllEmail();
+
+        List<string> emailsExcluidos = _emailSettings.EmailsExcluidos;
+        destinatarios =
+            [.. destinatarios
+                .Where(email => !string.IsNullOrWhiteSpace(email) && !emailsExcluidos.Contains(email))
+                .Distinct(StringComparer.OrdinalIgnoreCase)];
+
+        string html = HtmlAvisoPrivacidad();
+        const string asunto = "Hemos publicado la política de privacidad de Amon Sûl";
+
+        if (soloAlUsuario is not null)
+        {
+            await EnviarCorreoDeCuentaAsync(destinatarios, html, asunto);
+            return destinatarios.Count;
+        }
+
+        int dia = 0;
+        foreach (string[] tanda in destinatarios.Chunk(TANDA_DIARIA))
+        {
+            // De 25 en 25 con copia oculta: cada correo lleva también una copia al remitente, así son menos copias
+            foreach (List<string> lote in tanda.Chunk(25).Select(c => c.ToList()))
+                BackgroundJob.Schedule(() => EnviarCorreoDeCuentaAsync(lote, html, asunto), TimeSpan.FromDays(dia));
+            dia++;
+        }
+
+        return destinatarios.Count;
+    }
+
+    private const int TANDA_DIARIA = 300;
+
+    private static string HtmlAvisoPrivacidad() => $@"
+        <html>
+        <body style=""font-family: Arial, sans-serif; line-height: 1.6; color: #333;"">
+            <h2 style=""color: #2e6c80;"">Tu privacidad en Amon Sûl</h2>
+            <p>Hola,</p>
+            <p>Hemos publicado la política de privacidad de Amon Sûl y hemos mejorado cómo protegemos tus datos:</p>
+            <ul>
+                <li>
+                    El organizador de un evento ya no ve tu correo, salvo que tú quieras. Al inscribirte puedes elegir
+                    compartirlo, y cambiarlo cuando quieras en Mi inscripción.
+                </li>
+                <li>
+                    Las contraseñas se guardan ahora con un cifrado más seguro. Si olvidas la tuya, te llegará un enlace
+                    de un solo uso para elegir otra.
+                </li>
+                <li>Puedes desactivar los avisos por correo en tu perfil.</li>
+                <li>Para registrarse hace falta tener al menos 14 años.</li>
+            </ul>
+            <p>
+                <a href=""{ConstFront.URL}/politica-privacidad"" style=""display: inline-block; padding: 10px 20px; background-color: #2e6c80; color: #ffffff; text-decoration: none; border-radius: 4px;"">
+                    Leer la política de privacidad
+                </a>
+            </p>
+            <p>
+                No tienes que hacer nada. Si tienes cualquier duda sobre tus datos, o quieres consultarlos, corregirlos
+                o borrarlos, escríbenos a <a href=""mailto:{CONTACTO_PRIVACIDAD}"">{CONTACTO_PRIVACIDAD}</a>.
+            </p>
+            <p>Gracias,</p>
+            <p>El equipo de Amon Sûl</p>
+            <hr />
+        </body>
+        </html>";
+
+    private const string CONTACTO_PRIVACIDAD = "jose.a.sanchez.molina@gmail.com";
+
     public async Task EnviarCorreoAsync(
         List<string> destinatarios, 
         string templateBody, 
@@ -329,6 +404,19 @@ public class EmailApplication(
         destinatarios = await ConNotificacionesAsync(destinatarios);
         if (destinatarios.Count == 0) return;
 
+        await EnviarConCopiaOcultaAsync(destinatarios, templateBody, asunto);
+    }
+
+    // Los correos sobre la cuenta, como el aviso de la política de privacidad: llegan aunque se hayan desactivado
+    // los avisos
+    public async Task EnviarCorreoDeCuentaAsync(List<string> destinatarios, string templateBody, string asunto)
+    {
+        if (destinatarios.Count == 0) return;
+        await EnviarConCopiaOcultaAsync(destinatarios, templateBody, asunto);
+    }
+
+    private async Task EnviarConCopiaOcultaAsync(List<string> destinatarios, string templateBody, string asunto)
+    {
         using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port)
         {
             EnableSsl = _emailSettings.EnableSsl,

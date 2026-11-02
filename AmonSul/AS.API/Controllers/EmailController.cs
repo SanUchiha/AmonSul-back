@@ -52,4 +52,23 @@ public class EmailController(IEmailApplicacion emailApplicacion) : ControllerBas
             request.Asunto, request.Html, request.SoloAMi ? idSolicitante : null);
         return Ok(destinatarios);
     }
+
+    /// <summary>
+    /// El aviso de la política de privacidad, solo para la administración. Llega a todos, en tandas diarias por el
+    /// límite de Gmail. Con SoloAMi llega únicamente a quien lo envía, para verlo antes. Devuelve a cuántos va
+    /// </summary>
+    [HttpPost]
+    [Route("Aviso-Privacidad")]
+    public async Task<IActionResult> EnviarAvisoPrivacidad([FromBody] EmailAvisoPrivacidadDTO request)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede enviar correos a todos los usuarios.");
+
+        int destinatarios = await _emailApplicacion.SendEmailAvisoPrivacidadAsync(
+            request.SoloAMi ? idSolicitante : null);
+        return Ok(destinatarios);
+    }
 }

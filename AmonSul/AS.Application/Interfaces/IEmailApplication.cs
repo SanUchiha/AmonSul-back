@@ -18,4 +18,5 @@ public interface IEmailApplicacion
     Task SendEmailOrganizadorEnvioListaTorneo(EmailContactoDTO request);
     Task SendEmailModificacionPago(EmailPagoDTO emailPagoDTO);
     Task<int> SendEmailNovedadesAsync(string asunto, string html, int? soloAlUsuario);
+    Task<int> SendEmailAvisoPrivacidadAsync(int? soloAlUsuario);
 }
