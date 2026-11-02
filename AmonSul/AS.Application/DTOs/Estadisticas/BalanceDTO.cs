@@ -23,6 +23,11 @@ public class EjercitoBalanceDTO : BalanceDTO
     public string? Bando { get; set; }
     // Cuántos jugadores distintos lo han llevado
     public int Jugadores { get; set; }
+    // En torneos individuales con posiciones guardadas: en cuántos se ha jugado, cuántos ha ganado y cuántos podios.
+    // Solo en el ranking y en la ficha
+    public int Torneos { get; set; }
+    public int TorneosGanados { get; set; }
+    public int Podios { get; set; }
 }
 
 public class TramoBalanceDTO : BalanceDTO

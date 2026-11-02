@@ -165,6 +165,67 @@ internal static class EstadisticasEjercitos
         return filas[Math.Max(anterior, 0)].Elo;
     }
 
+    /// <summary>
+    /// Un jugador en un torneo individual, con su puesto final y el ejército que más llevó en sus partidas de ese torneo
+    /// </summary>
+    internal class Participacion
+    {
+        public required string Ejercito { get; init; }
+        public int Puesto { get; init; }
+        public int Temporada { get; init; }
+        public string? Tramo { get; init; }
+    }
+
+    internal static List<Participacion> Participaciones(IEnumerable<PosicionTorneoDTO> posiciones, IEnumerable<Partida> partidas)
+    {
+        Dictionary<(int, int), string> ejercitos = partidas
+            .Where(p => !p.Origen.EsAmistosa && p.Origen.IdTorneo is not null)
+            .SelectMany(p => new[]
+            {
+                (Torneo: p.Origen.IdTorneo!.Value, Usuario: p.Origen.IdUsuario1, Ejercito: p.Ejercito1),
+                (Torneo: p.Origen.IdTorneo!.Value, Usuario: p.Origen.IdUsuario2, Ejercito: p.Ejercito2),
+            })
+            .GroupBy(x => (x.Torneo, x.Usuario))
+            .ToDictionary(
+                g => g.Key,
+                g => g.GroupBy(x => x.Ejercito).OrderByDescending(e => e.Count()).ThenBy(e => e.Key).First().Key
+            );
+
+        return
+        [
+            .. posiciones
+                .Where(p => ejercitos.ContainsKey((p.IdTorneo, p.IdUsuario)))
+                .Select(p => new Participacion
+                {
+                    Ejercito = ejercitos[(p.IdTorneo, p.IdUsuario)],
+                    Puesto = p.Puesto,
+                    Temporada = p.Fecha.Year,
+                    Tramo = TramoDe(p.Puntos),
+                }),
+        ];
+    }
+
+    // Las amistosas no son torneos: solo cuentan la temporada y los puntos
+    internal static IEnumerable<Participacion> Filtrar(IEnumerable<Participacion> participaciones, FiltroEstadisticasDTO filtro) =>
+        participaciones.Where(p =>
+            (filtro.Temporada is null || p.Temporada == filtro.Temporada)
+            && (string.IsNullOrEmpty(filtro.Tramo) || p.Tramo == filtro.Tramo)
+        );
+
+    private static T ConTorneos<T>(T fila, IEnumerable<Participacion> participaciones)
+        where T : EjercitoBalanceDTO
+    {
+        foreach (Participacion participacion in participaciones.Where(p => p.Ejercito == fila.Ejercito))
+        {
+            fila.Torneos++;
+            if (participacion.Puesto == 1)
+                fila.TorneosGanados++;
+            if (participacion.Puesto <= 3)
+                fila.Podios++;
+        }
+        return fila;
+    }
+
     internal static IEnumerable<Partida> Filtrar(IEnumerable<Partida> partidas, FiltroEstadisticasDTO filtro) =>
         partidas.Where(p =>
             (filtro.Amistosas || !p.Origen.EsAmistosa)
@@ -243,19 +304,31 @@ internal static class EstadisticasEjercitos
     /// <summary>
     /// Los ejércitos con al menos «minimo» partidas, del mejor porcentaje al peor. Con bando, solo los de ese bando
     /// </summary>
-    internal static List<EjercitoBalanceDTO> Ranking(IEnumerable<Partida> partidas, Catalogo catalogo, string? bando, int minimo) =>
+    internal static List<EjercitoBalanceDTO> Ranking(
+        IEnumerable<Partida> partidas,
+        IEnumerable<Participacion> participaciones,
+        Catalogo catalogo,
+        string? bando,
+        int minimo
+    )
+    {
+        ILookup<string, Participacion> porEjercito = participaciones.ToLookup(p => p.Ejercito);
+        return
         [
             .. Lados(partidas)
                 .GroupBy(l => l.Ejercito)
                 .Select(g => FilaEjercito(g.Key, Acumular(g), catalogo))
                 .Where(f => f.Partidas >= minimo && (string.IsNullOrEmpty(bando) || f.Bando == bando))
+                .Select(f => ConTorneos(f, porEjercito[f.Ejercito]))
                 .OrderByDescending(f => f.Porcentaje)
                 .ThenByDescending(f => f.Partidas),
         ];
+    }
 
     internal static FichaEjercitoDTO Ficha(
         string ejercito,
         IEnumerable<Partida> partidas,
+        IEnumerable<Participacion> participaciones,
         Catalogo catalogo,
         IReadOnlyDictionary<int, string> nicks,
         int minimoRival,
@@ -266,7 +339,7 @@ internal static class EstadisticasEjercitos
         Acumulado total = Acumular(suyos);
         return new FichaEjercitoDTO
         {
-            Resumen = FilaEjercito(ejercito, total, catalogo),
+            Resumen = ConTorneos(FilaEjercito(ejercito, total, catalogo), participaciones),
             GeneralesMatados = total.DeTorneo == 0 ? null : Math.Round(100.0 * total.Generales / total.DeTorneo, 1),
             PorTramo = PorTramo(suyos),
             PorTemporada =

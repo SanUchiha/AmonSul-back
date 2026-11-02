@@ -1,4 +1,5 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.Models;
 
 namespace AS.Infrastructure.Repositories.Interfaces;
 
@@ -14,4 +15,5 @@ public interface IGanadorRepository
     Task<int?> GetIdTorneoAsync(int idGanador);
     Task<List<Ganador>> GetByTorneoAsync(int idTorneo);
     Task<Dictionary<int, int>> GetTotalJugadoresAsync(IReadOnlyCollection<int> idsTorneo);
+    Task<List<PosicionTorneoDTO>> GetPosicionesIndividualesAsync();
 }

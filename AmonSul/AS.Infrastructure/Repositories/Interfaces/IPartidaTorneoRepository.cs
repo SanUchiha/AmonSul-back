@@ -16,7 +16,6 @@ public interface IPartidaTorneoRepository
     Task<List<PartidaTorneo>> GetPartidasTorneosByUsuario(int idUsuario); // Todas las partidas de todos los torneos de un jugador
     Task<List<PartidaTorneo>> GetPartidasTorneoByUsuarioAsync(int idTorneo, int idUsuario); // Todas las partidas de un torneo de un jugador
     Task<List<PartidaTorneo>> GetAllAsync();
-    Task<List<PartidaTorneo>> GetAllSinParejasAsync(); // Para estadísticas de ejércitos
     Task<List<PartidaEstadisticaDTO>> GetParaEstadisticasAsync(); // Validadas, con ejércitos, sin bye ni Parejas
     Task<List<PartidaTorneo>> GetByFechaAsync(DateTime fecha);
 

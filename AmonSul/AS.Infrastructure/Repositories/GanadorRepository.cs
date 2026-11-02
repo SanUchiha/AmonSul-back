@@ -1,4 +1,6 @@
-﻿using AS.Domain.Models;
+﻿using AS.Domain.DTOs.Estadisticas;
+using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -81,6 +83,29 @@ public class GanadorRepository(DbamonsulContext dbamonsulContext) : IGanadorRepo
     /// Cuántos jugadores tiene la clasificación final de cada torneo
     /// </summary>
     // Sin el bye (568): los torneos cerrados antes de quitarlo de las posiciones aún lo tienen
+    /// <summary>
+    /// Los puestos finales de los torneos individuales, sin el bye. En los de equipos el 1º individual no es quien gana
+    /// el torneo, por eso no entran
+    /// </summary>
+    public async Task<List<PosicionTorneoDTO>> GetPosicionesIndividualesAsync() =>
+        await _dbamonsulContext.Ganador
+            .AsNoTracking()
+            .Where(g => g.IdUsuario != 568)
+            .Join(
+                _dbamonsulContext.Torneos.Where(t => t.TipoTorneo == TorneoType.INDIVIDUAL),
+                g => g.IdTorneo,
+                t => t.IdTorneo,
+                (g, t) => new PosicionTorneoDTO
+                {
+                    IdTorneo = g.IdTorneo,
+                    IdUsuario = g.IdUsuario,
+                    Puesto = g.Resultado,
+                    Fecha = t.FechaInicioTorneo,
+                    Puntos = t.PuntosTorneo,
+                }
+            )
+            .ToListAsync();
+
     public async Task<Dictionary<int, int>> GetTotalJugadoresAsync(IReadOnlyCollection<int> idsTorneo) =>
         await _dbamonsulContext.Ganador
             .Where(g => idsTorneo.Contains(g.IdTorneo) && g.IdUsuario != 568)

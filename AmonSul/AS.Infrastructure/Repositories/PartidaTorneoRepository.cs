@@ -66,12 +66,6 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
             })
             .ToListAsync();
 
-    public async Task<List<PartidaTorneo>> GetAllSinParejasAsync() =>
-        await _dbamonsulContext
-            .PartidaTorneos.AsNoTracking()
-            .Where(p => p.IdTorneoNavigation!.TipoTorneo != TorneoType.PAREJAS)
-            .ToListAsync();
-
     public async Task<bool> Delete(int idPartida)
     {
         try
