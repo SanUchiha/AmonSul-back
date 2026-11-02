@@ -12,6 +12,7 @@ using AS.Domain.DTOs.Usuario;
 using AS.Domain.Models;
 using AS.Infrastructure;
 using AS.Infrastructure.DTOs.Login;
+using AS.Infrastructure.Repositories;
 using AS.Infrastructure.Repositories.Interfaces;
 using AS.Utils.Constantes;
 using AutoMapper;
@@ -63,9 +64,33 @@ public class UsuarioApplication(
         return result;
     }
 
-    public Task<bool> Delete(string email)
+    public async Task<int?> GetIdByEmailAsync(string email) =>
+        (await _unitOfWork.UsuarioRepository.GetByEmail(email))?.IdUsuario;
+
+    // Borrar la cuenta uno mismo: con su contraseña, por si alguien usa su sesión abierta
+    public async Task<(bool Ok, string? Error)> BorrarMiCuentaAsync(int idUsuario, string contrasena)
     {
-        return _unitOfWork.UsuarioRepository.Delete(email);
+        string? guardada = await _unitOfWork.UsuarioRepository.GetContrasenaAsync(idUsuario);
+        if (!Contrasenas.Comprobar(contrasena, guardada)) return (false, "La contraseña no es correcta.");
+
+        return await BorrarCuentaAsync(idUsuario);
+    }
+
+    /// <summary>
+    /// Borra los datos personales y deja sus resultados como «Desconocido». No si está en eventos sin terminar: el
+    /// organizador se quedaría con un inscrito que no existe, o el evento sin nadie que lo gestione
+    /// </summary>
+    public async Task<(bool Ok, string? Error)> BorrarCuentaAsync(int idUsuario)
+    {
+        var (inscrito, organiza) = await _unitOfWork.UsuarioRepository.TieneEventosSinTerminarAsync(idUsuario);
+        if (organiza)
+            return (false, "Organizas eventos que aún no han terminado. Podrás borrar tu cuenta cuando terminen; si no puedes esperar, escríbenos.");
+        if (inscrito)
+            return (false, "Estás inscrito en eventos que aún no han terminado. Date de baja o espera a que terminen para borrar tu cuenta.");
+
+        return await _unitOfWork.UsuarioRepository.AnonimizarAsync(idUsuario)
+            ? (true, null)
+            : (false, "No se ha encontrado la cuenta.");
     }
 
     public async Task<bool> EditAsync(EditarUsuarioDTO editarUsuarioDTO)
@@ -438,6 +463,7 @@ public class UsuarioApplication(
     public async Task PedirEnlaceContrasena(string email)
     {
         string correo = email.Trim();
+        if (correo.EndsWith("@" + UsuarioRepository.DOMINIO_BORRADOS, StringComparison.OrdinalIgnoreCase)) return;
 
         Contador enviados = _cache.GetOrCreate($"enlaces-contrasena:{correo.ToLowerInvariant()}", entrada =>
         {

@@ -18,7 +18,9 @@ public interface IUsuarioApplication
     Task<List<ViewUsuarioPartidaDTO>> GetAll();
     Task<List<UsuarioDTO>> GetUsuarios();
     Task<List<UsuarioNickDTO>> GetNicks();
-    Task<bool> Delete(string email);
+    Task<(bool Ok, string? Error)> BorrarMiCuentaAsync(int idUsuario, string contrasena);
+    Task<(bool Ok, string? Error)> BorrarCuentaAsync(int idUsuario);
+    Task<int?> GetIdByEmailAsync(string email);
     Task<UsuarioViewDTO> GetUsuario(string email);
     Task<string> GetNickById(int idUsuario);
     Task<ViewDetalleUsuarioDTO> GetDetalleUsuarioByEmail(string email);

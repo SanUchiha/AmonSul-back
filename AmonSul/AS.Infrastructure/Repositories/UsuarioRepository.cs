@@ -186,6 +186,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         {
             List<string> emails = await _dbamonsulContext.Usuarios
                 .AsNoTracking()
+                .Where(u => !u.Email.EndsWith("@" + DOMINIO_BORRADOS))
                 .Select(u => u.Email)
                 .ToListAsync();
 
@@ -194,21 +195,6 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         catch (Exception ex)
         {
             throw new Exception("Ocurrió un problema al obtener los emails.", ex);
-        }
-    }
-
-    public async Task<bool> Delete(string email)
-    {
-        try
-        {
-            var usuarioEncontrado = await this.GetByEmail(email) ?? throw new Exception("Ocurrió un problema al eliminar el usuario.");
-            _dbamonsulContext.Usuarios.Remove(usuarioEncontrado);
-            await _dbamonsulContext.SaveChangesAsync();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Ocurrió un problema al eliminar el usuario.", ex);
         }
     }
 
@@ -469,4 +455,71 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
 
         return cambiados > 0 ? email : null;
     }
+
+    public async Task<string?> GetContrasenaAsync(int idUsuario) =>
+        await _dbamonsulContext.Usuarios
+            .Where(u => u.IdUsuario == idUsuario)
+            .Select(u => u.Contraseña)
+            .FirstOrDefaultAsync();
+
+    // Lo que impide borrar una cuenta sin dejar a medias a otros: eventos sin terminar en los que está inscrito o que
+    // organiza
+    public async Task<(bool Inscrito, bool Organiza)> TieneEventosSinTerminarAsync(int idUsuario)
+    {
+        DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+        bool inscrito = await _dbamonsulContext.InscripcionTorneos
+            .AnyAsync(i => i.IdUsuario == idUsuario && i.IdTorneoNavigation!.FechaFinTorneo >= hoy);
+        bool organiza = await _dbamonsulContext.Torneos
+            .AnyAsync(t => t.IdUsuario == idUsuario && t.FechaFinTorneo >= hoy);
+        return (inscrito, organiza);
+    }
+
+    /// <summary>
+    /// Borra los datos personales de la cuenta y la deja como «Desconocido N»: la fila se queda para que sus
+    /// resultados, partidas y clasificaciones sigan, sin nada que lo identifique. El nick y el correo son únicos,
+    /// por eso llevan el id. Nadie puede volver a entrar: la contraseña queda vacía y el correo no existe
+    /// </summary>
+    public async Task<bool> AnonimizarAsync(int idUsuario)
+    {
+        string nick = $"Desconocido {idUsuario}";
+        string email = $"borrado-{idUsuario}@{DOMINIO_BORRADOS}";
+
+        using var transaccion = await _dbamonsulContext.Database.BeginTransactionAsync();
+
+        int cambiados = await _dbamonsulContext.Usuarios
+            .Where(u => u.IdUsuario == idUsuario)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.NombreUsuario, "Desconocido")
+                .SetProperty(u => u.PrimerApellido, "")
+                .SetProperty(u => u.SegundoApellido, (string?)null)
+                .SetProperty(u => u.Email, email)
+                .SetProperty(u => u.Contraseña, "")
+                .SetProperty(u => u.Nick, nick)
+                .SetProperty(u => u.NickLGDA, (string?)null)
+                .SetProperty(u => u.Ciudad, (string?)null)
+                .SetProperty(u => u.FechaNacimiento, DateOnly.MinValue)
+                .SetProperty(u => u.IdFaccion, (int?)null)
+                .SetProperty(u => u.Telefono, (string?)null)
+                .SetProperty(u => u.ProteccionDatos, (bool?)null)
+                .SetProperty(u => u.Imagen, (string?)null)
+                .SetProperty(u => u.PermiteNotificaciones, false)
+                .SetProperty(u => u.HashEnlaceContrasena, (string?)null)
+                .SetProperty(u => u.CaducidadEnlaceContrasena, (DateTime?)null));
+        if (cambiados == 0) return false;
+
+        // La clasificación de ELO guarda una copia del nick
+        await _dbamonsulContext.ClasificacionEloCache
+            .Where(c => c.IdUsuario == idUsuario)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.Nick, nick).SetProperty(c => c.IdFaccion, 0));
+        // Su correo ya no existe: ningún organizador lo vería, pero mejor que no quede marcado como compartido
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdUsuario == idUsuario)
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.CompartirEmail, (bool?)null));
+
+        await transaccion.CommitAsync();
+        return true;
+    }
+
+    // Los correos de las cuentas borradas: no existen, a ellos no se manda nada
+    public const string DOMINIO_BORRADOS = "amonsul.invalid";
 }

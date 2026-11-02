@@ -16,7 +16,6 @@ public interface IUsuarioRepository
     Task<List<Usuario>> GetAllSinImagen();
     Task<bool> EditAsync(Usuario usuario);
     Task<bool> Register(Usuario usuario);
-    Task<bool> Delete(string email);
     Task<Usuario> GetUsuario(string id);
 
     Task<UsuarioEmailDto> GetEmailNickById(int id);
@@ -32,4 +31,7 @@ public interface IUsuarioRepository
     Task<bool> GetProteccionDatos(int idUsuario);
     Task<bool> GuardarEnlaceContrasenaAsync(string email, string hash, DateTime caducidad);
     Task<string?> UsarEnlaceContrasenaAsync(string hash, string contrasenaCifrada);
+    Task<string?> GetContrasenaAsync(int idUsuario);
+    Task<(bool Inscrito, bool Organiza)> TieneEventosSinTerminarAsync(int idUsuario);
+    Task<bool> AnonimizarAsync(int idUsuario);
 }

@@ -38,6 +38,11 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
 
     private const int EDAD_MINIMA = 14;
 
+    // «Desconocido N» es el nick de las cuentas borradas: si alguien lo cogiera, no se podría borrar la cuenta N
+    private const string NICK_RESERVADO = "Los nicks que empiezan por «Desconocido» están reservados.";
+    private static bool EsNickReservado(string? nick) =>
+        nick?.Trim().StartsWith("Desconocido", StringComparison.OrdinalIgnoreCase) == true;
+
     [HttpPost]
     [AllowAnonymous]
     [Route("Registrar")]
@@ -45,6 +50,9 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
     {
         if (!registrarUsuarioDTO.AceptaPrivacidad)
             return BadRequest(new { message = "Tienes que aceptar la política de privacidad." });
+
+        if (EsNickReservado(registrarUsuarioDTO.Nick))
+            return BadRequest(new { message = NICK_RESERVADO });
 
         // Art. 7 LOPDGDD: con menos de 14 años hace falta el consentimiento de los padres
         if (registrarUsuarioDTO.FechaNacimiento > DateOnly.FromDateTime(DateTime.Today).AddYears(-EDAD_MINIMA))
@@ -279,24 +287,32 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
         }
     }
 
+    // Borrar tu cuenta: tus datos personales se borran y tus resultados quedan como «Desconocido». Pide la contraseña
+    [HttpPost]
+    [Route("Borrar-Mi-Cuenta")]
+    public async Task<IActionResult> BorrarMiCuenta([FromBody] BorrarCuentaDTO request)
+    {
+        if (!User.TryGetIdUsuario(out int idSolicitante))
+            return Unauthorized();
+        if (string.IsNullOrEmpty(request.Contrasena))
+            return BadRequest(new { message = "Escribe tu contraseña." });
+
+        var (ok, error) = await _usuarioApplication.BorrarMiCuentaAsync(idSolicitante, request.Contrasena);
+        return ok ? Ok() : BadRequest(new { message = error });
+    }
+
+    // La administración borra la cuenta de quien lo pide por correo: igual que al borrarla uno mismo
     [HttpDelete]
     [Route("{email}")]
     public async Task<IActionResult> Delete(string email)
     {
-        if (!EsSuCorreoOAdministracion(email)) return BadRequest("Solo puedes borrar tu propia cuenta.");
+        if (!EsAdministracion()) return BadRequest("Solo la administración puede borrar la cuenta de otro usuario.");
 
-        try
-        {
-            var response = await _usuarioApplication.Delete(email);
+        int? idUsuario = await _usuarioApplication.GetIdByEmailAsync(email);
+        if (idUsuario is null) return NotFound();
 
-            if (!response) return NotFound();
-
-            return Ok(response);
-        }
-        catch
-        {
-            return StatusCode(500, new { message = "Ocurrió un error en el servidor." });
-        }
+        var (ok, error) = await _usuarioApplication.BorrarCuentaAsync(idUsuario.Value);
+        return ok ? Ok() : BadRequest(new { message = error });
     }
 
     [HttpPut]
@@ -308,6 +324,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoAp
         // Cada uno solo edita su perfil. 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
         if (idSolicitante != request.IdUsuario)
             return BadRequest("Solo puedes modificar tu propio perfil.");
+        if (EsNickReservado(request.Nick))
+            return BadRequest(new { message = NICK_RESERVADO });
 
         try
         {
