@@ -2,6 +2,7 @@
 using AS.Application.DTOs.Ganador;
 using AS.Application.DTOs.PartidaTorneo;
 using AS.Application.Interfaces;
+using AS.Application.Utils;
 using AS.Domain.DTOs.Elos;
 using AS.Domain.DTOs.Equipo;
 using AS.Domain.Models;
@@ -154,21 +155,75 @@ public class GanadorApplication(
         return resultado;
     }
 
+    /// <summary>
+    /// Trabajo de fin de mes: guarda las posiciones de los torneos suizos terminados que su organizador no ha guardado
+    /// y les aplica el ELO, como si los guardase él. Terminado es que se han generado todas las rondas previstas y
+    /// todas sus partidas están validadas por los dos jugadores. Uno detrás de otro, del que acabó antes al último,
+    /// para que el ELO de cada uno parta del que dejó el anterior
+    /// </summary>
+    public async Task GuardarPosicionesTorneosTerminadosAsync()
+    {
+        List<Torneo> torneos =
+            await _unitOfWork.TorneoRepository.GetSuizosSinPosicionesAsync(DateOnly.FromDateTime(DateTime.Now));
+        bool algunoGuardado = false;
+
+        foreach (Torneo torneo in torneos)
+        {
+            List<PartidaTorneo> partidas =
+                await _unitOfWork.PartidaTorneoRepository.GetPartidasParaCalcularAsync(torneo.IdTorneo);
+            bool todasLasRondas = partidas.Count > 0 && partidas.Max(p => p.NumeroRonda ?? 0) >= torneo.NumeroPartidas;
+            if (!todasLasRondas || !partidas.All(ClasificacionJornadas.Jugada))
+                continue;
+
+            Dictionary<int, int> puntosExtra = await _unitOfWork.InscripcionRepository.GetPuntosExtraAsync(torneo.IdTorneo);
+            List<int> clasificacion = ClasificacionSuizo.Clasificar(
+                partidas,
+                torneo.ClassificationType,
+                torneo.TipoTorneo != TorneoType.INDIVIDUAL,
+                puntosExtra
+            );
+
+            // El ELO antes que las posiciones: si se corta a medias, el torneo sigue sin posiciones, la siguiente vez
+            // se vuelve a coger y el ELO sigue por las partidas que faltaban
+            await ActualizarEloAsync(new GenerarRondaDTO { IdTorneo = torneo.IdTorneo, IdRonda = torneo.NumeroPartidas });
+            List<Ganador> ganadores =
+            [
+                .. clasificacion.Select((idUsuario, i) => new Ganador
+                {
+                    IdTorneo = torneo.IdTorneo,
+                    IdUsuario = idUsuario,
+                    Resultado = i + 1,
+                }),
+            ];
+            algunoGuardado |= await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(ganadores);
+        }
+
+        if (algunoGuardado)
+            await _eloApplication.UpdateClasificacionEloCacheAsync();
+    }
+
     public async Task ActualizarEloAsync(GenerarRondaDTO request)
     {
-        // Me traigo todas las partidas del torneo.
-        List<PartidaTorneo> partidasTorneo = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(request.IdTorneo);
-
-        // Ordeno por rondas
-        partidasTorneo = [.. partidasTorneo.OrderBy(x => x.NumeroRonda)];
+        // Las partidas del torneo por rondas
+        List<PartidaTorneo> partidasTorneo =
+        [
+            .. (await _unitOfWork.PartidaTorneoRepository.GetPartidasParaCalcularAsync(request.IdTorneo))
+                .OrderBy(x => x.NumeroRonda)
+                .ThenBy(x => x.IdPartidaTorneo),
+        ];
 
         Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(request.IdTorneo);
         // Liga y Copa suman su ELO partida a partida al validarse (EloLigaApplication): al cerrarlas no se toca
         if (FormatoTorneoType.EsPorJornadas(torneo?.FormatoTorneo))
             return;
+
+        // Las que ya tienen ELO se saltan: si el trabajo se corta a medias y se repite, ninguna cuenta dos veces
+        HashSet<int> conElo =
+            await _unitOfWork.EloRepository.GetPartidasConEloAsync([.. partidasTorneo.Select(p => p.IdPartidaTorneo)]);
+
         if (torneo?.TipoTorneo == TorneoType.PAREJAS)
         {
-            await ActualizarEloParejasAsync(partidasTorneo);
+            await ActualizarEloParejasAsync(partidasTorneo, conElo);
             return;
         }
 
@@ -176,7 +231,7 @@ public class GanadorApplication(
         if (partidasTorneo.Where(x => x.NumeroRonda == 1).Count() <= 7) return;
 
         // Actualizamos el elo para todos los jugadores
-        foreach (PartidaTorneo partida in partidasTorneo)
+        foreach (PartidaTorneo partida in partidasTorneo.Where(p => !conElo.Contains(p.IdPartidaTorneo)))
         {
             int eloJugador1 = await _eloApplication.GetLastElo((int)partida.IdUsuario1!);
             int eloJugador2 = await _eloApplication.GetLastElo((int)partida.IdUsuario2!);
@@ -227,7 +282,7 @@ public class GanadorApplication(
     /// Parejas: el ELO de cada pareja es la media de sus jugadores y la variación de pareja contra
     /// pareja se suma o resta igual a los dos. Cuenta con 16 jugadores o más en la ronda 1, sin el bye
     /// </summary>
-    private async Task ActualizarEloParejasAsync(List<PartidaTorneo> partidasTorneo)
+    private async Task ActualizarEloParejasAsync(List<PartidaTorneo> partidasTorneo, HashSet<int> conElo)
     {
         int jugadoresRonda1 = partidasTorneo
             .Where(p => p.NumeroRonda == 1)
@@ -237,7 +292,7 @@ public class GanadorApplication(
             .Count();
         if (jugadoresRonda1 < 16) return;
 
-        foreach (PartidaTorneo partida in partidasTorneo)
+        foreach (PartidaTorneo partida in partidasTorneo.Where(p => !conElo.Contains(p.IdPartidaTorneo)))
         {
             List<int> pareja1 = [partida.IdUsuario1];
             if (partida.IdCompanero1 is int idCompanero1) pareja1.Add(idCompanero1);

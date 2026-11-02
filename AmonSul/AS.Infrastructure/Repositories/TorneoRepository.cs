@@ -1,6 +1,7 @@
 ﻿using AS.Domain.DTOs.Ganador;
 using AS.Domain.DTOs.Torneo;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
@@ -132,6 +133,34 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             .Torneos.Where(t => t.IdTorneo == idTorneo)
             .Select(t => t.FormatoTorneo)
             .FirstOrDefaultAsync();
+
+    /// <summary>
+    /// Suizos, menos los de Parejas, que han acabado como tarde el día dado, tienen partidas y aún no tienen
+    /// posiciones guardadas. Del que acabó antes al último y solo con lo que hace falta para clasificarlos
+    /// </summary>
+    public async Task<List<Torneo>> GetSuizosSinPosicionesAsync(DateOnly hasta) =>
+        await _dbamonsulContext
+            .Torneos.AsNoTracking()
+            .Where(t =>
+                t.FormatoTorneo == FormatoTorneoType.SUIZO
+                && t.TipoTorneo != TorneoType.PAREJAS
+                && t.FechaFinTorneo <= hasta
+                && t.PartidaTorneos.Any()
+                && !_dbamonsulContext.Ganador.Any(g => g.IdTorneo == t.IdTorneo)
+            )
+            .OrderBy(t => t.FechaFinTorneo)
+            .ThenBy(t => t.IdTorneo)
+            .Select(t => new Torneo
+            {
+                IdTorneo = t.IdTorneo,
+                NombreTorneo = t.NombreTorneo,
+                FechaFinTorneo = t.FechaFinTorneo,
+                NumeroPartidas = t.NumeroPartidas,
+                TipoTorneo = t.TipoTorneo,
+                FormatoTorneo = t.FormatoTorneo,
+                ClassificationType = t.ClassificationType,
+            })
+            .ToListAsync();
 
     public async Task<int> GetIdOrganizadorByIdTorneo(int IdTorneo) =>
         await _dbamonsulContext

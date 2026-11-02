@@ -16,6 +16,7 @@ public interface IEloRepository
     Task<List<ClasificacionEloDataDTO>> GetClasificacionEloAsync();
     Task<List<EloVariacionPartidaDTO>> GetVariacionesByPartidas(List<int> idsPartidaTorneo);
     Task<List<Elo>> GetByPartidaAsync(int idPartidaTorneo);
+    Task<HashSet<int>> GetPartidasConEloAsync(List<int> idsPartidaTorneo);
     Task<int> GetUltimoEloAsync(int idUsuario);
     Task<int> GetEloAnteriorAsync(int idUsuario, int idElo);
     Task DesplazarPosterioresAsync(int idUsuario, int idElo, int diferencia);

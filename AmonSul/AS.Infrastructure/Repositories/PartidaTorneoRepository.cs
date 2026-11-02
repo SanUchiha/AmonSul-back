@@ -117,6 +117,12 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         }
     }
 
+    /// <summary>
+    /// Las partidas del torneo sin nada relacionado ni seguimiento: para calcular su clasificación y su ELO
+    /// </summary>
+    public async Task<List<PartidaTorneo>> GetPartidasParaCalcularAsync(int idTorneo) =>
+        await _dbamonsulContext.PartidaTorneos.AsNoTracking().Where(p => p.IdTorneo == idTorneo).ToListAsync();
+
     public async Task<List<PartidaTorneo>> GetPartidasTorneoByRonda(int idTorneo, int ronda)
     {
         try

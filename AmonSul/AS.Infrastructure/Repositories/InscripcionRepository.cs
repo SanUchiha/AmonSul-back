@@ -263,6 +263,16 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
         return await _dbamonsulContext.InscripcionTorneos.ToListAsync();
     }
 
+    /// <summary>
+    /// Los puntos extra que el organizador ha dado a cada jugador del torneo
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetPuntosExtraAsync(int idTorneo) =>
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo)
+            .GroupBy(i => i.IdUsuario)
+            .Select(g => new { IdUsuario = g.Key, PuntosExtra = g.Sum(i => i.PuntosExtra) })
+            .ToDictionaryAsync(x => x.IdUsuario, x => x.PuntosExtra);
+
     public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo) =>
         await _dbamonsulContext.InscripcionTorneos
             .Include(it => it.IdUsuarioNavigation) // Incluye el usuario relacionado

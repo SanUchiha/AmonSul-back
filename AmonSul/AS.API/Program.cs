@@ -53,4 +53,19 @@ RecurringJob.AddOrUpdate<IEloApplication>(
     }
 );
 
+// El último día de cada mes se guardan las posiciones de los torneos terminados que nadie ha guardado
+RecurringJob.AddOrUpdate<IGanadorApplication>(
+    "guardar-posiciones-torneos-terminados",
+    job => job.GuardarPosicionesTorneosTerminadosAsync(),
+    "0 23 L * *",
+    new RecurringJobOptions
+    {
+        TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time")
+    }
+);
+// Los que ya estaban terminados se guardan al publicar esto, sin esperar a fin de mes. Repetirlo no hace nada:
+// solo coge los que siguen sin posiciones
+if (DateOnly.FromDateTime(DateTime.Now) <= new DateOnly(2026, 11, 3))
+    RecurringJob.TriggerJob("guardar-posiciones-torneos-terminados");
+
 app.Run();

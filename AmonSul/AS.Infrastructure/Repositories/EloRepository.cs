@@ -164,6 +164,18 @@ public class EloRepository(DbamonsulContext dbamonsulContext) : IEloRepository
     }
 
     /// <summary>
+    /// De las partidas dadas, las que ya tienen alguna fila de ELO
+    /// </summary>
+    public async Task<HashSet<int>> GetPartidasConEloAsync(List<int> idsPartidaTorneo) =>
+        [
+            .. await _dbamonsulContext.Elos
+                .Where(e => e.IdPartidaTorneo != null && idsPartidaTorneo.Contains(e.IdPartidaTorneo.Value))
+                .Select(e => e.IdPartidaTorneo!.Value)
+                .Distinct()
+                .ToListAsync(),
+        ];
+
+    /// <summary>
     /// Filas de ELO de una partida de torneo, para corregirlas o quitarlas
     /// </summary>
     public async Task<List<Elo>> GetByPartidaAsync(int idPartidaTorneo) =>
