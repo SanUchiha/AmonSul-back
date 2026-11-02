@@ -3,7 +3,9 @@ using Microsoft.Data.SqlClient;
 
 Console.WriteLine("Insertando registro de migración baseline...");
 
-string connectionString = "Data Source=SQL6032.site4now.net;Initial Catalog=db_aa5e12_amonsul;User Id=db_aa5e12_amonsul_admin;Password=29101988aA..;";
+// La cadena, de una variable de entorno: nunca escrita aquí, que el repositorio es público
+string connectionString = Environment.GetEnvironmentVariable("AMONSUL_CONNECTION_STRING")
+    ?? throw new InvalidOperationException("Falta la variable de entorno AMONSUL_CONNECTION_STRING.");
 
 try
 {
