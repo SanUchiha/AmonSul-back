@@ -43,7 +43,6 @@ public class EloApplication(
 
         ViewEloDTO view = new()
         {
-            Email = usuario.Email,
             Nick = usuario.Nick,
             IdUsuario = usuario.IdUsuario,
             Elos = elosMapper,
@@ -64,7 +63,6 @@ public class EloApplication(
             List<EloDTO> elosMapper = _mapper.Map<List<EloDTO>>(usuario.Elos.ToList());
             ViewEloDTO view = new()
             {
-                Email = usuario.Email,
                 Nick = usuario.Nick,
                 IdUsuario = usuario.IdUsuario,
                 Elos = elosMapper,

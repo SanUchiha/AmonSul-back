@@ -16,16 +16,6 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
 {
     private readonly IListaApplication _listaApplication = listaApplication;
 
-    [HttpGet]
-    public async Task<ActionResult<List<Lista>>> GetListas()
-    {
-        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
-            return Unauthorized();
-
-        var listas = await _listaApplication.GetListas(idUsuarioSolicitante);
-        return Ok(listas);
-    }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<ListaDTO>> GetListaById(int id)
     {
@@ -73,30 +63,6 @@ public class ListaController(IListaApplication listaApplication) : ControllerBas
         List<ListaViewDTO> listas = await _listaApplication.GetListasByInscripcionAsync(idInscripcion);
 
         return listas == null ? (ActionResult<Lista>)NotFound() : (ActionResult<Lista>)Ok(listas);
-    }
-
-    [HttpGet("Torneo/{idTorneo}")]
-    public async Task<ActionResult<List<Lista>>> GetListasByTorneo(int idTorneo)
-    {
-        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
-            return Unauthorized();
-
-        if (!await _listaApplication.PuedeVerListasTorneoAsync(idTorneo, idUsuarioSolicitante))
-            return BadRequest("Las listas de este torneo están ocultas.");
-
-        var listas = await _listaApplication.GetListasByTorneo(idTorneo);
-        return Ok(listas);
-    }
-
-    [HttpGet("User/{idUsuario}")]
-    public async Task<ActionResult<List<Lista>>> GetListasByUser(int idUsuario)
-    {
-        if (!User.TryGetIdUsuario(out int idUsuarioSolicitante))
-            return Unauthorized();
-
-        // Solo las de torneos con listas visibles, las propias y las de torneos que organiza
-        var listas = await _listaApplication.GetListasByUser(idUsuario, idUsuarioSolicitante);
-        return Ok(listas);
     }
 
     [HttpPost]

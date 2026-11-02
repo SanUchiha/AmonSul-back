@@ -4,17 +4,37 @@ using AS.Application.DTOs.Usuario;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Usuario;
 using AS.Domain.Exceptions;
+using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AS.API.Controllers;
 
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class UsuarioController(IUsuarioApplication usuarioApplication) : ControllerBase
+public class UsuarioController(IUsuarioApplication usuarioApplication, ITorneoApplication torneoApplication)
+    : ControllerBase
 {
     private readonly IUsuarioApplication _usuarioApplication = usuarioApplication;
+    private readonly ITorneoApplication _torneoApplication = torneoApplication;
+
+    // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+    private const string SOLO_TUS_DATOS = "Solo puedes ver tus propios datos.";
+    private const string SOLO_ADMINISTRACION = "Solo la administración puede ver los datos de todos los usuarios.";
+
+    private bool EsAdministracion() =>
+        User.TryGetIdUsuario(out int idSolicitante) && ConstAdministracion.EsAdministrador(idSolicitante);
+
+    // Los datos personales de un usuario: solo para él mismo o la administración
+    private bool EsUsuarioOAdministracion(int idUsuario) =>
+        EsAdministracion() || (User.TryGetIdUsuario(out int idSolicitante) && idSolicitante == idUsuario);
+
+    // Por correo, se compara con el de la sesión antes de buscar: así no se averigua qué correos están dados de alta
+    private bool EsSuCorreoOAdministracion(string email) =>
+        EsAdministracion()
+        || string.Equals(User.FindFirst(ClaimTypes.Email)?.Value?.Trim(), email.Trim(), StringComparison.OrdinalIgnoreCase);
 
     [HttpPost]
     [AllowAnonymous]
@@ -67,6 +87,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("All")]
     public async Task<IActionResult> GetAll()
     {
+        if (!EsAdministracion()) return BadRequest(SOLO_ADMINISTRACION);
+
         try
         {
             List<ViewUsuarioPartidaDTO> response = await _usuarioApplication.GetAll();
@@ -122,6 +144,11 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("torneo/{idTorneo}")]
     public async Task<IActionResult> GetUsuariosByTorneo(int idTorneo)
     {
+        // Lleva las listas de cada inscrito, también las ocultas: solo para quien organiza el torneo
+        if (!EsAdministracion()
+            && !(User.TryGetIdUsuario(out int idSolicitante) && await _torneoApplication.EsOrganizadorAsync(idTorneo, idSolicitante)))
+            return BadRequest("Solo el organizador del torneo puede ver sus inscritos con las listas.");
+
         try
         {
             List<UsuarioInscripcionTorneoDTO> response = await _usuarioApplication.GetUsuariosByTorneo(idTorneo);
@@ -140,6 +167,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("Nicks")]
     public async Task<IActionResult> GetNicks()
     {
+        if (!EsAdministracion()) return BadRequest(SOLO_ADMINISTRACION);
+
         try
         {
             var response = await _usuarioApplication.GetNicks();
@@ -163,6 +192,9 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
             UsuarioDataDTO response = await _usuarioApplication.GetUsuarioDataAsync(idUsuario);
             if (response is null) return NoContent();
 
+            // La ficha la ve cualquiera; el correo, solo su dueño
+            if (!EsUsuarioOAdministracion(idUsuario)) response.Email = null;
+
             return Ok(response);
         }
         catch
@@ -175,6 +207,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("Email/{email}")]
     public async Task<IActionResult> GetByEmail(string email)
     {
+        if (!EsSuCorreoOAdministracion(email)) return BadRequest(SOLO_TUS_DATOS);
+
         try
         {
             ViewUsuarioPartidaDTO? response = await _usuarioApplication.GetByEmail(email);
@@ -253,7 +287,9 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [HttpGet]
     [Route("Proteccion-Datos/{idUsuario}")]
     public async Task<IActionResult> GetProteccionDatos(int idUsuario) =>
-        Ok(await _usuarioApplication.GetProteccionDatos(idUsuario));
+        EsUsuarioOAdministracion(idUsuario)
+            ? Ok(await _usuarioApplication.GetProteccionDatos(idUsuario))
+            : BadRequest(SOLO_TUS_DATOS);
     
     [HttpPut]
     [Route("Proteccion-Datos")]
@@ -295,6 +331,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("{email}")]
     public async Task<IActionResult> Get(string email)
     {
+        if (!EsSuCorreoOAdministracion(email)) return BadRequest(SOLO_TUS_DATOS);
+
         try
         {
             UsuarioViewDTO? response = await _usuarioApplication.GetUsuario(email);
@@ -313,6 +351,8 @@ public class UsuarioController(IUsuarioApplication usuarioApplication) : Control
     [Route("detalle/{email}")]
     public async Task<IActionResult> GetDetalle(string email)
     {
+        if (!EsSuCorreoOAdministracion(email)) return BadRequest(SOLO_TUS_DATOS);
+
         try
         {
             var response = await _usuarioApplication.GetDetalleUsuarioByEmail(email);

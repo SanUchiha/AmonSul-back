@@ -586,6 +586,15 @@ public class TorneoController(
         if (equipos == null)
             return NotFound();
 
+        // Lo usa el detalle del evento, que ve cualquiera: los correos, solo para el organizador
+        if (!User.TryGetIdUsuario(out int idSolicitante)
+            || !await _torneoApplication.EsOrganizadorAsync(idTorneo, idSolicitante))
+            foreach (EquipoDTO equipo in equipos)
+            {
+                equipo.EmailCapitan = null;
+                equipo.Inscripciones.ForEach(i => i.Email = null);
+            }
+
         return Ok(equipos);
     }
 

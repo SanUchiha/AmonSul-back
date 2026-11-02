@@ -3,6 +3,8 @@ using AS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Hangfire;
+using AS.API.Extensions;
+using AS.Utils.Constantes;
 
 namespace AS.API.Controllers;
 
@@ -28,6 +30,10 @@ public class EloController(IEloApplication EloApplication) : ControllerBase
     [Route("")]
     public async Task<IActionResult> GetAllElos()
     {
+        // Todos los usuarios con todo su historial: solo para la administración
+        if (!User.TryGetIdUsuario(out int idSolicitante) || !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede ver el ELO de todos los usuarios.");
+
         var response = await _eloApplication.GetAllElos();
 
         if (response == null) return NotFound();

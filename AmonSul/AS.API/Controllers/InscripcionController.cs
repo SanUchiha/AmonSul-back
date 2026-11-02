@@ -3,6 +3,7 @@ using AS.Application.DTOs.Inscripcion;
 using AS.Application.Interfaces;
 using AS.Domain.DTOs.Inscripcion;
 using AS.Domain.Models;
+using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,28 @@ namespace AS.Api.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class InscripcionController(IInscripcionApplication inscripcionApplication) : ControllerBase
+public class InscripcionController(
+    IInscripcionApplication inscripcionApplication,
+    ITorneoApplication torneoApplication
+) : ControllerBase
 {
     private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
+    private readonly ITorneoApplication _torneoApplication = torneoApplication;
+
+    // Una inscripción, con su lista aunque esté oculta: solo el inscrito, el organizador del torneo o la administración
+    private async Task<bool> PuedeVerInscripcionAsync(int idTorneo, int idUsuarioInscrito) =>
+        User.TryGetIdUsuario(out int idSolicitante)
+        && (idSolicitante == idUsuarioInscrito
+            || ConstAdministracion.EsAdministrador(idSolicitante)
+            || await _torneoApplication.EsOrganizadorAsync(idTorneo, idSolicitante));
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InscripcionTorneo>>> GetInscripciones()
     {
+        // Todas las inscripciones de todos: solo para la administración
+        if (!User.TryGetIdUsuario(out int idSolicitante) || !ConstAdministracion.EsAdministrador(idSolicitante))
+            return BadRequest("Solo la administración puede ver todas las inscripciones.");
+
         List<InscripcionTorneo> inscripciones = await _inscripcionApplication.GetInscripciones();
         return Ok(inscripciones);
     }
@@ -30,6 +46,11 @@ public class InscripcionController(IInscripcionApplication inscripcionApplicatio
         {
             return NotFound();
         }
+
+        // 400 y no 403: el interceptor del front manda a la página de error con cualquier 403
+        if (!await PuedeVerInscripcionAsync(inscripcion.IdTorneo, inscripcion.IdUsuario))
+            return BadRequest("Solo puedes ver tus propias inscripciones.");
+
         return Ok(inscripcion);
     }
 
