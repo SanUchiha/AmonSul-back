@@ -42,12 +42,9 @@ public class UsuarioApplication(
 
         if (usuario == null) return false;
 
-        string oldPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.OldPass!);
-        if (oldPassEnc != usuario.Contraseña) return false;
+        if (!Contrasenas.Comprobar(cambiarPassDTO.OldPass!, usuario.Contraseña)) return false;
 
-        string newPassEnc = Utilidades.EncriptarSHA256(cambiarPassDTO.NewPass!);
-
-        usuario.Contraseña = newPassEnc;
+        usuario.Contraseña = Contrasenas.Cifrar(cambiarPassDTO.NewPass!);
         bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
         return result;
@@ -431,9 +428,7 @@ public class UsuarioApplication(
 
         //2. conseguimos la contraseña
         string pass = Utilidades.GenerarPassTemporal();
-        string passEnc = Utilidades.EncriptarSHA256(pass);
-        
-        usuario.Contraseña = passEnc;
+        usuario.Contraseña = Contrasenas.Cifrar(pass);
 
         bool actualizarUsuario = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
         if (!actualizarUsuario) return false;
@@ -455,7 +450,7 @@ public class UsuarioApplication(
         try
         {
             string rawPass = registrarUsuarioDTO.Contraseña;
-            registrarUsuarioDTO.Contraseña = Utilidades.EncriptarSHA256(registrarUsuarioDTO.Contraseña);
+            registrarUsuarioDTO.Contraseña = Contrasenas.Cifrar(registrarUsuarioDTO.Contraseña);
             Usuario usuario = _mapper.Map<Usuario>(registrarUsuarioDTO);
             bool rawResponse = await _unitOfWork.UsuarioRepository.Register(usuario);
 

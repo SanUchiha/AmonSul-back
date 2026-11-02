@@ -18,14 +18,16 @@ public class AccountRepository : IAccountRepository
 
     public async Task<LoginResponse> Login(LoginDTO loginDTO)
     {
-        var foundUser = await _dbamonsulContext.Usuarios.Where(u =>
-            u.Email == loginDTO.Email &&
-            u.Contraseña == Utilidades.EncriptarSHA256(loginDTO.Password!))
+        // Solo lo necesario: la foto de perfil, que en algunos pesa megas, no hace falta para entrar
+        var cuenta = await _dbamonsulContext.Usuarios
+            .Where(u => u.Email == loginDTO.Email)
+            .Select(u => new { u.IdUsuario, u.Email, u.Contraseña })
             .FirstOrDefaultAsync();
 
-        if (foundUser == null) return new LoginResponse { IsAccess = false };
+        if (cuenta is null || !Contrasenas.Comprobar(loginDTO.Password!, cuenta.Contraseña))
+            return new LoginResponse { IsAccess = false };
 
-        var token = _utilidades.GenerarJWT(foundUser);
+        var token = _utilidades.GenerarJWT(new Domain.Models.Usuario { IdUsuario = cuenta.IdUsuario, Email = cuenta.Email });
 
         var loginResponse = new LoginResponse
         {

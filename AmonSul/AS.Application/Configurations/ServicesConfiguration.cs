@@ -11,6 +11,8 @@ public static class ServicesConfiguration
     {
         services.AddSingleton(configuration);
         services.AddHttpClient();
+        // Los intentos fallidos de inicio de sesión de cada correo
+        services.AddMemoryCache();
 
         services.AddScoped<IUsuarioApplication, UsuarioApplication>();
         services.AddScoped<ILoginApplication, LoginApplication>();
