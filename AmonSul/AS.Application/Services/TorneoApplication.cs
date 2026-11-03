@@ -381,6 +381,9 @@ public class TorneoApplication(
         if (!string.IsNullOrWhiteSpace(request.LugarTorneo))
             torneo.LugarTorneo = request.LugarTorneo;
 
+        // El formulario la manda siempre, también vacía o borrada (null) para quitarla
+        torneo.DescripcionTorneo = request.DescripcionTorneo?.Trim() ?? "";
+
         if (request.FechaEntregaListas.HasValue)
             torneo.FechaEntregaListas = request.FechaEntregaListas.Value;
 

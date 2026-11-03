@@ -12,6 +12,8 @@ public class UpdateTorneoDTO
     public int? NumeroPartidas { get; set; }
     public int? PuntosTorneo { get; set; }
     public string? LugarTorneo { get; set; } = null!;
+    // Opcional: vacía o borrada, el torneo se queda sin descripción
+    public string? DescripcionTorneo { get; set; }
     public DateOnly? FechaEntregaListas { get; set; }
     public DateOnly? FechaFinInscripcion { get; set; }
     public string? BasesTorneo { get; set; }
