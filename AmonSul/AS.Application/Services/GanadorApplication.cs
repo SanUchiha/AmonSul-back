@@ -156,50 +156,99 @@ public class GanadorApplication(
     }
 
     /// <summary>
-    /// Trabajo de fin de mes: guarda las posiciones de los torneos suizos terminados que su organizador no ha guardado
-    /// y les aplica el ELO, como si los guardase él. Terminado es que se han generado todas las rondas previstas y
-    /// todas sus partidas están validadas por los dos jugadores. Uno detrás de otro, del que acabó antes al último,
-    /// para que el ELO de cada uno parta del que dejó el anterior
+    /// Trabajo de fin de mes: guarda las posiciones de los torneos suizos (también a Parejas) y de las ligas que han
+    /// terminado y su organizador no ha cerrado, y les aplica el ELO como si los guardase él. Uno detrás de otro, del
+    /// que acabó antes al último, para que el ELO de cada uno parta del que dejó el anterior
     /// </summary>
     public async Task GuardarPosicionesTorneosTerminadosAsync()
     {
         List<Torneo> torneos =
-            await _unitOfWork.TorneoRepository.GetSuizosSinPosicionesAsync(DateOnly.FromDateTime(DateTime.Now));
+            await _unitOfWork.TorneoRepository.GetSinPosicionesAsync(DateOnly.FromDateTime(DateTime.Now));
         bool algunoGuardado = false;
 
         foreach (Torneo torneo in torneos)
         {
             List<PartidaTorneo> partidas =
                 await _unitOfWork.PartidaTorneoRepository.GetPartidasParaCalcularAsync(torneo.IdTorneo);
-            bool todasLasRondas = partidas.Count > 0 && partidas.Max(p => p.NumeroRonda ?? 0) >= torneo.NumeroPartidas;
-            if (!todasLasRondas || !partidas.All(ClasificacionJornadas.Jugada))
+            if (!EstaTerminado(torneo, partidas))
                 continue;
 
-            Dictionary<int, int> puntosExtra = await _unitOfWork.InscripcionRepository.GetPuntosExtraAsync(torneo.IdTorneo);
-            List<int> clasificacion = ClasificacionSuizo.Clasificar(
-                partidas,
-                torneo.ClassificationType,
-                torneo.TipoTorneo != TorneoType.INDIVIDUAL,
-                puntosExtra
-            );
+            List<GanadorDTO> clasificacion = await ClasificacionFinalAsync(torneo, partidas);
+            // Una fila por jugador y sin el bye, como al guardarlas el organizador
+            clasificacion =
+                [.. clasificacion.Where(g => g.IdUsuario != 568).OrderBy(g => g.Resultado).DistinctBy(g => g.IdUsuario)];
+            if (clasificacion.Count == 0)
+                continue;
 
             // El ELO antes que las posiciones: si se corta a medias, el torneo sigue sin posiciones, la siguiente vez
-            // se vuelve a coger y el ELO sigue por las partidas que faltaban
+            // se vuelve a coger y el ELO sigue por las partidas que faltaban. La liga ya lo sumó partida a partida
             await ActualizarEloAsync(new GenerarRondaDTO { IdTorneo = torneo.IdTorneo, IdRonda = torneo.NumeroPartidas });
-            List<Ganador> ganadores =
-            [
-                .. clasificacion.Select((idUsuario, i) => new Ganador
-                {
-                    IdTorneo = torneo.IdTorneo,
-                    IdUsuario = idUsuario,
-                    Resultado = i + 1,
-                }),
-            ];
-            algunoGuardado |= await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(ganadores);
+            algunoGuardado |= await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(
+                _mapper.Map<List<Ganador>>(clasificacion));
         }
 
         if (algunoGuardado)
             await _eloApplication.UpdateClasificacionEloCacheAsync();
+    }
+
+    /// <summary>
+    /// Todas sus partidas están validadas por los dos jugadores y, en un suizo, se han generado todas las rondas
+    /// previstas. Una liga genera todas sus jornadas de una vez: le basta con lo primero
+    /// </summary>
+    internal static bool EstaTerminado(Torneo torneo, List<PartidaTorneo> partidas)
+    {
+        if (partidas.Count == 0 || !partidas.All(ClasificacionJornadas.Jugada))
+            return false;
+        return torneo.FormatoTorneo == FormatoTorneoType.LIGA
+            || partidas.Max(p => p.NumeroRonda ?? 0) >= torneo.NumeroPartidas;
+    }
+
+    /// <summary>
+    /// Las posiciones como las calcula la gestión de cada formato en el front al guardarlas
+    /// </summary>
+    private async Task<List<GanadorDTO>> ClasificacionFinalAsync(Torneo torneo, List<PartidaTorneo> partidas)
+    {
+        GanadorDTO Posicion(int idUsuario, int puesto) =>
+            new() { IdTorneo = torneo.IdTorneo, IdUsuario = idUsuario, Resultado = puesto };
+
+        // Liga: todos contra todos; salen los que tienen partidas, porque un retirado ya no tiene ninguna
+        if (torneo.FormatoTorneo == FormatoTorneoType.LIGA)
+        {
+            HashSet<int> juegan = [.. partidas.SelectMany(p => new[] { p.IdUsuario1, p.IdUsuario2 })];
+            List<InscripcionTorneo> jugadores =
+            [
+                .. (await _unitOfWork.InscripcionRepository.GetInscripcionesParaMostrarAsync(torneo.IdTorneo))
+                    .Where(i => juegan.Contains(i.IdUsuario))
+                    .DistinctBy(i => i.IdUsuario),
+            ];
+            return
+            [
+                .. ClasificacionJornadas
+                    .Clasificar(jugadores, partidas, torneo.ClassificationType)
+                    .Select(f => Posicion(f.Inscripcion.IdUsuario, f.Posicion)),
+            ];
+        }
+
+        // Parejas: cada pareja con su capitán; el compañero queda en el mismo puesto
+        if (torneo.TipoTorneo == TorneoType.PAREJAS)
+        {
+            List<EquipoDTO> parejas = await _unitOfWork.InscripcionRepository.GetAllEquiposByTorneoAsync(torneo.IdTorneo);
+            List<GanadorDTO> capitanes =
+            [
+                .. ClasificacionParejas
+                    .Clasificar(parejas, partidas, torneo.ClassificationType)
+                    .Select((pareja, i) => Posicion(pareja.IdCapitan, i + 1)),
+            ];
+            return await ConParejasCompletasAsync(capitanes, torneo.IdTorneo);
+        }
+
+        Dictionary<int, int> puntosExtra = await _unitOfWork.InscripcionRepository.GetPuntosExtraAsync(torneo.IdTorneo);
+        return
+        [
+            .. ClasificacionSuizo
+                .Clasificar(partidas, torneo.ClassificationType, torneo.TipoTorneo != TorneoType.INDIVIDUAL, puntosExtra)
+                .Select((idUsuario, i) => Posicion(idUsuario, i + 1)),
+        ];
     }
 
     public async Task ActualizarEloAsync(GenerarRondaDTO request)

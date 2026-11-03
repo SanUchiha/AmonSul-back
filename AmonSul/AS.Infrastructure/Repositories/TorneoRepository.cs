@@ -135,16 +135,17 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             .FirstOrDefaultAsync();
 
     /// <summary>
-    /// Suizos, menos los de Parejas, que han acabado como tarde el día dado, tienen partidas y aún no tienen
-    /// posiciones guardadas. Del que acabó antes al último y solo con lo que hace falta para clasificarlos
+    /// Los que pueden cerrarse solos: suizos (también a Parejas) que han acabado como tarde el día dado y ligas, que
+    /// generan todas sus jornadas de una vez y terminan cuando se valida la última partida, sea cuando sea. Con partidas
+    /// y sin posiciones guardadas. Las copas no: guardan sus posiciones al jugarse la final. Del que acabó antes al
+    /// último y solo con lo que hace falta para clasificarlos
     /// </summary>
-    public async Task<List<Torneo>> GetSuizosSinPosicionesAsync(DateOnly hasta) =>
+    public async Task<List<Torneo>> GetSinPosicionesAsync(DateOnly hasta) =>
         await _dbamonsulContext
             .Torneos.AsNoTracking()
             .Where(t =>
-                t.FormatoTorneo == FormatoTorneoType.SUIZO
-                && t.TipoTorneo != TorneoType.PAREJAS
-                && t.FechaFinTorneo <= hasta
+                ((t.FormatoTorneo == FormatoTorneoType.SUIZO && t.FechaFinTorneo <= hasta)
+                    || t.FormatoTorneo == FormatoTorneoType.LIGA)
                 && t.PartidaTorneos.Any()
                 && !_dbamonsulContext.Ganador.Any(g => g.IdTorneo == t.IdTorneo)
             )
