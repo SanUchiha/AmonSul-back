@@ -314,12 +314,9 @@ public class TorneoController(
         if (await SoloOrganizadorAsync(request.IdTorneo, "modificar el torneo") is IActionResult denegado)
             return denegado;
 
-        // Sin guardar nada si un cambio no se puede hacer: el formato con partidas ya generadas o, cerrado el torneo,
-        // cómo puntúa. El front avisaba de que estaba guardado aunque no lo estuviera
-        if (!await _torneoApplication.UpdateTorneoAsync(request))
-            return BadRequest("No se ha podido modificar el torneo: con partidas o con los resultados guardados hay datos que ya no se cambian.");
-
-        return Ok(true);
+        // Si un cambio no se puede hacer no se guarda nada y el front enseña por qué
+        (bool ok, string? error) = await _torneoApplication.UpdateTorneoAsync(request);
+        return ok ? Ok(true) : BadRequest(error);
     }
 
     [HttpPatch]

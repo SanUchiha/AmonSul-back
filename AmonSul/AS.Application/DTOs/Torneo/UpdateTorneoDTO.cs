@@ -5,6 +5,8 @@ namespace AS.Application.DTOs.Torneo;
 public class UpdateTorneoDTO
 {
     public int IdTorneo { get; set; }
+    // Al cambiarlo se renombra también el archivo de sus bases
+    public string? NombreTorneo { get; set; }
     public int? LimiteParticipantes { get; set; }
     public DateOnly? FechaInicioTorneo { get; set; }
     public DateOnly? FechaFinTorneo { get; set; }

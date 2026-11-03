@@ -342,11 +342,23 @@ public class TorneoApplication(
         return result;
     }
 
-    public async Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request)
+    /// <summary>
+    /// Guarda los cambios del torneo. Si alguno no se puede hacer no se guarda nada y dice por qué
+    /// </summary>
+    public async Task<(bool Ok, string? Error)> UpdateTorneoAsync(UpdateTorneoDTO request)
     {
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(request.IdTorneo);
         if (torneo == null)
-            return false;
+            return (false, "El torneo no existe.");
+
+        // El nombre también nombra el archivo de las bases: no puede llevar barras, que lo sacarían de su carpeta
+        string? nombreNuevo = request.NombreTorneo?.Trim();
+        string nombreAnterior = torneo.NombreTorneo;
+        bool renombra = !string.IsNullOrEmpty(nombreNuevo) && nombreNuevo != nombreAnterior;
+        if (renombra && nombreNuevo!.Length > MAXIMO_NOMBRE)
+            return (false, $"El nombre no puede pasar de {MAXIMO_NOMBRE} caracteres.");
+        if (renombra && nombreNuevo!.IndexOfAny(['/', '\\']) >= 0)
+            return (false, "El nombre no puede llevar / ni \\.");
 
         // Cerrado, lo que decide cómo puntúa ya no cambia: la clasificación dejaría de ser la de las posiciones guardadas
         bool cambiaComoPuntua =
@@ -356,7 +368,7 @@ public class TorneoApplication(
                 && !FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
             || (request.ListaPorPareja.HasValue && request.ListaPorPareja != torneo.ListaPorPareja);
         if (cambiaComoPuntua && await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(torneo.IdTorneo))
-            return false;
+            return (false, "Los resultados ya están guardados: el tipo de clasificación, el tipo de torneo, las rondas y el modo de listas ya no cambian.");
 
         torneo.ClassificationType = request.ClassificationType;
 
@@ -422,7 +434,7 @@ public class TorneoApplication(
                 await _unitOfWork.PartidaTorneoRepository.GetNumerosRondasConPartidasAsync(torneo.IdTorneo)
             ).Count > 0;
             if (tienePartidas)
-                return false;
+                return (false, "Con partidas generadas ya no cambian el ELO, la ida y vuelta, los grupos ni el reparto.");
             torneo.CuentaElo = request.CuentaElo ?? torneo.CuentaElo;
             torneo.IdaYVuelta = request.IdaYVuelta ?? torneo.IdaYVuelta;
             torneo.NumeroGrupos = request.NumeroGrupos ?? torneo.NumeroGrupos;
@@ -439,34 +451,76 @@ public class TorneoApplication(
         {
             List<PartidaTorneo> partidas = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(torneo.IdTorneo);
             if (partidas.Any(p => p.Fase is not null && p.Fase != FaseCopaType.GRUPOS))
-                return false;
+                return (false, "Con la eliminatoria empezada ya no cambian los clasificados, el desempate ni el tercer puesto.");
             torneo.ClasificadosPorGrupo = request.ClasificadosPorGrupo ?? torneo.ClasificadosPorGrupo;
             torneo.DesempateEliminatoria = request.DesempateEliminatoria ?? torneo.DesempateEliminatoria;
             torneo.TercerPuesto = request.TercerPuesto ?? torneo.TercerPuesto;
         }
 
-        if (AjustarFormato(torneo) is not null)
-            return false;
+        if (AjustarFormato(torneo) is string errorFormato)
+            return (false, errorFormato);
         AjustarModoListas(torneo);
 
         torneo.BasesTorneo = null;
         torneo.DescripcionTorneo ??= "";
         torneo.MetodosPago ??= "";
 
+        // Con todo lo demás comprobado: las bases pasan al nombre nuevo antes de guardarlo y vuelven si no se guarda
+        if (renombra)
+        {
+            if (RenombrarBases(nombreAnterior, nombreNuevo!) is string errorBases)
+                return (false, errorBases);
+            torneo.NombreTorneo = nombreNuevo!;
+        }
+
         bool torneoEditado = await _unitOfWork.TorneoRepository.Edit(torneo);
 
         if (!torneoEditado)
-            return false;
+        {
+            if (renombra)
+                RenombrarBases(nombreNuevo!, nombreAnterior);
+            return (false, "No se ha podido guardar el torneo.");
+        }
 
         // Si cambia de año, pasa al Amon Sûl del nuevo
         await _circuitoApplication.AsociarAmonSulAsync(torneo.IdTorneo, torneo.FechaInicioTorneo);
 
         if (string.IsNullOrWhiteSpace(request.BasesTorneo))
-            return true;
+            return (true, null);
 
         await GuardarBasesEnPDFAsync(request.BasesTorneo, torneo.NombreTorneo);
 
-        return torneoEditado;
+        return (true, null);
+    }
+
+    /// <summary>
+    /// Las bases se guardan y se buscan por el nombre del torneo: al renombrarlo, su archivo pasa al nombre nuevo para
+    /// que se sigan encontrando y descargando. Sin bases no hay nada que mover. Null si va bien; si no, por qué
+    /// </summary>
+    private static string? RenombrarBases(string nombreAnterior, string nombreNuevo)
+    {
+        string carpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Bases");
+        string anterior = Path.Combine(carpeta, nombreAnterior + ".pdf");
+        // Como al buscarlas: si el nombre lleva comillas, el archivo puede estar sin ellas
+        if (!File.Exists(anterior))
+            anterior = anterior.Replace("\"", "");
+        if (!File.Exists(anterior))
+            return null;
+
+        string nuevo = Path.Combine(carpeta, nombreNuevo + ".pdf");
+        bool mismoArchivo = string.Equals(anterior, nuevo, StringComparison.OrdinalIgnoreCase);
+        if (File.Exists(nuevo) && !mismoArchivo)
+            return "Ya hay unas bases guardadas con ese nombre: elige otro.";
+
+        try
+        {
+            File.Move(anterior, nuevo);
+            return null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            return "No se han podido renombrar las bases con ese nombre: prueba sin caracteres como : * ? \" < > |";
+        }
     }
 
     public async Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request, int idTorneo)

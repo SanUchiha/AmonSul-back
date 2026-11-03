@@ -19,7 +19,7 @@ public interface ITorneoApplication
     //Gestion
     Task<List<TorneoCreadoUsuarioDTO>> GetTorneosCreadosUsuario(int IdUsuario);
     Task<TorneoGestionInfoDTO> GetInfoTorneoCreado(int IdTorneo);
-    Task<bool> UpdateTorneoAsync(UpdateTorneoDTO request);
+    Task<(bool Ok, string? Error)> UpdateTorneoAsync(UpdateTorneoDTO request);
     Task<bool> UpdateBasesTorneoAsync(UpdateBasesDTO request, int idTorneo);
     Task<TorneoEquipoGestionInfoDTO> GetInfoTorneoEquipoCreado(int idTorneo);
     Task<TorneoGestionInfoMasDTO> GetInfoTorneoCreadoMasAsync(int idTorneo);
