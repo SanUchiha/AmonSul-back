@@ -91,15 +91,29 @@ public class GanadorApplication(
 
     public async Task<bool> SaveResultTournamentAsync(GuardarResultadosDTO guardarResultadosDTO)
     {
-        List<GanadorDTO> ganadores = guardarResultadosDTO.GanadoresDTO;
         int idTorneo = guardarResultadosDTO.GenerarRondaDTO.IdTorneo;
         Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(idTorneo);
-        if (torneo?.TipoTorneo == TorneoType.PAREJAS)
-            ganadores = await ConParejasCompletasAsync(ganadores, idTorneo);
+
+        // Las posiciones las calcula el servidor con las partidas validadas de ahora y la misma regla que la gestión: una
+        // página abierta antes de validar las últimas partidas guardaba su clasificación vieja. La copa no pasa por aquí,
+        // guarda las suyas al jugarse la final; por si acaso, con ella se usan las que llegan
+        List<GanadorDTO> ganadores;
+        if (torneo is not null && torneo.FormatoTorneo != FormatoTorneoType.COPA)
+            ganadores = await ClasificacionFinalAsync(
+                torneo, await _unitOfWork.PartidaTorneoRepository.GetPartidasParaCalcularAsync(idTorneo));
+        else
+        {
+            ganadores = guardarResultadosDTO.GanadoresDTO;
+            if (torneo?.TipoTorneo == TorneoType.PAREJAS)
+                ganadores = await ConParejasCompletasAsync(ganadores, idTorneo);
+        }
 
         // Una fila por jugador: el índice único de torneo y jugador rechazaría el guardado entero.
         // El bye (568) no es un jugador: no lleva posición
         ganadores = [.. ganadores.Where(g => g.IdUsuario != 568).OrderBy(g => g.Resultado).DistinctBy(g => g.IdUsuario)];
+        // Sin ninguna partida validada no hay clasificación que guardar
+        if (ganadores.Count == 0)
+            return false;
 
         // False si otra petición lo guardó a la vez: sin esto el ELO del torneo se aplicaría dos veces
         if (!await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(

@@ -125,6 +125,9 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
                 // Para fechar las rondas que se generan
                 FechaInicioTorneo = t.FechaInicioTorneo,
                 FechaFinTorneo = t.FechaFinTorneo,
+                // Para calcular la clasificación al guardar las posiciones
+                ClassificationType = t.ClassificationType,
+                NumeroPartidas = t.NumeroPartidas,
             })
             .FirstOrDefaultAsync();
 
