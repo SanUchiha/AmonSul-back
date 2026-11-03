@@ -320,6 +320,9 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
                     existingEntity.GanadorPartidaTorneo = existingEntity.IdUsuario2;
             }
         }
+        // La que llega es otra copia, sin seguimiento: se lleva el ganador calculado para que la respuesta lo tenga. Sin
+        // él la gestión contaba la partida como empate hasta recargar
+        partidaTorneo.GanadorPartidaTorneo = existingEntity.GanadorPartidaTorneo;
         await _dbamonsulContext.SaveChangesAsync();
         if (transaction is not null)
             await transaction.CommitAsync();
