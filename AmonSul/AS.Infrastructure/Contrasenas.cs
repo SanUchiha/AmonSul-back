@@ -70,5 +70,10 @@ public static class Contrasenas
 
     public static string HashDeEnlace(string enlace) => Sha256(enlace);
 
+    // El refresh token de la sesión de la app: igual que el enlace, al azar y en la BD solo su hash
+    public static (string Token, string Hash) NuevoRefreshToken() => NuevoEnlace();
+
+    public static string HashDeRefreshToken(string token) => Sha256(token);
+
     private static string Sha256(string texto) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(texto))).ToLowerInvariant();
 }

@@ -61,6 +61,9 @@ public class UsuarioApplication(
         usuario.CaducidadEnlaceContrasena = null;
         bool result = await _unitOfWork.UsuarioRepository.EditAsync(usuario);
 
+        // Y cierra la sesión en todos sus dispositivos: en cada uno, al caducar el token, pedirá la nueva
+        if (result) await _unitOfWork.UsuarioRepository.BorrarRefreshTokensAsync(usuario.IdUsuario);
+
         return result;
     }
 

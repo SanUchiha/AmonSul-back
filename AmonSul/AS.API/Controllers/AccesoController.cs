@@ -24,4 +24,17 @@ public class AccesoController(
 
         return Ok(response);
     }
+
+    // Cuando caduca el token, la app pide otro con el refresh token: con entrar una vez basta
+    [HttpPost]
+    [Route("Refresh")]
+    public async Task<IActionResult> Refresh(RefreshDTO refreshDTO)
+    {
+        if (string.IsNullOrEmpty(refreshDTO?.RefreshToken))
+            return BadRequest();
+
+        LoginResponse response = await _loginApplication.Refresh(refreshDTO.RefreshToken);
+
+        return response.IsAccess ? Ok(response) : Unauthorized();
+    }
 }

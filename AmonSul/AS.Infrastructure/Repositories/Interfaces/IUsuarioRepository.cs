@@ -31,6 +31,7 @@ public interface IUsuarioRepository
     Task<bool> GetProteccionDatos(int idUsuario);
     Task<bool> GuardarEnlaceContrasenaAsync(string email, string hash, DateTime caducidad);
     Task<string?> UsarEnlaceContrasenaAsync(string hash, string contrasenaCifrada);
+    Task BorrarRefreshTokensAsync(int idUsuario);
     Task<string?> GetContrasenaAsync(int idUsuario);
     Task<(bool Inscrito, bool Organiza)> TieneEventosSinTerminarAsync(int idUsuario);
     Task<bool> AnonimizarAsync(int idUsuario);

@@ -447,16 +447,24 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         IQueryable<Usuario> conEnlaceVivo = _dbamonsulContext.Usuarios
             .Where(u => u.HashEnlaceContrasena == hash && u.CaducidadEnlaceContrasena > ahora);
 
-        string? email = await conEnlaceVivo.Select(u => u.Email).FirstOrDefaultAsync();
-        if (email is null) return null;
+        var cuenta = await conEnlaceVivo.Select(u => new { u.IdUsuario, u.Email }).FirstOrDefaultAsync();
+        if (cuenta is null) return null;
 
         int cambiados = await conEnlaceVivo.ExecuteUpdateAsync(s => s
             .SetProperty(u => u.Contraseña, contrasenaCifrada)
             .SetProperty(u => u.HashEnlaceContrasena, (string?)null)
             .SetProperty(u => u.CaducidadEnlaceContrasena, (DateTime?)null));
+        if (cambiados == 0) return null;
 
-        return cambiados > 0 ? email : null;
+        await BorrarRefreshTokensAsync(cuenta.IdUsuario);
+        return cuenta.Email;
     }
+
+    // Cierra la sesión en todos sus dispositivos: al cambiar la contraseña o borrar la cuenta
+    public async Task BorrarRefreshTokensAsync(int idUsuario) =>
+        await _dbamonsulContext.RefreshTokens
+            .Where(r => r.IdUsuario == idUsuario)
+            .ExecuteDeleteAsync();
 
     public async Task<string?> GetContrasenaAsync(int idUsuario) =>
         await _dbamonsulContext.Usuarios
@@ -519,6 +527,7 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
         await _dbamonsulContext.InscripcionTorneos
             .Where(i => i.IdUsuario == idUsuario)
             .ExecuteUpdateAsync(s => s.SetProperty(i => i.CompartirEmail, (bool?)null));
+        await BorrarRefreshTokensAsync(idUsuario);
 
         await transaccion.CommitAsync();
         return true;

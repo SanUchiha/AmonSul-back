@@ -825,6 +825,46 @@ namespace AS.Infrastructure.Migrations
                     b.ToTable("Rango_Torneo", (string)null);
                 });
 
+            modelBuilder.Entity("AS.Domain.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("IdRefreshToken")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Refresh_Token");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRefreshToken"));
+
+                    b.Property<DateTime>("Caducidad")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Caducidad");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Fecha_Creacion");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("Hash");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Usuario");
+
+                    b.HasKey("IdRefreshToken")
+                        .HasName("PK__Refresh_Token__IdRefreshToken");
+
+                    b.HasIndex("Hash")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Refresh_Token_Hash");
+
+                    b.HasIndex("IdUsuario");
+
+                    b.ToTable("Refresh_Token", (string)null);
+                });
+
             modelBuilder.Entity("AS.Domain.Models.Ronda", b =>
                 {
                     b.Property<int>("IdRonda")
@@ -1461,6 +1501,15 @@ namespace AS.Infrastructure.Migrations
                     b.Navigation("IdUsuario1Navigation");
 
                     b.Navigation("IdUsuario2Navigation");
+                });
+
+            modelBuilder.Entity("AS.Domain.Models.RefreshToken", b =>
+                {
+                    b.HasOne("AS.Domain.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AS.Domain.Models.Ronda", b =>
