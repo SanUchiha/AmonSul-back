@@ -13,6 +13,9 @@ public interface IInscripcionApplication
     Task<InscripcionTorneoDTO> GetInscripcionById(int Id);
     Task<InscripcionTorneo> Delete(int id);
     Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante);
+    Task<bool> TorneoCerradoAsync(int idTorneo);
+    Task<bool> TorneoDeInscripcionCerradoAsync(int idInscripcion);
+    Task<bool> TorneoDeEquipoCerradoAsync(int idEquipo);
     Task<bool> EsOrganizadorDelTorneoAsync(int idTorneo, int idSolicitante);
     Task<bool> EsOrganizadorDeInscripcionAsync(int idInscripcion, int idSolicitante);
     Task<bool> PuedeTocarInscripcionAsync(int idInscripcion, int idSolicitante, bool companeroDeListaConjunta = false);

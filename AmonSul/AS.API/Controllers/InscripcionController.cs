@@ -20,6 +20,10 @@ public class InscripcionController(
     private readonly IInscripcionApplication _inscripcionApplication = inscripcionApplication;
     private readonly ITorneoApplication _torneoApplication = torneoApplication;
 
+    // Con los resultados guardados el torneo está cerrado: ya no entra ni sale nadie
+    private const string TorneoCerrado =
+        "Los resultados del torneo ya están guardados: el torneo está cerrado y sus inscripciones ya no se cambian.";
+
     // Una inscripción, con su lista aunque esté oculta: solo el inscrito, el organizador del torneo o la administración
     private async Task<bool> PuedeVerInscripcionAsync(int idTorneo, int idUsuarioInscrito) =>
         User.TryGetIdUsuario(out int idSolicitante)
@@ -86,6 +90,8 @@ public class InscripcionController(
         bool esOrganizador = await _inscripcionApplication.EsOrganizadorDelTorneoAsync(inscripcionTorneo.IdTorneo, idSolicitante);
         if (inscripcionTorneo.IdUsuario != idSolicitante && !esOrganizador)
             return BadRequest("Solo el organizador puede inscribir a otro jugador.");
+        if (await _inscripcionApplication.TorneoCerradoAsync(inscripcionTorneo.IdTorneo))
+            return BadRequest(TorneoCerrado);
 
         // Compartir el correo lo decide cada uno: el organizador no puede hacerlo por el jugador que añade
         if (inscripcionTorneo.IdUsuario != idSolicitante)
@@ -132,6 +138,8 @@ public class InscripcionController(
             return Unauthorized();
         if (!await _inscripcionApplication.EsCapitanUOrganizadorDeEquipoAsync(idEquipo, idSolicitante))
             return BadRequest("Solo el capitán o el organizador pueden borrar el equipo.");
+        if (await _inscripcionApplication.TorneoDeEquipoCerradoAsync(idEquipo))
+            return BadRequest(TorneoCerrado);
 
         bool isDelete = await _inscripcionApplication.DeleteEquipo(idEquipo);
         return Ok(isDelete);
@@ -229,6 +237,8 @@ public class InscripcionController(
         if (createEquipoDTO.IdCapitan != idSolicitante
             && !await _inscripcionApplication.EsOrganizadorDelTorneoAsync(createEquipoDTO.IdTorneo, idSolicitante))
             return BadRequest("Solo puedes apuntar un equipo del que seas capitán.");
+        if (await _inscripcionApplication.TorneoCerradoAsync(createEquipoDTO.IdTorneo))
+            return BadRequest(TorneoCerrado);
 
         // Compartir el correo lo decide cada uno: el organizador no puede hacerlo por el capitán
         if (createEquipoDTO.IdCapitan != idSolicitante)
@@ -280,6 +290,8 @@ public class InscripcionController(
             return Unauthorized();
         if (!await _inscripcionApplication.EsCapitanUOrganizadorDeEquipoAsync(createMiembroEquipoDTO.IdEquipo, idSolicitante))
             return BadRequest("Solo el capitán o el organizador pueden añadir miembros al equipo.");
+        if (await _inscripcionApplication.TorneoDeEquipoCerradoAsync(createMiembroEquipoDTO.IdEquipo))
+            return BadRequest(TorneoCerrado);
 
         return Ok(await _inscripcionApplication.RegisterMiembroAsync(createMiembroEquipoDTO));
     }
@@ -291,6 +303,8 @@ public class InscripcionController(
             return Unauthorized();
         if (!await _inscripcionApplication.PuedeTocarInscripcionAsync(idInscripcion, idSolicitante))
             return BadRequest("Solo el propio jugador, su capitán o el organizador pueden quitarlo del equipo.");
+        if (await _inscripcionApplication.TorneoDeInscripcionCerradoAsync(idInscripcion))
+            return BadRequest(TorneoCerrado);
 
         return Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
     }

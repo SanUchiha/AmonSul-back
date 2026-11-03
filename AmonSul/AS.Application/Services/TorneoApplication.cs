@@ -348,6 +348,16 @@ public class TorneoApplication(
         if (torneo == null)
             return false;
 
+        // Cerrado, lo que decide cómo puntúa ya no cambia: la clasificación dejaría de ser la de las posiciones guardadas
+        bool cambiaComoPuntua =
+            request.ClassificationType != torneo.ClassificationType
+            || (!string.IsNullOrWhiteSpace(request.TipoTorneo) && request.TipoTorneo != torneo.TipoTorneo)
+            || (request.NumeroPartidas.HasValue && request.NumeroPartidas != torneo.NumeroPartidas
+                && !FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo))
+            || (request.ListaPorPareja.HasValue && request.ListaPorPareja != torneo.ListaPorPareja);
+        if (cambiaComoPuntua && await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(torneo.IdTorneo))
+            return false;
+
         torneo.ClassificationType = request.ClassificationType;
 
         if (request.LimiteParticipantes.HasValue)

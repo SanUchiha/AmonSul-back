@@ -49,6 +49,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoAsync(request.IdTorneo) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.GenerateRound(request);
 
@@ -66,6 +68,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoAsync(request.IdTorneo) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.GenerateRoundEquipos(request);
 
@@ -83,6 +87,8 @@ public class TorneoController(
     {
         if (await SoloOrganizadorAsync(request.IdTorneo) is IActionResult denegado)
             return denegado;
+        if (await SiTorneoCerradoAsync(request.IdTorneo) is IActionResult cerrado)
+            return cerrado;
 
         bool response = await _partidaTorneoApplication.GenerarOtraRondaEquiposAsync(request);
 
@@ -142,11 +148,12 @@ public class TorneoController(
     }
 
     /// <summary>
-    /// Con los resultados guardados el torneo está cerrado: sus posiciones salen de estas rondas y partidas
+    /// Con los resultados guardados el torneo está cerrado: sus posiciones y su ELO salen de estas rondas y partidas, así
+    /// que ya no se cambian ni se generan más
     /// </summary>
     private async Task<IActionResult?> SiTorneoCerradoAsync(int idTorneo) =>
         await _ganadorApplication.IsSave(idTorneo)
-            ? BadRequest("Los resultados del torneo ya están guardados: sus rondas y emparejamientos ya no se cambian.")
+            ? BadRequest("Los resultados del torneo ya están guardados: el torneo está cerrado y sus rondas y partidas ya no se cambian.")
             : null;
 
     private async Task<IActionResult?> SiTorneoCerradoDePartidaAsync(int idPartida) =>
@@ -307,7 +314,12 @@ public class TorneoController(
         if (await SoloOrganizadorAsync(request.IdTorneo, "modificar el torneo") is IActionResult denegado)
             return denegado;
 
-        return Ok(await _torneoApplication.UpdateTorneoAsync(request));
+        // Sin guardar nada si un cambio no se puede hacer: el formato con partidas ya generadas o, cerrado el torneo,
+        // cómo puntúa. El front avisaba de que estaba guardado aunque no lo estuviera
+        if (!await _torneoApplication.UpdateTorneoAsync(request))
+            return BadRequest("No se ha podido modificar el torneo: con partidas o con los resultados guardados hay datos que ya no se cambian.");
+
+        return Ok(true);
     }
 
     [HttpPatch]
@@ -474,6 +486,9 @@ public class TorneoController(
             is IActionResult denegado
         )
             return denegado;
+        // Cerrado, el resultado ya no se toca: las posiciones guardadas y el ELO saldrían de otro
+        if (await SiTorneoCerradoDePartidaAsync(request.IdPartidaTorneo) is IActionResult cerrado)
+            return cerrado;
 
         PartidaTorneoDTO? response;
         try

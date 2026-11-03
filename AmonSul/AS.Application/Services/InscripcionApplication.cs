@@ -477,6 +477,21 @@ public class InscripcionApplication(
         (await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo))?.IdCapitan == idSolicitante
         || await EsOrganizadorDeEquipoAsync(idEquipo, idSolicitante);
 
+    // --- Con los resultados guardados el torneo está cerrado: ya no entra ni sale nadie y los puntos extra no cambian ---
+
+    private const string MensajeTorneoCerrado =
+        "Los resultados del torneo ya están guardados: el torneo está cerrado y sus inscripciones ya no se cambian.";
+
+    public async Task<bool> TorneoCerradoAsync(int idTorneo) =>
+        await _unitOfWork.GanadorRepository.ExistsByTorneoAsync(idTorneo);
+
+    public async Task<bool> TorneoDeInscripcionCerradoAsync(int idInscripcion) =>
+        await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion) is InscripcionTorneo inscripcion
+        && await TorneoCerradoAsync(inscripcion.IdTorneo);
+
+    public async Task<bool> TorneoDeEquipoCerradoAsync(int idEquipo) =>
+        await TorneoDeEquipoAsync(idEquipo) is int idTorneo && await TorneoCerradoAsync(idTorneo);
+
     public async Task<(bool Ok, string? Error)> PuedeBorrarInscripcionAsync(int idInscripcion, int idSolicitante)
     {
         InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
@@ -493,6 +508,9 @@ public class InscripcionApplication(
         )
             return (false, "Las jornadas ya están generadas: para que deje de jugar, retira al jugador.");
 
+        if (await TorneoCerradoAsync(inscripcion.IdTorneo))
+            return (false, MensajeTorneoCerrado);
+
         return (true, null);
     }
 
@@ -508,6 +526,10 @@ public class InscripcionApplication(
         int idOrganizador = await _unitOfWork.TorneoRepository.GetIdOrganizadorByIdTorneo(inscripcion.IdTorneo);
         if (idSolicitante != idOrganizador)
             return (false, "Solo el organizador puede dar puntos extra.");
+
+        // Cuentan en la clasificación: cerrado, ya están en las posiciones guardadas
+        if (await TorneoCerradoAsync(inscripcion.IdTorneo))
+            return (false, "Los resultados del torneo ya están guardados: el torneo está cerrado y sus puntos extra ya no se cambian.");
 
         inscripcion.PuntosExtra = request.PuntosExtra;
         await _unitOfWork.InscripcionRepository.Update(inscripcion);
