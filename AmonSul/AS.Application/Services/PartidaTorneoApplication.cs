@@ -2259,6 +2259,7 @@ public class PartidaTorneoApplication(
         );
         estaJugandoDTO.ListaPorPareja = torneo.ListaPorPareja;
         estaJugandoDTO.FormatoTorneo = torneo.FormatoTorneo;
+        estaJugandoDTO.ClassificationType = torneo.ClassificationType;
         if (torneo.FormatoTorneo == FormatoTorneoType.COPA)
         {
             Dictionary<int, int> maximos =

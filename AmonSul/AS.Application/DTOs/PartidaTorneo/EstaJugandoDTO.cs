@@ -1,4 +1,5 @@
 ﻿using AS.Domain.DTOs.Torneo;
+using AS.Domain.Types.Torneo;
 
 namespace AS.Application.DTOs.PartidaTorneo;
 
@@ -13,4 +14,6 @@ public class EstaJugandoDTO
     public string? FormatoTorneo { get; set; }
     // En una copa, las rondas que tiene el cuadro: así la partida de eliminatoria se nombra por su ronda
     public int? RondasEliminatoria { get; set; }
+    // Con el sistema alemán la partida enseña también los puntos que da
+    public ClassificationType ClassificationType { get; set; }
 }
