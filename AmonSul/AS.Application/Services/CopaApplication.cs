@@ -242,7 +242,8 @@ public class CopaApplication(
         if (partidas.Any(EsDelCuadro))
             return (false, "La eliminatoria ya está generada.");
 
-        List<ClasificacionJornadas.Fila> ranking = Ranking(copa, await JugadoresAsync(idTorneo), partidas);
+        List<InscripcionTorneo> jugadores = await JugadoresAsync(idTorneo);
+        List<ClasificacionJornadas.Fila> ranking = Ranking(copa, jugadores, partidas);
         int directos = ranking.Count(f => f.Posicion <= copa.ClasificadosPorGrupo);
         if (directos < 2)
             return (false, "Hacen falta al menos 2 clasificados para la eliminatoria.");
@@ -254,11 +255,20 @@ public class CopaApplication(
             if (huecos[i] is { } fila)
                 posiciones[fila.Inscripcion.IdInscripcion] = i + 1;
 
-        return await EnCuadroAsync(async () =>
+        (bool ok, string? error) = await EnCuadroAsync(async () =>
         {
             await _unitOfWork.InscripcionRepository.ActualizarPosicionesCuadroAsync(idTorneo, posiciones);
             await SincronizarCuadroAsync(idTorneo);
         });
+
+        if (ok)
+            AvisoPush.AEmails(
+                jugadores.Select(i => i.IdUsuarioNavigation?.Email),
+                copa.NombreTorneo,
+                "Ya está la eliminatoria: mira los cruces.",
+                AvisoPush.RutaEvento(idTorneo));
+
+        return (ok, error);
     }
 
     /// <summary>
