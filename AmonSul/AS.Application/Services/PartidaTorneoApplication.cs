@@ -1001,27 +1001,34 @@ public class PartidaTorneoApplication(
     {
         if (nuevaPartida.NumeroRonda != null)
         {
-            ParticipacionTorneo participacionTorneo1 = new()
+            // El bye no tiene inscripción: con 0 fallaría la clave foránea y la ronda se quedaba a medias, sin avisos
+            if (idInscripcion1 != 0)
             {
-                IdTorneo = nuevaPartida.IdTorneo,
-                IdUsuario = nuevaPartida.IdUsuario1,
-                IdRonda = nuevaPartida.NumeroRonda.Value,
-                IdBando = 0,
-                IdInscripcion = idInscripcion1,
-            };
+                ParticipacionTorneo participacionTorneo1 = new()
+                {
+                    IdTorneo = nuevaPartida.IdTorneo,
+                    IdUsuario = nuevaPartida.IdUsuario1,
+                    IdRonda = nuevaPartida.NumeroRonda.Value,
+                    IdBando = 0,
+                    IdInscripcion = idInscripcion1,
+                };
 
-            await _unitOfWork.ParticipacionTorneoRepository.Register(participacionTorneo1);
+                await _unitOfWork.ParticipacionTorneoRepository.Register(participacionTorneo1);
+            }
 
-            ParticipacionTorneo participacionTorneo2 = new()
+            if (idInscripcion2 != 0)
             {
-                IdTorneo = nuevaPartida.IdTorneo,
-                IdUsuario = nuevaPartida.IdUsuario2,
-                IdRonda = nuevaPartida.NumeroRonda.Value,
-                IdBando = 1,
-                IdInscripcion = idInscripcion2,
-            };
+                ParticipacionTorneo participacionTorneo2 = new()
+                {
+                    IdTorneo = nuevaPartida.IdTorneo,
+                    IdUsuario = nuevaPartida.IdUsuario2,
+                    IdRonda = nuevaPartida.NumeroRonda.Value,
+                    IdBando = 1,
+                    IdInscripcion = idInscripcion2,
+                };
 
-            await _unitOfWork.ParticipacionTorneoRepository.Register(participacionTorneo2);
+                await _unitOfWork.ParticipacionTorneoRepository.Register(participacionTorneo2);
+            }
         }
     }
 
