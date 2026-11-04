@@ -59,6 +59,10 @@ public class EmailController(
         else
             AvisoPush.ATodos(request.Asunto, resumen, "/home");
 
+        // Temporal: para probar la notificación sin mandar el correo a todos
+        if (request.SoloPush)
+            return Ok(0);
+
         int destinatarios = await _emailApplicacion.SendEmailNovedadesAsync(
             request.Asunto, request.Html, request.SoloAMi ? idSolicitante : null);
         return Ok(destinatarios);
