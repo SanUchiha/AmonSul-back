@@ -208,6 +208,8 @@ public class ListaApplication(
         UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
         UsuarioEmailDto jugador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
 
+        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{jugador.Nick} ha enviado su lista.", "/gestion-eventos");
+
         EmailContactoDTO emailContactoDTO = new()
         {
             Email = organizador.Email,
@@ -232,6 +234,9 @@ public class ListaApplication(
 
         Torneo torneo = await _unitOfWork.TorneoRepository.GetById(inscripcion.IdTorneo);
         UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
+
+        AvisoPush.AEmails(
+            [usuario.Email], torneo.NombreTorneo, AvisoPush.TextoLista(request.Estado.ToUpper().Trim()), AvisoPush.RutaEvento(torneo.IdTorneo));
 
         EmailListaDTO emailListaDTO = new()
         {
@@ -299,6 +304,8 @@ public class ListaApplication(
         UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(
             inscripcion.IdUsuario
         );
+
+        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{usuario.Nick} ha enviado su lista.", "/gestion-eventos");
 
         EmailContactoDTO emailContactoDTO = new()
         {

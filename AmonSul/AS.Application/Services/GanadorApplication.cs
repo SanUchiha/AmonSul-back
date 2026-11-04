@@ -120,6 +120,8 @@ public class GanadorApplication(
             _mapper.Map<List<Ganador>>(ganadores)))
             return false;
 
+        AvisoPush.EventoTerminado(idTorneo);
+
         string eloJobId =
             BackgroundJob.Enqueue(() =>
                 ActualizarEloAsync(guardarResultadosDTO.GenerarRondaDTO));

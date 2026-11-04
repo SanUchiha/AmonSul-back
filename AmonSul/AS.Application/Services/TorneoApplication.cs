@@ -164,6 +164,8 @@ public class TorneoApplication(
 
         if (!torneo.NombreTorneo.Contains("test"))
         {
+            AvisoPush.ATodos("Nuevo evento", request.NombreTorneo!, AvisoPush.RutaEvento(torneoCreado.IdTorneo));
+
             List<string> listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAllEmail();
 
             if (listaDestinatarios.Count > 0)

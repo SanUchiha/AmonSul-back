@@ -40,6 +40,9 @@ public class InscripcionApplication(
         var result = await _unitOfWork.InscripcionRepository.Update(inscripcion);
         if (result == false) return false;
 
+        AvisoPush.AEmails(
+            [usuario.Email], torneo.NombreTorneo, AvisoPush.TextoLista(actualizarEstado.EstadoLista), AvisoPush.RutaEvento(inscripcion.IdTorneo));
+
         EmailListaDTO emailListaDTO = new()
         {
             EmailTo = usuario.Email,
@@ -74,6 +77,9 @@ public class InscripcionApplication(
 
         var result = await _unitOfWork.InscripcionRepository.Update(inscripcion);
         if (result == false) return false;
+
+        AvisoPush.AEmails(
+            [usuario.Email], torneo.NombreTorneo, AvisoPush.TextoPago(actualizarEstado.EsPago), AvisoPush.RutaEvento(inscripcion.IdTorneo));
 
         EmailPagoDTO emailPagoDTO = new()
         {
@@ -224,6 +230,10 @@ public class InscripcionApplication(
         ResultInscripcionTorneoDTO registro = await _unitOfWork.InscripcionRepository.Register(
             _mapper.Map<InscripcionTorneo>(inscripcionTorneo));
 
+        string rutaEvento = AvisoPush.RutaEvento(inscripcionTorneo.IdTorneo);
+        AvisoPush.AEmails([usuario.Email], torneo.NombreTorneo, "Tu inscripción está registrada.", rutaEvento);
+        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{usuario.Nick} se ha inscrito.", "/gestion-eventos");
+
         EmailContactoDTO emailContactoDTO = new()
         {
             Email = usuario.Email,
@@ -340,6 +350,9 @@ public class InscripcionApplication(
 
         UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(equipo.IdCapitan);
         if (usuario == null) return false;
+
+        AvisoPush.AEmails(
+            [usuario.Email], torneo.NombreTorneo, AvisoPush.TextoPago(actualizarEstadoPagoEquipo.EsPago), AvisoPush.RutaEvento(inscripciones[0].IdTorneo));
 
         EmailPagoDTO emailPagoDTO = new()
         {

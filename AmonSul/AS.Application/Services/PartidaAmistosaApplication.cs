@@ -177,6 +177,13 @@ public class PartidaAmistosaApplication(
         UsuarioEmailDto email2 =
             await _unitOfWork.UsuarioRepository.GetEmailNickById(request.IdUsuario2);
 
+        // La registra el jugador 1, que queda ya validada por él: falta el otro
+        AvisoPush.AEmails(
+            [email2.Email],
+            "Partida amistosa",
+            $"{email1.Nick} ha registrado una partida contigo. Valídala.",
+            $"/detalle-jugador/{request.IdUsuario2}");
+
         List<string> listaDestinatarios = [email1.Email, email1.Email];
 
         if (listaDestinatarios.Count > 0)

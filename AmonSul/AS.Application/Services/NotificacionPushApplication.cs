@@ -1,3 +1,4 @@
+using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Notificaciones;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
@@ -8,20 +9,27 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AS.Application.Services;
 
 public class NotificacionPushApplication(
     DbamonsulContext dbamonsulContext,
     IConfiguration configuration,
+    IOptions<EmailSettings> emailSettings,
     ILogger<NotificacionPushApplication> logger) : INotificacionPushApplication
 {
     // El máximo de Firebase por envío
     private const int TOKENS_POR_ENVIO = 500;
+    // Los eventos sin hora se avisan a esta. Con la web dormida el aviso sale al despertar, pero no pasado este margen
+    private static readonly TimeOnly HORA_INICIO_POR_DEFECTO = new(9, 0);
+    private const int HORAS_MARGEN_INICIO = 3;
+    private const string ESTADO_CANCELADO = "CANCELADO";
     private static readonly object _cerrojoFirebase = new();
 
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
     private readonly IConfiguration _configuration = configuration;
+    private readonly List<string> _emailsExcluidos = emailSettings.Value.EmailsExcluidos;
     private readonly ILogger<NotificacionPushApplication> _logger = logger;
 
     // El token es del móvil, no de la cuenta: si otra cuenta entró antes en este móvil, pasa a esta
@@ -70,6 +78,78 @@ public class NotificacionPushApplication(
 
         return await EnviarAsync(tokens, titulo, cuerpo, ruta);
     }
+
+    public async Task EnviarAEmailsAsync(List<string> emails, string titulo, string cuerpo, string? ruta)
+    {
+        List<string> tokens = await (
+            from dispositivo in _dbamonsulContext.DispositivosPush
+            join usuario in _dbamonsulContext.Usuarios on dispositivo.IdUsuario equals usuario.IdUsuario
+            where emails.Contains(usuario.Email) && usuario.PermiteNotificaciones
+            select dispositivo.Token).ToListAsync();
+
+        await EnviarAsync(tokens, titulo, cuerpo, ruta);
+    }
+
+    public async Task EnviarATodosAsync(string titulo, string cuerpo, string? ruta)
+    {
+        List<string> tokens = await (
+            from dispositivo in _dbamonsulContext.DispositivosPush
+            join usuario in _dbamonsulContext.Usuarios on dispositivo.IdUsuario equals usuario.IdUsuario
+            where usuario.PermiteNotificaciones && !_emailsExcluidos.Contains(usuario.Email)
+            select dispositivo.Token).ToListAsync();
+
+        await EnviarAsync(tokens, titulo, cuerpo, ruta);
+    }
+
+    public async Task AvisarEventoTerminadoAsync(int idTorneo)
+    {
+        var torneo = await EventosParaTodos()
+            .Where(t => t.IdTorneo == idTorneo)
+            .Select(t => new { t.NombreTorneo })
+            .FirstOrDefaultAsync();
+        if (torneo is null) return;
+
+        await EnviarATodosAsync(
+            "Evento terminado",
+            $"{torneo.NombreTorneo} ha terminado. Ya puedes ver la clasificación.",
+            AvisoPush.RutaEvento(idTorneo));
+    }
+
+    // Cada pocos minutos: los eventos de hoy que ya han llegado a su hora y no se han avisado
+    public async Task AvisarEventosQueEmpiezanAsync()
+    {
+        DateTime ahora = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime.UtcNow,
+            TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time"));
+        DateOnly hoy = DateOnly.FromDateTime(ahora);
+
+        var eventos = await EventosParaTodos()
+            .Where(t => t.FechaInicioTorneo == hoy && !t.AvisoInicioEnviado)
+            .Select(t => new { t.IdTorneo, t.NombreTorneo, t.HoraInicioTorneo })
+            .ToListAsync();
+
+        foreach (var evento in eventos)
+        {
+            DateTime inicio = hoy.ToDateTime(evento.HoraInicioTorneo ?? HORA_INICIO_POR_DEFECTO);
+            if (ahora < inicio || ahora > inicio.AddHours(HORAS_MARGEN_INICIO)) continue;
+
+            // Marcado antes de enviar: mejor perder un aviso que mandarlo dos veces a todo el mundo
+            int marcados = await _dbamonsulContext.Torneos
+                .Where(t => t.IdTorneo == evento.IdTorneo && !t.AvisoInicioEnviado)
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.AvisoInicioEnviado, true));
+            if (marcados == 0) continue;
+
+            await EnviarATodosAsync(
+                "Empieza un evento",
+                $"Hoy empieza {evento.NombreTorneo}.",
+                AvisoPush.RutaEvento(evento.IdTorneo));
+        }
+    }
+
+    // Los de prueba y los privados no se anuncian, como ya pasaba con el correo de nuevo torneo
+    private IQueryable<Torneo> EventosParaTodos() =>
+        _dbamonsulContext.Torneos.Where(t =>
+            !t.EsPrivadoTorneo && t.EstadoTorneo != ESTADO_CANCELADO && !t.NombreTorneo.Contains("test"));
 
     // Un fallo aquí nunca debe romper lo que lo ha provocado: se registra y se sigue
     private async Task<ResultadoPushDTO> EnviarAsync(List<string> tokens, string titulo, string cuerpo, string? ruta)

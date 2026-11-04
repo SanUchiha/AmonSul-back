@@ -971,6 +971,10 @@ namespace AS.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTorneo"));
 
+                    b.Property<bool>("AvisoInicioEnviado")
+                        .HasColumnType("bit")
+                        .HasColumnName("Aviso_Inicio_Enviado");
+
                     b.Property<byte[]>("BasesTorneo")
                         .HasColumnType("varbinary(max)")
                         .HasColumnName("Bases_Torneo");

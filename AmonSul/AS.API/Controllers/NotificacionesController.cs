@@ -54,6 +54,6 @@ public class NotificacionesController(INotificacionPushApplication notificacionP
             return Unauthorized();
 
         return Ok(await _notificacionPushApplication.EnviarAUsuariosAsync(
-            [idUsuario], "Amon Sûl", "Si ves este aviso, las notificaciones funcionan."));
+            [idUsuario], "Amon Sûl", "Si ves este aviso, las notificaciones funcionan.", "/perfil-usuario"));
     }
 }

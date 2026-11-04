@@ -61,6 +61,8 @@ public class LigaApplication(
         [
             .. inscripciones.Select(i => i.IdUsuarioNavigation?.Email).OfType<string>(),
         ];
+        AvisoPush.AEmails(
+            destinatarios, torneo.NombreTorneo, "La liga ya está generada: mira tus partidas.", AvisoPush.RutaEvento(torneo.IdTorneo));
         if (destinatarios.Count > 0)
             _emailApplicacion.SendEmailLigaGenerada(torneo.NombreTorneo, jornadas.Count, destinatarios);
 

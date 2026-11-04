@@ -1,6 +1,7 @@
 ﻿using AS.API.Extensions;
 using AS.Application.DTOs.Email;
 using AS.Application.Interfaces;
+using AS.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using AS.Utils.Constantes;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,12 @@ namespace AS.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class EmailController(IEmailApplicacion emailApplicacion) : ControllerBase
+public class EmailController(
+    IEmailApplicacion emailApplicacion,
+    INotificacionPushApplication notificacionPushApplication) : ControllerBase
 {
     private readonly IEmailApplicacion _emailApplicacion = emailApplicacion;
+    private readonly INotificacionPushApplication _notificacionPushApplication = notificacionPushApplication;
 
     [HttpPost]
     [AllowAnonymous]
@@ -47,6 +51,13 @@ public class EmailController(IEmailApplicacion emailApplicacion) : ControllerBas
             return BadRequest("Solo la administración puede enviar correos a todos los usuarios.");
         if (string.IsNullOrWhiteSpace(request.Asunto) || string.IsNullOrWhiteSpace(request.Html))
             return BadRequest("Faltan el asunto o el texto del correo.");
+
+        // Con SoloAMi, para verlo antes de mandarlo a todos, como el correo
+        string resumen = string.IsNullOrWhiteSpace(request.Resumen) ? "Hay novedades en Amon Sûl." : request.Resumen;
+        if (request.SoloAMi)
+            await _notificacionPushApplication.EnviarAUsuariosAsync([idSolicitante], request.Asunto, resumen, "/home");
+        else
+            AvisoPush.ATodos(request.Asunto, resumen, "/home");
 
         int destinatarios = await _emailApplicacion.SendEmailNovedadesAsync(
             request.Asunto, request.Html, request.SoloAMi ? idSolicitante : null);

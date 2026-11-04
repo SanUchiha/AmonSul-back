@@ -425,6 +425,7 @@ public partial class DbamonsulContext : DbContext
             entity.Property(e => e.MostrarListas).HasColumnName("Mostrar_Listas");
             entity.Property(e => e.MostrarClasificacion).HasColumnName("Mostrar_Clasificacion");
             entity.Property(e => e.EsPrivadoTorneo).HasColumnName("Es_Privado_Torneo");
+            entity.Property(e => e.AvisoInicioEnviado).HasColumnName("Aviso_Inicio_Enviado");
             entity.Property(e => e.EstadoTorneo)
                 .HasMaxLength(10)
                 .IsUnicode(false)

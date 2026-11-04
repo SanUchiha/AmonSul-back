@@ -336,6 +336,12 @@ public class PartidaTorneoApplication(
                 jugadores
             );
 
+        AvisoPush.AEmails(
+            destinatarios,
+            torneo.NombreTorneo!,
+            $"Ya está la ronda {generarRondaDTO.IdRonda}.",
+            AvisoPush.RutaEvento(generarRondaDTO.IdTorneo));
+
         if (destinatarios.Count > 0)
             _ = Task.Run(() =>
                 _emailApplicacion.SendEmailRonda(

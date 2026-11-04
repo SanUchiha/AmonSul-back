@@ -19,6 +19,7 @@ public partial class Torneo
     public string LugarTorneo { get; set; } = null!;
     public string TipoTorneo { get; set; } = TorneoType.INDIVIDUAL;
     public bool EsPrivadoTorneo { get; set; }
+    public bool AvisoInicioEnviado { get; set; }
     public int? IdRangoTorneo { get; set; }
     public bool? EsMatchedPlayTorneo { get; set; }
     public bool MostrarListas { get; set; }

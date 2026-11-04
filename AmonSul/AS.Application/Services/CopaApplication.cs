@@ -146,6 +146,8 @@ public class CopaApplication(
         await _unitOfWork.TorneoRepository.Edit(copa);
 
         List<string> destinatarios = [.. jugadores.Select(i => i.IdUsuarioNavigation?.Email).OfType<string>()];
+        AvisoPush.AEmails(
+            destinatarios, copa.NombreTorneo, "Ya están los grupos de la copa: mira tus partidas.", AvisoPush.RutaEvento(copa.IdTorneo));
         if (destinatarios.Count > 0)
             _emailApplicacion.SendEmailCopaGenerada(
                 copa.NombreTorneo,
@@ -505,9 +507,11 @@ public class CopaApplication(
         [
             .. orden.Select((idUsuario, i) => new Ganador { IdTorneo = idTorneo, IdUsuario = idUsuario, Resultado = i + 1 }),
         ];
-        return await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(ganadores)
-            ? (true, null)
-            : (false, "La copa ya está cerrada.");
+        if (!await _unitOfWork.GanadorRepository.RegisterResultadosTorneoAsync(ganadores))
+            return (false, "La copa ya está cerrada.");
+
+        AvisoPush.EventoTerminado(idTorneo);
+        return (true, null);
     }
 
     // Lo que toca el cuadro va todo junto y, si una regla lo impide, se deshace y se dice por qué

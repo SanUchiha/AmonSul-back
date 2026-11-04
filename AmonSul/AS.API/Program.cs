@@ -64,4 +64,10 @@ RecurringJob.AddOrUpdate<IGanadorApplication>(
     }
 );
 
+RecurringJob.AddOrUpdate<INotificacionPushApplication>(
+    "avisar-eventos-que-empiezan",
+    job => job.AvisarEventosQueEmpiezanAsync(),
+    "*/10 * * * *"
+);
+
 app.Run();
