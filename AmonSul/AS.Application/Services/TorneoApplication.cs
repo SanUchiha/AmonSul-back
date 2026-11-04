@@ -9,7 +9,6 @@ using AS.Domain.Models;
 using AS.Domain.Types.Torneo;
 using AS.Infrastructure.DTOs;
 using AS.Infrastructure.Repositories.Interfaces;
-using AS.Utils.Constantes;
 using AutoMapper;
 
 namespace AS.Application.Services;
@@ -167,9 +166,7 @@ public class TorneoApplication(
         {
             AvisoPush.ATodos("Nuevo evento", request.NombreTorneo!, AvisoPush.RutaEvento(torneoCreado.IdTorneo));
 
-            // Temporal: para probar la notificación sin mandar el correo a todos
-            bool sinCorreo = request.SoloPush && ConstAdministracion.EsAdministrador(request.IdUsuario);
-            List<string> listaDestinatarios = sinCorreo ? [] : await _unitOfWork.UsuarioRepository.GetAllEmail();
+            List<string> listaDestinatarios = await _unitOfWork.UsuarioRepository.GetAllEmail();
 
             if (listaDestinatarios.Count > 0)
                 _ = Task.Run(() =>

@@ -41,6 +41,4 @@ public class CrearTorneoDTO
     public string? RepartoGrupos { get; set; }
     public string? DesempateEliminatoria { get; set; }
     public bool TercerPuesto { get; set; }
-    // Temporal, solo administración: para probar la notificación sin mandar el correo a todos
-    public bool SoloPush { get; set; }
 }
