@@ -33,6 +33,7 @@ jobs:
         env:
           JWT_KEY: ${{ secrets.JWT_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
         # Los avisos van como anotaciones (::notice:: y ::error::), que se leen sin entrar en GitHub. Nunca con valores
         run: |
           $ruta = "AmonSul/AS.API/appsettings.json"
@@ -59,6 +60,14 @@ jobs:
           }
           if ($env:EMAIL_PASSWORD) {
             $config.EmailSettings | Add-Member -NotePropertyName Password -NotePropertyValue $env:EMAIL_PASSWORD -Force
+          }
+          # La clave de la cuenta de servicio de Firebase, entera como texto. Sin ella no se envían notificaciones
+          if ($env:FIREBASE_CREDENTIALS) {
+            $firebase = [pscustomobject]@{ CredentialsJson = $env:FIREBASE_CREDENTIALS }
+            $config | Add-Member -NotePropertyName Firebase -NotePropertyValue $firebase -Force
+            Write-Output "::notice::FIREBASE_CREDENTIALS: presente."
+          } else {
+            Write-Output "::warning::Sin FIREBASE_CREDENTIALS: no se enviarán notificaciones."
           }
           # Sin clave de firma el back no arranca: mejor parar aquí que desplegar algo roto
           if (-not $config.Jwt.key) {

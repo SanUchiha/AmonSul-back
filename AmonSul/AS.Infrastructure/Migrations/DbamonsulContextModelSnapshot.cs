@@ -223,6 +223,50 @@ namespace AS.Infrastructure.Migrations
                     b.ToTable("Comentario", (string)null);
                 });
 
+            modelBuilder.Entity("AS.Domain.Models.DispositivoPush", b =>
+                {
+                    b.Property<int>("IdDispositivoPush")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Dispositivo_Push");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDispositivoPush"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("Fecha_Creacion");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("ID_Usuario");
+
+                    b.Property<string>("Plataforma")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("Plataforma");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(512)")
+                        .HasColumnName("Token");
+
+                    b.HasKey("IdDispositivoPush")
+                        .HasName("PK__Dispositivo_Push__IdDispositivoPush");
+
+                    b.HasIndex("IdUsuario")
+                        .HasDatabaseName("IX_Dispositivo_Push_ID_Usuario");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Dispositivo_Push_Token");
+
+                    b.ToTable("Dispositivo_Push", (string)null);
+                });
+
             modelBuilder.Entity("AS.Domain.Models.Elo", b =>
                 {
                     b.Property<int>("IdElo")
@@ -1301,6 +1345,15 @@ namespace AS.Infrastructure.Migrations
                     b.Navigation("IdTorneoNavigation");
 
                     b.Navigation("IdUsuarioNavigation");
+                });
+
+            modelBuilder.Entity("AS.Domain.Models.DispositivoPush", b =>
+                {
+                    b.HasOne("AS.Domain.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AS.Domain.Models.Elo", b =>

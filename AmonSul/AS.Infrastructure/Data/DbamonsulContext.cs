@@ -37,6 +37,8 @@ public partial class DbamonsulContext : DbContext
     public virtual DbSet<ClasificacionEloCache> ClasificacionEloCache { get; set; }
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<DispositivoPush> DispositivosPush { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -718,7 +720,7 @@ public partial class DbamonsulContext : DbContext
 
         // Aplicar configuraciones de las nuevas entidades desde el assembly de Infrastructure
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly(),
-            t => t.Name.Contains("ClasificacionEloCache") || t.Name.Contains("RefreshToken"));
+            t => t.Name.Contains("ClasificacionEloCache") || t.Name.Contains("RefreshToken") || t.Name.Contains("DispositivoPush"));
 
         OnModelCreatingPartial(modelBuilder);
     }

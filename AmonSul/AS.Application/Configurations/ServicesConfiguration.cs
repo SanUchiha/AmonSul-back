@@ -29,6 +29,7 @@ public static class ServicesConfiguration
         services.AddScoped<IEloLigaApplication, EloLigaApplication>();
         services.AddScoped<ICopaApplication, CopaApplication>();
         services.AddScoped<IEstadisticasApplication, EstadisticasApplication>();
+        services.AddScoped<INotificacionPushApplication, NotificacionPushApplication>();
 
         return services;
     }

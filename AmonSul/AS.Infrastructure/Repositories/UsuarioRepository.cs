@@ -528,6 +528,9 @@ public class UsuarioRepository(DbamonsulContext dbamonsulContext) : IUsuarioRepo
             .Where(i => i.IdUsuario == idUsuario)
             .ExecuteUpdateAsync(s => s.SetProperty(i => i.CompartirEmail, (bool?)null));
         await BorrarRefreshTokensAsync(idUsuario);
+        await _dbamonsulContext.DispositivosPush
+            .Where(d => d.IdUsuario == idUsuario)
+            .ExecuteDeleteAsync();
 
         await transaccion.CommitAsync();
         return true;
