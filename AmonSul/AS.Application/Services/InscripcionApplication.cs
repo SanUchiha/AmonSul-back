@@ -160,9 +160,32 @@ public class InscripcionApplication(
         await _unitOfWork.InscripcionRepository.CambiarCompartirEmailAsync(
             request.IdInscripcion, idSolicitante, request.CompartirEmail);
 
-    public async Task<InscripcionTorneo> Delete(int id)
+    public async Task<InscripcionTorneo> Delete(int id, int idSolicitante)
     {
-        return await _unitOfWork.InscripcionRepository.Delete(id);
+        InscripcionTorneo inscripcion = await _unitOfWork.InscripcionRepository.Delete(id);
+        if (inscripcion is not null)
+            await AvisarBajaDeJugadorAsync(inscripcion, idSolicitante);
+
+        return inscripcion!;
+    }
+
+    private async Task AvisarBajaDeJugadorAsync(InscripcionTorneo inscripcion, int idSolicitante)
+    {
+        UsuarioEmailDto? jugador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
+        if (jugador is not null)
+            await AvisarBajaAsync(inscripcion.IdTorneo, jugador.Nick, idSolicitante);
+    }
+
+    // Al organizador le interesa quién deja su evento, salvo que lo haya quitado él mismo
+    private async Task AvisarBajaAsync(int idTorneo, string? quien, int idSolicitante)
+    {
+        TorneoUsuarioDto? torneo = await _unitOfWork.TorneoRepository.GetNombreById(idTorneo);
+        if (torneo is null || torneo.IdUsuario == idSolicitante) return;
+
+        UsuarioEmailDto? organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(torneo.IdUsuario);
+        if (organizador is null) return;
+
+        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{quien} se ha dado de baja.", "/gestion-eventos");
     }
 
     public async Task<InscripcionTorneoDTO> GetInscripcionById(int Id)
@@ -303,8 +326,18 @@ public class InscripcionApplication(
         return await _unitOfWork.InscripcionRepository.EstaApuntadoAsync(idUsuario, idTorneo);
     }
 
-    public async Task<bool> DeleteEquipo(int idEquipo) => 
-        await _unitOfWork.InscripcionRepository.DeleteEquipoAsync(idEquipo);
+    public async Task<bool> DeleteEquipo(int idEquipo, int idSolicitante)
+    {
+        // Antes de borrarlo: luego ya no queda de dónde sacar su nombre ni su torneo
+        Equipo? equipo = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(idEquipo);
+        int? idTorneo = await TorneoDeEquipoAsync(idEquipo);
+
+        bool borrado = await _unitOfWork.InscripcionRepository.DeleteEquipoAsync(idEquipo);
+        if (borrado && equipo is not null && idTorneo is int torneo)
+            await AvisarBajaAsync(torneo, equipo.NombreEquipo, idSolicitante);
+
+        return borrado;
+    }
 
     public async Task<ResultInscripcionTorneoDTO> RegisterMiembroAsync(CreateMiembroEquipoDTO createMiembroEquipoDTO)
     {
@@ -329,8 +362,16 @@ public class InscripcionApplication(
         return result;
     }
 
-    public async Task<bool> DeleteMiembroAsync(int idInscripcion) => 
-        await _unitOfWork.InscripcionRepository.DeleteMiembroAsync(idInscripcion);
+    public async Task<bool> DeleteMiembroAsync(int idInscripcion, int idSolicitante)
+    {
+        InscripcionTorneo? inscripcion = await _unitOfWork.InscripcionRepository.GetInscripcionById(idInscripcion);
+
+        bool borrado = await _unitOfWork.InscripcionRepository.DeleteMiembroAsync(idInscripcion);
+        if (borrado && inscripcion is not null)
+            await AvisarBajaDeJugadorAsync(inscripcion, idSolicitante);
+
+        return borrado;
+    }
 
     public async Task<bool> CambiarEstadoPagoEquipo(ActualizarEstadoPagoEquipo actualizarEstadoPagoEquipo)
     {

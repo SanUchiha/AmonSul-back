@@ -123,7 +123,7 @@ public class InscripcionController(
         if (!puede)
             return BadRequest(error);
 
-        InscripcionTorneo inscripcion = await _inscripcionApplication.Delete(id);
+        InscripcionTorneo inscripcion = await _inscripcionApplication.Delete(id, idSolicitante);
         if (inscripcion == null)
         {
             return NotFound();
@@ -141,7 +141,7 @@ public class InscripcionController(
         if (await _inscripcionApplication.TorneoDeEquipoCerradoAsync(idEquipo))
             return BadRequest(TorneoCerrado);
 
-        bool isDelete = await _inscripcionApplication.DeleteEquipo(idEquipo);
+        bool isDelete = await _inscripcionApplication.DeleteEquipo(idEquipo, idSolicitante);
         return Ok(isDelete);
     }
 
@@ -306,6 +306,6 @@ public class InscripcionController(
         if (await _inscripcionApplication.TorneoDeInscripcionCerradoAsync(idInscripcion))
             return BadRequest(TorneoCerrado);
 
-        return Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion));
+        return Ok(await _inscripcionApplication.DeleteMiembroAsync(idInscripcion, idSolicitante));
     }
 }
