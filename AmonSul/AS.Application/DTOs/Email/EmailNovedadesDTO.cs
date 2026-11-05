@@ -8,6 +8,4 @@ public class EmailNovedadesDTO
     public string? Resumen { get; set; }
     // Solo a quien lo envía, para verlo antes de mandarlo a todos
     public bool SoloAMi { get; set; }
-    // Temporal: para probar la notificación sin mandar el correo a todos
-    public bool SoloPush { get; set; }
 }
