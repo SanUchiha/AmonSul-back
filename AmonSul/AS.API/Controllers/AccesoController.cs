@@ -37,4 +37,17 @@ public class AccesoController(
 
         return response.IsAccess ? Ok(response) : Unauthorized();
     }
+
+    // Con el refresh token basta: al cerrar sesión el token de acceso puede haber caducado ya
+    [HttpPost]
+    [Route("Logout")]
+    public async Task<IActionResult> Logout(RefreshDTO refreshDTO)
+    {
+        if (string.IsNullOrEmpty(refreshDTO?.RefreshToken))
+            return BadRequest();
+
+        await _loginApplication.CerrarSesion(refreshDTO.RefreshToken);
+
+        return NoContent();
+    }
 }

@@ -124,6 +124,16 @@ public class LoginApplication(
         };
     }
 
+    // Sin esto, un token copiado seguiría abriendo la sesión hasta caducar, aunque el móvil ya lo haya borrado
+    public async Task CerrarSesion(string refreshToken)
+    {
+        string hash = Contrasenas.HashDeRefreshToken(refreshToken);
+
+        await _dbamonsulContext.RefreshTokens
+            .Where(r => r.Hash == hash)
+            .ExecuteDeleteAsync();
+    }
+
     private async Task<string> NuevoRefreshTokenAsync(int idUsuario)
     {
         var (token, hash) = Contrasenas.NuevoRefreshToken();
