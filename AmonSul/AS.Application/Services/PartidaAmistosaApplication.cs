@@ -245,8 +245,8 @@ public class PartidaAmistosaApplication(
         UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(idUsuario);
         AvisoPush.AEmails(
             [usuario.Email],
-            "Partida amistosa",
-            $"Partida validada: {propio}-{delRival} contra {rival?.Trim()}",
+            "Partida amistosa validada",
+            $"{AvisoPush.TextoResultado(propio, delRival)} contra {rival?.Trim()}",
             $"/detalle-jugador/{idUsuario}");
     }
 }

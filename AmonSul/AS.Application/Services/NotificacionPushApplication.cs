@@ -218,8 +218,8 @@ public class NotificacionPushApplication(
             ? $"Ronda {ronda} · "
             : "";
         string Cuerpo(int? propio, int? delRival, string rival) => propio is int p && delRival is int r
-            ? $"{encabezado}Partida validada: {p}-{r} contra {rival}"
-            : $"{encabezado}Partida validada contra {rival}";
+            ? $"{encabezado}{AvisoPush.TextoResultado(p, r)} contra {rival}"
+            : $"{encabezado}Contra {rival}";
 
         Dictionary<int, string> cuerpos = [];
         string cuerpo1 = Cuerpo(partida.ResultadoUsuario1, partida.ResultadoUsuario2, rivalDel1);
@@ -232,7 +232,7 @@ public class NotificacionPushApplication(
         List<MovilDeUsuario> moviles = await MovilesDeAsync([.. cuerpos.Keys]);
         await EnviarPersonalesAsync(
             [.. moviles.Select(m => (m.Token, Cuerpo: cuerpos[m.IdUsuario]))],
-            torneo.NombreTorneo,
+            $"{torneo.NombreTorneo} · Partida validada",
             AvisoPush.RutaEvento(partida.IdTorneo));
     }
 

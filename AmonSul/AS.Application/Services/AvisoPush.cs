@@ -38,6 +38,14 @@ public static class AvisoPush
         Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
             push.AvisarEventoTerminadoAsync(idTorneo)));
 
+    // Con el marcador visto desde quien lo recibe
+    public static string TextoResultado(int propio, int delRival)
+    {
+        string marcador = $"{propio}-{delRival}";
+        if (propio > delRival) return $"Has ganado {marcador}";
+        return propio < delRival ? $"Has perdido {marcador}" : $"Empate {marcador}";
+    }
+
     public static string TextoPago(string? esPago) =>
         esPago == "SI" ? "Tu inscripción ya está pagada." : "Tu inscripción figura como no pagada.";
 
