@@ -336,22 +336,39 @@ public class PartidaTorneoApplication(
                 jugadores
             );
 
-        AvisoPush.AEmails(
-            destinatarios,
-            torneo.NombreTorneo!,
-            $"Ya está la ronda {generarRondaDTO.IdRonda}.",
-            AvisoPush.RutaEvento(generarRondaDTO.IdTorneo));
-
-        if (destinatarios.Count > 0)
-            _ = Task.Run(() =>
-                _emailApplicacion.SendEmailRonda(
-                    torneo.NombreTorneo!,
-                    generarRondaDTO.IdRonda,
-                    destinatarios
-                )
-            );
+        AvisarRonda(torneo.NombreTorneo!, generarRondaDTO.IdTorneo, generarRondaDTO.IdRonda, destinatarios);
 
         return true;
+    }
+
+    private void AvisarRonda(string nombreTorneo, int idTorneo, int idRonda, List<string> destinatarios)
+    {
+        AvisoPush.AEmails(
+            destinatarios,
+            nombreTorneo,
+            $"Ya está la ronda {idRonda}.",
+            AvisoPush.RutaEvento(idTorneo));
+
+        if (destinatarios.Count > 0)
+            _ = Task.Run(() => _emailApplicacion.SendEmailRonda(nombreTorneo, idRonda, destinatarios));
+    }
+
+    /// <summary>
+    /// A todos los miembros de los equipos o parejas. La ronda ya está generada: si esto falla, no debe parecer que no
+    /// </summary>
+    private async Task AvisarRondaDeEquiposAsync(int idTorneo, int idRonda)
+    {
+        try
+        {
+            string nombreTorneo = (await _unitOfWork.TorneoRepository.GetNombreById(idTorneo)).NombreTorneo!;
+            List<string> destinatarios =
+                await _unitOfWork.InscripcionRepository.GetEmailsInscritosAsync(idTorneo);
+            AvisarRonda(nombreTorneo, idTorneo, idRonda, destinatarios);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     private async Task GenerarPrimeraRondaAsync(
@@ -1523,10 +1540,12 @@ public class PartidaTorneoApplication(
         if (await RondaYaGeneradaAsync(request.IdTorneo, request.IdRonda))
             return false;
 
+        bool generada;
+
         // Si vienen los emparejamientos predefinidos
         if (request.EmparejamientosEquipos?.Count != 0)
         {
-            return await GenerarPartidasDesdeEmparejamientos(
+            generada = await GenerarPartidasDesdeEmparejamientos(
                 request.EmparejamientosEquipos!,
                 request
             );
@@ -1620,8 +1639,13 @@ public class PartidaTorneoApplication(
                 );
             }
 
-            return await GenerarPartidasDesdeEmparejamientos(emparejamientos, request);
+            generada = await GenerarPartidasDesdeEmparejamientos(emparejamientos, request);
         }
+
+        if (generada)
+            await AvisarRondaDeEquiposAsync(request.IdTorneo, request.IdRonda);
+
+        return generada;
     }
 
     private async Task<bool> GenerarPartidasDesdeEmparejamientos(
@@ -1721,11 +1745,16 @@ public class PartidaTorneoApplication(
         if (emparejamientos is null)
             return false;
 
-        return await GenerarPartidasDesdeEmparejamientosOtrasRondas(
+        bool generada = await GenerarPartidasDesdeEmparejamientosOtrasRondas(
             emparejamientos,
             request,
             equiposDict
         );
+
+        if (generada)
+            await AvisarRondaDeEquiposAsync(request.IdTorneo, request.IdRonda);
+
+        return generada;
     }
 
     /// <summary>

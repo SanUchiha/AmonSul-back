@@ -273,6 +273,13 @@ public class InscripcionRepository(DbamonsulContext dbamonsulContext) : IInscrip
             .Select(g => new { IdUsuario = g.Key, PuntosExtra = g.Sum(i => i.PuntosExtra) })
             .ToDictionaryAsync(x => x.IdUsuario, x => x.PuntosExtra);
 
+    public async Task<List<string>> GetEmailsInscritosAsync(int idTorneo) =>
+        await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo)
+            .Select(i => i.IdUsuarioNavigation!.Email)
+            .Distinct()
+            .ToListAsync();
+
     public async Task<List<InscripcionTorneo>> GetInscripcionesByTorneo(int idTorneo) =>
         await _dbamonsulContext.InscripcionTorneos
             .Include(it => it.IdUsuarioNavigation) // Incluye el usuario relacionado
