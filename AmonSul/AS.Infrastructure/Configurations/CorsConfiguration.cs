@@ -11,7 +11,10 @@ public static class CorsConfiguration
                 builder => builder
                     .AllowAnyOrigin()
                     .AllowAnyMethod()
-                    .AllowAnyHeader());
+                    .AllowAnyHeader()
+                    // Sin esto, el navegador repite el permiso previo casi en cada petición, y cuentan para el
+                    // límite del hosting. Chrome y Android aplican hasta 2 horas; Safari, menos
+                    .SetPreflightMaxAge(TimeSpan.FromHours(2)));
         });
 
 }
