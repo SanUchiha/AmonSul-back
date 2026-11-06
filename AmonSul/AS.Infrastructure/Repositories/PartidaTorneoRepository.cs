@@ -408,7 +408,9 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         return true;
     }
 
-    // Lo que se pinta de una partida, con los nicks y los equipos, sin nada de sus listas
+    // Lo que se pinta de una partida, sin nicks ni equipos: se completan aparte. Unidos en la misma consulta, SQL Server
+    // pide unos 6 MB de memoria y, en el servidor compartido, espera en cola para tenerlos: de 0,2 a 25 s, sea cual sea
+    // el tamaño del torneo. Por separado no piden casi nada y tardan unos 50 ms cada una
     private static readonly Expression<Func<PartidaTorneo, PartidaTorneoDTO>> APartidaDTO = p => new PartidaTorneoDTO
     {
         IdPartidaTorneo = p.IdPartidaTorneo,
@@ -429,16 +431,8 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
         IdEquipo1 = p.IdEquipo1,
         IdEquipo2 = p.IdEquipo2,
-        Nick1 = p.IdUsuario1Navigation!.Nick,
-        Nick2 = p.IdUsuario2Navigation!.Nick,
-        NombreEquipo1 = p.IdEquipo1Navigation!.NombreEquipo,
-        NombreEquipo2 = p.IdEquipo2Navigation!.NombreEquipo,
-        IdCapitan1 = p.IdEquipo1Navigation!.IdCapitan,
-        IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan,
         IdCompanero1 = p.IdCompanero1,
         IdCompanero2 = p.IdCompanero2,
-        NickCompanero1 = p.IdCompanero1Navigation!.Nick,
-        NickCompanero2 = p.IdCompanero2Navigation!.Nick,
         EjercitoCompanero1 = p.EjercitoCompanero1,
         EjercitoCompanero2 = p.EjercitoCompanero2,
         Fase = p.Fase,
@@ -447,18 +441,74 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         IdUsuarioPasa = p.IdUsuarioPasa,
     };
 
-    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo) =>
-        await _dbamonsulContext
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
+    {
+        // En orden: la mesa de cada partida es su posición dentro de la ronda
+        List<PartidaTorneoDTO> partidas = await _dbamonsulContext
             .PartidaTorneos.Where(p => p.IdTorneo == idTorneo)
+            .OrderBy(p => p.IdPartidaTorneo)
             .Select(APartidaDTO)
             .ToListAsync();
 
-    public async Task<List<PartidaTorneoDTO>> GetPartidasPorIdsAsync(List<int> idsPartida) =>
-        await _dbamonsulContext
+        await CompletarNombresAsync(partidas);
+        return partidas;
+    }
+
+    public async Task<List<PartidaTorneoDTO>> GetPartidasPorIdsAsync(List<int> idsPartida)
+    {
+        List<PartidaTorneoDTO> partidas = await _dbamonsulContext
             .PartidaTorneos.Where(p => idsPartida.Contains(p.IdPartidaTorneo))
             .OrderBy(p => p.IdPartidaTorneo)
             .Select(APartidaDTO)
             .ToListAsync();
+
+        await CompletarNombresAsync(partidas);
+        return partidas;
+    }
+
+    private async Task CompletarNombresAsync(List<PartidaTorneoDTO> partidas)
+    {
+        List<int> idsUsuario =
+        [
+            .. partidas
+                .SelectMany(p => new[] { p.IdUsuario1, p.IdUsuario2, p.IdCompanero1, p.IdCompanero2 })
+                .OfType<int>()
+                .Distinct(),
+        ];
+        var nicks = await _dbamonsulContext
+            .Usuarios.Where(u => idsUsuario.Contains(u.IdUsuario))
+            .Select(u => new { u.IdUsuario, u.Nick })
+            .ToDictionaryAsync(u => u.IdUsuario, u => u.Nick);
+
+        List<int> idsEquipo =
+        [
+            .. partidas.SelectMany(p => new[] { p.IdEquipo1, p.IdEquipo2 }).OfType<int>().Distinct(),
+        ];
+        var equipos = await _dbamonsulContext
+            .Equipo.Where(e => idsEquipo.Contains(e.IdEquipo))
+            .Select(e => new { e.IdEquipo, e.NombreEquipo, e.IdCapitan })
+            .ToDictionaryAsync(e => e.IdEquipo);
+
+        string? NickDe(int? id) => id is int usuario ? nicks.GetValueOrDefault(usuario) : null;
+
+        foreach (PartidaTorneoDTO partida in partidas)
+        {
+            partida.Nick1 = NickDe(partida.IdUsuario1);
+            partida.Nick2 = NickDe(partida.IdUsuario2);
+            partida.NickCompanero1 = NickDe(partida.IdCompanero1);
+            partida.NickCompanero2 = NickDe(partida.IdCompanero2);
+            if (partida.IdEquipo1 is int idEquipo1 && equipos.TryGetValue(idEquipo1, out var equipo1))
+            {
+                partida.NombreEquipo1 = equipo1.NombreEquipo;
+                partida.IdCapitan1 = equipo1.IdCapitan;
+            }
+            if (partida.IdEquipo2 is int idEquipo2 && equipos.TryGetValue(idEquipo2, out var equipo2))
+            {
+                partida.NombreEquipo2 = equipo2.NombreEquipo;
+                partida.IdCapitan2 = equipo2.IdCapitan;
+            }
+        }
+    }
 
     /// <summary>
     /// La mesa de cada partida del torneo: su orden dentro de la ronda, como en las vistas en vivo

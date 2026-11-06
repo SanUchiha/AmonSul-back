@@ -22,6 +22,7 @@ public interface IListaRepository
     Task<List<Lista>> GetListasByInscripcion(int idInscripcion);
     Task<bool> UpdateEstadoLista(UpdateEstadoListaDTO request);
     Task<List<Lista>> GetListasByTorneoByUserAsync(int idTorneo, int? idUsuario2);
+    Task<Dictionary<int, List<Lista>>> GetListasDelTorneoPorUsuarioAsync(int idTorneo);
     Task<Dictionary<int, string?>> GetUltimoEjercitoPorUsuarioAsync(int idTorneo, List<int> idsUsuario);
     Task<List<Lista>> GetListasBase64BatchAsync(int lastIdLista, int take);
     Task UpdateListaDataAsync(int idLista, string listaData);

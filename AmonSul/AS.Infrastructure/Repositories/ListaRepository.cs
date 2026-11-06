@@ -147,6 +147,22 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
                 g => g.OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue).First().Ejercito);
     }
 
+    /// <summary>
+    /// Todas las listas de un torneo, por jugador, con una sola consulta
+    /// </summary>
+    public async Task<Dictionary<int, List<Lista>>> GetListasDelTorneoPorUsuarioAsync(int idTorneo)
+    {
+        var listas = await _dbamonsulContext.Listas
+            .AsNoTracking()
+            .Where(l => l.IdInscripcionNavigation != null && l.IdInscripcionNavigation.IdTorneo == idTorneo)
+            .Select(l => new { l.IdInscripcionNavigation!.IdUsuario, Lista = l })
+            .ToListAsync();
+
+        return listas
+            .GroupBy(l => l.IdUsuario)
+            .ToDictionary(g => g.Key, g => g.Select(l => l.Lista).ToList());
+    }
+
     public async Task<List<Lista>> GetListasByUser(int idUsuario)
     {
         return await _dbamonsulContext.Listas

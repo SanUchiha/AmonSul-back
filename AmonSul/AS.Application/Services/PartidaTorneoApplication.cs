@@ -1497,32 +1497,45 @@ public class PartidaTorneoApplication(
         return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
     }
 
+    /// <summary>
+    /// Las partidas de un torneo de varias listas por jugador. Sin consultas por partida: un torneo de 100 partidas hacía
+    /// más de 200 y cargaba cada usuario con su foto
+    /// </summary>
     public async Task<List<PartidaTorneoMasDTO>> GetPartidasMasTorneoAsync(int idTorneo)
     {
-        List<PartidaTorneo> rawPartidas =
-            await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneo(idTorneo);
+        List<PartidaTorneoDTO> partidas =
+            await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(idTorneo);
+        Dictionary<int, List<ListaDTO>> listas =
+            (await _unitOfWork.ListaRepository.GetListasDelTorneoPorUsuarioAsync(idTorneo))
+                .ToDictionary(j => j.Key, j => _mapper.Map<List<ListaDTO>>(j.Value));
 
-        List<PartidaTorneoMasDTO> partidas = _mapper.Map<List<PartidaTorneoMasDTO>>(rawPartidas);
+        List<ListaDTO> ListasDe(int? id) =>
+            id is int jugador && listas.TryGetValue(jugador, out List<ListaDTO>? suyas) ? suyas : [];
 
-        //Conseguir las listas
-        foreach (var item in partidas)
-        {
-            List<Lista> listasJugador1 =
-                await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    idTorneo,
-                    item.IdUsuario1
-                );
-            List<Lista> listasJugador2 =
-                await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    idTorneo,
-                    item.IdUsuario2
-                );
-
-            item.ListasJugador1 = _mapper.Map<List<ListaDTO>>(listasJugador1);
-            item.ListasJugador2 = _mapper.Map<List<ListaDTO>>(listasJugador2);
-        }
-
-        return partidas;
+        return
+        [
+            .. partidas.Select(p => new PartidaTorneoMasDTO
+            {
+                IdPartidaTorneo = p.IdPartidaTorneo,
+                IdTorneo = p.IdTorneo,
+                IdUsuario1 = p.IdUsuario1,
+                IdUsuario2 = p.IdUsuario2,
+                ResultadoUsuario1 = p.ResultadoUsuario1,
+                ResultadoUsuario2 = p.ResultadoUsuario2,
+                FechaPartida = p.FechaPartida,
+                EscenarioPartida = p.EscenarioPartida,
+                GanadorPartidaTorneo = p.GanadorPartidaTorneo,
+                PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
+                PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
+                NumeroRonda = p.NumeroRonda,
+                LiderMuertoUsuario1 = p.LiderMuertoUsuario1,
+                LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
+                Nick1 = p.Nick1,
+                Nick2 = p.Nick2,
+                ListasJugador1 = ListasDe(p.IdUsuario1),
+                ListasJugador2 = ListasDe(p.IdUsuario2),
+            }),
+        ];
     }
 
     public async Task<List<PartidaTorneoDTO>> GetPartidasTorneo(int idTorneo)
