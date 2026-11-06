@@ -98,5 +98,26 @@ jobs:
             "-retryAttempts:3",
             "-retryInterval:2000"
           )
-          & $msdeploy @msdeployArgs
+          # Un fallo a medias deja puesto app_offline.htm y la API en 503 hasta que otro despliegue termine bien.
+          # Se repite entero, con espera para que el proceso anterior acabe y suelte los ficheros.
+          # El código de salida lo mira este bucle: que un fallo de msdeploy no lo corte
+          $PSNativeCommandUseErrorActionPreference = $false
+          $intentos = 3
+          $esperaSegundos = 60
+          for ($intento = 1; $intento -le $intentos; $intento++) {
+            & $msdeploy @msdeployArgs
+            $codigo = $LASTEXITCODE
+            if ($codigo -eq 0) {
+              if ($intento -gt 1) {
+                Write-Output "::notice::MSDeploy ha funcionado en el intento $intento de $intentos."
+              }
+              exit 0
+            }
+            if ($intento -lt $intentos) {
+              Write-Output "::warning::MSDeploy ha fallado en el intento $intento de $intentos (código $codigo). Se repite en $esperaSegundos s."
+              Start-Sleep -Seconds $esperaSegundos
+            }
+          }
+          Write-Output "::error::MSDeploy ha fallado en los $intentos intentos (último código: $codigo). La API puede seguir en 503 hasta el siguiente despliegue."
+          exit 1
         shell: pwsh
