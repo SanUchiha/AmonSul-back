@@ -119,6 +119,7 @@ public class TorneoRepository(DbamonsulContext dbamonsulContext) : ITorneoReposi
             .Select(t => new Torneo
             {
                 IdTorneo = t.IdTorneo,
+                NombreTorneo = t.NombreTorneo,
                 TipoTorneo = t.TipoTorneo,
                 ListaPorPareja = t.ListaPorPareja,
                 FormatoTorneo = t.FormatoTorneo,

@@ -31,6 +31,8 @@ public interface IPartidaTorneoRepository
     void Quitar(PartidaTorneo partida);
     Task<List<UpdateEloPartidaDTO>> GetPartidasTorneoByRondaForEloAsync(int idTorneo, int idRonda);
     Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo);
+    Task<List<PartidaTorneoDTO>> GetPartidasPorIdsAsync(List<int> idsPartida);
+    Task<Dictionary<int, int>> GetMesasDelTorneoAsync(int idTorneo);
     Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(
         int idEquipo1Old,
         int idEquipo2Old,

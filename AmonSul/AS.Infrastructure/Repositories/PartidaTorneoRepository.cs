@@ -6,6 +6,7 @@ using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Data;
 using AS.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace AS.Infrastructure.Repositories;
 
@@ -407,50 +408,72 @@ public class PartidaTorneoRepository(DbamonsulContext dbamonsulContext) : IParti
         return true;
     }
 
-    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo)
+    // Lo que se pinta de una partida, con los nicks y los equipos, sin nada de sus listas
+    private static readonly Expression<Func<PartidaTorneo, PartidaTorneoDTO>> APartidaDTO = p => new PartidaTorneoDTO
     {
-        List<PartidaTorneoDTO> partidas = await _dbamonsulContext
+        IdPartidaTorneo = p.IdPartidaTorneo,
+        IdTorneo = p.IdTorneo,
+        IdUsuario1 = p.IdUsuario1,
+        IdUsuario2 = p.IdUsuario2,
+        ResultadoUsuario1 = p.ResultadoUsuario1,
+        ResultadoUsuario2 = p.ResultadoUsuario2,
+        FechaPartida = p.FechaPartida,
+        EscenarioPartida = p.EscenarioPartida,
+        GanadorPartidaTorneo = p.GanadorPartidaTorneo,
+        PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
+        PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
+        EjercitoUsuario1 = p.EjercitoUsuario1,
+        EjercitoUsuario2 = p.EjercitoUsuario2,
+        NumeroRonda = p.NumeroRonda,
+        LiderMuertoUsuario1 = p.LiderMuertoUsuario1,
+        LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
+        IdEquipo1 = p.IdEquipo1,
+        IdEquipo2 = p.IdEquipo2,
+        Nick1 = p.IdUsuario1Navigation!.Nick,
+        Nick2 = p.IdUsuario2Navigation!.Nick,
+        NombreEquipo1 = p.IdEquipo1Navigation!.NombreEquipo,
+        NombreEquipo2 = p.IdEquipo2Navigation!.NombreEquipo,
+        IdCapitan1 = p.IdEquipo1Navigation!.IdCapitan,
+        IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan,
+        IdCompanero1 = p.IdCompanero1,
+        IdCompanero2 = p.IdCompanero2,
+        NickCompanero1 = p.IdCompanero1Navigation!.Nick,
+        NickCompanero2 = p.IdCompanero2Navigation!.Nick,
+        EjercitoCompanero1 = p.EjercitoCompanero1,
+        EjercitoCompanero2 = p.EjercitoCompanero2,
+        Fase = p.Fase,
+        Grupo = p.Grupo,
+        Cruce = p.Cruce,
+        IdUsuarioPasa = p.IdUsuarioPasa,
+    };
+
+    public async Task<List<PartidaTorneoDTO>> GetPartidasTorneoAsync(int idTorneo) =>
+        await _dbamonsulContext
             .PartidaTorneos.Where(p => p.IdTorneo == idTorneo)
-            .Select(p => new PartidaTorneoDTO
-            {
-                IdPartidaTorneo = p.IdPartidaTorneo,
-                IdTorneo = p.IdTorneo,
-                IdUsuario1 = p.IdUsuario1,
-                IdUsuario2 = p.IdUsuario2,
-                ResultadoUsuario1 = p.ResultadoUsuario1,
-                ResultadoUsuario2 = p.ResultadoUsuario2,
-                FechaPartida = p.FechaPartida,
-                EscenarioPartida = p.EscenarioPartida,
-                GanadorPartidaTorneo = p.GanadorPartidaTorneo,
-                PartidaValidadaUsuario1 = p.PartidaValidadaUsuario1,
-                PartidaValidadaUsuario2 = p.PartidaValidadaUsuario2,
-                EjercitoUsuario1 = p.EjercitoUsuario1,
-                EjercitoUsuario2 = p.EjercitoUsuario2,
-                NumeroRonda = p.NumeroRonda,
-                LiderMuertoUsuario1 = p.LiderMuertoUsuario1,
-                LiderMuertoUsuario2 = p.LiderMuertoUsuario2,
-                IdEquipo1 = p.IdEquipo1,
-                IdEquipo2 = p.IdEquipo2,
-                Nick1 = p.IdUsuario1Navigation!.Nick,
-                Nick2 = p.IdUsuario2Navigation!.Nick,
-                NombreEquipo1 = p.IdEquipo1Navigation!.NombreEquipo,
-                NombreEquipo2 = p.IdEquipo2Navigation!.NombreEquipo,
-                IdCapitan1 = p.IdEquipo1Navigation!.IdCapitan,
-                IdCapitan2 = p.IdEquipo2Navigation!.IdCapitan,
-                IdCompanero1 = p.IdCompanero1,
-                IdCompanero2 = p.IdCompanero2,
-                NickCompanero1 = p.IdCompanero1Navigation!.Nick,
-                NickCompanero2 = p.IdCompanero2Navigation!.Nick,
-                EjercitoCompanero1 = p.EjercitoCompanero1,
-                EjercitoCompanero2 = p.EjercitoCompanero2,
-                Fase = p.Fase,
-                Grupo = p.Grupo,
-                Cruce = p.Cruce,
-                IdUsuarioPasa = p.IdUsuarioPasa,
-            })
+            .Select(APartidaDTO)
             .ToListAsync();
 
-        return partidas;
+    public async Task<List<PartidaTorneoDTO>> GetPartidasPorIdsAsync(List<int> idsPartida) =>
+        await _dbamonsulContext
+            .PartidaTorneos.Where(p => idsPartida.Contains(p.IdPartidaTorneo))
+            .OrderBy(p => p.IdPartidaTorneo)
+            .Select(APartidaDTO)
+            .ToListAsync();
+
+    /// <summary>
+    /// La mesa de cada partida del torneo: su orden dentro de la ronda, como en las vistas en vivo
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetMesasDelTorneoAsync(int idTorneo)
+    {
+        var partidas = await _dbamonsulContext
+            .PartidaTorneos.Where(p => p.IdTorneo == idTorneo && p.NumeroRonda != null)
+            .Select(p => new { p.IdPartidaTorneo, p.NumeroRonda })
+            .ToListAsync();
+
+        return partidas
+            .GroupBy(p => p.NumeroRonda)
+            .SelectMany(ronda => ronda.OrderBy(p => p.IdPartidaTorneo).Select((p, indice) => (p.IdPartidaTorneo, Mesa: indice + 1)))
+            .ToDictionary(p => p.IdPartidaTorneo, p => p.Mesa);
     }
 
     public async Task<List<PartidaTorneo>> GetPartidasTorneoEquiposParaModificarAsync(

@@ -2250,6 +2250,10 @@ public class PartidaTorneoApplication(
         return response;
     }
 
+    /// <summary>
+    /// Las partidas de hoy de quien juega. Se pide cada vez que un jugador abre la app o toca el aviso de una ronda,
+    /// a la vez que todos los demás: no depende del número de partidas y no carga cartel, bases ni listas
+    /// </summary>
     public async Task<EstaJugandoDTO> GetPartidasTorneoPorFechaYUsuarioAsync(
         DateTime fecha,
         int idUsuario
@@ -2267,9 +2271,10 @@ public class PartidaTorneoApplication(
 
         if (partidas.Count == 0) return estaJugandoDTO;
 
-        Torneo torneo = await _unitOfWork.TorneoRepository.GetById(
-            partidas[0].IdTorneo
-        );
+        Torneo? torneo = await _unitOfWork.TorneoRepository.GetTipoYModoListas(partidas[0].IdTorneo);
+        if (torneo is null) return estaJugandoDTO;
+
+        estaJugandoDTO.NombreTorneo = torneo.NombreTorneo;
         estaJugandoDTO.ListaPorPareja = torneo.ListaPorPareja;
         estaJugandoDTO.FormatoTorneo = torneo.FormatoTorneo;
         estaJugandoDTO.ClassificationType = torneo.ClassificationType;
@@ -2281,228 +2286,79 @@ public class PartidaTorneoApplication(
                 estaJugandoDTO.RondasEliminatoria = CuadroCopa.Rondas(maximo);
         }
 
-        if(torneo.TipoTorneo == TorneoType.INDIVIDUAL)
-        {
-            List<PartidaTorneoDTO> partidasTorneoDto =
-            await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(torneo.IdTorneo);
+        // En individual, las suyas; por equipos, las de todo su equipo
+        List<int> idsPartida = torneo.TipoTorneo == TorneoType.INDIVIDUAL
+            ? [.. partidas.Select(p => p.IdPartidaTorneo)]
+            : await GetIdsPartidasDeSuEquipoAsync(partidas[0], idUsuario, fecha);
 
-            estaJugandoDTO.Partidas = _mapper.Map<List<PartidaTorneoDTO>>(partidas);
-            estaJugandoDTO.TienePartidas = true;
-            estaJugandoDTO.TorneoType = torneo.TipoTorneo;
+        List<PartidaTorneoDTO> partidasDTO =
+            await _unitOfWork.PartidaTorneoRepository.GetPartidasPorIdsAsync(idsPartida);
 
-            Dictionary<int, List<int>> partidasPorRonda = partidasTorneoDto
-                .Where(p => p.NumeroRonda.HasValue)
-                .GroupBy(p => p.NumeroRonda!.Value)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.OrderBy(p => p.IdPartidaTorneo).Select(p => p.IdPartidaTorneo).ToList()
-                );
+        Dictionary<int, int> mesas =
+            await _unitOfWork.PartidaTorneoRepository.GetMesasDelTorneoAsync(torneo.IdTorneo);
+        foreach (PartidaTorneoDTO partida in partidasDTO)
+            partida.NumeroMesa = mesas.TryGetValue(partida.IdPartidaTorneo, out int mesa) ? mesa : null;
 
-            foreach (PartidaTorneoDTO item in estaJugandoDTO.Partidas)
-            {
-                if (item.NumeroRonda != null && partidasPorRonda.TryGetValue(item.NumeroRonda.Value, out var listaIds))
-                {
-                    int idx = listaIds.IndexOf(item.IdPartidaTorneo);
-                    item.NumeroMesa = idx >= 0 ? idx + 1 : (int?)null;
-                }
-                else
-                {
-                    item.NumeroMesa = null;
-                }
+        await CompletarEjercitosAsync(partidasDTO, torneo);
 
-                UsuarioEmailDto nick1 = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario1!.Value);
-                item.Nick1 = nick1.Nick;
-                UsuarioEmailDto nick2 = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario2!.Value);
-                item.Nick2 = nick2.Nick;
-
-                List<Lista> lista1 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    item.IdTorneo!.Value,
-                    item.IdUsuario1!.Value
-                );
-
-                List<Lista> lista2 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    item.IdTorneo!.Value,
-                    item.IdUsuario2!.Value
-                );
-
-                Lista? lista1Entity = lista1?
-                    .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
-                    .FirstOrDefault();
-                Lista? lista2Entity = lista2?
-                    .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
-                    .FirstOrDefault();
-
-                // El guardado en la partida, como en gestión y live; la última lista solo si la partida no tiene
-                item.EjercitoUsuario1 = string.IsNullOrWhiteSpace(item.EjercitoUsuario1)
-                    ? lista1Entity?.Ejercito ?? string.Empty
-                    : item.EjercitoUsuario1;
-                item.EjercitoUsuario2 = string.IsNullOrWhiteSpace(item.EjercitoUsuario2)
-                    ? lista2Entity?.Ejercito ?? string.Empty
-                    : item.EjercitoUsuario2;
-
-                if (partidas[0].IdEquipo1.HasValue || partidas[0].IdEquipo2.HasValue)
-                {
-                    Equipo? equipo1 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(
-                        item.IdEquipo1!.Value
-                    );
-                    Equipo? equipo2 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(
-                        item.IdEquipo2!.Value
-                    );
-
-                    item.NombreEquipo1 = equipo1?.NombreEquipo;
-                    item.NombreEquipo2 = equipo2?.NombreEquipo;
-                    item.IdCapitan1 = equipo1?.IdCapitan;
-                    item.IdCapitan2 = equipo2?.IdCapitan;
-                }
-            }
-        }
-
-        else
-        {
-            List<PartidaTorneoDTO> partidaEquiposDTO = [];
-            // En Parejas el compañero del jugador 1 también juega en el equipo 1
-            bool juegaEnEquipo1 =
-                partidas[0].IdUsuario1 == idUsuario || partidas[0].IdCompanero1 == idUsuario;
-            if(partidas[0].IdEquipo1.HasValue && partidas[0].IdEquipo2.HasValue && juegaEnEquipo1)
-            {
-                List<PartidaTorneo> partidasEquipo = 
-                    await _unitOfWork.PartidaTorneoRepository.GetPartidasByEquipoYFechaAsync(
-                        partidas[0].IdEquipo1,
-                        fecha);
-                
-                partidaEquiposDTO = _mapper.Map<List<PartidaTorneoDTO>>(partidasEquipo);    
-
-            }
-            else
-            {
-                List<PartidaTorneo> partidasEquipo =
-                    await _unitOfWork.PartidaTorneoRepository.GetPartidasByEquipoYFechaAsync(
-                        partidas[0].IdEquipo2,
-                        fecha);
-
-                partidaEquiposDTO = _mapper.Map<List<PartidaTorneoDTO>>(partidasEquipo);
-            }
-
-            List<PartidaTorneoDTO> partidasTorneoDto =
-                    await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoAsync(torneo.IdTorneo);
-
-            estaJugandoDTO.Partidas = _mapper.Map<List<PartidaTorneoDTO>>(partidaEquiposDTO);
-            estaJugandoDTO.TienePartidas = true;
-            estaJugandoDTO.TorneoType = torneo.TipoTorneo;
-
-            Dictionary<int, List<int>> partidasPorRonda = partidasTorneoDto
-                .Where(p => p.NumeroRonda.HasValue)
-                .GroupBy(p => p.NumeroRonda!.Value)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.OrderBy(p => p.IdPartidaTorneo).Select(p => p.IdPartidaTorneo).ToList()
-                );
-
-            foreach (PartidaTorneoDTO item in estaJugandoDTO.Partidas)
-            {
-                if (item.NumeroRonda != null && partidasPorRonda.TryGetValue(item.NumeroRonda.Value, out var listaIds))
-                {
-                    int idx = listaIds.IndexOf(item.IdPartidaTorneo);
-                    item.NumeroMesa = idx >= 0 ? idx + 1 : (int?)null;
-                }
-                else
-                {
-                    item.NumeroMesa = null;
-                }
-
-                UsuarioEmailDto nick1 = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario1!.Value);
-                item.Nick1 = nick1.Nick;
-                UsuarioEmailDto nick2 = await _unitOfWork.UsuarioRepository.GetEmailNickById(item.IdUsuario2!.Value);
-                item.Nick2 = nick2.Nick;
-
-                List<Lista> lista1 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    item.IdTorneo!.Value,
-                    item.IdUsuario1!.Value
-                );
-
-                List<Lista> lista2 = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-                    item.IdTorneo!.Value,
-                    item.IdUsuario2!.Value
-                );
-
-                Lista? lista1Entity = lista1?
-                    .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
-                    .FirstOrDefault();
-                Lista? lista2Entity = lista2?
-                    .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
-                    .FirstOrDefault();
-
-                // El guardado en la partida, como en gestión y live; la última lista solo si la partida no tiene
-                item.EjercitoUsuario1 = string.IsNullOrWhiteSpace(item.EjercitoUsuario1)
-                    ? lista1Entity?.Ejercito ?? string.Empty
-                    : item.EjercitoUsuario1;
-                item.EjercitoUsuario2 = string.IsNullOrWhiteSpace(item.EjercitoUsuario2)
-                    ? lista2Entity?.Ejercito ?? string.Empty
-                    : item.EjercitoUsuario2;
-
-                if (torneo.TipoTorneo == TorneoType.PAREJAS)
-                    await CompletarCompanerosAsync(item, torneo.ListaPorPareja);
-
-                if (partidaEquiposDTO[0].IdEquipo1.HasValue || partidaEquiposDTO[0].IdEquipo2.HasValue)
-                {
-                    Equipo? equipo1 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(
-                        item.IdEquipo1!.Value
-                    );
-                    Equipo? equipo2 = await _unitOfWork.InscripcionRepository.GetEquipoByIdAsync(
-                        item.IdEquipo2!.Value
-                    );
-
-                    item.NombreEquipo1 = equipo1?.NombreEquipo;
-                    item.NombreEquipo2 = equipo2?.NombreEquipo;
-                    item.IdCapitan1 = equipo1?.IdCapitan;
-                    item.IdCapitan2 = equipo2?.IdCapitan;
-                }
-            }
-
-        }
+        estaJugandoDTO.Partidas = partidasDTO;
+        estaJugandoDTO.TienePartidas = true;
+        estaJugandoDTO.TorneoType = torneo.TipoTorneo;
 
         return estaJugandoDTO;
     }
 
-    /// <summary>
-    /// Nick y ejército de los compañeros: el guardado o, si no hay, el de su última lista. Con lista conjunta el compañero no tiene ejército propio
-    /// </summary>
-    private async Task CompletarCompanerosAsync(PartidaTorneoDTO partida, bool listaPorPareja)
+    private async Task<List<int>> GetIdsPartidasDeSuEquipoAsync(PartidaTorneo partida, int idUsuario, DateTime fecha)
     {
-        if (partida.IdCompanero1 is int idCompanero1)
-        {
-            partida.NickCompanero1 = (
-                await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero1)
-            ).Nick;
-            if (!listaPorPareja && string.IsNullOrWhiteSpace(partida.EjercitoCompanero1))
-                partida.EjercitoCompanero1 = await GetEjercitoUltimaListaAsync(
-                    partida.IdTorneo!.Value,
-                    idCompanero1
-                );
-        }
+        // En Parejas el compañero del jugador 1 también juega en el equipo 1
+        bool juegaEnEquipo1 = partida.IdUsuario1 == idUsuario || partida.IdCompanero1 == idUsuario;
+        int? idEquipo = partida.IdEquipo1.HasValue && partida.IdEquipo2.HasValue && juegaEnEquipo1
+            ? partida.IdEquipo1
+            : partida.IdEquipo2;
+        if (idEquipo is null) return [partida.IdPartidaTorneo];
 
-        if (partida.IdCompanero2 is int idCompanero2)
-        {
-            partida.NickCompanero2 = (
-                await _unitOfWork.UsuarioRepository.GetEmailNickById(idCompanero2)
-            ).Nick;
-            if (!listaPorPareja && string.IsNullOrWhiteSpace(partida.EjercitoCompanero2))
-                partida.EjercitoCompanero2 = await GetEjercitoUltimaListaAsync(
-                    partida.IdTorneo!.Value,
-                    idCompanero2
-                );
-        }
+        List<PartidaTorneo> delEquipo =
+            await _unitOfWork.PartidaTorneoRepository.GetPartidasByEquipoYFechaAsync(idEquipo, fecha);
+        return [.. delEquipo.Select(p => p.IdPartidaTorneo)];
     }
 
-    private async Task<string?> GetEjercitoUltimaListaAsync(int idTorneo, int idUsuario)
+    /// <summary>
+    /// El ejército guardado en la partida, como en gestión y live; si no tiene, el de la última lista del jugador.
+    /// Con lista conjunta el compañero no tiene ejército propio
+    /// </summary>
+    private async Task CompletarEjercitosAsync(List<PartidaTorneoDTO> partidas, Torneo torneo)
     {
-        List<Lista> listas = await _unitOfWork.ListaRepository.GetListasByTorneoByUserAsync(
-            idTorneo,
-            idUsuario
-        );
-        return listas
-            .OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue)
-            .FirstOrDefault()
-            ?.Ejercito;
+        bool conCompaneros = torneo.TipoTorneo == TorneoType.PAREJAS && !torneo.ListaPorPareja;
+
+        foreach (IGrouping<int?, PartidaTorneoDTO> delTorneo in partidas.GroupBy(p => p.IdTorneo))
+        {
+            List<int> sinEjercito = [.. delTorneo.SelectMany(p => new (int? Id, string? Ejercito)[]
+                {
+                    (p.IdUsuario1, p.EjercitoUsuario1),
+                    (p.IdUsuario2, p.EjercitoUsuario2),
+                    (conCompaneros ? p.IdCompanero1 : null, p.EjercitoCompanero1),
+                    (conCompaneros ? p.IdCompanero2 : null, p.EjercitoCompanero2),
+                })
+                .Where(j => j.Id.HasValue && string.IsNullOrWhiteSpace(j.Ejercito))
+                .Select(j => j.Id!.Value)
+                .Distinct()];
+            if (sinEjercito.Count == 0 || delTorneo.Key is not int idTorneo) continue;
+
+            Dictionary<int, string?> ejercitos =
+                await _unitOfWork.ListaRepository.GetUltimoEjercitoPorUsuarioAsync(idTorneo, sinEjercito);
+            string? EjercitoDe(int? id) => id is int jugador ? ejercitos.GetValueOrDefault(jugador) : null;
+
+            foreach (PartidaTorneoDTO partida in delTorneo)
+            {
+                if (string.IsNullOrWhiteSpace(partida.EjercitoUsuario1))
+                    partida.EjercitoUsuario1 = EjercitoDe(partida.IdUsuario1) ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(partida.EjercitoUsuario2))
+                    partida.EjercitoUsuario2 = EjercitoDe(partida.IdUsuario2) ?? string.Empty;
+                if (conCompaneros && string.IsNullOrWhiteSpace(partida.EjercitoCompanero1))
+                    partida.EjercitoCompanero1 = EjercitoDe(partida.IdCompanero1);
+                if (conCompaneros && string.IsNullOrWhiteSpace(partida.EjercitoCompanero2))
+                    partida.EjercitoCompanero2 = EjercitoDe(partida.IdCompanero2);
+            }
+        }
     }
 }

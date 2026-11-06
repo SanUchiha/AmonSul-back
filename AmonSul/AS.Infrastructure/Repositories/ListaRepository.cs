@@ -128,6 +128,25 @@ public class ListaRepository(DbamonsulContext dbamonsulContext) : IListaReposito
             .ToListAsync();
     }
 
+    /// <summary>
+    /// El ejército de la última lista de cada jugador, con una sola consulta para todos
+    /// </summary>
+    public async Task<Dictionary<int, string?>> GetUltimoEjercitoPorUsuarioAsync(int idTorneo, List<int> idsUsuario)
+    {
+        var listas = await _dbamonsulContext.Listas
+            .Where(l => l.IdInscripcionNavigation != null &&
+                        l.IdInscripcionNavigation.IdTorneo == idTorneo &&
+                        idsUsuario.Contains(l.IdInscripcionNavigation.IdUsuario))
+            .Select(l => new { l.IdInscripcionNavigation!.IdUsuario, l.Ejercito, l.FechaEntrega })
+            .ToListAsync();
+
+        return listas
+            .GroupBy(l => l.IdUsuario)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(l => l.FechaEntrega ?? DateOnly.MinValue).First().Ejercito);
+    }
+
     public async Task<List<Lista>> GetListasByUser(int idUsuario)
     {
         return await _dbamonsulContext.Listas
