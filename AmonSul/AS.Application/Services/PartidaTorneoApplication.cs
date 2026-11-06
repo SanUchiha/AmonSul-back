@@ -343,11 +343,7 @@ public class PartidaTorneoApplication(
 
     private void AvisarRonda(string nombreTorneo, int idTorneo, int idRonda, List<string> destinatarios)
     {
-        AvisoPush.AEmails(
-            destinatarios,
-            nombreTorneo,
-            $"Ya está la ronda {idRonda}.",
-            AvisoPush.RutaEvento(idTorneo));
+        AvisoPush.RondaGenerada(idTorneo, idRonda);
 
         if (destinatarios.Count > 0)
             _ = Task.Run(() => _emailApplicacion.SendEmailRonda(nombreTorneo, idRonda, destinatarios));
@@ -1371,6 +1367,7 @@ public class PartidaTorneoApplication(
             sustituciones[inscripcion1.IdUsuario] = existingEntity.IdUsuario1;
         if (inscripcion2.IdUsuario != existingEntity.IdUsuario2)
             sustituciones[inscripcion2.IdUsuario] = existingEntity.IdUsuario2;
+        List<int> afectados = [existingEntity.IdUsuario1, existingEntity.IdUsuario2, inscripcion1.IdUsuario, inscripcion2.IdUsuario];
 
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
         existingEntity.IdUsuario2 = inscripcion2.IdUsuario;
@@ -1395,7 +1392,12 @@ public class PartidaTorneoApplication(
         if (response == false)
             return null;
 
-        await IntercambiarEnOtraMesaAsync(existingEntity, sustituciones, inscripciones);
+        afectados.AddRange(await IntercambiarEnOtraMesaAsync(existingEntity, sustituciones, inscripciones));
+
+        // Por equipos no: el aviso solo lleva las mesas del equipo, y esas no cambian
+        if (sustituciones.Count > 0 && existingEntity.IdEquipo1 is null && existingEntity.IdEquipo2 is null
+            && existingEntity.NumeroRonda is int ronda)
+            AvisoPush.CambioEnRonda(existingEntity.IdTorneo, ronda, [.. afectados.Distinct()], []);
 
         PartidaTorneoDTO partidaTorneoDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
         partidaTorneoDTO.Nick1 = inscripcion1.Nick;
@@ -1463,8 +1465,14 @@ public class PartidaTorneoApplication(
             if (pareja1 is null || pareja2 is null)
                 return false;
 
+            int? parejaAntes1 = existingEntity.IdEquipo1;
+            int? parejaAntes2 = existingEntity.IdEquipo2;
             AsignarParejas(existingEntity, pareja1.Value, pareja2.Value);
-            return await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+            bool editada = await _unitOfWork.PartidaTorneoRepository.Edit(existingEntity);
+            if (editada && existingEntity.NumeroRonda is int ronda)
+                AvisarCambioDeEquipos(
+                    existingEntity.IdTorneo, ronda, parejaAntes1, parejaAntes2, existingEntity.IdEquipo1, existingEntity.IdEquipo2);
+            return editada;
         }
 
         existingEntity.IdUsuario1 = inscripcion1.IdUsuario;
@@ -2089,6 +2097,8 @@ public class PartidaTorneoApplication(
                 AsignarParejas(partida, pareja1.Value, pareja2.Value);
                 await _unitOfWork.PartidaTorneoRepository.Edit(partida);
             }
+            AvisarCambioDeEquipos(
+                idTorneo, request.NumeroRonda, request.IdEquipo1Old, request.IdEquipo2Old, request.IdEquipo1, request.IdEquipo2);
             return true;
         }
 
@@ -2161,7 +2171,18 @@ public class PartidaTorneoApplication(
             await _unitOfWork.PartidaTorneoRepository.Edit(partida);
         }
 
+        AvisarCambioDeEquipos(
+            idTorneo, request.NumeroRonda, request.IdEquipo1Old, request.IdEquipo2Old, request.IdEquipo1, request.IdEquipo2);
         return true;
+    }
+
+    private static void AvisarCambioDeEquipos(
+        int idTorneo, int numeroRonda, int? antes1, int? antes2, int? despues1, int? despues2)
+    {
+        if (antes1 == despues1 && antes2 == despues2)
+            return;
+        AvisoPush.CambioEnRonda(
+            idTorneo, numeroRonda, [], [.. new[] { antes1, antes2, despues1, despues2 }.OfType<int>().Distinct()]);
     }
 
     /// <summary>
@@ -2192,14 +2213,15 @@ public class PartidaTorneoApplication(
     /// Tras cambiar a mano una partida: en la otra mesa de la misma ronda donde jugaba el que entra, pasa a jugar el
     /// que ha salido, sin resultado
     /// </summary>
-    private async Task IntercambiarEnOtraMesaAsync(
+    private async Task<List<int>> IntercambiarEnOtraMesaAsync(
         PartidaTorneo editada,
         Dictionary<int, int> sustituciones,
         List<Usuario> inscritos
     )
     {
+        List<int> afectados = [];
         if (sustituciones.Count == 0 || editada.NumeroRonda is not int ronda)
-            return;
+            return afectados;
 
         List<PartidaTorneo> deLaRonda = await _unitOfWork.PartidaTorneoRepository.GetPartidasTorneoByRonda(
             editada.IdTorneo, ronda);
@@ -2232,7 +2254,10 @@ public class PartidaTorneoApplication(
             otra.LiderMuertoUsuario1 = null;
             otra.LiderMuertoUsuario2 = null;
             await _unitOfWork.PartidaTorneoRepository.Edit(otra);
+            afectados.Add(otra.IdUsuario1);
+            afectados.Add(otra.IdUsuario2);
         }
+        return afectados;
     }
 
     // Cada ronda se genera una sola vez: volver a pulsar (o un doble toque) la duplicaba entera

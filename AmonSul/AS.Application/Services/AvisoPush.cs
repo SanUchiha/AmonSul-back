@@ -22,6 +22,14 @@ public static class AvisoPush
         Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
             push.EnviarATodosAsync(titulo, cuerpo, ruta)));
 
+    public static void RondaGenerada(int idTorneo, int numeroRonda) =>
+        Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
+            push.AvisarRondaAsync(idTorneo, numeroRonda)));
+
+    public static void CambioEnRonda(int idTorneo, int numeroRonda, List<int> idsUsuario, List<int> idsEquipo) =>
+        Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
+            push.AvisarCambioEnRondaAsync(idTorneo, numeroRonda, idsUsuario, idsEquipo)));
+
     public static void EventoTerminado(int idTorneo) =>
         Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
             push.AvisarEventoTerminadoAsync(idTorneo)));

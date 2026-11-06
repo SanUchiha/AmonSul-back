@@ -2,6 +2,7 @@ using AS.Application.DTOs.Email;
 using AS.Application.DTOs.Notificaciones;
 using AS.Application.Interfaces;
 using AS.Domain.Models;
+using AS.Domain.Types.Torneo;
 using AS.Infrastructure.Data;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
@@ -25,6 +26,9 @@ public class NotificacionPushApplication(
     private static readonly TimeOnly HORA_INICIO_POR_DEFECTO = new(9, 0);
     private const int HORAS_MARGEN_INICIO = 3;
     private const string ESTADO_CANCELADO = "CANCELADO";
+    // Los rivales ficticios de quien descansa
+    private const int ID_USUARIO_BYE = 568;
+    private const int ID_EQUIPO_BYE = 117;
     private static readonly object _cerrojoFirebase = new();
 
     private readonly DbamonsulContext _dbamonsulContext = dbamonsulContext;
@@ -89,6 +93,144 @@ public class NotificacionPushApplication(
 
         await EnviarAsync(tokens, titulo, cuerpo, ruta);
     }
+
+    /// <summary>
+    /// A cada inscrito, dónde juega y contra quién, para que no tenga que abrir la app justo al salir la ronda, cuando
+    /// entran todos a la vez. Quien no tiene partida en la ronda recibe el aviso general
+    /// </summary>
+    public async Task AvisarRondaAsync(int idTorneo, int numeroRonda)
+    {
+        List<int> inscritos = await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo)
+            .Select(i => i.IdUsuario)
+            .Distinct()
+            .ToListAsync();
+
+        await AvisarDeRondaAsync(
+            idTorneo, numeroRonda, inscritos, $"Ronda {numeroRonda}", $"Ya está la ronda {numeroRonda}.");
+    }
+
+    /// <summary>
+    /// A los jugadores indicados y a los miembros de los equipos indicados: lo que queda tras el cambio
+    /// </summary>
+    public async Task AvisarCambioEnRondaAsync(int idTorneo, int numeroRonda, List<int> idsUsuario, List<int> idsEquipo)
+    {
+        List<int> miembros = await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo && i.IdEquipo != null && idsEquipo.Contains(i.IdEquipo.Value))
+            .Select(i => i.IdUsuario)
+            .ToListAsync();
+
+        await AvisarDeRondaAsync(
+            idTorneo,
+            numeroRonda,
+            [.. idsUsuario.Union(miembros)],
+            $"Cambio en la ronda {numeroRonda}",
+            $"Cambio en la ronda {numeroRonda}: mira el evento.");
+    }
+
+    private async Task AvisarDeRondaAsync(
+        int idTorneo, int numeroRonda, List<int> idsUsuario, string encabezado, string sinDetalle)
+    {
+        var torneo = await _dbamonsulContext.Torneos
+            .Where(t => t.IdTorneo == idTorneo)
+            .Select(t => new { t.NombreTorneo, t.TipoTorneo, t.FormatoTorneo })
+            .FirstOrDefaultAsync();
+        // Ligas y copas van por jornadas, sin mesas, y tienen sus propios avisos
+        if (torneo is null || FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo)) return;
+
+        var dispositivos = await (
+            from dispositivo in _dbamonsulContext.DispositivosPush
+            join usuario in _dbamonsulContext.Usuarios on dispositivo.IdUsuario equals usuario.IdUsuario
+            where idsUsuario.Contains(dispositivo.IdUsuario) && usuario.PermiteNotificaciones
+            select new { dispositivo.IdUsuario, dispositivo.Token }).ToListAsync();
+        if (dispositivos.Count == 0) return;
+
+        // En orden: la mesa de cada partida es su posición dentro de la ronda, como en la app
+        List<MesaDeRonda> mesas = await _dbamonsulContext.PartidaTorneos
+            .Where(p => p.IdTorneo == idTorneo && p.NumeroRonda == numeroRonda)
+            .OrderBy(p => p.IdPartidaTorneo)
+            .Select(p => new MesaDeRonda(p.IdUsuario1, p.IdUsuario2, p.IdEquipo1, p.IdEquipo2))
+            .ToListAsync();
+
+        Dictionary<int, string> detalles = torneo.TipoTorneo == TorneoType.INDIVIDUAL
+            ? await DetallesIndividualesAsync(mesas)
+            : await DetallesPorEquiposAsync(idTorneo, torneo.TipoTorneo, mesas);
+
+        await EnviarPersonalesAsync(
+            [.. dispositivos.Select(d => (
+                d.Token,
+                Cuerpo: detalles.TryGetValue(d.IdUsuario, out string? detalle) ? $"{encabezado} · {detalle}" : sinDetalle))],
+            torneo.NombreTorneo,
+            AvisoPush.RutaEvento(idTorneo));
+    }
+
+    private async Task<Dictionary<int, string>> DetallesIndividualesAsync(List<MesaDeRonda> mesas)
+    {
+        List<int> jugadores = [.. mesas.SelectMany(m => new[] { m.IdUsuario1, m.IdUsuario2 }).Distinct()];
+        Dictionary<int, string> nicks = await _dbamonsulContext.Usuarios
+            .Where(u => jugadores.Contains(u.IdUsuario))
+            .Select(u => new { u.IdUsuario, u.Nick })
+            .ToDictionaryAsync(u => u.IdUsuario, u => u.Nick);
+
+        string Detalle(int rival, int numeroMesa) => rival == ID_USUARIO_BYE
+            ? "Descansas esta ronda"
+            : $"Mesa {numeroMesa} · contra {nicks.GetValueOrDefault(rival, "tu rival")}";
+
+        Dictionary<int, string> detalles = [];
+        for (int i = 0; i < mesas.Count; i++)
+        {
+            detalles.TryAdd(mesas[i].IdUsuario1, Detalle(mesas[i].IdUsuario2, i + 1));
+            detalles.TryAdd(mesas[i].IdUsuario2, Detalle(mesas[i].IdUsuario1, i + 1));
+        }
+        return detalles;
+    }
+
+    // Sin el jugador ni su mesa exacta: el capitán puede moverlos entre las mesas de su equipo, y el aviso seguiría valiendo
+    private async Task<Dictionary<int, string>> DetallesPorEquiposAsync(
+        int idTorneo, string tipoTorneo, List<MesaDeRonda> mesas)
+    {
+        var lados = mesas
+            .SelectMany((m, i) => new[]
+            {
+                (Equipo: m.IdEquipo1, Rival: m.IdEquipo2, Mesa: i + 1),
+                (Equipo: m.IdEquipo2, Rival: m.IdEquipo1, Mesa: i + 1),
+            })
+            .Where(l => l.Equipo is int equipo && equipo != ID_EQUIPO_BYE && l.Rival is not null)
+            .GroupBy(l => l.Equipo!.Value)
+            .ToList();
+        List<int> idsEquipo = [.. mesas.SelectMany(m => new[] { m.IdEquipo1, m.IdEquipo2 }).OfType<int>().Distinct()];
+
+        Dictionary<int, string> nombres = await _dbamonsulContext.Equipo
+            .Where(e => idsEquipo.Contains(e.IdEquipo))
+            .Select(e => new { e.IdEquipo, e.NombreEquipo })
+            .ToDictionaryAsync(e => e.IdEquipo, e => e.NombreEquipo);
+        var miembros = await _dbamonsulContext.InscripcionTorneos
+            .Where(i => i.IdTorneo == idTorneo && i.IdEquipo != null && idsEquipo.Contains(i.IdEquipo.Value))
+            .Select(i => new { i.IdUsuario, IdEquipo = i.IdEquipo!.Value })
+            .ToListAsync();
+
+        string descanso = tipoTorneo == TorneoType.PAREJAS
+            ? "Tu pareja descansa esta ronda"
+            : "Tu equipo descansa esta ronda";
+        Dictionary<int, string> porEquipo = lados.ToDictionary(
+            g => g.Key,
+            g => g.First().Rival == ID_EQUIPO_BYE
+                ? descanso
+                : $"{TextoMesas([.. g.Select(l => l.Mesa)])} · contra {nombres.GetValueOrDefault(g.First().Rival!.Value, "tu rival")}");
+
+        Dictionary<int, string> detalles = [];
+        foreach (var miembro in miembros)
+            if (porEquipo.TryGetValue(miembro.IdEquipo, out string? detalle))
+                detalles.TryAdd(miembro.IdUsuario, detalle);
+        return detalles;
+    }
+
+    private static string TextoMesas(List<int> mesas) => mesas.Count switch
+    {
+        1 => $"Mesa {mesas[0]}",
+        2 => $"Mesas {mesas[0]} y {mesas[1]}",
+        _ => $"Mesas {mesas[0]} a {mesas[^1]}",
+    };
 
     public async Task EnviarATodosAsync(string titulo, string cuerpo, string? ruta)
     {
@@ -172,23 +314,7 @@ public class NotificacionPushApplication(
                 BatchResponse respuesta = await mensajeria.SendEachForMulticastAsync(
                     Mensaje(lote, titulo, cuerpo, ruta));
                 entregados += respuesta.SuccessCount;
-
-                List<string> caducados = [];
-                for (int i = 0; i < respuesta.Responses.Count; i++)
-                {
-                    MessagingErrorCode? codigo = respuesta.Responses[i].Exception?.MessagingErrorCode;
-                    if (respuesta.Responses[i].IsSuccess) continue;
-                    if (codigo is MessagingErrorCode.Unregistered or MessagingErrorCode.SenderIdMismatch)
-                        caducados.Add(lote[i]);
-                    else
-                        errores.Add(codigo?.ToString() ?? "Desconocido");
-                }
-
-                // Se ha desinstalado la app: ese token ya no vale
-                if (caducados.Count > 0)
-                    await _dbamonsulContext.DispositivosPush
-                        .Where(d => caducados.Contains(d.Token))
-                        .ExecuteDeleteAsync();
+                await TratarFallosAsync(respuesta, lote, errores);
             }
         }
         catch (Exception ex)
@@ -199,6 +325,67 @@ public class NotificacionPushApplication(
 
         return new(tokens.Count, entregados, [.. errores.Distinct()]);
     }
+
+    // Un texto distinto para cada móvil. Igual que arriba: un fallo aquí se registra y se sigue
+    private async Task EnviarPersonalesAsync(List<(string Token, string Cuerpo)> avisos, string titulo, string ruta)
+    {
+        List<string> errores = [];
+        try
+        {
+            FirebaseMessaging? mensajeria = Mensajeria();
+            if (mensajeria is null)
+            {
+                _logger.LogWarning("Sin credenciales de Firebase: no se envían notificaciones");
+                return;
+            }
+
+            foreach ((string Token, string Cuerpo)[] lote in avisos.Chunk(TOKENS_POR_ENVIO))
+            {
+                BatchResponse respuesta = await mensajeria.SendEachAsync(
+                    lote.Select(a => MensajeAUnMovil(a.Token, titulo, a.Cuerpo, ruta)));
+                await TratarFallosAsync(respuesta, [.. lote.Select(a => a.Token)], errores);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "No se pudieron enviar las notificaciones");
+            return;
+        }
+
+        if (errores.Count > 0)
+            _logger.LogWarning("Fallos al enviar los avisos: {Errores}", string.Join(", ", errores.Distinct()));
+    }
+
+    private async Task TratarFallosAsync(BatchResponse respuesta, string[] tokens, List<string> errores)
+    {
+        List<string> caducados = [];
+        for (int i = 0; i < respuesta.Responses.Count; i++)
+        {
+            MessagingErrorCode? codigo = respuesta.Responses[i].Exception?.MessagingErrorCode;
+            if (respuesta.Responses[i].IsSuccess) continue;
+            if (codigo is MessagingErrorCode.Unregistered or MessagingErrorCode.SenderIdMismatch)
+                caducados.Add(tokens[i]);
+            else
+                errores.Add(codigo?.ToString() ?? "Desconocido");
+        }
+
+        // Se ha desinstalado la app: ese token ya no vale
+        if (caducados.Count > 0)
+            await _dbamonsulContext.DispositivosPush
+                .Where(d => caducados.Contains(d.Token))
+                .ExecuteDeleteAsync();
+    }
+
+    private static Message MensajeAUnMovil(string token, string titulo, string cuerpo, string ruta) => new()
+    {
+        Token = token,
+        Notification = new Notification { Title = titulo, Body = cuerpo },
+        Data = new Dictionary<string, string> { ["ruta"] = ruta },
+        Android = new AndroidConfig { Priority = Priority.High },
+        Apns = new ApnsConfig { Aps = new Aps { Sound = "default" } },
+    };
+
+    private sealed record MesaDeRonda(int IdUsuario1, int IdUsuario2, int? IdEquipo1, int? IdEquipo2);
 
     private static MulticastMessage Mensaje(string[] tokens, string titulo, string cuerpo, string? ruta) => new()
     {
