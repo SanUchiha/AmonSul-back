@@ -30,6 +30,10 @@ public static class AvisoPush
         Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
             push.AvisarCambioEnRondaAsync(idTorneo, numeroRonda, idsUsuario, idsEquipo)));
 
+    public static void PartidaValidada(int idPartidaTorneo) =>
+        Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
+            push.AvisarPartidaValidadaAsync(idPartidaTorneo)));
+
     public static void EventoTerminado(int idTorneo) =>
         Encolar(() => BackgroundJob.Enqueue<INotificacionPushApplication>(push =>
             push.AvisarEventoTerminadoAsync(idTorneo)));

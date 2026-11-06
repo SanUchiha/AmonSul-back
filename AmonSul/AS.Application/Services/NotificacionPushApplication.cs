@@ -138,11 +138,7 @@ public class NotificacionPushApplication(
         // Ligas y copas van por jornadas, sin mesas, y tienen sus propios avisos
         if (torneo is null || FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo)) return;
 
-        var dispositivos = await (
-            from dispositivo in _dbamonsulContext.DispositivosPush
-            join usuario in _dbamonsulContext.Usuarios on dispositivo.IdUsuario equals usuario.IdUsuario
-            where idsUsuario.Contains(dispositivo.IdUsuario) && usuario.PermiteNotificaciones
-            select new { dispositivo.IdUsuario, dispositivo.Token }).ToListAsync();
+        List<MovilDeUsuario> dispositivos = await MovilesDeAsync(idsUsuario);
         if (dispositivos.Count == 0) return;
 
         // En orden: la mesa de cada partida es su posición dentro de la ronda, como en la app
@@ -164,13 +160,95 @@ public class NotificacionPushApplication(
             AvisoPush.RutaEvento(idTorneo));
     }
 
+    /// <summary>
+    /// A todos los jugadores de la partida, también a quien acaba de validar, con el marcador visto desde su lado
+    /// </summary>
+    public async Task AvisarPartidaValidadaAsync(int idPartidaTorneo)
+    {
+        var partida = await _dbamonsulContext.PartidaTorneos
+            .Where(p => p.IdPartidaTorneo == idPartidaTorneo)
+            .Select(p => new
+            {
+                p.IdTorneo,
+                p.NumeroRonda,
+                p.IdUsuario1,
+                p.IdUsuario2,
+                p.IdCompanero1,
+                p.IdCompanero2,
+                p.IdEquipo1,
+                p.IdEquipo2,
+                p.ResultadoUsuario1,
+                p.ResultadoUsuario2,
+            })
+            .FirstOrDefaultAsync();
+        if (partida is null || partida.IdUsuario1 == ID_USUARIO_BYE || partida.IdUsuario2 == ID_USUARIO_BYE) return;
+
+        var torneo = await _dbamonsulContext.Torneos
+            .Where(t => t.IdTorneo == partida.IdTorneo)
+            .Select(t => new { t.NombreTorneo, t.TipoTorneo, t.FormatoTorneo })
+            .FirstOrDefaultAsync();
+        if (torneo is null) return;
+
+        // En parejas juegan cuatro: el rival es la pareja. Si no, el jugador que ha tenido enfrente
+        string rivalDel1;
+        string rivalDel2;
+        if (torneo.TipoTorneo == TorneoType.PAREJAS)
+        {
+            List<int> parejas = [.. new[] { partida.IdEquipo1, partida.IdEquipo2 }.OfType<int>()];
+            Dictionary<int, string> nombres = await _dbamonsulContext.Equipo
+                .Where(e => parejas.Contains(e.IdEquipo))
+                .Select(e => new { e.IdEquipo, e.NombreEquipo })
+                .ToDictionaryAsync(e => e.IdEquipo, e => e.NombreEquipo.Trim());
+            rivalDel1 = nombres.GetValueOrDefault(partida.IdEquipo2 ?? 0, "tu rival");
+            rivalDel2 = nombres.GetValueOrDefault(partida.IdEquipo1 ?? 0, "tu rival");
+        }
+        else
+        {
+            int[] jugadores = [partida.IdUsuario1, partida.IdUsuario2];
+            Dictionary<int, string> nicks = await _dbamonsulContext.Usuarios
+                .Where(u => jugadores.Contains(u.IdUsuario))
+                .Select(u => new { u.IdUsuario, u.Nick })
+                .ToDictionaryAsync(u => u.IdUsuario, u => u.Nick.Trim());
+            rivalDel1 = nicks.GetValueOrDefault(partida.IdUsuario2, "tu rival");
+            rivalDel2 = nicks.GetValueOrDefault(partida.IdUsuario1, "tu rival");
+        }
+
+        // Ligas y copas van por jornadas y fases, sin el número de ronda de un torneo
+        string encabezado = !FormatoTorneoType.EsPorJornadas(torneo.FormatoTorneo) && partida.NumeroRonda is int ronda
+            ? $"Ronda {ronda} · "
+            : "";
+        string Cuerpo(int? propio, int? delRival, string rival) => propio is int p && delRival is int r
+            ? $"{encabezado}Partida validada: {p}-{r} contra {rival}"
+            : $"{encabezado}Partida validada contra {rival}";
+
+        Dictionary<int, string> cuerpos = [];
+        string cuerpo1 = Cuerpo(partida.ResultadoUsuario1, partida.ResultadoUsuario2, rivalDel1);
+        string cuerpo2 = Cuerpo(partida.ResultadoUsuario2, partida.ResultadoUsuario1, rivalDel2);
+        cuerpos.TryAdd(partida.IdUsuario1, cuerpo1);
+        cuerpos.TryAdd(partida.IdUsuario2, cuerpo2);
+        if (partida.IdCompanero1 is int companero1) cuerpos.TryAdd(companero1, cuerpo1);
+        if (partida.IdCompanero2 is int companero2) cuerpos.TryAdd(companero2, cuerpo2);
+
+        List<MovilDeUsuario> moviles = await MovilesDeAsync([.. cuerpos.Keys]);
+        await EnviarPersonalesAsync(
+            [.. moviles.Select(m => (m.Token, Cuerpo: cuerpos[m.IdUsuario]))],
+            torneo.NombreTorneo,
+            AvisoPush.RutaEvento(partida.IdTorneo));
+    }
+
+    private async Task<List<MovilDeUsuario>> MovilesDeAsync(List<int> idsUsuario) => await (
+        from dispositivo in _dbamonsulContext.DispositivosPush
+        join usuario in _dbamonsulContext.Usuarios on dispositivo.IdUsuario equals usuario.IdUsuario
+        where idsUsuario.Contains(dispositivo.IdUsuario) && usuario.PermiteNotificaciones
+        select new MovilDeUsuario(dispositivo.IdUsuario, dispositivo.Token)).ToListAsync();
+
     private async Task<Dictionary<int, string>> DetallesIndividualesAsync(List<MesaDeRonda> mesas)
     {
         List<int> jugadores = [.. mesas.SelectMany(m => new[] { m.IdUsuario1, m.IdUsuario2 }).Distinct()];
         Dictionary<int, string> nicks = await _dbamonsulContext.Usuarios
             .Where(u => jugadores.Contains(u.IdUsuario))
             .Select(u => new { u.IdUsuario, u.Nick })
-            .ToDictionaryAsync(u => u.IdUsuario, u => u.Nick);
+            .ToDictionaryAsync(u => u.IdUsuario, u => u.Nick.Trim());
 
         string Detalle(int rival, int numeroMesa) => rival == ID_USUARIO_BYE
             ? "Descansas esta ronda"
@@ -203,7 +281,7 @@ public class NotificacionPushApplication(
         Dictionary<int, string> nombres = await _dbamonsulContext.Equipo
             .Where(e => idsEquipo.Contains(e.IdEquipo))
             .Select(e => new { e.IdEquipo, e.NombreEquipo })
-            .ToDictionaryAsync(e => e.IdEquipo, e => e.NombreEquipo);
+            .ToDictionaryAsync(e => e.IdEquipo, e => e.NombreEquipo.Trim());
         var miembros = await _dbamonsulContext.InscripcionTorneos
             .Where(i => i.IdTorneo == idTorneo && i.IdEquipo != null && idsEquipo.Contains(i.IdEquipo.Value))
             .Select(i => new { i.IdUsuario, IdEquipo = i.IdEquipo!.Value })
@@ -386,6 +464,7 @@ public class NotificacionPushApplication(
     };
 
     private sealed record MesaDeRonda(int IdUsuario1, int IdUsuario2, int? IdEquipo1, int? IdEquipo2);
+    private sealed record MovilDeUsuario(int IdUsuario, string Token);
 
     private static MulticastMessage Mensaje(string[] tokens, string titulo, string cuerpo, string? ruta) => new()
     {

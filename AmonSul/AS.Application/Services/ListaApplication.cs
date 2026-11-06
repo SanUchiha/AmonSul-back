@@ -208,7 +208,7 @@ public class ListaApplication(
         UsuarioEmailDto organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(idOrganizador);
         UsuarioEmailDto jugador = await _unitOfWork.UsuarioRepository.GetEmailNickById(inscripcion.IdUsuario);
 
-        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{jugador.Nick} ha enviado su lista.", "/gestion-eventos");
+        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{jugador.Nick?.Trim()} ha enviado su lista.", "/gestion-eventos");
 
         EmailContactoDTO emailContactoDTO = new()
         {
@@ -305,7 +305,7 @@ public class ListaApplication(
             inscripcion.IdUsuario
         );
 
-        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{usuario.Nick} ha enviado su lista.", "/gestion-eventos");
+        AvisoPush.AEmails([organizador.Email], "Lista recibida", $"{usuario.Nick?.Trim()} ha enviado su lista.", "/gestion-eventos");
 
         EmailContactoDTO emailContactoDTO = new()
         {

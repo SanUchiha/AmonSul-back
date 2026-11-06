@@ -181,7 +181,7 @@ public class PartidaAmistosaApplication(
         AvisoPush.AEmails(
             [email2.Email],
             "Partida amistosa",
-            $"{email1.Nick} ha registrado una partida contigo. Valídala.",
+            $"{email1.Nick?.Trim()} ha registrado una partida contigo. Valídala.",
             $"/detalle-jugador/{request.IdUsuario2}");
 
         List<string> listaDestinatarios = [email1.Email, email1.Email];
@@ -207,6 +207,7 @@ public class PartidaAmistosaApplication(
         else if (usuario.IdUsuario == partida.IdUsuario2) usuario2 = true;
         else return false;
 
+        bool yaValidada = partida.PartidaValidadaUsuario1 == true && partida.PartidaValidadaUsuario2 == true;
         if (usuario1) partida.PartidaValidadaUsuario1 = true;
         else partida.PartidaValidadaUsuario2 = true;
 
@@ -214,6 +215,38 @@ public class PartidaAmistosaApplication(
 
         bool result = await Edit(updatePartida);
 
+        if (result && !yaValidada && partida.PartidaValidadaUsuario1 == true && partida.PartidaValidadaUsuario2 == true)
+            await AvisarAmistosaValidadaAsync(partida);
+
         return result;
+    }
+
+    /// <summary>
+    /// A los dos jugadores, cada uno con el marcador visto desde su lado. La partida ya está validada: si esto falla, no
+    /// debe parecer que no
+    /// </summary>
+    private async Task AvisarAmistosaValidadaAsync(ViewPartidaAmistosaDTO partida)
+    {
+        try
+        {
+            await AvisarJugadorAmistosaAsync(
+                partida.IdUsuario1, partida.ResultadoUsuario1, partida.ResultadoUsuario2, partida.NickUsuario2);
+            await AvisarJugadorAmistosaAsync(
+                partida.IdUsuario2, partida.ResultadoUsuario2, partida.ResultadoUsuario1, partida.NickUsuario1);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    private async Task AvisarJugadorAmistosaAsync(int idUsuario, int propio, int delRival, string? rival)
+    {
+        UsuarioEmailDto usuario = await _unitOfWork.UsuarioRepository.GetEmailNickById(idUsuario);
+        AvisoPush.AEmails(
+            [usuario.Email],
+            "Partida amistosa",
+            $"Partida validada: {propio}-{delRival} contra {rival?.Trim()}",
+            $"/detalle-jugador/{idUsuario}");
     }
 }

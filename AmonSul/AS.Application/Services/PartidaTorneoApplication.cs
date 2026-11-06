@@ -133,6 +133,9 @@ public class PartidaTorneoApplication(
         if (existingEntity == null)
             return null;
 
+        // Solo se avisa al pasar a validada: repetir el guardado tras un corte no vuelve a avisar
+        bool yaValidada = existingEntity.PartidaValidadaUsuario1 == true && existingEntity.PartidaValidadaUsuario2 == true;
+
         // Actualizar las propiedades que no son nulas
         if (request.ResultadoUsuario1.HasValue)
             existingEntity.ResultadoUsuario1 = request.ResultadoUsuario1.Value;
@@ -200,6 +203,10 @@ public class PartidaTorneoApplication(
 
         if (!result)
             return null;
+
+        if (!yaValidada && existingEntity.PartidaValidadaUsuario1 == true && existingEntity.PartidaValidadaUsuario2 == true)
+            AvisoPush.PartidaValidada(existingEntity.IdPartidaTorneo);
+
         PartidaTorneoDTO resultDTO = _mapper.Map<PartidaTorneoDTO>(existingEntity);
         resultDTO.Nick1 = request.Nick1;
         resultDTO.Nick2 = request.Nick2;

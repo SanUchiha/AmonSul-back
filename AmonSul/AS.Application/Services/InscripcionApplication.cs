@@ -185,7 +185,7 @@ public class InscripcionApplication(
         UsuarioEmailDto? organizador = await _unitOfWork.UsuarioRepository.GetEmailNickById(torneo.IdUsuario);
         if (organizador is null) return;
 
-        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{quien} se ha dado de baja.", "/gestion-eventos");
+        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{quien?.Trim()} se ha dado de baja.", "/gestion-eventos");
     }
 
     public async Task<InscripcionTorneoDTO> GetInscripcionById(int Id)
@@ -255,7 +255,7 @@ public class InscripcionApplication(
 
         string rutaEvento = AvisoPush.RutaEvento(inscripcionTorneo.IdTorneo);
         AvisoPush.AEmails([usuario.Email], torneo.NombreTorneo, "Tu inscripción está registrada.", rutaEvento);
-        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{usuario.Nick} se ha inscrito.", "/gestion-eventos");
+        AvisoPush.AEmails([organizador.Email], torneo.NombreTorneo, $"{usuario.Nick.Trim()} se ha inscrito.", "/gestion-eventos");
 
         EmailContactoDTO emailContactoDTO = new()
         {

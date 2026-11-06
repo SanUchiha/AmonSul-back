@@ -11,6 +11,7 @@ public interface INotificacionPushApplication
     Task EnviarATodosAsync(string titulo, string cuerpo, string? ruta);
     Task AvisarRondaAsync(int idTorneo, int numeroRonda);
     Task AvisarCambioEnRondaAsync(int idTorneo, int numeroRonda, List<int> idsUsuario, List<int> idsEquipo);
+    Task AvisarPartidaValidadaAsync(int idPartidaTorneo);
     Task AvisarEventoTerminadoAsync(int idTorneo);
     Task AvisarEventosQueEmpiezanAsync();
 }
