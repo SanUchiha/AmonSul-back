@@ -890,54 +890,46 @@ public class PartidaTorneoApplication(
             .. emparejamientosAleatorios.Where(e => e.Jugador1.IdFaccion == e.Jugador2.IdFaccion),
         ];
 
-        // Modificar emparejamientos inválidos
+        // Modificar emparejamientos inválidos. Si no hay con quién cambiar, juegan entre ellos: antes el bucle se
+        // repetía sin fin, la petición no respondía y dejaba un hilo del servidor al máximo hasta reiniciar
         foreach (var emparejamiento in emparejamientosInvalidos)
         {
-            bool emparejamientoValido = false;
-            do
+            // Obtener el jugador que necesita ser reemplazado
+            JugadorEmparejamientoDTO jugadorACambiar = emparejamiento.Jugador2;
+
+            // Buscar un emparejamiento alternativo donde podamos tomar el jugador para reemplazo
+            EmparejamientoDTO? emparejamientoAlternativo =
+                emparejamientosAleatorios.FirstOrDefault(e =>
+                    e.Jugador1.IdUsuario != jugadorACambiar.IdUsuario
+                    && e.Jugador2.IdUsuario != jugadorACambiar.IdUsuario
+                    && e.Jugador1.IdFaccion != emparejamiento.Jugador1.IdFaccion
+                    && e.Jugador2.IdFaccion != emparejamiento.Jugador1.IdFaccion
+                );
+            if (emparejamientoAlternativo == null)
+                continue;
+
+            // Intercambiar jugadores
+            JugadorEmparejamientoDTO jugadorAlternativo = emparejamientoAlternativo.Jugador2;
+            if (
+                jugadorACambiar.IdFaccion != emparejamientoAlternativo.Jugador1.IdFaccion
+                && emparejamiento.Jugador1.IdFaccion != jugadorAlternativo.IdFaccion
+            )
             {
-                // Obtener el jugador que necesita ser reemplazado
-                JugadorEmparejamientoDTO jugadorACambiar = emparejamiento.Jugador2;
-
-                // Buscar un emparejamiento alternativo donde podamos tomar el jugador para reemplazo
-                EmparejamientoDTO? emparejamientoAlternativo =
-                    emparejamientosAleatorios.FirstOrDefault(e =>
-                        e.Jugador1.IdUsuario != jugadorACambiar.IdUsuario
-                        && e.Jugador2.IdUsuario != jugadorACambiar.IdUsuario
-                        && e.Jugador1.IdFaccion != emparejamiento.Jugador1.IdFaccion
-                        && e.Jugador2.IdFaccion != emparejamiento.Jugador1.IdFaccion
-                    );
-
-                if (emparejamientoAlternativo != null)
+                // Realizar el intercambio
+                emparejamiento.Jugador2 = new JugadorEmparejamientoDTO
                 {
-                    // Intercambiar jugadores
-                    JugadorEmparejamientoDTO jugadorAlternativo =
-                        emparejamientoAlternativo.Jugador2;
-                    if (
-                        jugadorACambiar.IdFaccion != emparejamientoAlternativo.Jugador1.IdFaccion
-                        && emparejamiento.Jugador1.IdFaccion != jugadorAlternativo.IdFaccion
-                    )
-                    {
-                        // Realizar el intercambio
-                        emparejamiento.Jugador2 = new JugadorEmparejamientoDTO
-                        {
-                            IdUsuario = jugadorAlternativo.IdUsuario,
-                            Nick = jugadorAlternativo.Nick,
-                            IdFaccion = jugadorAlternativo.IdFaccion,
-                        };
+                    IdUsuario = jugadorAlternativo.IdUsuario,
+                    Nick = jugadorAlternativo.Nick,
+                    IdFaccion = jugadorAlternativo.IdFaccion,
+                };
 
-                        emparejamientoAlternativo.Jugador2 = new JugadorEmparejamientoDTO
-                        {
-                            IdUsuario = jugadorACambiar.IdUsuario,
-                            Nick = jugadorACambiar.Nick,
-                            IdFaccion = jugadorACambiar.IdFaccion,
-                        };
-                        emparejamientoValido = true;
-                    }
-                    else
-                        emparejamientoValido = false;
-                }
-            } while (!emparejamientoValido);
+                emparejamientoAlternativo.Jugador2 = new JugadorEmparejamientoDTO
+                {
+                    IdUsuario = jugadorACambiar.IdUsuario,
+                    Nick = jugadorACambiar.Nick,
+                    IdFaccion = jugadorACambiar.IdFaccion,
+                };
+            }
         }
 
         emparejamientos.AddRange(emparejamientosAleatorios);
