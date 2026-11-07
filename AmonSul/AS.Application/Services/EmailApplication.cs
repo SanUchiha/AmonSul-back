@@ -18,10 +18,13 @@ public class EmailApplication(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <summary>
-    /// Quita a quien ha desactivado los avisos en su perfil
+    /// Quita a quien ha desactivado los avisos en su perfil. Con los avisos apagados en la configuración
+    /// (EmailSettings:AvisosActivados) no queda nadie: es el único paso por el que pasan todos los correos de aviso,
+    /// y se mira al enviar, así que también corta los que ya estaban en cola
     /// </summary>
     private async Task<List<string>> ConNotificacionesAsync(List<string> destinatarios)
     {
+        if (!_emailSettings.AvisosActivados) return [];
         if (destinatarios.Count == 0) return destinatarios;
 
         HashSet<string> sinNotificaciones = new(
